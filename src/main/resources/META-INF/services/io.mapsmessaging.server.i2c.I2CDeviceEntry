@@ -16,3 +16,4 @@
 #
 io.mapsmessaging.server.i2c.devices.sensors.AM2315Manager
 io.mapsmessaging.server.i2c.devices.sensors.AS3935Manager
+io.mapsmessaging.server.i2c.devices.drivers.PCA0685Manager
