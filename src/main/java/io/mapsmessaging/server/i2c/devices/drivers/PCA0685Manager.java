@@ -43,7 +43,7 @@ public class PCA0685Manager implements I2CDeviceEntry {
     config.setSource("I2C bus address : 0x40");
     config.setVersion("1.0");
     config.setResourceType("driver");
-    config.setInterfaceDescription("Returns JSON object containing Temperature, Humidity, Model, Status and Version");
+    config.setInterfaceDescription("Manages the output of 16 PWM devices");
     return config;
   }
 
