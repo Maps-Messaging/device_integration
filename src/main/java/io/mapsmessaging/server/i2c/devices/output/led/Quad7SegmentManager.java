@@ -29,7 +29,7 @@ public class Quad7SegmentManager implements I2CDeviceEntry {
   @Override
   public void setPayload(byte[] val) {
     display.setBrightness((byte)0x8);
-    display.write(val);
+    display.write(new String(val));
   }
 
   public byte[] getPayload() {

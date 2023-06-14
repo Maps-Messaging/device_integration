@@ -17,7 +17,7 @@ public class Quad7Segment extends I2CDevice {
 
    */
 
-  private final byte[] buf = new byte[8];
+  private final byte[] buf = new byte[10];
 
   public Quad7Segment(I2C device)  {
     super(device);
@@ -31,16 +31,19 @@ public class Quad7Segment extends I2CDevice {
     int bufIdx = 0;
     for (int x = 0; x < len; x++) {
       char c = val.charAt(x);
-      int index = (c - 0x30);
-      byte map = Quad7SegmentHelper.NUMERIC_MAPPING[index];
+      byte map = 0;
+      if(c != ' '){
+        int index = (c - 0x30);
+        map = Quad7SegmentHelper.NUMERIC_MAPPING[index];
+      }
       buf[bufIdx * 2] = (byte) (map & 0xff);
       buf[bufIdx * 2 + 1] = (byte) (0);
       if (x + 1 < len && val.charAt(x + 1) == '.') {
-        buf[bufIdx * 2 + 1] = (byte) (buf[bufIdx * 2 + 1] | 0x40);
+        buf[bufIdx * 2] = (byte) (buf[bufIdx * 2 + 1] | 0b10000000);
         x++; // Set the . and skip to the next char
       }
       bufIdx++;
-      if (bufIdx > 3) break;
+      if (bufIdx > 4) break;
     }
   }
 
