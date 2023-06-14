@@ -33,7 +33,7 @@ public class I2CBusManager {
   public void scanForDevices() throws Exception {
     Context pi4j = Pi4J.newAutoContext();
     I2CProvider i2CProvider = pi4j.provider("linuxfs-i2c");
-
+/*
     int[] devices = {0x39, 0x72};
     I2CConfig i2cConfig = I2C.newConfigBuilder(pi4j)
         .id("Device::" + Integer.toHexString(0x39))
@@ -52,16 +52,17 @@ public class I2CBusManager {
     I2C device2 = i2CProvider.create(i2cConfig2);
     Quad7SegmentManager display = new Quad7SegmentManager(device2);
 
-
-    for(int x=0;x<10;x++){
-      TimeUnit.MILLISECONDS.sleep(500);
+    for(int x=0;x<1000;x++){
+      TimeUnit.MILLISECONDS.sleep(50);
       JSONObject object = new JSONObject(new String(light.getPayload()));
-      System.err.println(object.toString(2));
-      String val = ""+object.getInt("Light");
+      String val = String.valueOf(object.getInt("Light"));
+      while(val.length() < 4){
+        val = " "+val;
+      }
+      val = val.substring(0, 2)+' '+val.substring(2);
       display.setPayload(val.getBytes());
-      System.err.println("Sending "+val);
     }
-/*
+*/
     for(int x=0;x<0x77;x++) {
       I2CDeviceEntry deviceEntry = knownDevices.get(x);
       if(deviceEntry != null) {
@@ -88,7 +89,6 @@ public class I2CBusManager {
         }
       }
     }
-*/
   }
 
   public static void main(String[] args) throws Exception {

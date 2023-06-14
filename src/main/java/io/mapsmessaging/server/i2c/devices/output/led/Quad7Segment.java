@@ -83,7 +83,7 @@ public class Quad7Segment extends I2CDevice {
   }
 
   public void write(String val)  {
-    encode(val.trim(), buf);
+    encode(val, buf);
     write(0, buf);
   }
 
