@@ -25,12 +25,16 @@ public class Quad7Segment extends I2CDevice {
 
   public static void encode(String val, byte[] buf) {
     for (int x = 0; x < buf.length; x++) buf[0] = 0;
+
+
     int len = val.length();
     int bufIdx = 0;
     for (int x = 0; x < len; x++) {
-      short map = QuadAlphaHelper.ALPHA_NUMERIC_MAPPING[val.charAt(x)];
+      char c = val.charAt(x);
+      int index = (c - 0x30);
+      byte map = Quad7SegmentHelper.NUMERIC_MAPPING[index];
       buf[bufIdx * 2] = (byte) (map & 0xff);
-      buf[bufIdx * 2 + 1] = (byte) ((map >> 8) & 0xff);
+      buf[bufIdx * 2 + 1] = (byte) (0);
       if (x + 1 < len && val.charAt(x + 1) == '.') {
         buf[bufIdx * 2 + 1] = (byte) (buf[bufIdx * 2 + 1] | 0x40);
         x++; // Set the . and skip to the next char
@@ -76,7 +80,7 @@ public class Quad7Segment extends I2CDevice {
   }
 
   public void write(String val)  {
-    encode(val, buf);
+    encode(val.trim(), buf);
     write(0, buf);
   }
 
