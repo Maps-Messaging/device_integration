@@ -14,6 +14,7 @@
 #     See the License for the specific language governing permissions and
 #     limitations under the License.
 #
+io.mapsmessaging.server.i2c.devices.sensors.BNO055Manager
 io.mapsmessaging.server.i2c.devices.sensors.AM2315Manager
 io.mapsmessaging.server.i2c.devices.sensors.AS3935Manager
 io.mapsmessaging.server.i2c.devices.sensors.BMP280Manager
