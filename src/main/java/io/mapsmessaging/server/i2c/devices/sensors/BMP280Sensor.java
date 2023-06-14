@@ -1,9 +1,9 @@
 package io.mapsmessaging.server.i2c.devices.sensors;
 
-import io.mapsmessaging.server.i2c.Delay;
+import io.mapsmessaging.server.i2c.I2CDevice;
 import java.io.IOException;
 
-public class BMP280Sensor extends I2CSensor {
+public class BMP280Sensor extends I2CDevice {
 
   public static final short I2C_Address = 0x76;
 
@@ -41,7 +41,7 @@ public class BMP280Sensor extends I2CSensor {
 
 
   public BMP280Sensor(int bus, int device) throws IOException {
-    super(bus, device);
+    super("BMP280", bus, device);
     prom = new int[8];
     initialise();
     scanForChange();
@@ -84,26 +84,19 @@ public class BMP280Sensor extends I2CSensor {
     return sb.toString();
   }
 
-  protected void write(int command) throws IOException, InterruptedException {
-    _device.write((byte) command);
-  }
-
   protected void read(byte command, int length, byte[] values) throws IOException {
-    byte[] writeBuffer = new byte[1];
-    writeBuffer[0] = command;
-    _device.read(writeBuffer, 0, 1, values, 0, length);
+    readRegister(command,  values, 0, length);
   }
 
   private void conversion() {
     try {
       byte[] readBuffer = new byte[3];
       write(CONVERT_D2_OSR_4096);
-      Delay.pause(10);
+      delay(10);
       read(ADC_READ, 3, readBuffer);
       D2 = ((readBuffer[0] & 0xFF) << 16) | ((readBuffer[1] & 0xFF) << 8) | ((readBuffer[2] & 0xFF));
-
       write(CONVERT_D1_OSR_4096);
-      Delay.pause(10);
+      delay(10);
       read(ADC_READ, 3, readBuffer);
       D1 = ((readBuffer[0] & 0xFF) << 16) | ((readBuffer[1] & 0xFF) << 8) | ((readBuffer[2] & 0xFF));
     } catch (Exception e) {
@@ -120,8 +113,8 @@ public class BMP280Sensor extends I2CSensor {
   }
 
   public void initialise() throws IOException {
-    _device.write((byte) sReset);
-    Delay.pause(1000);
+    write((byte) sReset);
+    delay(1000);
     byte[] readBuffer = new byte[2];
     for (int i = 0; i < 8; i++) {
       read((byte) (PROM_READ_SEQUENCE + i * 2), 2, readBuffer);
@@ -155,7 +148,7 @@ public class BMP280Sensor extends I2CSensor {
 
     long OFF = OFF_T1 + dT * TCO;
     long SENS = SENS_T1 + dT * TCS;
-    float p = (((D1 * SENS / 2097152 /* 2^21 */ - OFF) / 32768 /* 2^15 */) / 100.0f);
+    float p = (((float) (D1 * SENS / 2097152 /* 2^21 */ - OFF) / 0x8000 /* 2^15 */) / 100.0f);
 
     if (p != pressure || temp != temperature) {
       pressure = p;

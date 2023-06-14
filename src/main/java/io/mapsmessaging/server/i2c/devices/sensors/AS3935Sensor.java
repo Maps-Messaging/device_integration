@@ -1,14 +1,13 @@
 package io.mapsmessaging.server.i2c.devices.sensors;
 
-import com.pi4j.io.gpio.GpioFactory;
-import com.pi4j.io.gpio.GpioPinDigitalInput;
-import com.pi4j.io.gpio.Pin;
-import com.pi4j.io.gpio.PinPullResistance;
-import com.pi4j.io.gpio.trigger.GpioCallbackTrigger;
+import com.pi4j.Pi4J;
+import com.pi4j.io.gpio.digital.DigitalInput;
+import com.pi4j.io.gpio.digital.DigitalState;
+import io.mapsmessaging.server.i2c.I2CDevice;
 import java.io.IOException;
-import java.util.concurrent.Callable;
+import java.util.Properties;
 
-public class AS3935Sensor extends I2CSensor {
+public class AS3935Sensor extends I2CDevice {
 
   public static final byte _IDEL = 0x0;
   public static final byte _INTERRUPT_TOO_HIGH = 0x1;
@@ -18,21 +17,34 @@ public class AS3935Sensor extends I2CSensor {
   private final byte[] registers;
   private final int tuning;
 
-  public AS3935Sensor(int bus, int device, int tuning, Pin interruptPin) throws IOException {
-    super(bus, device);
+  public AS3935Sensor(int bus, int device, int tuning, int pinNumber) throws IOException {
+    super("AS3935", bus, device);
     registers = new byte[128];
     this.tuning = tuning;
     initialise();
 
-    if (interruptPin != null) {
-      GpioPinDigitalInput pin = GpioFactory.getInstance().provisionDigitalInputPin(interruptPin, PinPullResistance.PULL_DOWN);
-      pin.addTrigger(new GpioCallbackTrigger(new Callable<Void>() {
-        public Void call() throws Exception {
+    if (pinNumber > -1) {
+      Properties properties = new Properties();
+      properties.put("id", "AS3935InterruptPin");
+      properties.put("address", pinNumber);
+      properties.put("pull", "DOWN");
+      properties.put("name", "AS3935InterruptPin");
+      var pi4j = Pi4J.newAutoContext();
+      var config = DigitalInput.newConfigBuilder(pi4j)
+          .load(properties)
+          .build();
+
+      var input = pi4j.din().create(config);
+      input.addListener(e -> {
+        if (e.state() == DigitalState.HIGH) {
           delay(2);
-          read_data();
-          return null;
+          try {
+            read_data();
+          } catch (IOException ex) {
+            throw new RuntimeException(ex);
+          }
         }
-      }));
+      });
     }
   }
 
@@ -110,7 +122,7 @@ public class AS3935Sensor extends I2CSensor {
   }
 
   private void read_data() throws IOException {
-    _device.read(registers, 0, 64);
+    read(registers, 0, 64);
   }
 
   public boolean initialise() throws IOException {
@@ -118,7 +130,7 @@ public class AS3935Sensor extends I2CSensor {
     read_data();
     if (tuning != 0) {
       if (tuning < 0x10 && tuning > -1) {
-        _device.write(0x08, (byte) ((registers[0x08] & 0xF0) | tuning));
+        write(0x08, (byte) ((registers[0x08] & 0xF0) | tuning));
         registers[8] = (byte) ((registers[0x08] & 0xF0) | tuning);
       }
       delay(200);
@@ -126,13 +138,15 @@ public class AS3935Sensor extends I2CSensor {
     } else {
       throw new IOException("Value of TUN_CAP must be between 0 and 15");
     }
-    _device.write(0x08, (byte) (registers[0x08] | 0x20));
+    write(0x08, (byte) (registers[0x08] | 0x20));
     delay(200);
     read_data();
-    _device.write(0x08, (byte) (registers[0x08] & 0xDF));
+    write(0x08, (byte) (registers[0x08] & 0xDF));
     delay(200);
     read_data();
     return true;
   }
+
+
 
 }

@@ -1,15 +1,14 @@
 package io.mapsmessaging.server.i2c.devices.drivers;
 
-import com.pi4j.io.i2c.I2CFactory.UnsupportedBusNumberException;
-import io.mapsmessaging.server.i2c.Delay;
+import io.mapsmessaging.server.i2c.I2CDevice;
 import io.mapsmessaging.server.i2c.devices.drivers.servos.AngleResponse;
-import io.mapsmessaging.server.i2c.devices.drivers.servos.PWM_Device;
+import io.mapsmessaging.server.i2c.devices.drivers.servos.PwmDevice;
 import io.mapsmessaging.server.i2c.devices.drivers.servos.Servo;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.BitSet;
 
-public class PCA9685 extends I2CController{
+public class PCA9685Device extends I2CDevice {
 
   private static final int __LED0_ON_L = 0x06;
   private static final int __LED0_ON_H = 0x07;
@@ -33,18 +32,22 @@ public class PCA9685 extends I2CController{
   
   private final BitSet myServos;
 
-  private final ArrayList<PWM_Device> myServoList;
+  private final ArrayList<PwmDevice> myServoList;
 
-  public PCA9685(int bus, int device) throws IOException, UnsupportedBusNumberException {
-    super(bus, device);
+  public PCA9685Device(int bus, int device) throws IOException {
+    super("PCA9685", bus, device);
     myServos = new BitSet(16);
     myServoList = new ArrayList<>();
     initialise();
   }
 
-  public void close() throws IOException {
-    for (PWM_Device device : myServoList) {
-      device.close();
+  public void close()  {
+    for (PwmDevice device : myServoList) {
+      try {
+        device.close();
+      } catch (IOException e) {
+
+      }
     }
     myServoList.clear();
     myServos.clear();
@@ -80,42 +83,40 @@ public class PCA9685 extends I2CController{
     double prescale = Math.floor(prescaleval + 0.5);
     //log("Final pre-scale: " + prescale);
 
-    int oldmode = myDevice.read((byte) __MODE1);
+    int oldmode = readRegister((byte) __MODE1);
     int newmode = (oldmode & 0x7F) | 0x10;             // sleep
     int intPrescale = (int) (Math.floor(prescale));
 
-    myDevice.write(__MODE1, (byte) newmode);
-    myDevice.write(__PRESCALE, (byte) intPrescale);
-    myDevice.write(__MODE1, (byte) oldmode);
-    Delay.pause(5);
-    myDevice.write(__MODE1, (byte) (oldmode | 0x80));
+    write(__MODE1, (byte) newmode);
+    write(__PRESCALE, (byte) intPrescale);
+    write(__MODE1, (byte) oldmode);
+    delay(5);
+    write(__MODE1, (byte) (oldmode | 0x80));
   }
 
   public void setPWM(short channel, short on, short off) throws IOException {
-    myDevice.write(__LED0_ON_L + 4 * channel, (byte) (on & 0xFF));
-    myDevice.write(__LED0_ON_H + 4 * channel, (byte) (on >> 8));
-    myDevice.write(__LED0_OFF_L + 4 * channel, (byte) (off & 0xFF));
-    myDevice.write(__LED0_OFF_H + 4 * channel, (byte) (off >> 8));
+    write(__LED0_ON_L + 4 * channel, (byte) (on & 0xFF));
+    write(__LED0_ON_H + 4 * channel, (byte) (on >> 8));
+    write(__LED0_OFF_L + 4 * channel, (byte) (off & 0xFF));
+    write(__LED0_OFF_H + 4 * channel, (byte) (off >> 8));
   }
 
   private void initialise() throws IOException {
-    if (exists()) {
-      setAllPWM((byte) 0, (byte) 0); // Reset ALL servos
-      myDevice.write(__MODE2, (byte) __OUTDRV);
-      myDevice.write(__MODE1, (byte) __ALLCALL);
-      Delay.pause(5);
-      int mode1 = myDevice.read(__MODE1);
-      mode1 = mode1 & ~(__SLEEP);
-      myDevice.write(__MODE1, (byte) mode1);
-      Delay.pause(5);
-    }
+    setAllPWM((byte) 0, (byte) 0); // Reset ALL servos
+    write(__MODE2, (byte) __OUTDRV);
+    write(__MODE1, (byte) __ALLCALL);
+    delay(5);
+    int mode1 = readRegister(__MODE1);
+    mode1 = mode1 & ~(__SLEEP);
+    write(__MODE1, (byte) mode1);
+    delay(5);
   }
 
   private void setAllPWM(short on, short off) throws IOException {
-    myDevice.write(__ALL_LED_ON_L, (byte) (on & 0xff));
-    myDevice.write(__ALL_LED_ON_H, (byte) (on >> 8));
-    myDevice.write(__ALL_LED_OFF_L, (byte) (off & 0xff));
-    myDevice.write(__ALL_LED_OFF_H, (byte) (off >> 8));
+    write(__ALL_LED_ON_L, (byte) (on & 0xff));
+    write(__ALL_LED_ON_H, (byte) (on >> 8));
+    write(__ALL_LED_OFF_L, (byte) (off & 0xff));
+    write(__ALL_LED_OFF_H, (byte) (off >> 8));
   }
 
 }

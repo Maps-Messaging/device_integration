@@ -1,13 +1,13 @@
 package io.mapsmessaging.server.i2c.devices.drivers.servos;
 
-import io.mapsmessaging.server.i2c.devices.drivers.PCA9685;
+import io.mapsmessaging.server.i2c.devices.drivers.PCA9685Device;
 import java.io.IOException;
 
-public class Servo  extends PWM_Device {
+public class Servo  extends PwmDevice {
 
   private float myPos;
 
-  public Servo(PCA9685 pwm, short servoId, AngleResponse response) throws IOException {
+  public Servo(PCA9685Device pwm, short servoId, AngleResponse response) throws IOException {
     super(pwm, servoId, response);
   }
 

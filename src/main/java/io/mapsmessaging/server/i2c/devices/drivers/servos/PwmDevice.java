@@ -1,17 +1,17 @@
 package io.mapsmessaging.server.i2c.devices.drivers.servos;
 
 import io.mapsmessaging.server.i2c.Delay;
-import io.mapsmessaging.server.i2c.devices.drivers.PCA9685;
+import io.mapsmessaging.server.i2c.devices.drivers.PCA9685Device;
 import java.io.IOException;
 
-public abstract class PWM_Device {
+public abstract class PwmDevice {
 
-  protected final PCA9685 myPWMController;
+  protected final PCA9685Device myPWMController;
   protected final short myServoPort;
   protected final AngleResponse myResponse;
 
 
-  protected PWM_Device(PCA9685 pwm, short servoId, AngleResponse response) throws IOException {
+  protected PwmDevice(PCA9685Device pwm, short servoId, AngleResponse response) throws IOException {
     myPWMController = pwm;
     myServoPort = servoId;
     myResponse = response;

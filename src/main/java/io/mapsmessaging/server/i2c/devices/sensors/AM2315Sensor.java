@@ -2,9 +2,10 @@ package io.mapsmessaging.server.i2c.devices.sensors;
 
 import io.mapsmessaging.logging.Logger;
 import io.mapsmessaging.logging.LoggerFactory;
+import io.mapsmessaging.server.i2c.I2CDevice;
 import java.io.IOException;
 
-public class AM2315Sensor extends I2CSensor {
+public class AM2315Sensor extends I2CDevice {
 
   private final Logger logger = LoggerFactory.getLogger("AM2315");
 
@@ -60,15 +61,10 @@ public class AM2315Sensor extends I2CSensor {
 
 
   public AM2315Sensor(int i2cBus, int i2cAdd) throws IOException {
-    super(i2cBus, i2cAdd);
+    super("AM2315", i2cBus, i2cAdd);
     lastRead = 0;
-    //logger.debug("Created new AM2315 device");
-  }
-
-  public boolean initialise() throws IOException {
     loadValues();
-   // logger.debug("Initialised AM2315 device");
-    return true;
+    //logger.debug("Created new AM2315 device");
   }
 
   private void loadValues()throws IOException {
@@ -167,10 +163,10 @@ public class AM2315Sensor extends I2CSensor {
     sendPacket[0] = READ_REGISTER;
     sendPacket[1] = startReg;
     sendPacket[2] = endReg;
-    _device.write(sendPacket);
+    write(sendPacket);
     delay(10);
     byte[] header = new byte[32];
-    int received = _device.read(header, 0, header.length);
+    int received = read(header);
     if(header[0] != 3){
       throw new IOException("Expected read");
     }

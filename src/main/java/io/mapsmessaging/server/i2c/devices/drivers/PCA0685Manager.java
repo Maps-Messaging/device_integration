@@ -1,6 +1,5 @@
 package io.mapsmessaging.server.i2c.devices.drivers;
 
-import com.pi4j.io.i2c.I2CFactory.UnsupportedBusNumberException;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import io.mapsmessaging.server.i2c.I2CDeviceEntry;
@@ -10,18 +9,14 @@ import org.json.JSONObject;
 public class PCA0685Manager implements I2CDeviceEntry {
 
   private final int i2cAddr = 0x40;
-  private PCA9685 sensor;
+  private final PCA9685Device sensor;
 
   public PCA0685Manager() {
     sensor = null;
   }
 
   public PCA0685Manager(int i2cBusId, int i2cBusAddr) throws IOException {
-    try {
-      sensor = new PCA9685(i2cBusId, i2cBusAddr);
-    } catch (UnsupportedBusNumberException e) {
-      throw new IOException(e);
-    }
+    sensor = new PCA9685Device(i2cBusId, i2cBusAddr);
   }
 
 

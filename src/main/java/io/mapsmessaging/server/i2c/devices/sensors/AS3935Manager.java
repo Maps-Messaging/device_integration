@@ -16,7 +16,7 @@ public class AS3935Manager implements I2CDeviceEntry {
   }
 
   public AS3935Manager(int i2cBusId, int i2cBusAddr) throws IOException {
-    sensor = new AS3935Sensor(i2cBusId, i2cBusAddr, 0, null);
+    sensor = new AS3935Sensor(i2cBusId, i2cBusAddr, 0, -1);
   }
 
 
