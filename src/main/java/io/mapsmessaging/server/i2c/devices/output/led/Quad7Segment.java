@@ -47,6 +47,8 @@ public class Quad7Segment extends I2CDevice {
   public void turnOn() {
     write((byte) 0x21); // Turn on
     write((byte) 0x81); // Turn on display
+    byte[] empty = new byte[8];
+    write(empty);
   }
 
   public void turnOff() {
