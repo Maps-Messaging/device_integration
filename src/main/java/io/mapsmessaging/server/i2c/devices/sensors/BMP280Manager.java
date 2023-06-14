@@ -24,6 +24,10 @@ public class BMP280Manager implements I2CDeviceEntry {
   public I2CDeviceEntry mount(I2C device) throws IOException {
     return new BMP280Manager(device);
   }
+  @Override
+  public void setPayload(byte[] val) {
+
+  }
 
   public byte[] getPayload(){
     JSONObject jsonObject = new JSONObject();

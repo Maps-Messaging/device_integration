@@ -17,5 +17,7 @@
 io.mapsmessaging.server.i2c.devices.sensors.AM2315Manager
 io.mapsmessaging.server.i2c.devices.sensors.AS3935Manager
 io.mapsmessaging.server.i2c.devices.sensors.BMP280Manager
-io.mapsmessaging.server.i2c.devices.drivers.PCA0685Manager
+io.mapsmessaging.server.i2c.devices.drivers.PCA9685Manager
 io.mapsmessaging.server.i2c.devices.sensors.TLS2561Manager
+io.mapsmessaging.server.i2c.devices.output.led.Quad7SegmentManager
+io.mapsmessaging.server.i2c.devices.output.led.QuadAlphaNumericManager

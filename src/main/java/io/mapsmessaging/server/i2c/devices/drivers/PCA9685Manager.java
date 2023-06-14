@@ -7,27 +7,32 @@ import io.mapsmessaging.server.i2c.I2CDeviceEntry;
 import java.io.IOException;
 import org.json.JSONObject;
 
-public class PCA0685Manager implements I2CDeviceEntry {
+public class PCA9685Manager implements I2CDeviceEntry {
 
   private final int i2cAddr = 0x40;
   private final PCA9685Device sensor;
 
-  public PCA0685Manager() {
+  public PCA9685Manager() {
     sensor = null;
   }
 
-  public PCA0685Manager(I2C device) throws IOException {
+  public PCA9685Manager(I2C device) throws IOException {
     sensor = new PCA9685Device(device);
   }
 
 
   public I2CDeviceEntry mount(I2C device) throws IOException {
-    return new PCA0685Manager(device);
+    return new PCA9685Manager(device);
   }
 
   public byte[] getPayload() {
     JSONObject jsonObject = new JSONObject();
     return jsonObject.toString(2).getBytes();
+  }
+
+  @Override
+  public void setPayload(byte[] val) {
+
   }
 
   public SchemaConfig getSchema() {

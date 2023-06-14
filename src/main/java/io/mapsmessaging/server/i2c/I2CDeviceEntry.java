@@ -13,4 +13,6 @@ public interface I2CDeviceEntry {
   int[] getAddressRange();
 
   byte[] getPayload();
+
+  void setPayload(byte[] val);
 }

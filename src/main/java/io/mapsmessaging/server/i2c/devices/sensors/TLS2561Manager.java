@@ -16,13 +16,18 @@ public class TLS2561Manager  implements I2CDeviceEntry {
     sensor = null;
   }
 
-  protected TLS2561Manager(I2C device) throws IOException {
+  public TLS2561Manager(I2C device) throws IOException {
     sensor = new TLS2561Sensor(device);
   }
 
 
   public I2CDeviceEntry mount(I2C device) throws IOException {
     return new TLS2561Manager(device);
+  }
+
+  @Override
+  public void setPayload(byte[] val) {
+
   }
 
   public byte[] getPayload(){
