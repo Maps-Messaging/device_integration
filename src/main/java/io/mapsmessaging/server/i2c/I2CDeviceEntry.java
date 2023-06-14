@@ -14,5 +14,5 @@ public interface I2CDeviceEntry {
 
   byte[] getPayload();
 
-  void setPayload(byte[] val);
+  default void setPayload(byte[] val){};
 }

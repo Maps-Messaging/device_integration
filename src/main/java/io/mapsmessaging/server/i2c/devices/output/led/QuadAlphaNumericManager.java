@@ -23,7 +23,7 @@ public class QuadAlphaNumericManager extends HT16K33Manager {
   @Override
   public SchemaConfig getSchema() {
     SchemaConfig config = super.getSchema();
-    config.setComments("I2C HT16K33 device drives 4 Alpha Numeric segment LEDs with a : in the center");
+    config.setComments("I2C HT16K33 device drives 4 Alpha Numeric segment LEDs with a ':' in the center");
     return config;
   }
 

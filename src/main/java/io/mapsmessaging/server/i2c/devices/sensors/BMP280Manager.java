@@ -4,15 +4,16 @@ import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import io.mapsmessaging.server.i2c.I2CDeviceEntry;
-import java.io.IOException;
 import org.json.JSONObject;
+
+import java.io.IOException;
 
 public class BMP280Manager implements I2CDeviceEntry {
 
   private final int i2cAddr = 0x76;
-  private BMP280Sensor sensor;
+  private final BMP280Sensor sensor;
 
-  public BMP280Manager(){
+  public BMP280Manager() {
     sensor = null;
   }
 
@@ -24,16 +25,17 @@ public class BMP280Manager implements I2CDeviceEntry {
   public I2CDeviceEntry mount(I2C device) throws IOException {
     return new BMP280Manager(device);
   }
-  @Override
-  public void setPayload(byte[] val) {
 
-  }
-
-  public byte[] getPayload(){
+  public byte[] getPayload() {
     JSONObject jsonObject = new JSONObject();
     jsonObject.put("Pressure", sensor.getPressure());
     jsonObject.put("Temperature", sensor.getTemperature());
     return jsonObject.toString(2).getBytes();
+  }
+
+  @Override
+  public void setPayload(byte[] val) {
+
   }
 
   public SchemaConfig getSchema() {

@@ -4,15 +4,16 @@ import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import io.mapsmessaging.server.i2c.I2CDeviceEntry;
-import java.io.IOException;
 import org.json.JSONObject;
 
-public class TLS2561Manager  implements I2CDeviceEntry {
+import java.io.IOException;
+
+public class TLS2561Manager implements I2CDeviceEntry {
 
   private final int i2cAddr = 0x39;
-  private TLS2561Sensor sensor;
+  private final TLS2561Sensor sensor;
 
-  public TLS2561Manager(){
+  public TLS2561Manager() {
     sensor = null;
   }
 
@@ -25,17 +26,17 @@ public class TLS2561Manager  implements I2CDeviceEntry {
     return new TLS2561Manager(device);
   }
 
-  @Override
-  public void setPayload(byte[] val) {
-
-  }
-
-  public byte[] getPayload(){
+  public byte[] getPayload() {
     int[] result = sensor.getLevels();
     JSONObject jsonObject = new JSONObject();
     jsonObject.put("Light", result[0]);
     jsonObject.put("IR", result[1]);
     return jsonObject.toString(2).getBytes();
+  }
+
+  @Override
+  public void setPayload(byte[] val) {
+
   }
 
   public SchemaConfig getSchema() {

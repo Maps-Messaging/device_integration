@@ -5,6 +5,7 @@ import com.pi4j.io.gpio.digital.DigitalInput;
 import com.pi4j.io.gpio.digital.DigitalState;
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.server.i2c.I2CDevice;
+
 import java.io.IOException;
 import java.util.Properties;
 
@@ -147,7 +148,6 @@ public class AS3935Sensor extends I2CDevice {
     read_data();
     return true;
   }
-
 
 
 }

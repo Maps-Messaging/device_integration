@@ -4,15 +4,16 @@ import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import io.mapsmessaging.server.i2c.I2CDeviceEntry;
-import java.io.IOException;
 import org.json.JSONObject;
+
+import java.io.IOException;
 
 public class AS3935Manager implements I2CDeviceEntry {
 
   private final int i2cAddr = 0x5C;
-  private AS3935Sensor sensor;
+  private final AS3935Sensor sensor;
 
-  public AS3935Manager(){
+  public AS3935Manager() {
     sensor = null;
   }
 
@@ -25,11 +26,7 @@ public class AS3935Manager implements I2CDeviceEntry {
     return new AM2315Manager(device);
   }
 
-  @Override
-  public void setPayload(byte[] val) {
-
-  }
-  public byte[] getPayload(){
+  public byte[] getPayload() {
     JSONObject jsonObject = new JSONObject();
     jsonObject.put("Reason", sensor.getReason());
     jsonObject.put("Distance", sensor.getDistance());
@@ -37,6 +34,11 @@ public class AS3935Manager implements I2CDeviceEntry {
     jsonObject.put("Strength", sensor.getStrength());
     jsonObject.put("Registers", sensor.getRegisters());
     return jsonObject.toString(2).getBytes();
+  }
+
+  @Override
+  public void setPayload(byte[] val) {
+
   }
 
   public SchemaConfig getSchema() {
@@ -51,6 +53,6 @@ public class AS3935Manager implements I2CDeviceEntry {
 
   @Override
   public int[] getAddressRange() {
-    return new int[]{1,2,3};
+    return new int[]{1, 2, 3};
   }
 }

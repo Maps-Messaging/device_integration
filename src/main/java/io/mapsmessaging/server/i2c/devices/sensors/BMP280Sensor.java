@@ -2,6 +2,7 @@ package io.mapsmessaging.server.i2c.devices.sensors;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.server.i2c.I2CDevice;
+
 import java.io.IOException;
 
 public class BMP280Sensor extends I2CDevice {
@@ -46,7 +47,7 @@ public class BMP280Sensor extends I2CDevice {
     scanForChange();
   }
 
-  private  byte crc4(int[] prom) {
+  private byte crc4(int[] prom) {
     int cnt; // simple counter
     int n_rem; // crc reminder
     int crc_read; // original value of the crc
@@ -84,7 +85,7 @@ public class BMP280Sensor extends I2CDevice {
   }
 
   protected void read(byte command, int length, byte[] values) throws IOException {
-    readRegister(command,  values, 0, length);
+    readRegister(command, values, 0, length);
   }
 
   private void conversion() {
