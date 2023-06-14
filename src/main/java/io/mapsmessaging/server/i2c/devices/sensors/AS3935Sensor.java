@@ -3,6 +3,7 @@ package io.mapsmessaging.server.i2c.devices.sensors;
 import com.pi4j.Pi4J;
 import com.pi4j.io.gpio.digital.DigitalInput;
 import com.pi4j.io.gpio.digital.DigitalState;
+import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.server.i2c.I2CDevice;
 import java.io.IOException;
 import java.util.Properties;
@@ -17,8 +18,8 @@ public class AS3935Sensor extends I2CDevice {
   private final byte[] registers;
   private final int tuning;
 
-  public AS3935Sensor(int bus, int device, int tuning, int pinNumber) throws IOException {
-    super("AS3935", bus, device);
+  public AS3935Sensor(I2C device, int tuning, int pinNumber) throws IOException {
+    super(device);
     registers = new byte[128];
     this.tuning = tuning;
     initialise();

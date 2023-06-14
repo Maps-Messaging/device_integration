@@ -1,11 +1,10 @@
 package io.mapsmessaging.server.i2c.devices.sensors;
 
+import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.server.i2c.I2CDevice;
 import java.io.IOException;
 
 public class BMP280Sensor extends I2CDevice {
-
-  public static final short I2C_Address = 0x76;
 
   public static final byte CONVERT_D1_OSR_256 = (byte) 0x40;
   public static final byte CONVERT_D1_OSR_512 = (byte) 0x42;
@@ -40,8 +39,8 @@ public class BMP280Sensor extends I2CDevice {
   private float pressure;
 
 
-  public BMP280Sensor(int bus, int device) throws IOException {
-    super("BMP280", bus, device);
+  public BMP280Sensor(I2C device) throws IOException {
+    super(device);
     prom = new int[8];
     initialise();
     scanForChange();

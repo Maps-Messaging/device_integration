@@ -1,5 +1,6 @@
 package io.mapsmessaging.server.i2c.devices.sensors;
 
+import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import io.mapsmessaging.server.i2c.I2CDeviceEntry;
@@ -15,16 +16,13 @@ public class AM2315Manager implements I2CDeviceEntry {
     sensor = null;
   }
 
-  public AM2315Manager(int i2cBusId, int i2cBusAddr) throws IOException {
-    sensor = new AM2315Sensor(i2cBusId, i2cBusAddr);
+  protected AM2315Manager(I2C device) throws IOException {
+    sensor = new AM2315Sensor(device);
   }
 
 
-  public I2CDeviceEntry mount(int i2cBusId, int i2cBusAddr) throws IOException {
-    if(i2cBusAddr == i2cAddr){
-      return new AM2315Manager(i2cBusId, i2cBusAddr);
-    }
-    return null;
+  public I2CDeviceEntry mount(I2C device) throws IOException {
+    return new AM2315Manager(device);
   }
 
   public byte[] getPayload(){

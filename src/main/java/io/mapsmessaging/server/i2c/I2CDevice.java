@@ -1,30 +1,14 @@
 package io.mapsmessaging.server.i2c;
 
-import com.pi4j.Pi4J;
-import com.pi4j.context.Context;
 import com.pi4j.io.i2c.I2C;
-import com.pi4j.io.i2c.I2CConfig;
-import com.pi4j.io.i2c.I2CProvider;
 import java.util.concurrent.locks.LockSupport;
-import lombok.Getter;
 
 public abstract class I2CDevice implements AutoCloseable {
 
-  @Getter
-  private final int busId;
-  @Getter
-  private final int deviceId;
-
   protected I2C device;
 
-  public I2CDevice(String name, int bus, int deviceId) {
-    busId = bus;
-    this.deviceId = deviceId;
-
-    Context pi4j = Pi4J.newAutoContext();
-    I2CProvider i2CProvider = pi4j.provider("linuxfs-i2c");
-    I2CConfig i2cConfig = I2C.newConfigBuilder(pi4j).id(name).bus(busId).device(deviceId).build();
-    device = i2CProvider.create(i2cConfig);
+  public I2CDevice(I2C device) {
+    this.device = device;
   }
 
   public void close() {

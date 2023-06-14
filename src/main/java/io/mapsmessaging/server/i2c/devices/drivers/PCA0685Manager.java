@@ -1,5 +1,6 @@
 package io.mapsmessaging.server.i2c.devices.drivers;
 
+import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import io.mapsmessaging.server.i2c.I2CDeviceEntry;
@@ -15,16 +16,13 @@ public class PCA0685Manager implements I2CDeviceEntry {
     sensor = null;
   }
 
-  public PCA0685Manager(int i2cBusId, int i2cBusAddr) throws IOException {
-    sensor = new PCA9685Device(i2cBusId, i2cBusAddr);
+  public PCA0685Manager(I2C device) throws IOException {
+    sensor = new PCA9685Device(device);
   }
 
 
-  public I2CDeviceEntry mount(int i2cBusId, int i2cBusAddr) throws IOException {
-    if (i2cBusAddr == i2cAddr) {
-      return new PCA0685Manager(i2cBusId, i2cBusAddr);
-    }
-    return null;
+  public I2CDeviceEntry mount(I2C device) throws IOException {
+    return new PCA0685Manager(device);
   }
 
   public byte[] getPayload() {

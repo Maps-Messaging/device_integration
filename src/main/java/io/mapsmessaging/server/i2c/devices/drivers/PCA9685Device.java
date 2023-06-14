@@ -1,5 +1,6 @@
 package io.mapsmessaging.server.i2c.devices.drivers;
 
+import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.server.i2c.I2CDevice;
 import io.mapsmessaging.server.i2c.devices.drivers.servos.AngleResponse;
 import io.mapsmessaging.server.i2c.devices.drivers.servos.PwmDevice;
@@ -34,8 +35,8 @@ public class PCA9685Device extends I2CDevice {
 
   private final ArrayList<PwmDevice> myServoList;
 
-  public PCA9685Device(int bus, int device) throws IOException {
-    super("PCA9685", bus, device);
+  public PCA9685Device(I2C device) throws IOException {
+    super(device);
     myServos = new BitSet(16);
     myServoList = new ArrayList<>();
     initialise();
