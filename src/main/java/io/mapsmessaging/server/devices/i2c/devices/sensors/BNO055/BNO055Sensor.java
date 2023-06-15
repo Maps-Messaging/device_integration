@@ -71,7 +71,7 @@ public class BNO055Sensor extends I2CDevice {
     return new CalibrationStatus(readRegister(BNO055_CALIB_STAT_ADDR));
   }
 
-  public float[] readEuler() throws IOException {
+  public float[] readEuler()  {
     if (lastRead < System.currentTimeMillis()) {
       int[] res = readVector(BNO055_EULER_H_LSB_ADDR, 3);
       for (int x = 0; x < res.length; x++) {
@@ -82,7 +82,7 @@ public class BNO055Sensor extends I2CDevice {
     return myEuler;
   }
 
-  public float[] readMagnetometer() throws IOException {
+  public float[] readMagnetometer()  {
     int[] res = readVector(BNO055_MAG_DATA_X_LSB_ADDR, 3);
     float[] ret = new float[res.length];
     for (int x = 0; x < res.length; x++) {
@@ -91,7 +91,7 @@ public class BNO055Sensor extends I2CDevice {
     return ret;
   }
 
-  public float[] readGyroscope() throws IOException {
+  public float[] readGyroscope() {
     int[] res = readVector(BNO055_GYRO_DATA_X_LSB_ADDR, 3);
     float[] ret = new float[res.length];
     for (int x = 0; x < res.length; x++) {
@@ -100,7 +100,7 @@ public class BNO055Sensor extends I2CDevice {
     return ret;
   }
 
-  public float[] readAccelerometer() throws IOException {
+  public float[] readAccelerometer()  {
     int[] res = readVector(BNO055_ACCEL_DATA_X_LSB_ADDR, 3);
     float[] ret = new float[res.length];
     for (int x = 0; x < res.length; x++) {
@@ -109,7 +109,7 @@ public class BNO055Sensor extends I2CDevice {
     return ret;
   }
 
-  public float[] readLinearAcceleration() throws IOException {
+  public float[] readLinearAcceleration() {
     int[] res = readVector(BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR, 3);
     float[] ret = new float[res.length];
     for (int x = 0; x < res.length; x++) {
@@ -118,7 +118,7 @@ public class BNO055Sensor extends I2CDevice {
     return ret;
   }
 
-  public float[] readGravity() throws IOException {
+  public float[] readGravity()  {
     int[] res = readVector(BNO055_GRAVITY_DATA_X_LSB_ADDR, 3);
     float[] ret = new float[res.length];
     for (int x = 0; x < res.length; x++) {
@@ -127,7 +127,7 @@ public class BNO055Sensor extends I2CDevice {
     return ret;
   }
 
-  public float[] readQuaternion() throws IOException {
+  public float[] readQuaternion()  {
     int[] res = readVector(BNO055_QUATERNION_DATA_W_LSB_ADDR, 4);
     float[] ret = new float[res.length];
     float scale = 1.0f / (1 << 14);
