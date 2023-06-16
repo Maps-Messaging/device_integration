@@ -26,7 +26,11 @@ public class TLS2561Manager implements I2CDeviceEntry {
     return new TLS2561Manager(device);
   }
 
-  public byte[] getPayload() {
+  public byte[] getStaticPayload() {
+    return "{}".getBytes();
+  }
+
+  public byte[] getUpdatePayload() {
     int[] result = sensor.getLevels();
     JSONObject jsonObject = new JSONObject();
     jsonObject.put("ch0", result[0]);

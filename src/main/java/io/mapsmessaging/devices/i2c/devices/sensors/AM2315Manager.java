@@ -26,13 +26,18 @@ public class AM2315Manager implements I2CDeviceEntry {
     return new AM2315Manager(device);
   }
 
-  public byte[] getPayload() {
+  public byte[] getStaticPayload() {
     JSONObject jsonObject = new JSONObject();
-    jsonObject.put("Temperature", sensor.getTemperature());
-    jsonObject.put("Humidity", sensor.getHumidity());
     jsonObject.put("Model", sensor.getModel());
     jsonObject.put("Status", sensor.getStatus());
     jsonObject.put("Version", sensor.getVersion());
+    return jsonObject.toString(2).getBytes();
+  }
+
+  public byte[] getUpdatePayload() {
+    JSONObject jsonObject = new JSONObject();
+    jsonObject.put("Temperature", sensor.getTemperature());
+    jsonObject.put("Humidity", sensor.getHumidity());
     return jsonObject.toString(2).getBytes();
   }
 

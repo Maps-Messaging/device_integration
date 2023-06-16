@@ -5,6 +5,7 @@ import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.logging.Logger;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
+import org.json.JSONObject;
 
 import java.io.IOException;
 
@@ -169,16 +170,13 @@ public class BNO055Sensor extends I2CDevice {
     int bl = readRegister(BNO055Constants.BNO055_BL_REV_ID_ADDR);
     int swLsb = readRegister(BNO055Constants.BNO055_SW_REV_ID_LSB_ADDR);
     int swMsb = readRegister(BNO055Constants.BNO055_SW_REV_ID_MSB_ADDR);
-    return "Software Version:" +
-        swMsb + "."+swLsb +
-        "\nBootLoader:" +
-        bl +
-        "\nAccelerometer ID:" +
-        accel +
-        "\nMagnetometer ID:" +
-        mag +
-        "\nGyroscope ID:" +
-        gyro;
+    JSONObject versionObject = new JSONObject();
+    versionObject.put("software",Float.parseFloat(swMsb + "."+swLsb) );
+    versionObject.put("bootLoader", bl);
+    versionObject.put("accelerometer", accel);
+    versionObject.put("magnetometer", mag);
+    versionObject.put("gyroscope", gyro);
+    return versionObject.toString(2);
   }
 
   public double[] getOrientation() {

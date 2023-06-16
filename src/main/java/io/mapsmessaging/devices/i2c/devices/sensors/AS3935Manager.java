@@ -26,7 +26,17 @@ public class AS3935Manager implements I2CDeviceEntry {
     return new AM2315Manager(device);
   }
 
-  public byte[] getPayload() {
+  public byte[] getStaticPayload() {
+    JSONObject jsonObject = new JSONObject();
+    jsonObject.put("Reason", sensor.getReason());
+    jsonObject.put("Distance", sensor.getDistance());
+    jsonObject.put("MinimumStrikes", sensor.getMinimumStrikes());
+    jsonObject.put("Strength", sensor.getStrength());
+    jsonObject.put("Registers", sensor.getRegisters());
+    return jsonObject.toString(2).getBytes();
+  }
+
+  public byte[] getUpdatePayload() {
     JSONObject jsonObject = new JSONObject();
     jsonObject.put("Reason", sensor.getReason());
     jsonObject.put("Distance", sensor.getDistance());

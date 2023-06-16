@@ -27,20 +27,38 @@ public class BNO055Manager implements I2CDeviceEntry {
     return new BNO055Manager(device);
   }
 
-  public byte[] getPayload() {
+  public byte[] getUpdatePayload() {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
       double[] orientation = sensor.getOrientation();
-      CalibrationStatus status = sensor.getCalibrationStatus();
-      SystemStatus system = sensor.getStatus(false);
       jsonObject.put("heading", orientation[0]);
       jsonObject.put("roll", orientation[1]);
       jsonObject.put("pitch", orientation[2]);
+    }
+    return jsonObject.toString(2).getBytes();
+  }
+
+  public byte[] getStaticPayload() {
+    JSONObject jsonObject = new JSONObject();
+    if (sensor != null) {
+      CalibrationStatus status = sensor.getCalibrationStatus();
+      JSONObject callibrationStatus = new JSONObject();
+      callibrationStatus.put("accelerometer", status.getAccelerometer());
+      callibrationStatus.put("magnetometer", status.getMagnetometer());
+      callibrationStatus.put("system", status.getSystem());
+      callibrationStatus.put("gyroscope", status.getGryoscope());
+      SystemStatus system = sensor.getStatus(false);
+      JSONObject systemStatus = new JSONObject();
+      systemStatus.put("error", system.getErrorString());
+      systemStatus.put("state", system.getStateString());
+      systemStatus.put("selfTestGyroscope", system.selfTestGyroscope());
+      systemStatus.put("selfTestMagnetometer", system.selfTestMagnetometer());
+      systemStatus.put("selfTestAccelerometer", system.selfTestAccelerometer());
+      systemStatus.put("selfTestMCU", system.selfTestMCU());
       jsonObject.put("isCalibrated", status.isCalibrated());
-      jsonObject.put("version", sensor.getVersion());
-      jsonObject.put("calibrationStatus", status.toString());
-      jsonObject.put("status", system.toString());
-      jsonObject.put("state", system.getState().toString());
+      jsonObject.put("version", new JSONObject(sensor.getVersion()));
+      jsonObject.put("calibrationStatus", callibrationStatus);
+      jsonObject.put("systemStatus", systemStatus);
     }
     return jsonObject.toString(2).getBytes();
   }

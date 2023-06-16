@@ -26,7 +26,12 @@ public class PCA9685Manager implements I2CDeviceEntry {
     return new PCA9685Manager(device);
   }
 
-  public byte[] getPayload() {
+  public byte[] getStaticPayload() {
+    JSONObject jsonObject = new JSONObject();
+    return jsonObject.toString(2).getBytes();
+  }
+
+  public byte[] getUpdatePayload() {
     JSONObject jsonObject = new JSONObject();
     return jsonObject.toString(2).getBytes();
   }

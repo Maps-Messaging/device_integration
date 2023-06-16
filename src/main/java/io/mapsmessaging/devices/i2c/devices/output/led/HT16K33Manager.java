@@ -20,7 +20,11 @@ public abstract class HT16K33Manager implements I2CDeviceEntry {
     this.display = display;
   }
 
-  public byte[] getPayload() {
+  public byte[] getStaticPayload() {
+    return "{}".getBytes();
+  }
+
+  public byte[] getUpdatePayload() {
     JSONObject jsonObject = new JSONObject();
     if (display != null) {
       jsonObject.put("display", display.getCurrent());

@@ -26,12 +26,18 @@ public class BMP280Manager implements I2CDeviceEntry {
     return new BMP280Manager(device);
   }
 
-  public byte[] getPayload() {
+  public byte[] getStaticPayload() {
+    return "{}".getBytes();
+  }
+
+
+  public byte[] getUpdatePayload() {
     JSONObject jsonObject = new JSONObject();
     jsonObject.put("Pressure", sensor.getPressure());
     jsonObject.put("Temperature", sensor.getTemperature());
     return jsonObject.toString(2).getBytes();
   }
+
 
   @Override
   public void setPayload(byte[] val) {
