@@ -3,14 +3,20 @@ package io.mapsmessaging.devices.web;
 import io.javalin.Javalin;
 import io.mapsmessaging.devices.i2c.I2CBusManager;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
+import org.json.JSONObject;
 
 import java.util.concurrent.*;
 
 public class SimpleWebAccess {
 
-    private final I2CBusManager i2cBusManager;
+    private I2CBusManager i2cBusManager;
 
     public SimpleWebAccess(){
+
+    }
+
+
+    private void startServer(){
         i2cBusManager = new I2CBusManager();
         Javalin app = Javalin.create().start(7000);
 
@@ -18,7 +24,10 @@ public class SimpleWebAccess {
             String id = ctx.pathParam("id");
             I2CDeviceEntry device = i2cBusManager.get(id);
             if (device != null) {
-                ctx.json(new String(device.getPayload()));
+                JSONObject result = new JSONObject();
+                result.put("static", new JSONObject(new String(device.getStaticPayload())));
+                result.put("update", new JSONObject(new String(device.getUpdatePayload())));
+                ctx.json(result.toString(2));
             } else {
                 ctx.status(404).result("Device not found");
             }
@@ -42,7 +51,9 @@ public class SimpleWebAccess {
 
     public static void main(String[] args){
         SimpleWebAccess simpleWebAccess = new SimpleWebAccess();
+        simpleWebAccess.startServer();
     }
+
 
 }
 

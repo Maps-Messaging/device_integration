@@ -1,0 +1,1 @@
+sudo java io.mapsmessaging.devices.web.SimpleWebAccess
