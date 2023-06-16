@@ -21,6 +21,10 @@ public class TLS2561Manager implements I2CDeviceEntry {
     sensor = new TLS2561Sensor(device);
   }
 
+  @Override
+  public boolean detect() {
+    return sensor != null && sensor.isConnected();
+  }
 
   public I2CDeviceEntry mount(I2C device) throws IOException {
     return new TLS2561Manager(device);

@@ -31,6 +31,10 @@ public class TLS2561Sensor extends I2CDevice {
     lastRead = 0;
   }
 
+  @Override
+  public boolean isConnected() {
+    return false;
+  }
   public synchronized void setIntegrationTime(IntegrationTime times, boolean highGain) {
     if (highGain) {
       this.highGain = 0x10;

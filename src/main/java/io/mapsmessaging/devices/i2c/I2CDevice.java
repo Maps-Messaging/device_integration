@@ -15,6 +15,8 @@ public abstract class I2CDevice implements AutoCloseable {
     device.close();
   }
 
+  public abstract boolean isConnected();
+
   protected void write(int val){
     device.write(val);
   }

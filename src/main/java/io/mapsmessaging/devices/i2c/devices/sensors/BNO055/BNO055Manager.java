@@ -23,6 +23,11 @@ public class BNO055Manager implements I2CDeviceEntry {
   }
 
 
+  @Override
+  public boolean detect() {
+    return sensor != null && sensor.isConnected();
+  }
+
   public I2CDeviceEntry mount(I2C device) throws IOException {
     return new BNO055Manager(device);
   }

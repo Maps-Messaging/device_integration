@@ -20,6 +20,11 @@ public abstract class HT16K33Manager implements I2CDeviceEntry {
     this.display = display;
   }
 
+  @Override
+  public boolean detect() {
+    return display != null && display.isConnected();
+  }
+
   public byte[] getStaticPayload() {
     return "{}".getBytes();
   }

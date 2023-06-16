@@ -16,5 +16,7 @@ public interface I2CDeviceEntry {
 
   byte[] getUpdatePayload();
 
-  default void setPayload(byte[] val){};
+  default void setPayload(byte[] val){}
+
+  boolean detect();
 }

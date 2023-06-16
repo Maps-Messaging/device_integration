@@ -49,7 +49,10 @@ public class AS3935Sensor extends I2CDevice {
       });
     }
   }
-
+  @Override
+  public boolean isConnected() {
+    return false;
+  }
   public int getMinimumStrikes() {
     return (registers[0x02] >> 4) & 0x03;
   }

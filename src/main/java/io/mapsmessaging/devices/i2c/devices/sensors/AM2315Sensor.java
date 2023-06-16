@@ -60,7 +60,10 @@ public class AM2315Sensor extends I2CDevice {
     loadValues();
     //logger.debug("Created new AM2315 device");
   }
-
+  @Override
+  public boolean isConnected() {
+    return false;
+  }
   private void loadValues() throws IOException {
     sensor_readings = retryReads(HIGH_RH, Retention1);
   }

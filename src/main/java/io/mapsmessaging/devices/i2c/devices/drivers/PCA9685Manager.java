@@ -41,6 +41,11 @@ public class PCA9685Manager implements I2CDeviceEntry {
 
   }
 
+  @Override
+  public boolean detect() {
+    return sensor != null && sensor.isConnected();
+  }
+
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig();
     config.setComments("i2c device PCA9685 supports 16 PWM devices like servos or LEDs");

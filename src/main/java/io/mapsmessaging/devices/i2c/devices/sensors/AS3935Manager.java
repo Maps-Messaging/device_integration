@@ -21,6 +21,10 @@ public class AS3935Manager implements I2CDeviceEntry {
     sensor = new AS3935Sensor(device, 0, -1);
   }
 
+  @Override
+  public boolean detect() {
+    return sensor != null && sensor.isConnected();
+  }
 
   public I2CDeviceEntry mount(I2C device) throws IOException {
     return new AM2315Manager(device);

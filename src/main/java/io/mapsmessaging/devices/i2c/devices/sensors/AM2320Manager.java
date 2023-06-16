@@ -39,6 +39,10 @@ public class AM2320Manager  implements I2CDeviceEntry {
     return jsonObject.toString(2).getBytes();
   }
 
+  @Override
+  public boolean detect() {
+    return sensor != null && sensor.isConnected();
+  }
 
   @Override
   public void setPayload(byte[] val) {

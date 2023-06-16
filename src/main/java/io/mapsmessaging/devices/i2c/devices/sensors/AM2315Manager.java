@@ -21,6 +21,10 @@ public class AM2315Manager implements I2CDeviceEntry {
     sensor = new AM2315Sensor(device);
   }
 
+  @Override
+  public boolean detect() {
+    return sensor != null && sensor.isConnected();
+  }
 
   public I2CDeviceEntry mount(I2C device) throws IOException {
     return new AM2315Manager(device);

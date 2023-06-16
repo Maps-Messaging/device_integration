@@ -25,6 +25,11 @@ public abstract class HT16K33Driver extends I2CDevice {
     turnOff();
   }
 
+  @Override
+  public boolean isConnected() {
+    return false;
+  }
+
   public abstract byte[] encode(String val);
 
   public void turnOn() {

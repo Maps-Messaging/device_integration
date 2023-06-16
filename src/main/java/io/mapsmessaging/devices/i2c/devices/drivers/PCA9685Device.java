@@ -54,6 +54,18 @@ public class PCA9685Device extends I2CDevice {
     myServos.clear();
   }
 
+  @Override
+  public boolean isConnected() {
+    byte[] registers = new byte[256];
+    int read = read(registers);
+    System.err.println(read);
+    for(int x=0;x<read;x++){
+      System.err.print(Integer.toHexString(registers[x])+", ");
+    }
+    System.err.println();
+    return (read == 256);
+  }
+
   public Servo allocateServo(int port, AngleResponse response) throws IOException {
     if (myServos.get(port)) {
       throw new IOException("Servo already allocated");

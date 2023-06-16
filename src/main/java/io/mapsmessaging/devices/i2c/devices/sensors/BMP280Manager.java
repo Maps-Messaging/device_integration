@@ -21,6 +21,10 @@ public class BMP280Manager implements I2CDeviceEntry {
     sensor = new BMP280Sensor(device);
   }
 
+  @Override
+  public boolean detect() {
+    return sensor != null && sensor.isConnected();
+  }
 
   public I2CDeviceEntry mount(I2C device) throws IOException {
     return new BMP280Manager(device);

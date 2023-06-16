@@ -43,6 +43,11 @@ public class BNO055Sensor extends I2CDevice {
     }
   }
 
+  @Override
+  public boolean isConnected() {
+    return false;
+  }
+
   public void initialize() throws IOException {
     int chipId = readRegister(BNO055Constants.BNO055_CHIP_ID_ADDR);
     if (chipId != BNO055Constants.BNO055_ID) {

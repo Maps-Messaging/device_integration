@@ -22,7 +22,10 @@ public class AM2320Sensor extends I2CDevice {
     super(device);
     scanForChange();
   }
-
+  @Override
+  public boolean isConnected() {
+    return false;
+  }
   public void scanForChange() {
     byte[] response = new byte[8];
     try {
