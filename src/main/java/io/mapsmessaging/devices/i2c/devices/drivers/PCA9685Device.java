@@ -73,7 +73,7 @@ public class PCA9685Device extends I2CDevice {
     myServoList.remove(servo);
   }
 
-  public void setPWMFrequency(double frequency) throws IOException {
+  public void setPWMFrequency(double frequency) {
     double prescaleval = 25000000.0;//    # 25MHz
     prescaleval /= 4096.0;       // 12-bit
     prescaleval /= frequency;
@@ -95,7 +95,7 @@ public class PCA9685Device extends I2CDevice {
     write(__MODE1, (byte) (oldmode | 0x80));
   }
 
-  public void setPWM(short channel, short on, short off) throws IOException {
+  public void setPWM(short channel, short on, short off) {
     write(__LED0_ON_L + 4 * channel, (byte) (on & 0xFF));
     write(__LED0_ON_H + 4 * channel, (byte) (on >> 8));
     write(__LED0_OFF_L + 4 * channel, (byte) (off & 0xFF));
@@ -113,7 +113,7 @@ public class PCA9685Device extends I2CDevice {
     delay(5);
   }
 
-  private void setAllPWM(short on, short off) throws IOException {
+  private void setAllPWM(short on, short off) {
     write(__ALL_LED_ON_L, (byte) (on & 0xff));
     write(__ALL_LED_ON_H, (byte) (on >> 8));
     write(__ALL_LED_OFF_L, (byte) (off & 0xff));

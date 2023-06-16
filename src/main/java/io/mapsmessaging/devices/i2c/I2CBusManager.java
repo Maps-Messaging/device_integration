@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class I2CBusManager {
 
@@ -50,6 +51,14 @@ public class I2CBusManager {
           I2C device = i2CProvider.create(i2cConfig);
           try {
             byte[] buf = new byte[1];
+            if(x == 0x5c){
+              try {
+                device.read(buf, 0, 1);
+              } catch (Exception e) {
+                // Ignore first read
+                TimeUnit.MILLISECONDS.sleep(100);
+              }
+            }
             device.read(buf, 0, 1);
             I2CDeviceEntry physicalDevice = deviceEntry.mount(device);
             System.err.println("Added new device "+Integer.toHexString(x)+" "+physicalDevice.getClass().getName());

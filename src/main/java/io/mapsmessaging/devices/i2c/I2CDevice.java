@@ -23,6 +23,10 @@ public abstract class I2CDevice implements AutoCloseable {
     device.write(buffer, 0, buffer.length);
   }
 
+  protected void write(byte[] buffer, int off, int len){
+    device.write(buffer, off, len);
+  }
+
   protected void write(int register, byte data) {
     device.writeRegister(register, data);
   }
