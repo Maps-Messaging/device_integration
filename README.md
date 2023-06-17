@@ -29,7 +29,7 @@ Before using the controller, make sure all your I2C devices are connected correc
    For example, to read data from a device:
 
     ```bash
-    curl http://localhost:8080/device/read?address=0x28
+    curl http://localhost:8080/device/i2c/read?address=0x28
     ```
 
    This would return a JSON object with the device's data:
