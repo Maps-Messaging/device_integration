@@ -1,4 +1,4 @@
-package io.mapsmessaging.devices.i2c;
+package io.mapsmessaging.devices.util;
 
 import java.util.concurrent.locks.LockSupport;
 

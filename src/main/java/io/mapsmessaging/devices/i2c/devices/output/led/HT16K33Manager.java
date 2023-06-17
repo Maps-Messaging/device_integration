@@ -1,6 +1,6 @@
 package io.mapsmessaging.devices.i2c.devices.output.led;
 
-import io.mapsmessaging.devices.i2c.Delay;
+import io.mapsmessaging.devices.util.Delay;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
