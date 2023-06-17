@@ -4,6 +4,7 @@ import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
+import lombok.Getter;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -12,6 +13,8 @@ public class AM2320Manager  implements I2CDeviceEntry {
 
   private final int i2cAddr = 0x5C;
   private final AM2320Sensor sensor;
+  @Getter
+  private final String name = "AM2320";
 
   public AM2320Manager() {
     sensor = null;

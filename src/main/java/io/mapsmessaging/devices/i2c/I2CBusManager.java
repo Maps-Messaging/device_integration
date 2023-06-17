@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 
 public class I2CBusManager {
 
-
   private final Map<Integer, List<I2CDeviceEntry>> knownDevices;
   private final Map<String, I2CDeviceEntry> activeDevices;
 
@@ -33,11 +32,13 @@ public class I2CBusManager {
     }
   }
 
+  public Map<String, I2CDeviceEntry> getActive(){
+    return activeDevices;
+  }
+
   public void scanForDevices() {
-    System.err.println("Scanning for devices");
     for(int x=0;x<0x77;x++) {
       if(!activeDevices.containsKey(Integer.toHexString(x))) {
-        System.err.println("Scanning address "+Integer.toHexString(x));
         List<I2CDeviceEntry> deviceList = knownDevices.get(x);
         if (deviceList != null && !deviceList.isEmpty()) {
           I2CConfig i2cConfig = I2C.newConfigBuilder(pi4j)
@@ -53,7 +54,6 @@ public class I2CBusManager {
         }
       }
     }
-    System.err.println("Scanned for devices");
   }
 
   private void attemptToConnect(int addr,I2C device, I2CDeviceEntry deviceEntry )  {

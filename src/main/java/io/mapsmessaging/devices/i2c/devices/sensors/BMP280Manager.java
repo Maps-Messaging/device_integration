@@ -4,6 +4,7 @@ import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
+import lombok.Getter;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -12,6 +13,9 @@ public class BMP280Manager implements I2CDeviceEntry {
 
   private final int i2cAddr = 0x76;
   private final BMP280Sensor sensor;
+
+  @Getter
+  private final String name = "BMP280";
 
   public BMP280Manager() {
     sensor = null;

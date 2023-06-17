@@ -6,12 +6,17 @@ import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 
 import java.io.IOException;
+
+import lombok.Getter;
 import org.json.JSONObject;
 
 public class PCA9685Manager implements I2CDeviceEntry {
 
   private final int i2cAddr = 0x40;
   private final PCA9685Device sensor;
+
+  @Getter
+  private final String name = "PCA9685";
 
   public PCA9685Manager() {
     sensor = null;

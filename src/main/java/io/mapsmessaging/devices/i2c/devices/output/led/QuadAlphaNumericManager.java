@@ -3,10 +3,15 @@ package io.mapsmessaging.devices.i2c.devices.output.led;
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
+import lombok.Getter;
 
 public class QuadAlphaNumericManager extends HT16K33Manager {
 
   private final int[] i2cAddr = {0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77};
+
+  @Getter
+  private final String name = "Quad AlphaNumeric LED";
+
 
   public QuadAlphaNumericManager() {
   }
