@@ -14,7 +14,7 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.am2315;
+package io.mapsmessaging.devices.i2c.devices.sensors.tls2561;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.schemas.config.SchemaConfig;
@@ -25,19 +25,21 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class AM2315Manager implements I2CDeviceEntry {
+public class TLS2561Controller implements I2CDeviceEntry {
 
-  private final int i2cAddr = 0x5C;
-  private final AM2315Sensor sensor;
+  private final int i2cAddr = 0x39;
+  private final TLS2561Sensor sensor;
+
   @Getter
-  private final String name = "AM2315";
+  private final String name = "TLS2561";
 
-  public AM2315Manager() {
+
+  public TLS2561Controller() {
     sensor = null;
   }
 
-  protected AM2315Manager(I2C device) throws IOException {
-    sensor = new AM2315Sensor(device);
+  public TLS2561Controller(I2C device) throws IOException {
+    sensor = new TLS2561Sensor(device);
   }
 
   @Override
@@ -46,36 +48,32 @@ public class AM2315Manager implements I2CDeviceEntry {
   }
 
   public I2CDeviceEntry mount(I2C device) throws IOException {
-    return new AM2315Manager(device);
+    return new TLS2561Controller(device);
   }
 
   public byte[] getStaticPayload() {
-    JSONObject jsonObject = new JSONObject();
-    jsonObject.put("Model", sensor.getModel());
-    jsonObject.put("Status", sensor.getStatus());
-    jsonObject.put("Version", sensor.getVersion());
-    return jsonObject.toString(2).getBytes();
+    return "{}".getBytes();
   }
 
   public byte[] getUpdatePayload() {
+    int[] result = sensor.getLevels();
     JSONObject jsonObject = new JSONObject();
-    jsonObject.put("temperature", sensor.getTemperature());
-    jsonObject.put("humidity", sensor.getHumidity());
+    jsonObject.put("ch0", result[0]);
+    jsonObject.put("ch1", result[1]);
+    jsonObject.put("lux", sensor.calculateLux());
     return jsonObject.toString(2).getBytes();
   }
 
   @Override
-  public void setPayload(byte[] val) {
-
-  }
+  public void setPayload(byte[] val) {}
 
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig();
-    config.setComments("i2c device AM2315 encased Temperature and Humidity Sensor https://www.adafruit.com/product/1293");
-    config.setSource("I2C bus address : 0x5C");
+    config.setComments("i2c device TLS2561 light sensor, returns light and IR light levels and computed lux level");
+    config.setSource("I2C bus address : 0x39");
     config.setVersion("1.0");
     config.setResourceType("sensor");
-    config.setInterfaceDescription("Returns JSON object containing Temperature, Humidity, Model, Status and Version");
+    config.setInterfaceDescription("Returns JSON object containing light and IR light levels");
     return config;
   }
 

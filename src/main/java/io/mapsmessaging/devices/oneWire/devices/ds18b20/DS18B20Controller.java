@@ -24,18 +24,18 @@ import org.json.JSONObject;
 
 import java.io.File;
 
-public class DS18B20Manager implements OneWireDeviceEntry {
+public class DS18B20Controller implements OneWireDeviceEntry {
 
   private final DS18B20Device sensor;
 
   @Getter
   private final String name = "DS18B20";
 
-  public DS18B20Manager() {
+  public DS18B20Controller() {
     sensor = null;
   }
 
-  public DS18B20Manager(File path) {
+  public DS18B20Controller(File path) {
     sensor = new DS18B20Device(path);
   }
 
@@ -45,7 +45,7 @@ public class DS18B20Manager implements OneWireDeviceEntry {
 
   @Override
   public OneWireDeviceEntry mount(File path) {
-    return new DS18B20Manager(path);
+    return new DS18B20Controller(path);
   }
 
   public SchemaConfig getSchema() {

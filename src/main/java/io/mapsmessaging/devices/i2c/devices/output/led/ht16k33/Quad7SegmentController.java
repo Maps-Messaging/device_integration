@@ -21,22 +21,22 @@ import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import lombok.Getter;
 
-public class Quad7SegmentManager extends HT16K33Manager {
+public class Quad7SegmentController extends HT16K33Controller {
 
   private final int[] i2cAddr = {0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77};
 
   @Getter
   private final String name = "Quad 7-Segment LED";
 
-  public Quad7SegmentManager() {
+  public Quad7SegmentController() {
   }
 
-  public Quad7SegmentManager(I2C device) {
+  public Quad7SegmentController(I2C device) {
     super(new Quad7Segment(device));
   }
 
   public I2CDeviceEntry mount(I2C device) {
-    return new Quad7SegmentManager(device);
+    return new Quad7SegmentController(device);
   }
 
   @Override

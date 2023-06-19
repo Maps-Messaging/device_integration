@@ -21,7 +21,7 @@ import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import lombok.Getter;
 
-public class QuadAlphaNumericManager extends HT16K33Manager {
+public class QuadAlphaNumericController extends HT16K33Controller {
 
   private final int[] i2cAddr = {0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77};
 
@@ -29,15 +29,15 @@ public class QuadAlphaNumericManager extends HT16K33Manager {
   private final String name = "Quad AlphaNumeric LED";
 
 
-  public QuadAlphaNumericManager() {
+  public QuadAlphaNumericController() {
   }
 
-  public QuadAlphaNumericManager(I2C device) {
+  public QuadAlphaNumericController(I2C device) {
     super(new QuadAlphaNumeric(device));
   }
 
   public I2CDeviceEntry mount(I2C device) {
-    return new QuadAlphaNumericManager(device);
+    return new QuadAlphaNumericController(device);
   }
 
 

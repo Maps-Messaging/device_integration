@@ -16,14 +16,9 @@
 
 package io.mapsmessaging.devices.interrupts;
 
-import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
-import lombok.Getter;
 
 public class InterruptFactory {
-
-  @Getter
-  private static final InterruptFactory instance = new InterruptFactory();
 
   private final Context pi4j;
 
@@ -31,8 +26,8 @@ public class InterruptFactory {
     return new InterruptManager(pi4j, id, name, interruptPin, handler);
   }
 
-  protected InterruptFactory(){
-    pi4j = Pi4J.newAutoContext();
+  public InterruptFactory(Context pi4j){
+    this.pi4j = pi4j;
   }
 
 }

@@ -14,59 +14,46 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.as3935;
+package io.mapsmessaging.devices.i2c.devices.drivers.pca9685;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
-import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class AS3935Manager implements I2CDeviceEntry {
+import lombok.Getter;
+import org.json.JSONObject;
 
-  private final int i2cAddr = 0x03;
-  private final AS3935Sensor sensor;
+public class PCA9685Controller implements I2CDeviceEntry {
+
+  private final int i2cAddr = 0x40;
+  private final PCA9685Device sensor;
 
   @Getter
-  private final String name = "AS3935";
+  private final String name = "PCA9685";
 
-  public AS3935Manager() {
+  public PCA9685Controller() {
     sensor = null;
   }
 
-  protected AS3935Manager(I2C device) throws IOException {
-    sensor = new AS3935Sensor(device, 0, -1);
+  public PCA9685Controller(I2C device) throws IOException {
+    sensor = new PCA9685Device(device);
   }
 
-  @Override
-  public boolean detect() {
-    return sensor != null && sensor.isConnected();
-  }
 
   public I2CDeviceEntry mount(I2C device) throws IOException {
-    return new AS3935Manager(device);
+    return new PCA9685Controller(device);
   }
 
   public byte[] getStaticPayload() {
     JSONObject jsonObject = new JSONObject();
-    jsonObject.put("Reason", sensor.getReason());
-    jsonObject.put("Distance", sensor.getDistance());
-    jsonObject.put("MinimumStrikes", sensor.getMinimumStrikes());
-    jsonObject.put("Strength", sensor.getStrength());
-    jsonObject.put("Registers", sensor.getRegisters());
     return jsonObject.toString(2).getBytes();
   }
 
   public byte[] getUpdatePayload() {
     JSONObject jsonObject = new JSONObject();
-    jsonObject.put("Reason", sensor.getReason());
-    jsonObject.put("Distance", sensor.getDistance());
-    jsonObject.put("MinimumStrikes", sensor.getMinimumStrikes());
-    jsonObject.put("Strength", sensor.getStrength());
-    jsonObject.put("Registers", sensor.getRegisters());
     return jsonObject.toString(2).getBytes();
   }
 
@@ -75,13 +62,18 @@ public class AS3935Manager implements I2CDeviceEntry {
 
   }
 
+  @Override
+  public boolean detect() {
+    return sensor != null && sensor.isConnected();
+  }
+
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig();
-    config.setComments("i2c device AS3935 is a lightning detector");
-    config.setSource("I2C bus address : 0x01, 0x02, 0x03");
+    config.setComments("i2c device PCA9685 supports 16 PWM devices like servos or LEDs");
+    config.setSource("I2C bus address : 0x40");
     config.setVersion("1.0");
-    config.setResourceType("sensor");
-    config.setInterfaceDescription("Returns JSON object containing details about the latest detection");
+    config.setResourceType("driver");
+    config.setInterfaceDescription("Manages the output of 16 PWM devices");
     return config;
   }
 

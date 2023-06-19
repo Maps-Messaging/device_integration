@@ -18,7 +18,7 @@ package io.mapsmessaging.devices;
 
 import io.mapsmessaging.schemas.config.SchemaConfig;
 
-public interface DeviceManager {
+public interface DeviceController {
 
   String getName();
 

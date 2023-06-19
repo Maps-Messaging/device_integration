@@ -32,11 +32,13 @@ public class I2CBusManager {
   private final Map<Integer, List<I2CDeviceEntry>> knownDevices;
   private final Map<String, I2CDeviceEntry> activeDevices;
 
-  private final Context pi4j = Pi4J.newAutoContext();
-  private final I2CProvider i2CProvider = pi4j.provider("linuxfs-i2c");
+  private final Context pi4j;
+  private final I2CProvider i2cProvider;
 
 
-  public I2CBusManager() {
+  public I2CBusManager(Context pi4j, I2CProvider i2cProvider) {
+    this.pi4j = pi4j;
+    this.i2cProvider = i2cProvider;
     knownDevices = new LinkedHashMap<>();
     activeDevices = new ConcurrentHashMap<>();
     ServiceLoader<I2CDeviceEntry> deviceEntries = ServiceLoader.load(I2CDeviceEntry.class);
@@ -63,7 +65,7 @@ public class I2CBusManager {
               .bus(1)
               .device(x)
               .build();
-          I2C device = i2CProvider.create(i2cConfig);
+          I2C device = i2cProvider.create(i2cConfig);
           for (I2CDeviceEntry deviceEntry : deviceList) {
             attemptToConnect(x, device, deviceEntry);
           }
@@ -73,12 +75,10 @@ public class I2CBusManager {
   }
 
   private void attemptToConnect(int addr,I2C device, I2CDeviceEntry deviceEntry )  {
-    System.err.println("Have a known device as this address " + deviceEntry.getClass().getName());
     if(isOnBus(addr, device)) {
       try {
         I2CDeviceEntry physicalDevice = deviceEntry.mount(device);
         if(physicalDevice.detect()) {
-          System.err.println("Added new device " + Integer.toHexString(addr) + " " + physicalDevice.getClass().getName());
           activeDevices.put(Integer.toHexString(addr), physicalDevice);
         }
       } catch (IOException e) {

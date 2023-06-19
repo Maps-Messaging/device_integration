@@ -16,11 +16,11 @@
 
 package io.mapsmessaging.devices.oneWire;
 
-import io.mapsmessaging.devices.DeviceManager;
+import io.mapsmessaging.devices.DeviceController;
 
 import java.io.File;
 
-public interface OneWireDeviceEntry extends DeviceManager {
+public interface OneWireDeviceEntry extends DeviceController {
 
   String getId();
 

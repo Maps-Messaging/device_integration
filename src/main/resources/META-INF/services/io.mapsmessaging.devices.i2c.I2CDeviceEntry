@@ -15,11 +15,11 @@
 #     limitations under the License.
 #
 io.mapsmessaging.devices.i2c.devices.sensors.bno055.BNO055Manager
-io.mapsmessaging.devices.i2c.devices.sensors.am2315.AM2315Manager
-io.mapsmessaging.devices.i2c.devices.sensors.am2320.AM2320Manager
-#io.mapsmessaging.devices.i2c.devices.sensors.as3935.AS3935Manager
-io.mapsmessaging.devices.i2c.devices.sensors.bmp280.BMP280Manager
-io.mapsmessaging.devices.i2c.devices.drivers.pca9685.PCA9685Manager
-io.mapsmessaging.devices.i2c.devices.sensors.tls2561.TLS2561Manager
-io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.Quad7SegmentManager
-io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.QuadAlphaNumericManager
+io.mapsmessaging.devices.i2c.devices.sensors.am2315.AM2315Controller
+io.mapsmessaging.devices.i2c.devices.sensors.am2320.AM2320Controller
+#io.mapsmessaging.devices.i2c.devices.sensors.as3935.AS3935Controller
+io.mapsmessaging.devices.i2c.devices.sensors.bmp280.BMP280Controller
+io.mapsmessaging.devices.i2c.devices.drivers.pca9685.PCA9685Controller
+io.mapsmessaging.devices.i2c.devices.sensors.tls2561.TLS2561Controller
+io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.Quad7SegmentController
+io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.QuadAlphaNumericController

@@ -14,52 +14,48 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.drivers.pca9685;
+package io.mapsmessaging.devices.i2c.devices.sensors.am2320;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-
-import java.io.IOException;
-
 import lombok.Getter;
 import org.json.JSONObject;
 
-public class PCA9685Manager implements I2CDeviceEntry {
+import java.io.IOException;
 
-  private final int i2cAddr = 0x40;
-  private final PCA9685Device sensor;
+public class AM2320Controller implements I2CDeviceEntry {
 
+  private final int i2cAddr = 0x5C;
+  private final AM2320Sensor sensor;
   @Getter
-  private final String name = "PCA9685";
+  private final String name = "AM2320";
 
-  public PCA9685Manager() {
+  public AM2320Controller() {
     sensor = null;
   }
 
-  public PCA9685Manager(I2C device) throws IOException {
-    sensor = new PCA9685Device(device);
+  protected AM2320Controller(I2C device) throws IOException {
+    sensor = new AM2320Sensor(device);
   }
 
 
   public I2CDeviceEntry mount(I2C device) throws IOException {
-    return new PCA9685Manager(device);
+    return new AM2320Controller(device);
   }
 
   public byte[] getStaticPayload() {
-    JSONObject jsonObject = new JSONObject();
-    return jsonObject.toString(2).getBytes();
+    return "{}".getBytes();
   }
+
 
   public byte[] getUpdatePayload() {
+    sensor.scanForChange();
     JSONObject jsonObject = new JSONObject();
+    jsonObject.put("humidity", sensor.getHumidity());
+    jsonObject.put("temperature", sensor.getTemperature());
     return jsonObject.toString(2).getBytes();
-  }
-
-  @Override
-  public void setPayload(byte[] val) {
-
   }
 
   @Override
@@ -67,13 +63,18 @@ public class PCA9685Manager implements I2CDeviceEntry {
     return sensor != null && sensor.isConnected();
   }
 
+  @Override
+  public void setPayload(byte[] val) {
+
+  }
+
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig();
-    config.setComments("i2c device PCA9685 supports 16 PWM devices like servos or LEDs");
-    config.setSource("I2C bus address : 0x40");
+    config.setComments("i2c device AM2320 Pressure and Temperature Sensor https://learn.adafruit.com/adafruit-am2320-temperature-humidity-i2c-sensor");
+    config.setSource("I2C bus address : 0x5C");
     config.setVersion("1.0");
-    config.setResourceType("driver");
-    config.setInterfaceDescription("Manages the output of 16 PWM devices");
+    config.setResourceType("sensor");
+    config.setInterfaceDescription("Returns JSON object containing Temperature and Pressure");
     return config;
   }
 

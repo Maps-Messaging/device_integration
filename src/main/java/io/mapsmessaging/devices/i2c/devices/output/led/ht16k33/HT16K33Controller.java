@@ -24,15 +24,15 @@ import org.json.JSONObject;
 
 import java.time.LocalDateTime;
 
-public abstract class HT16K33Manager implements I2CDeviceEntry {
+public abstract class HT16K33Controller implements I2CDeviceEntry {
 
   protected final HT16K33Driver display;
 
-  protected HT16K33Manager() {
+  protected HT16K33Controller() {
     this.display = null;
   }
 
-  protected HT16K33Manager(HT16K33Driver display) {
+  protected HT16K33Controller(HT16K33Driver display) {
     this.display = display;
   }
 

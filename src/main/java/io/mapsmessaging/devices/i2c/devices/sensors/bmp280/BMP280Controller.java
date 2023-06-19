@@ -25,7 +25,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class BMP280Manager implements I2CDeviceEntry {
+public class BMP280Controller implements I2CDeviceEntry {
 
   private final int i2cAddr = 0x76;
   private final BMP280Sensor sensor;
@@ -33,11 +33,11 @@ public class BMP280Manager implements I2CDeviceEntry {
   @Getter
   private final String name = "BMP280";
 
-  public BMP280Manager() {
+  public BMP280Controller() {
     sensor = null;
   }
 
-  protected BMP280Manager(I2C device) throws IOException {
+  protected BMP280Controller(I2C device) throws IOException {
     sensor = new BMP280Sensor(device);
   }
 
@@ -47,7 +47,7 @@ public class BMP280Manager implements I2CDeviceEntry {
   }
 
   public I2CDeviceEntry mount(I2C device) throws IOException {
-    return new BMP280Manager(device);
+    return new BMP280Controller(device);
   }
 
   public byte[] getStaticPayload() {
