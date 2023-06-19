@@ -21,11 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public abstract class OneWireSensor {
+public abstract class OneWireDevice {
 
   private final File myDataFile;
 
-  protected OneWireSensor(File path) {
+  protected OneWireDevice(File path) {
     myDataFile = path;
   }
 
