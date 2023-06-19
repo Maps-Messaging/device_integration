@@ -26,6 +26,8 @@ import lombok.Getter;
 
 public class DeviceBusManager {
 
+  private static String[] PROVIDERS = {"pigpio-i2c", "linuxfs-i2c"};
+
   private static DeviceBusManager instance = new DeviceBusManager();
 
   public static DeviceBusManager getInstance(){
@@ -45,9 +47,19 @@ public class DeviceBusManager {
   private final InterruptFactory interruptFactory;
 
   private DeviceBusManager(){
-    pi4j = Pi4J.newAutoContext();
-    i2cProvider = pi4j.provider("linuxfs-i2c");
+    String provider = System.getProperty("i2C-PROVIDER", PROVIDERS[0]).toLowerCase();
+    boolean isValid = false;
+    for(String providers:PROVIDERS ){
+      if(providers.equals(provider)){
+        isValid = true;
+      }
+    }
+    if(!isValid){
+      provider = "pigpio-i2c";
+    }
 
+    pi4j = Pi4J.newAutoContext();
+    i2cProvider = pi4j.provider(provider);
     i2cBusManager = new I2CBusManager(pi4j, i2cProvider);
     oneWireBusManager = new OneWireBusManager();
     interruptFactory = new InterruptFactory(pi4j);

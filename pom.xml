@@ -320,6 +320,7 @@
       <artifactId>pi4j-core</artifactId>
       <version>${pi4j.version}</version>
     </dependency>
+
     <dependency>
       <groupId>com.pi4j</groupId>
       <artifactId>pi4j-plugin-raspberrypi</artifactId>
@@ -335,6 +336,12 @@
     <dependency>
       <groupId>com.pi4j</groupId>
       <artifactId>pi4j-library-linuxfs</artifactId>
+      <version>${pi4j.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.pi4j</groupId>
+      <artifactId>pi4j-plugin-pigpio</artifactId>
       <version>${pi4j.version}</version>
     </dependency>
 
