@@ -14,16 +14,26 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.spi;
+package io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos;
 
-import com.pi4j.io.spi.Spi;
+import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.PCA9685Device;
 
-public abstract class SpiDevice {
+import java.io.IOException;
 
-  protected final Spi spi;
+public class Servo  extends PwmDevice {
 
-  protected SpiDevice(Spi spi){
-    this.spi = spi;
+  private float myPos;
+
+  public Servo(PCA9685Device pwm, short servoId, AngleResponse response) throws IOException {
+    super(pwm, servoId, response);
   }
 
+  public float getPosition() {
+    return myPos;
+  }
+
+  public void setPosition(float angle) throws IOException {
+    myPos = myResponse.getResponse(angle);
+    myPWMController.setPWM(myServoPort, (short) 1, (short) myPos);
+  }
 }

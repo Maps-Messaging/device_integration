@@ -14,16 +14,16 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.spi;
+package io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos;
 
-import com.pi4j.io.spi.Spi;
+public interface AngleResponse {
 
-public abstract class SpiDevice {
+  float getResponse(float angle);
 
-  protected final Spi spi;
+  float getMin();
 
-  protected SpiDevice(Spi spi){
-    this.spi = spi;
-  }
+  float getMax();
+
+  float getIdle();
 
 }
