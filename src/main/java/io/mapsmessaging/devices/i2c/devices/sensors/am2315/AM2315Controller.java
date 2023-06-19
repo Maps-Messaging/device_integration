@@ -17,9 +17,9 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.am2315;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import lombok.Getter;
 import org.json.JSONObject;
 

@@ -17,9 +17,9 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.tls2561;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.logging.Logger;
 import io.mapsmessaging.logging.LoggerFactory;
-import io.mapsmessaging.devices.i2c.I2CDevice;
 import lombok.Getter;
 
 import java.nio.ByteBuffer;
@@ -51,6 +51,7 @@ public class TLS2561Sensor extends I2CDevice {
   public boolean isConnected() {
     return false;
   }
+
   public synchronized void setIntegrationTime(IntegrationTime times, boolean highGain) {
     if (highGain) {
       this.highGain = 0x10;
@@ -86,7 +87,7 @@ public class TLS2561Sensor extends I2CDevice {
   }
 
   private synchronized void scanForChange() {
-    if(lastRead< System.currentTimeMillis()) {
+    if (lastRead < System.currentTimeMillis()) {
       lastRead = System.currentTimeMillis() + integrationTime.getTime();
       // Read 4 bytes of data
       // ch0 lsb, ch0 msb, ch1 lsb, ch1 msb
@@ -132,9 +133,9 @@ public class TLS2561Sensor extends I2CDevice {
 
 
   public enum IntegrationTime {
-    MS_13_7((byte)0, 14, 1.0),
-    MS_101((byte)1, 101, 7.8125),
-    MS_402((byte)2, 402, 16.0);
+    MS_13_7((byte) 0, 14, 1.0),
+    MS_101((byte) 1, 101, 7.8125),
+    MS_402((byte) 2, 402, 16.0);
 
     @Getter
     private final int time;
@@ -143,7 +144,7 @@ public class TLS2561Sensor extends I2CDevice {
     @Getter
     private final double scale;
 
-    IntegrationTime(byte settingValue, int integrationTime, double scale){
+    IntegrationTime(byte settingValue, int integrationTime, double scale) {
       this.settingValue = settingValue;
       this.time = integrationTime;
       this.scale = scale;

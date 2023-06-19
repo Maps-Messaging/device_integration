@@ -16,7 +16,6 @@
 
 package io.mapsmessaging.devices.i2c;
 
-import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
 import com.pi4j.io.i2c.I2C;
 import com.pi4j.io.i2c.I2CConfig;
@@ -50,13 +49,13 @@ public class I2CBusManager {
     }
   }
 
-  public Map<String, I2CDeviceEntry> getActive(){
+  public Map<String, I2CDeviceEntry> getActive() {
     return activeDevices;
   }
 
   public void scanForDevices() {
-    for(int x=0;x<0x77;x++) {
-      if(!activeDevices.containsKey(Integer.toHexString(x))) {
+    for (int x = 0; x < 0x77; x++) {
+      if (!activeDevices.containsKey(Integer.toHexString(x))) {
         List<I2CDeviceEntry> deviceList = knownDevices.get(x);
         if (deviceList != null && !deviceList.isEmpty()) {
           I2CConfig i2cConfig = I2C.newConfigBuilder(pi4j)
@@ -74,23 +73,22 @@ public class I2CBusManager {
     }
   }
 
-  private void attemptToConnect(int addr,I2C device, I2CDeviceEntry deviceEntry )  {
-    if(isOnBus(addr, device)) {
+  private void attemptToConnect(int addr, I2C device, I2CDeviceEntry deviceEntry) {
+    if (isOnBus(addr, device)) {
       try {
         I2CDeviceEntry physicalDevice = deviceEntry.mount(device);
-        if(physicalDevice.detect()) {
+        if (physicalDevice.detect()) {
           activeDevices.put(Integer.toHexString(addr), physicalDevice);
         }
       } catch (IOException e) {
         e.printStackTrace();
       }
-    }
-    else{
+    } else {
       device.close();
     }
   }
 
-  private boolean isOnBus(int addr,I2C device){
+  private boolean isOnBus(int addr, I2C device) {
     try {
       byte[] buf = new byte[1];
       if (addr == 0x5c) {
@@ -103,8 +101,7 @@ public class I2CBusManager {
       }
       device.read(buf, 0, 1);
       return true;
-    }
-    catch(Exception ex){
+    } catch (Exception ex) {
       return false;
     }
   }

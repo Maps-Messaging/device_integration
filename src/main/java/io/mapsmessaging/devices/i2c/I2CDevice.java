@@ -35,15 +35,15 @@ public abstract class I2CDevice implements Device, AutoCloseable {
 
   public abstract boolean isConnected();
 
-  protected void write(int val){
+  protected void write(int val) {
     device.write(val);
   }
 
-  protected void write(byte[] buffer){
+  protected void write(byte[] buffer) {
     device.write(buffer, 0, buffer.length);
   }
 
-  protected void write(byte[] buffer, int off, int len){
+  protected void write(byte[] buffer, int off, int len) {
     device.write(buffer, off, len);
   }
 
@@ -55,23 +55,23 @@ public abstract class I2CDevice implements Device, AutoCloseable {
     device.writeRegister(register, data);
   }
 
-  protected int read(byte[] buffer){
+  protected int read(byte[] buffer) {
     return read(buffer, 0, buffer.length);
   }
 
-  protected int read(byte[] buffer, int offset, int length){
+  protected int read(byte[] buffer, int offset, int length) {
     return device.read(buffer, offset, length);
   }
 
-  protected int readRegister(int register){
+  protected int readRegister(int register) {
     return device.readRegister(register);
   }
 
-  protected int readRegister(int register, byte[] output, int offset, int length){
+  protected int readRegister(int register, byte[] output, int offset, int length) {
     return device.readRegister(register, output, offset, length);
   }
 
-  protected void delay(int ms){
+  protected void delay(int ms) {
     LockSupport.parkNanos(ms * 1000000L);
   }
 }

@@ -28,7 +28,7 @@ import java.io.IOException;
 public class BNO055Sensor extends I2CDevice {
 
   private final Logger logger = LoggerFactory.getLogger(BNO055Sensor.class);
-  private float[] myEuler = new float[3];
+  private final float[] myEuler = new float[3];
   private long lastRead;
   @Getter
   private String version;
@@ -78,20 +78,20 @@ public class BNO055Sensor extends I2CDevice {
     setMode(BNO055Constants.OPERATION_MODE_CONFIG);
   }
 
-  public void setOperationalMode()  {
+  public void setOperationalMode() {
     setMode(BNO055Constants.OPERATION_MODE_NDOF);
   }
 
-  private void setMode(byte mode)  {
+  private void setMode(byte mode) {
     write(BNO055Constants.BNO055_OPR_MODE_ADDR, mode);
     delay(30);
   }
 
-  public CalibrationStatus getCalibrationStatus()  {
+  public CalibrationStatus getCalibrationStatus() {
     return new CalibrationStatus(readRegister(BNO055Constants.BNO055_CALIB_STAT_ADDR));
   }
 
-  public float[] readEuler()  {
+  public float[] readEuler() {
     if (lastRead < System.currentTimeMillis()) {
       int[] res = readVector(BNO055Constants.BNO055_EULER_H_LSB_ADDR, 3);
       for (int x = 0; x < res.length; x++) {
@@ -102,7 +102,7 @@ public class BNO055Sensor extends I2CDevice {
     return myEuler;
   }
 
-  public float[] readMagnetometer()  {
+  public float[] readMagnetometer() {
     int[] res = readVector(BNO055Constants.BNO055_MAG_DATA_X_LSB_ADDR, 3);
     float[] ret = new float[res.length];
     for (int x = 0; x < res.length; x++) {
@@ -120,7 +120,7 @@ public class BNO055Sensor extends I2CDevice {
     return ret;
   }
 
-  public float[] readAccelerometer()  {
+  public float[] readAccelerometer() {
     int[] res = readVector(BNO055Constants.BNO055_ACCEL_DATA_X_LSB_ADDR, 3);
     float[] ret = new float[res.length];
     for (int x = 0; x < res.length; x++) {
@@ -138,7 +138,7 @@ public class BNO055Sensor extends I2CDevice {
     return ret;
   }
 
-  public float[] readGravity()  {
+  public float[] readGravity() {
     int[] res = readVector(BNO055Constants.BNO055_GRAVITY_DATA_X_LSB_ADDR, 3);
     float[] ret = new float[res.length];
     for (int x = 0; x < res.length; x++) {
@@ -147,7 +147,7 @@ public class BNO055Sensor extends I2CDevice {
     return ret;
   }
 
-  public float[] readQuaternion()  {
+  public float[] readQuaternion() {
     int[] res = readVector(BNO055Constants.BNO055_QUATERNION_DATA_W_LSB_ADDR, 4);
     float[] ret = new float[res.length];
     float scale = 1.0f / (1 << 14);
@@ -192,7 +192,7 @@ public class BNO055Sensor extends I2CDevice {
     int swLsb = readRegister(BNO055Constants.BNO055_SW_REV_ID_LSB_ADDR);
     int swMsb = readRegister(BNO055Constants.BNO055_SW_REV_ID_MSB_ADDR);
     JSONObject versionObject = new JSONObject();
-    versionObject.put("software",Float.parseFloat(swMsb + "."+swLsb) );
+    versionObject.put("software", Float.parseFloat(swMsb + "." + swLsb));
     versionObject.put("bootLoader", bl);
     versionObject.put("accelerometer", accel);
     versionObject.put("magnetometer", mag);

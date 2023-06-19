@@ -23,7 +23,7 @@ public abstract class SpiDevice implements Device {
 
   protected final Spi spi;
 
-  protected SpiDevice(Spi spi){
+  protected SpiDevice(Spi spi) {
     this.spi = spi;
   }
 

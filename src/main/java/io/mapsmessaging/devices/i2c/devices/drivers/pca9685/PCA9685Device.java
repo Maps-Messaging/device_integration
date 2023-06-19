@@ -21,6 +21,7 @@ import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos.AngleResponse;
 import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos.PwmDevice;
 import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos.Servo;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -46,7 +47,7 @@ public class PCA9685Device extends I2CDevice {
   private static final int __ALLCALL = 0x01;
   private static final int __INVRT = 0x10;
   private static final int __OUTDRV = 0x04;
-  
+
   private final BitSet myServos;
 
   private final ArrayList<PwmDevice> myServoList;
@@ -58,7 +59,7 @@ public class PCA9685Device extends I2CDevice {
     initialise();
   }
 
-  public void close()  {
+  public void close() {
     for (PwmDevice device : myServoList) {
       try {
         device.close();
@@ -75,8 +76,8 @@ public class PCA9685Device extends I2CDevice {
     byte[] registers = new byte[256];
     int read = read(registers);
     System.err.println(read);
-    for(int x=0;x<read;x++){
-      System.err.print(Integer.toHexString(registers[x])+", ");
+    for (int x = 0; x < read; x++) {
+      System.err.print(Integer.toHexString(registers[x]) + ", ");
     }
     System.err.println();
     return (read == 256);

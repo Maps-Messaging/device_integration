@@ -16,8 +16,8 @@
 
 package io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos;
 
-import io.mapsmessaging.devices.util.Delay;
 import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.PCA9685Device;
+import io.mapsmessaging.devices.util.Delay;
 
 import java.io.IOException;
 

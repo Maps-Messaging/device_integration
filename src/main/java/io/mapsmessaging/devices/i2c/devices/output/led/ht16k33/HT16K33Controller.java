@@ -16,8 +16,8 @@
 
 package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
-import io.mapsmessaging.devices.util.Delay;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
+import io.mapsmessaging.devices.util.Delay;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import org.json.JSONObject;
@@ -105,30 +105,27 @@ public abstract class HT16K33Controller implements I2CDeviceEntry {
     return config;
   }
 
-  private void clock(){
+  private void clock() {
     boolean hasColon = false;
     String val;
     LocalDateTime dateTime = LocalDateTime.now();
     int hour = dateTime.getHour();
     int min = dateTime.getMinute();
-    if(hour < 10){
-      val = "0"+hour;
+    if (hour < 10) {
+      val = "0" + hour;
+    } else {
+      val = String.valueOf(hour);
     }
-    else{
-      val = ""+hour;
-    }
-    if(hasColon){
+    if (hasColon) {
       val += " ";
-    }
-    else {
+    } else {
       val += ":";
     }
     hasColon = !hasColon;
-    if(min < 10){
-      val += "0"+min;
-    }
-    else{
-      val += ""+min;
+    if (min < 10) {
+      val += "0" + min;
+    } else {
+      val += String.valueOf(min);
     }
     dateTime.getSecond();
     dateTime.getNano();

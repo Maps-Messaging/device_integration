@@ -24,7 +24,7 @@ public interface OneWireDeviceEntry extends DeviceController {
 
   String getId();
 
-  OneWireDeviceEntry mount (File path);
+  OneWireDeviceEntry mount(File path);
 
 
 }

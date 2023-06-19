@@ -22,12 +22,12 @@ public class InterruptFactory {
 
   private final Context pi4j;
 
-  public InterruptManager create(String id, String name, int interruptPin, InterruptHandler handler){
-    return new InterruptManager(pi4j, id, name, interruptPin, handler);
+  public InterruptFactory(Context pi4j) {
+    this.pi4j = pi4j;
   }
 
-  public InterruptFactory(Context pi4j){
-    this.pi4j = pi4j;
+  public InterruptManager create(String id, String name, int interruptPin, InterruptHandler handler) {
+    return new InterruptManager(pi4j, id, name, interruptPin, handler);
   }
 
 }

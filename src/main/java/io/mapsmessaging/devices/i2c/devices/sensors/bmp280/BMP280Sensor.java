@@ -62,10 +62,12 @@ public class BMP280Sensor extends I2CDevice {
     initialise();
     scanForChange();
   }
+
   @Override
   public boolean isConnected() {
     return false;
   }
+
   private byte crc4(int[] prom) {
     int cnt; // simple counter
     int n_rem; // crc reminder

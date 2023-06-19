@@ -34,10 +34,9 @@ public class Quad7Segment extends HT16K33Driver {
       char c = val.charAt(x);
       byte map = 0;
       if (c != ' ') {
-        if(!Character.isDigit(c)){
+        if (!Character.isDigit(c)) {
           map = -1;
-        }
-        else {
+        } else {
           int index = (c - 0x30);
           map = Constants.NUMERIC_MAPPING[index];
         }

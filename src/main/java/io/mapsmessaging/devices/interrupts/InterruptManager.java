@@ -22,11 +22,11 @@ import com.pi4j.io.gpio.digital.DigitalState;
 
 import java.util.Properties;
 
-public class InterruptManager{
+public class InterruptManager {
 
   private final DigitalInput digitalInput;
 
-  public InterruptManager(Context pi4j, String id, String name, int interruptPin, InterruptHandler handler){
+  public InterruptManager(Context pi4j, String id, String name, int interruptPin, InterruptHandler handler) {
     Properties properties = new Properties();
     properties.put("id", id);
     properties.put("address", interruptPin);
@@ -38,10 +38,9 @@ public class InterruptManager{
         .build();
     digitalInput = pi4j.din().create(config);
     digitalInput.addListener(digitalStateChangeEvent -> {
-      if(digitalStateChangeEvent.state().equals(DigitalState.HIGH)){
+      if (digitalStateChangeEvent.state().equals(DigitalState.HIGH)) {
         handler.high();
-      }
-      else if(digitalStateChangeEvent.state().equals(DigitalState.LOW)){
+      } else if (digitalStateChangeEvent.state().equals(DigitalState.LOW)) {
         handler.low();
       }
     });

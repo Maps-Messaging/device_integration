@@ -26,46 +26,48 @@ import lombok.Getter;
 
 public class DeviceBusManager {
 
-  private static String[] PROVIDERS = {"pigpio-i2c", "linuxfs-i2c"};
+  private static final String[] PROVIDERS = {"pigpio-i2c", "linuxfs-i2c"};
 
-  private static DeviceBusManager instance = new DeviceBusManager();
-
-  public static DeviceBusManager getInstance(){
-    return instance;
-  }
-
+  private static final DeviceBusManager instance = new DeviceBusManager();
   private final Context pi4j;
   private final I2CProvider i2cProvider;
-
   @Getter
   private final I2CBusManager i2cBusManager;
-
   @Getter
   private final OneWireBusManager oneWireBusManager;
-
   @Getter
   private final InterruptFactory interruptFactory;
 
-  private DeviceBusManager(){
-    String provider = System.getProperty("i2C-PROVIDER", PROVIDERS[0]).toLowerCase();
-    boolean isValid = false;
-    for(String providers:PROVIDERS ){
-      if(providers.equals(provider)){
-        isValid = true;
-      }
-    }
-    if(!isValid){
-      provider = "pigpio-i2c";
-    }
+  private DeviceBusManager() {
+
 
     pi4j = Pi4J.newAutoContext();
-    i2cProvider = pi4j.provider(provider);
+    i2cProvider = pi4j.provider(getProvider());
     i2cBusManager = new I2CBusManager(pi4j, i2cProvider);
     oneWireBusManager = new OneWireBusManager();
     interruptFactory = new InterruptFactory(pi4j);
   }
 
-  public void close(){
+  public static DeviceBusManager getInstance() {
+    return instance;
+  }
+
+  private static String getProvider() {
+    String provider = System.getProperty("i2C-PROVIDER", PROVIDERS[0]).toLowerCase();
+    boolean isValid = false;
+    for (String providers : PROVIDERS) {
+      if (providers.equals(provider)) {
+        isValid = true;
+        break;
+      }
+    }
+    if (!isValid) {
+      provider = "pigpio-i2c";
+    }
+    return provider;
+  }
+
+  public void close() {
     pi4j.shutdown();
   }
 }

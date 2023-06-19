@@ -20,11 +20,10 @@ import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-
-import java.io.IOException;
-
 import lombok.Getter;
 import org.json.JSONObject;
+
+import java.io.IOException;
 
 public class PCA9685Controller implements I2CDeviceEntry {
 

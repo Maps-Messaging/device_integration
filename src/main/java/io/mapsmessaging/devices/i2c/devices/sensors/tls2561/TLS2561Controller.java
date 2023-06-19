@@ -17,9 +17,9 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.tls2561;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import lombok.Getter;
 import org.json.JSONObject;
 
@@ -65,7 +65,8 @@ public class TLS2561Controller implements I2CDeviceEntry {
   }
 
   @Override
-  public void setPayload(byte[] val) {}
+  public void setPayload(byte[] val) {
+  }
 
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig();

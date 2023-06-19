@@ -28,6 +28,7 @@ public interface DeviceController {
 
   byte[] getUpdatePayload();
 
-  default void setPayload(byte[] val){}
+  default void setPayload(byte[] val) {
+  }
 
 }

@@ -17,7 +17,9 @@
 package io.mapsmessaging.devices.oneWire;
 
 import java.io.File;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class OneWireBusManager {
@@ -27,11 +29,11 @@ public class OneWireBusManager {
 
   private final File rootDirectory;
 
-  public OneWireBusManager(){
+  public OneWireBusManager() {
     knownDevices = new LinkedHashMap<>();
     activeDevices = new ConcurrentHashMap<>();
     rootDirectory = new File("/sys/bus/w1/devices/");
-    if(rootDirectory.exists()) {
+    if (rootDirectory.exists()) {
       ServiceLoader<OneWireDeviceEntry> deviceEntries = ServiceLoader.load(OneWireDeviceEntry.class);
       for (OneWireDeviceEntry device : deviceEntries) {
         knownDevices.put(device.getId(), device);
@@ -40,19 +42,19 @@ public class OneWireBusManager {
     }
   }
 
-  public OneWireDeviceEntry get(String id){
+  public OneWireDeviceEntry get(String id) {
     return activeDevices.get(id);
   }
 
-  public Map<String, OneWireDeviceEntry> getActive(){
+  public Map<String, OneWireDeviceEntry> getActive() {
     return activeDevices;
   }
 
   public void scan() {
     File[] files = rootDirectory.listFiles();
     for (File device : files) {
-      for(String id:knownDevices.keySet()) {
-        if(device.getName().startsWith(id)) {
+      for (String id : knownDevices.keySet()) {
+        if (device.getName().startsWith(id)) {
           File data = new File(device, "w1_slave");
           if (data.exists()) {
             String path = data.toString();

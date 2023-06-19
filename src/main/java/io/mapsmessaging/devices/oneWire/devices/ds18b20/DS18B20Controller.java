@@ -39,7 +39,7 @@ public class DS18B20Controller implements OneWireDeviceEntry {
     sensor = new DS18B20Device(path);
   }
 
-  public String getId(){
+  public String getId() {
     return "28-";
   }
 
