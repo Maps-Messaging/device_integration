@@ -27,7 +27,7 @@ import java.io.IOException;
 
 public class AS3935Manager implements I2CDeviceEntry {
 
-  private final int i2cAddr = 0x5C;
+  private final int i2cAddr = 0x03;
   private final AS3935Sensor sensor;
 
   @Getter
