@@ -24,13 +24,23 @@ import java.util.Properties;
 
 public class InterruptManager {
 
+  public enum PULL {
+    DOWN,
+    UP
+  }
+
   private final DigitalInput digitalInput;
 
-  public InterruptManager(Context pi4j, String id, String name, int interruptPin, InterruptHandler handler) {
+  public InterruptManager(Context pi4j, String id, String name, int interruptPin, PULL direction, InterruptHandler handler) {
     Properties properties = new Properties();
     properties.put("id", id);
     properties.put("address", interruptPin);
-    properties.put("pull", "UP");
+    if(direction.equals(PULL.DOWN)) {
+      properties.put("pull", "DOWN");
+    }
+    else{
+      properties.put("pull", "UP");
+    }
     properties.put("name", name);
 
     var config = DigitalInput.newConfigBuilder(pi4j)

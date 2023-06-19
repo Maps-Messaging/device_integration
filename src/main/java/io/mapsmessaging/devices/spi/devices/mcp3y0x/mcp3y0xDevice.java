@@ -18,16 +18,21 @@ package io.mapsmessaging.devices.spi.devices.mcp3y0x;
 
 import com.pi4j.io.spi.Spi;
 import io.mapsmessaging.devices.spi.SpiDevice;
+import lombok.Getter;
 
 import java.io.IOException;
 
 public abstract class mcp3y0xDevice extends SpiDevice {
 
   // SPI device
+  @Getter
   protected final int channels;
+  @Getter
   protected final int bits;
+  @Getter
+  protected final int dutyCycle = 200000;
 
-  public mcp3y0xDevice(Spi spi, int bits, int channels) throws IOException {
+  protected mcp3y0xDevice(Spi spi, int bits, int channels) {
     super(spi);
     this.channels = channels;
     this.bits = bits;
@@ -40,15 +45,22 @@ public abstract class mcp3y0xDevice extends SpiDevice {
    * @return conversion value for specified analog input channel
    * @throws IOException
    */
-  public int readFromChannel(short channel) throws IOException {
+  public int readFromChannel(boolean differential, short channel) throws IOException {
     if (channel >= channels) {
       throw new IOException("Channel count exceeded physical channels");
     }
+    byte commandByte;
+    if(differential){
+      commandByte =  (byte) ((channel & 0b111) << 4);
+    }
+    else{
+      commandByte =  (byte) (0b10000000 | ((channel & 0b111) << 4));
+    }
     // create a data buffer and initialize a conversion request payload
     byte[] data = new byte[]{
-        (byte) 0b00000001,                              // first byte, start bit
-        (byte) (0b10000000 | (((channel & 7) << 4))),    // second byte transmitted -> (SGL/DIF = 1, D2=D1=D0=0)
-        (byte) 0b00000000                               // third byte transmitted....don't care
+        (byte) 0b00000001,    // first byte, start bit
+        commandByte,          // second byte transmitted -> (SGL/DIF = 1, D2=D1=D0=0)
+        (byte) 0b00000000     // third byte transmitted....don't care
     };
 
     // send conversion request to ADC chip via SPI channel
@@ -59,7 +71,7 @@ public abstract class mcp3y0xDevice extends SpiDevice {
     // calculate and return conversion value from result bytes
     int value;
     if (bits == 10) {
-      value = ((buf[1] & 0b11) << 8);
+      value = ((buf[1] & 0b0011) << 8);
     } else {
       value = ((buf[1] & 0b1111) << 8); //merge data[1] & data[2] to get 12-bit result
     }

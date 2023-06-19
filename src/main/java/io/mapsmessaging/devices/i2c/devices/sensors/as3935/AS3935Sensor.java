@@ -16,21 +16,21 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935;
 
-import com.pi4j.Pi4J;
-import com.pi4j.io.gpio.digital.DigitalInput;
-import com.pi4j.io.gpio.digital.DigitalState;
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.DeviceBusManager;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.interrupts.InterruptFactory;
+import io.mapsmessaging.devices.interrupts.InterruptHandler;
+import io.mapsmessaging.devices.interrupts.InterruptManager;
 
 import java.io.IOException;
-import java.util.Properties;
 
-public class AS3935Sensor extends I2CDevice {
+public class AS3935Sensor extends I2CDevice implements InterruptHandler {
 
-  public static final byte _IDEL = 0x0;
-  public static final byte _INTERRUPT_TOO_HIGH = 0x1;
-  public static final byte _INTERRUPT_DISTURBER = 0x4;
-  public static final byte _INTERRUPT_LIGHTNING = 0x8;
+  public static final byte IDLE = 0x0;
+  public static final byte INTERRUPT_TOO_HIGH = 0x1;
+  public static final byte INTERRUPT_DISTURBER = 0x4;
+  public static final byte INTERRUPT_LIGHTNING = 0x8;
 
   private final byte[] registers;
   private final int tuning;
@@ -39,30 +39,16 @@ public class AS3935Sensor extends I2CDevice {
     super(device);
     registers = new byte[128];
     this.tuning = tuning;
-    initialise();
+    setup();
 
     if (pinNumber > -1) {
-      Properties properties = new Properties();
-      properties.put("id", "AS3935InterruptPin");
-      properties.put("address", pinNumber);
-      properties.put("pull", "DOWN");
-      properties.put("name", "AS3935InterruptPin");
-      var pi4j = Pi4J.newAutoContext();
-      var config = DigitalInput.newConfigBuilder(pi4j)
-          .load(properties)
-          .build();
-
-      var input = pi4j.din().create(config);
-      input.addListener(e -> {
-        if (e.state() == DigitalState.HIGH) {
-          delay(2);
-          try {
-            read_data();
-          } catch (IOException ex) {
-            throw new RuntimeException(ex);
-          }
-        }
-      });
+      InterruptFactory interruptFactory = DeviceBusManager.getInstance().getInterruptFactory();
+      interruptFactory.create(
+          "AS3935InterruptPin",
+          "AS3935InterruptPin",
+          pinNumber,
+          InterruptManager.PULL.DOWN,
+          this);
     }
   }
 
@@ -111,13 +97,13 @@ public class AS3935Sensor extends I2CDevice {
     byte interrupt = (byte) (registers[3] & 0xf);
     String reason = "";
     switch (interrupt) {
-      case _INTERRUPT_DISTURBER:
+      case INTERRUPT_DISTURBER:
         reason = "DISTURBER";
         break;
-      case _INTERRUPT_LIGHTNING:
+      case INTERRUPT_LIGHTNING:
         reason = "LIGHTNING";
         break;
-      case _INTERRUPT_TOO_HIGH:
+      case INTERRUPT_TOO_HIGH:
         reason = "NOISE";
         break;
       default:
@@ -148,7 +134,7 @@ public class AS3935Sensor extends I2CDevice {
     read(registers, 0, 64);
   }
 
-  public boolean initialise() throws IOException {
+  public boolean setup() throws IOException {
     delay(80);
     read_data();
     if (tuning != 0) {
@@ -179,5 +165,15 @@ public class AS3935Sensor extends I2CDevice {
   @Override
   public String getDescription() {
     return "Lightning detector and warning sensor";
+  }
+
+  @Override
+  public void high() {
+    delay(2);
+    try {
+      read_data();
+    } catch (IOException ex) {
+      // not much we can do here, we are in an interrupt handler
+    }
   }
 }

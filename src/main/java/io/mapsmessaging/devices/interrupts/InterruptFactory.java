@@ -26,8 +26,8 @@ public class InterruptFactory {
     this.pi4j = pi4j;
   }
 
-  public InterruptManager create(String id, String name, int interruptPin, InterruptHandler handler) {
-    return new InterruptManager(pi4j, id, name, interruptPin, handler);
+  public InterruptManager create(String id, String name, int interruptPin, InterruptManager.PULL direction, InterruptHandler handler) {
+    return new InterruptManager(pi4j, id, name, interruptPin, direction, handler);
   }
 
 }

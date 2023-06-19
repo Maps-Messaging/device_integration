@@ -39,8 +39,9 @@ public class Mcp3y0xController extends SpiDeviceController {
 
   public byte[] getStaticPayload() {
     JSONObject jsonObject = new JSONObject();
-    jsonObject.put("Bits", device.bits);
-    jsonObject.put("Channels", device.channels);
+    jsonObject.put("resolution", device.getBits());
+    jsonObject.put("channels", device.getChannels());
+    jsonObject.put("dutyCycle", device.getDutyCycle());
     return jsonObject.toString(2).getBytes();
   }
 
@@ -49,18 +50,13 @@ public class Mcp3y0xController extends SpiDeviceController {
     JSONArray jsonArray = new JSONArray();
     for(short x=0;x<device.channels;x++){
       try {
-        jsonArray.put(device.readFromChannel(x));
+        jsonArray.put(device.readFromChannel(false, x));
       } catch (IOException e) {
         jsonArray.put(Integer.MIN_VALUE);
       }
     }
     jsonObject.put("current", jsonArray);
     return jsonObject.toString(2).getBytes();
-  }
-
-  @Override
-  public void setPayload(byte[] val) {
-
   }
 
   public SchemaConfig getSchema() {
