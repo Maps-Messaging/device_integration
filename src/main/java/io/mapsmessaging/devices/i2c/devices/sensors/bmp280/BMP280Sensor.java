@@ -174,4 +174,14 @@ public class BMP280Sensor extends I2CDevice {
       temperature = temp;
     }
   }
+
+  @Override
+  public String getName() {
+    return "BMP280";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Temperature and Pressure sensor";
+  }
 }

@@ -84,4 +84,14 @@ public class AM2320Sensor extends I2CDevice {
     return crc & 0xFFFF; // Return only the lower 16 bits
   }
 
+
+  @Override
+  public String getName() {
+    return "AM2320";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Temperature and Humidity sensor";
+  }
 }

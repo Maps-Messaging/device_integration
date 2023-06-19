@@ -17,9 +17,11 @@
 package io.mapsmessaging.devices.i2c;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.Device;
+
 import java.util.concurrent.locks.LockSupport;
 
-public abstract class I2CDevice implements AutoCloseable {
+public abstract class I2CDevice implements Device, AutoCloseable {
 
   protected I2C device;
 

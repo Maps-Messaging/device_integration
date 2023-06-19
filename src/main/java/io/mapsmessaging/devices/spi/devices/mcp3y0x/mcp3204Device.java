@@ -10,4 +10,10 @@ public class mcp3204Device extends mcp3y0xDevice {
   public mcp3204Device(Spi spi) throws IOException {
     super(spi, 12, 4);
   }
+
+  @Override
+  public String getName() {
+    return "MCP3204";
+  }
+
 }

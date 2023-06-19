@@ -54,4 +54,13 @@ public class Quad7Segment extends HT16K33Driver {
     return buf;
   }
 
+  @Override
+  public String getName() {
+    return "Quad LED";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Quad 7 segment numeric LED";
+  }
 }

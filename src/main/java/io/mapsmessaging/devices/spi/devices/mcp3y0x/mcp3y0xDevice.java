@@ -21,7 +21,7 @@ import io.mapsmessaging.devices.spi.SpiDevice;
 
 import java.io.IOException;
 
-public class mcp3y0xDevice extends SpiDevice {
+public abstract class mcp3y0xDevice extends SpiDevice {
 
   // SPI device
   protected final int channels;
@@ -65,5 +65,10 @@ public class mcp3y0xDevice extends SpiDevice {
     }
     value |=  (buf[2] & 0xff);
     return value;
+  }
+
+  @Override
+  public String getDescription() {
+    return "Microchip Technology Analog to Digital "+channels+" channel "+bits+" bit convertor";
   }
 }

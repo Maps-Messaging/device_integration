@@ -45,4 +45,15 @@ public class QuadAlphaNumeric extends HT16K33Driver {
     }
     return buf;
   }
+
+  @Override
+  public String getName() {
+    return "Quad Alpha-Numeric LED";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Quad Alpha-Numeric LED";
+  }
+
 }

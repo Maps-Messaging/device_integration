@@ -169,4 +169,13 @@ public class AS3935Sensor extends I2CDevice {
   }
 
 
+  @Override
+  public String getName() {
+    return "AS3935";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Lightning detector and warning sensor";
+  }
 }

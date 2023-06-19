@@ -191,4 +191,14 @@ public class AM2315Sensor extends I2CDevice {
     }
     return new byte[0];
   }
+
+  @Override
+  public String getName() {
+    return "AM2315";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Encased Temperature and Humidity sensor";
+  }
 }

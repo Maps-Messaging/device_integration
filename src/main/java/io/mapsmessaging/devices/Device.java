@@ -14,17 +14,12 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.spi;
+package io.mapsmessaging.devices;
 
-import com.pi4j.io.spi.Spi;
-import io.mapsmessaging.devices.Device;
+public interface Device {
 
-public abstract class SpiDevice implements Device {
+  String getName();
 
-  protected final Spi spi;
-
-  protected SpiDevice(Spi spi){
-    this.spi = spi;
-  }
+  String getDescription();
 
 }

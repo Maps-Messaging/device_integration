@@ -148,4 +148,13 @@ public class PCA9685Device extends I2CDevice {
     write(__ALL_LED_OFF_H, (byte) (off >> 8));
   }
 
+  @Override
+  public String getName() {
+    return "PCA9685";
+  }
+
+  @Override
+  public String getDescription() {
+    return "PCA9685 16 port PWM controller";
+  }
 }

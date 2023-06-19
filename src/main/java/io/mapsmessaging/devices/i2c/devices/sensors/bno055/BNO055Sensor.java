@@ -212,4 +212,14 @@ public class BNO055Sensor extends I2CDevice {
   private int convert(byte lsb, byte msb) {
     return ((msb & 0xFF) << 8) | (lsb & 0xFF);
   }
+
+  @Override
+  public String getName() {
+    return "BNO055";
+  }
+
+  @Override
+  public String getDescription() {
+    return "3 Axis orientation sensor";
+  }
 }

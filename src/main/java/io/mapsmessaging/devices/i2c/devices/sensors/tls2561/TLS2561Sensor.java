@@ -120,6 +120,16 @@ public class TLS2561Sensor extends I2CDevice {
     return lux * integrationTime.getScale();
   }
 
+  @Override
+  public String getName() {
+    return "TLS2561";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Light sensor and Lux computation";
+  }
+
 
   public enum IntegrationTime {
     MS_13_7((byte)0, 14, 1.0),
