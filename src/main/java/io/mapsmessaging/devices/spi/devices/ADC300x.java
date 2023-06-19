@@ -14,9 +14,10 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.spi;
+package io.mapsmessaging.devices.spi.devices;
 
 import com.pi4j.io.spi.Spi;
+import io.mapsmessaging.devices.spi.SpiDevice;
 import lombok.Getter;
 
 import java.io.IOException;
