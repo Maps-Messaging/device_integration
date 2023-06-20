@@ -29,9 +29,7 @@ public class TLS2561Sensor extends I2CDevice {
 
   private final Logger logger = LoggerFactory.getLogger(TLS2561Sensor.class);
 
-  @Getter
   private int full;
-  @Getter
   private int ir;
 
   @Getter
@@ -96,10 +94,19 @@ public class TLS2561Sensor extends I2CDevice {
     }
   }
 
+  public int getIr(){
+    scanForChange();
+    return ir;
+  }
+
+  public int getFull(){
+    scanForChange();
+    return full;
+  }
+
   public double calculateLux() {
     scanForChange();
     double channelRatio = ir / (double) full;
-
     double lux;
     if (channelRatio <= 0.5) {
       lux = 0.0304 * full - 0.062 * full * Math.pow(channelRatio, 1.4);

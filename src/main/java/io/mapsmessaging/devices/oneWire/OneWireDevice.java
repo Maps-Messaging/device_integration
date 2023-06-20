@@ -36,7 +36,7 @@ public abstract class OneWireDevice {
 
   public abstract void process(List<String> data);
 
-  private void readData() {
+  public void update() {
     List<String> ret = new ArrayList<>();
     try (Scanner scanner = new Scanner(myDataFile)) {
       String line;

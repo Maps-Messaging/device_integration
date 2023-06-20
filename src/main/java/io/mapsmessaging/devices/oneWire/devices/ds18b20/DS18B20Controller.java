@@ -60,15 +60,18 @@ public class DS18B20Controller implements OneWireDeviceEntry {
 
   @Override
   public byte[] getStaticPayload() {
-    return new byte[0];
+    return "{}".getBytes();
   }
 
   @Override
   public byte[] getUpdatePayload() {
     JSONObject jsonObject = new JSONObject();
-    jsonObject.put("temperature", sensor.getCurrent());
-    jsonObject.put("minimum", sensor.getMin());
-    jsonObject.put("maximum", sensor.getMax());
+    if(sensor != null) {
+      sensor.update();
+      jsonObject.put("temperature", sensor.getCurrent());
+      jsonObject.put("minimum", sensor.getMin());
+      jsonObject.put("maximum", sensor.getMax());
+    }
     return jsonObject.toString(2).getBytes();
   }
 }

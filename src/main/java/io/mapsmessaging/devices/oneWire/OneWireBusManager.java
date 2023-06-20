@@ -57,7 +57,7 @@ public class OneWireBusManager {
         if (device.getName().startsWith(id)) {
           File data = new File(device, "w1_slave");
           if (data.exists()) {
-            String path = data.toString();
+            String path = device.getName();
             if (!activeDevices.containsKey(path)) {
               OneWireDeviceEntry entry = knownDevices.get(id);
               activeDevices.put(path, entry.mount(data));
