@@ -38,7 +38,7 @@ public class AS3935Controller implements I2CDeviceEntry {
   }
 
   protected AS3935Controller(I2C device) throws IOException {
-    sensor = new AS3935Sensor(device, 0, -1);
+    sensor = new AS3935Sensor(device, 0);
   }
 
   @Override
@@ -52,27 +52,26 @@ public class AS3935Controller implements I2CDeviceEntry {
 
   public byte[] getStaticPayload() {
     JSONObject jsonObject = new JSONObject();
-    jsonObject.put("Reason", sensor.getReason());
-    jsonObject.put("Distance", sensor.getDistance());
-    jsonObject.put("MinimumStrikes", sensor.getMinimumStrikes());
-    jsonObject.put("Strength", sensor.getStrength());
-    jsonObject.put("Registers", sensor.getRegisters());
+    if(sensor != null) {
+      jsonObject.put("Reason", sensor.getReason());
+      jsonObject.put("Distance", sensor.getDistance());
+      jsonObject.put("MinimumStrikes", sensor.getMinimumStrikes());
+      jsonObject.put("Strength", sensor.getStrength());
+      jsonObject.put("Registers", sensor.getRegisters());
+    }
     return jsonObject.toString(2).getBytes();
   }
 
   public byte[] getUpdatePayload() {
     JSONObject jsonObject = new JSONObject();
-    jsonObject.put("Reason", sensor.getReason());
-    jsonObject.put("Distance", sensor.getDistance());
-    jsonObject.put("MinimumStrikes", sensor.getMinimumStrikes());
-    jsonObject.put("Strength", sensor.getStrength());
-    jsonObject.put("Registers", sensor.getRegisters());
+    if(sensor != null) {
+      jsonObject.put("Reason", sensor.getReason());
+      jsonObject.put("Distance", sensor.getDistance());
+      jsonObject.put("MinimumStrikes", sensor.getMinimumStrikes());
+      jsonObject.put("Strength", sensor.getStrength());
+      jsonObject.put("Registers", sensor.getRegisters());
+    }
     return jsonObject.toString(2).getBytes();
-  }
-
-  @Override
-  public void setPayload(byte[] val) {
-
   }
 
   public SchemaConfig getSchema() {
