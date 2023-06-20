@@ -27,17 +27,19 @@ import java.nio.ByteOrder;
 
 public class TLS2561Sensor extends I2CDevice {
 
-  public static int VISIBLE_LIGHT_LEVEL = 0;
-  public static int INFERRED_LIGHT_LEVEL = 1;
-  public static int LUX_VALUE = 2;
-
   private final Logger logger = LoggerFactory.getLogger(TLS2561Sensor.class);
 
+  @Getter
   private int full;
+  @Getter
   private int ir;
+
+  @Getter
   private byte highGain;
+
   private long lastRead;
 
+  @Getter
   private IntegrationTime integrationTime;
 
   public TLS2561Sensor(I2C device) {
@@ -49,7 +51,7 @@ public class TLS2561Sensor extends I2CDevice {
 
   @Override
   public boolean isConnected() {
-    return false;
+    return true;
   }
 
   public synchronized void setIntegrationTime(IntegrationTime times, boolean highGain) {
@@ -76,14 +78,6 @@ public class TLS2561Sensor extends I2CDevice {
     powerOn();
     setIntegrationTime(IntegrationTime.MS_402, false);
     return true;
-  }
-
-  public int[] getLevels() {
-    scanForChange();
-    int[] result = new int[3];
-    result[0] = full;
-    result[1] = ir;
-    return result;
   }
 
   private synchronized void scanForChange() {
@@ -149,6 +143,5 @@ public class TLS2561Sensor extends I2CDevice {
       this.time = integrationTime;
       this.scale = scale;
     }
-
   }
 }

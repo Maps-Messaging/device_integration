@@ -38,7 +38,7 @@ public class TLS2561Controller implements I2CDeviceEntry {
     sensor = null;
   }
 
-  public TLS2561Controller(I2C device) throws IOException {
+  public TLS2561Controller(I2C device){
     sensor = new TLS2561Sensor(device);
   }
 
@@ -47,25 +47,25 @@ public class TLS2561Controller implements I2CDeviceEntry {
     return sensor != null && sensor.isConnected();
   }
 
-  public I2CDeviceEntry mount(I2C device) throws IOException {
+  public I2CDeviceEntry mount(I2C device) {
     return new TLS2561Controller(device);
   }
 
   public byte[] getStaticPayload() {
-    return "{}".getBytes();
-  }
-
-  public byte[] getUpdatePayload() {
-    int[] result = sensor.getLevels();
     JSONObject jsonObject = new JSONObject();
-    jsonObject.put("ch0", result[0]);
-    jsonObject.put("ch1", result[1]);
-    jsonObject.put("lux", sensor.calculateLux());
+    if(sensor != null) {
+      jsonObject.put("integration", sensor.getIntegrationTime().getTime());
+      jsonObject.put("highGain", sensor.getHighGain() != 0);
+    }
     return jsonObject.toString(2).getBytes();
   }
 
-  @Override
-  public void setPayload(byte[] val) {
+  public byte[] getUpdatePayload() {
+    JSONObject jsonObject = new JSONObject();
+    jsonObject.put("ch0", sensor.getFull());
+    jsonObject.put("ch1", sensor.getIr());
+    jsonObject.put("lux", sensor.calculateLux());
+    return jsonObject.toString(2).getBytes();
   }
 
   public SchemaConfig getSchema() {

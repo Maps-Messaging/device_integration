@@ -73,14 +73,7 @@ public class PCA9685Device extends I2CDevice {
 
   @Override
   public boolean isConnected() {
-    byte[] registers = new byte[256];
-    int read = read(registers);
-    System.err.println(read);
-    for (int x = 0; x < read; x++) {
-      System.err.print(Integer.toHexString(registers[x]) + ", ");
-    }
-    System.err.println();
-    return (read == 256);
+    return true;
   }
 
   public Servo allocateServo(int port, AngleResponse response) throws IOException {
@@ -131,7 +124,7 @@ public class PCA9685Device extends I2CDevice {
     write(__LED0_OFF_H + 4 * channel, (byte) (off >> 8));
   }
 
-  private void initialise() throws IOException {
+  private void initialise() {
     setAllPWM((byte) 0, (byte) 0); // Reset ALL servos
     write(__MODE2, (byte) __OUTDRV);
     write(__MODE1, (byte) __ALLCALL);

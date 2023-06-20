@@ -18,27 +18,33 @@ package io.mapsmessaging.devices.i2c.devices.drivers.pca9685;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
+import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos.*;
+import io.mapsmessaging.devices.util.Delay;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PCA9685Controller implements I2CDeviceEntry {
 
   private final int i2cAddr = 0x40;
-  private final PCA9685Device sensor;
+  private final PCA9685Device device;
+  private final List<Servo> connected = new ArrayList<>();
 
   @Getter
   private final String name = "PCA9685";
 
   public PCA9685Controller() {
-    sensor = null;
+    device = null;
   }
 
   public PCA9685Controller(I2C device) throws IOException {
-    sensor = new PCA9685Device(device);
+    this.device = new PCA9685Device(device);
+    this.device.setPWMFrequency(60);
   }
 
 
@@ -63,7 +69,7 @@ public class PCA9685Controller implements I2CDeviceEntry {
 
   @Override
   public boolean detect() {
-    return sensor != null && sensor.isConnected();
+    return device != null && device.isConnected();
   }
 
   public SchemaConfig getSchema() {

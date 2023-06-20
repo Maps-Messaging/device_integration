@@ -58,15 +58,19 @@ public class I2CBusManager {
       if (!activeDevices.containsKey(Integer.toHexString(x))) {
         List<I2CDeviceEntry> deviceList = knownDevices.get(x);
         if (deviceList != null && !deviceList.isEmpty()) {
-          I2CConfig i2cConfig = I2C.newConfigBuilder(pi4j)
-              .id("Device::" + Integer.toHexString(x))
-              .description("Device::" + Integer.toHexString(x))
-              .bus(1)
-              .device(x)
-              .build();
-          I2C device = i2cProvider.create(i2cConfig);
-          for (I2CDeviceEntry deviceEntry : deviceList) {
-            attemptToConnect(x, device, deviceEntry);
+          try {
+            I2CConfig i2cConfig = I2C.newConfigBuilder(pi4j)
+                .id("Device::" + Integer.toHexString(x))
+                .description("Device::" + Integer.toHexString(x))
+                .bus(1)
+                .device(x)
+                .build();
+            I2C device = i2cProvider.create(i2cConfig);
+            for (I2CDeviceEntry deviceEntry : deviceList) {
+              attemptToConnect(x, device, deviceEntry);
+            }
+          } catch (Exception e) {
+            // Ignore
           }
         }
       }
@@ -79,6 +83,7 @@ public class I2CBusManager {
         I2CDeviceEntry physicalDevice = deviceEntry.mount(device);
         if (physicalDevice.detect()) {
           activeDevices.put(Integer.toHexString(addr), physicalDevice);
+          System.err.println("Found Device "+physicalDevice.getName());
         }
       } catch (IOException e) {
         e.printStackTrace();

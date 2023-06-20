@@ -62,7 +62,7 @@ public class DeviceBusManager {
       }
     }
     if (!isValid) {
-      provider = "pigpio-i2c";
+      provider = PROVIDERS[0];
     }
     return provider;
   }
