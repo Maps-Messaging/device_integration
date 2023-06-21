@@ -21,15 +21,15 @@ import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
+import org.everit.json.schema.*;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
 
 public class AM2315Controller implements I2CDeviceEntry {
 
-  private final int i2cAddr = 0x5C;
   private final AM2315Sensor sensor;
+
   @Getter
   private final String name = "AM2315";
 
@@ -60,33 +60,69 @@ public class AM2315Controller implements I2CDeviceEntry {
 
   public byte[] getUpdatePayload() {
     JSONObject jsonObject = new JSONObject();
-    jsonObject.put("temperature", sensor.getTemperature());
-    jsonObject.put("humidity", sensor.getHumidity());
+    if(sensor != null) {
+      jsonObject.put("temperature", sensor.getTemperature());
+      jsonObject.put("humidity", sensor.getHumidity());
+    }
     return jsonObject.toString(2).getBytes();
   }
 
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig();
+    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setComments("i2c device AM2315 encased Temperature and Humidity Sensor https://www.adafruit.com/product/1293");
     config.setSource("I2C bus address : 0x5C");
     config.setVersion("1.0");
     config.setResourceType("sensor");
     config.setInterfaceDescription("temperature, humidity");
-    try {
-      System.err.println(config.pack());
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
     return config;
   }
 
   @Override
   public int[] getAddressRange() {
+    int i2cAddr = 0x5C;
     return new int[]{i2cAddr};
   }
 
-  public static void main(String[] args){
-    AM2315Controller controller = new AM2315Controller();
-    controller.getSchema();
+
+  private Schema buildSchema() {
+    ObjectSchema.Builder staticSchema = ObjectSchema.builder()
+        .addPropertySchema("model",
+            StringSchema.builder()
+                .description("Model number of sensor")
+                .build()
+        )
+        .addPropertySchema("status",
+            BooleanSchema.builder()
+                .description("Current Status")
+                .build())
+        .addPropertySchema("version",
+        BooleanSchema.builder()
+            .description("Chip Version")
+            .build());
+
+    ObjectSchema.Builder updateSchema = ObjectSchema.builder()
+        .addPropertySchema("temperature",
+            NumberSchema.builder()
+                .minimum(-40.0)
+                .maximum(80.0)
+                .description("Temperature")
+                .build()
+        )
+        .addPropertySchema("humidity",
+            NumberSchema.builder()
+                .minimum(0.0)
+                .maximum(100.0)
+                .description("Humidity")
+                .build()
+        );
+
+    ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
+    schemaBuilder
+        .addPropertySchema("updateSchema", updateSchema.build())
+        .addPropertySchema("staticSchema", staticSchema.build())
+        .description("Humidity and Temperature Module")
+        .title("AM2315");
+
+    return schemaBuilder.build();
   }
 }

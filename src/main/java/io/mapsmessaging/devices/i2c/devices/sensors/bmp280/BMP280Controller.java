@@ -21,6 +21,9 @@ import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
+import org.everit.json.schema.NumberSchema;
+import org.everit.json.schema.ObjectSchema;
+import org.everit.json.schema.Schema;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -69,7 +72,7 @@ public class BMP280Controller implements I2CDeviceEntry {
   }
 
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig();
+    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setComments("i2c device BMP280 Pressure and Temperature Sensor https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/bmp280/");
     config.setSource("I2C bus address : 0x76");
     config.setVersion("1.0");
@@ -81,5 +84,31 @@ public class BMP280Controller implements I2CDeviceEntry {
   @Override
   public int[] getAddressRange() {
     return new int[]{i2cAddr};
+  }
+
+  private Schema buildSchema() {
+    ObjectSchema.Builder updateSchema = ObjectSchema.builder()
+        .addPropertySchema("temperature",
+            NumberSchema.builder()
+                .minimum(-40.0)
+                .maximum(80.0)
+                .description("Temperature")
+                .build()
+        )
+        .addPropertySchema("pressure",
+            NumberSchema.builder()
+                .minimum(0.0)
+                .maximum(100.0)
+                .description("Humidity")
+                .build()
+        );
+
+    ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
+    schemaBuilder
+        .addPropertySchema("updateSchema", updateSchema.build())
+        .description("pressure and Temperature Module")
+        .title("BMP280");
+
+    return schemaBuilder.build();
   }
 }

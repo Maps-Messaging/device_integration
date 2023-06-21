@@ -21,6 +21,7 @@ import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
+import org.everit.json.schema.*;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -69,7 +70,7 @@ public class AM2320Controller implements I2CDeviceEntry {
   }
 
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig();
+    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setComments("i2c device AM2320 Pressure and Temperature Sensor https://learn.adafruit.com/adafruit-am2320-temperature-humidity-i2c-sensor");
     config.setSource("I2C bus address : 0x5C");
     config.setVersion("1.0");
@@ -81,5 +82,31 @@ public class AM2320Controller implements I2CDeviceEntry {
   @Override
   public int[] getAddressRange() {
     return new int[]{i2cAddr};
+  }
+
+  private Schema buildSchema() {
+    ObjectSchema.Builder updateSchema = ObjectSchema.builder()
+        .addPropertySchema("temperature",
+            NumberSchema.builder()
+                .minimum(-40.0)
+                .maximum(80.0)
+                .description("Temperature")
+                .build()
+        )
+        .addPropertySchema("humidity",
+            NumberSchema.builder()
+                .minimum(0.0)
+                .maximum(100.0)
+                .description("Humidity")
+                .build()
+        );
+
+    ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
+    schemaBuilder
+        .addPropertySchema("updateSchema", updateSchema.build())
+        .description("Humidity and Temperature Module")
+        .title("AM2320");
+
+    return schemaBuilder.build();
   }
 }
