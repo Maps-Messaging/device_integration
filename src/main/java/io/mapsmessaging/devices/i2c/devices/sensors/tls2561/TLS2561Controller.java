@@ -21,6 +21,7 @@ import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
+import org.everit.json.schema.*;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -75,7 +76,49 @@ public class TLS2561Controller implements I2CDeviceEntry {
     config.setVersion("1.0");
     config.setResourceType("sensor");
     config.setInterfaceDescription("Returns JSON object containing light and IR light levels");
+    Schema schema = buildSchema();
     return config;
+  }
+
+  private Schema buildSchema() {
+    ObjectSchema.Builder schemaBuilder = ObjectSchema.builder()
+        .addPropertySchema("integration",
+            StringSchema.builder()
+                .pattern("^MS_\\d{1,3}$")
+                .description("Integration time to compute the values, 14ms, 101ms and 402ms default 402")
+                .build()
+        )
+        .addPropertySchema("highGain",
+            BooleanSchema.builder()
+                .description("High Gain enabled or disabled")
+                .build());
+
+    schemaBuilder
+        .addPropertySchema("ch0",
+            NumberSchema.builder()
+                .minimum(0)
+                .maximum(65535)
+                .description("Light and IR levels")
+                .build()
+        )
+        .addPropertySchema("ch1",
+            NumberSchema.builder()
+                .minimum(0)
+                .maximum(65535)
+                .description("IR levels")
+                .build()
+        )
+        .addPropertySchema("lux",
+            NumberSchema.builder()
+                .description("Computed LUX value")
+                .build()
+        );
+
+    schemaBuilder
+        .description("Digital Luminosity/Lux/Light Sensor Breakout")
+        .title("TLS2561");
+
+    return schemaBuilder.build();
   }
 
   @Override
