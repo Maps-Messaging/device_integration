@@ -24,16 +24,12 @@ import lombok.Getter;
 import org.everit.json.schema.*;
 import org.json.JSONObject;
 
-import java.io.IOException;
-
 public class TLS2561Controller implements I2CDeviceEntry {
 
-  private final int i2cAddr = 0x39;
   private final TLS2561Sensor sensor;
 
   @Getter
   private final String name = "TLS2561";
-
 
   public TLS2561Controller() {
     sensor = null;
@@ -70,18 +66,23 @@ public class TLS2561Controller implements I2CDeviceEntry {
   }
 
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig();
+    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setComments("i2c device TLS2561 light sensor, returns light and IR light levels and computed lux level");
     config.setSource("I2C bus address : 0x39");
     config.setVersion("1.0");
     config.setResourceType("sensor");
     config.setInterfaceDescription("Returns JSON object containing light and IR light levels");
-    Schema schema = buildSchema();
     return config;
   }
 
+  @Override
+  public int[] getAddressRange() {
+    int i2cAddr = 0x39;
+    return new int[]{i2cAddr};
+  }
+
   private Schema buildSchema() {
-    ObjectSchema.Builder schemaBuilder = ObjectSchema.builder()
+    ObjectSchema.Builder staticSchema = ObjectSchema.builder()
         .addPropertySchema("integration",
             StringSchema.builder()
                 .pattern("^MS_\\d{1,3}$")
@@ -93,7 +94,7 @@ public class TLS2561Controller implements I2CDeviceEntry {
                 .description("High Gain enabled or disabled")
                 .build());
 
-    schemaBuilder
+    ObjectSchema.Builder updateSchema = ObjectSchema.builder()
         .addPropertySchema("ch0",
             NumberSchema.builder()
                 .minimum(0)
@@ -114,15 +115,13 @@ public class TLS2561Controller implements I2CDeviceEntry {
                 .build()
         );
 
+    ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
     schemaBuilder
+        .addPropertySchema("updateSchema", updateSchema.build())
+        .addPropertySchema("staticSchema", staticSchema.build())
         .description("Digital Luminosity/Lux/Light Sensor Breakout")
         .title("TLS2561");
 
     return schemaBuilder.build();
-  }
-
-  @Override
-  public int[] getAddressRange() {
-    return new int[]{i2cAddr};
   }
 }
