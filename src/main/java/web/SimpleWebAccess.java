@@ -1,4 +1,4 @@
-package io.mapsmessaging.devices.web;
+package web;
 
 import io.javalin.Javalin;
 import io.mapsmessaging.devices.DeviceBusManager;
@@ -18,11 +18,13 @@ public class SimpleWebAccess {
 
   public SimpleWebAccess() {
     deviceBusManager = DeviceBusManager.getInstance();
+    deviceBusManager.getI2cBusManager().scanForDevices();
   }
 
   public static void main(String[] args) {
     SimpleWebAccess simpleWebAccess = new SimpleWebAccess();
     simpleWebAccess.startServer();
+
   }
 
   private void startServer() {
