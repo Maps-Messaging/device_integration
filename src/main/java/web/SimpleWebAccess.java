@@ -24,7 +24,6 @@ public class SimpleWebAccess {
   public static void main(String[] args) {
     SimpleWebAccess simpleWebAccess = new SimpleWebAccess();
     simpleWebAccess.startServer();
-
   }
 
   private void startServer() {
@@ -65,6 +64,18 @@ public class SimpleWebAccess {
         ctx.status(404).result("Device not found");
       }
     });
+    app.get("/device/i2c/{id}/schema", ctx -> {
+      String id = ctx.pathParam("id");
+      I2CDeviceEntry device = deviceBusManager.getI2cBusManager().get(id);
+      if (device != null) {
+        JSONObject result = new JSONObject();
+        result.put("schema", new JSONObject(new String(device.getSchema().toString())));
+        ctx.json(result.toString(2));
+      } else {
+        ctx.status(404).result("Device not found");
+      }
+    });
+
     app.get("/device/1wire/{id}", ctx -> {
       String id = ctx.pathParam("id");
       OneWireDeviceEntry device = deviceBusManager.getOneWireBusManager().get(id);
@@ -72,6 +83,17 @@ public class SimpleWebAccess {
         JSONObject result = new JSONObject();
         result.put("static", new JSONObject(new String(device.getStaticPayload())));
         result.put("update", new JSONObject(new String(device.getUpdatePayload())));
+        ctx.json(result.toString(2));
+      } else {
+        ctx.status(404).result("Device not found");
+      }
+    });
+    app.get("/device/1wire/{id}/schema", ctx -> {
+      String id = ctx.pathParam("id");
+      OneWireDeviceEntry device = deviceBusManager.getOneWireBusManager().get(id);
+      if (device != null) {
+        JSONObject result = new JSONObject();
+        result.put("schema", new JSONObject(new String(device.getSchema().toString())));
         ctx.json(result.toString(2));
       } else {
         ctx.status(404).result("Device not found");
