@@ -20,6 +20,7 @@ import com.pi4j.context.Context;
 import com.pi4j.io.i2c.I2C;
 import com.pi4j.io.i2c.I2CConfig;
 import com.pi4j.io.i2c.I2CProvider;
+import io.mapsmessaging.devices.DeviceController;
 
 import java.io.IOException;
 import java.util.*;
@@ -29,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 public class I2CBusManager {
 
   private final Map<Integer, List<I2CDeviceEntry>> knownDevices;
-  private final Map<String, I2CDeviceEntry> activeDevices;
+  private final Map<String, DeviceController> activeDevices;
 
   private final Context pi4j;
   private final I2CProvider i2cProvider;
@@ -49,7 +50,7 @@ public class I2CBusManager {
     }
   }
 
-  public Map<String, I2CDeviceEntry> getActive() {
+  public Map<String, DeviceController> getActive() {
     return activeDevices;
   }
 
@@ -112,6 +113,6 @@ public class I2CBusManager {
   }
 
   public I2CDeviceEntry get(String id) {
-    return activeDevices.get(id);
+    return (I2CDeviceEntry) activeDevices.get(id);
   }
 }

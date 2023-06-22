@@ -16,6 +16,8 @@
 
 package io.mapsmessaging.devices.oneWire;
 
+import io.mapsmessaging.devices.DeviceController;
+
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -25,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class OneWireBusManager {
 
   private final Map<String, OneWireDeviceEntry> knownDevices;
-  private final Map<String, OneWireDeviceEntry> activeDevices;
+  private final Map<String, DeviceController> activeDevices;
 
   private final File rootDirectory;
 
@@ -43,10 +45,10 @@ public class OneWireBusManager {
   }
 
   public OneWireDeviceEntry get(String id) {
-    return activeDevices.get(id);
+    return (OneWireDeviceEntry) activeDevices.get(id);
   }
 
-  public Map<String, OneWireDeviceEntry> getActive() {
+  public Map<String, DeviceController> getActive() {
     return activeDevices;
   }
 

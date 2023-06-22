@@ -24,6 +24,8 @@ import lombok.Getter;
 import org.everit.json.schema.*;
 import org.json.JSONObject;
 
+import java.io.IOException;
+
 public class TLS2561Controller implements I2CDeviceEntry {
 
   private final TLS2561Sensor sensor;
