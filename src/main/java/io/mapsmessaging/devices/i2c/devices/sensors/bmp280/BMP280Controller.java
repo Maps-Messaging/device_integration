@@ -66,11 +66,6 @@ public class BMP280Controller implements I2CDeviceEntry {
   }
 
 
-  @Override
-  public void setPayload(byte[] val) {
-
-  }
-
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setComments("i2c device BMP280 Pressure and Temperature Sensor https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/bmp280/");

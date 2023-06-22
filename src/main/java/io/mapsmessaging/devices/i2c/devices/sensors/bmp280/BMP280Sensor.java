@@ -65,35 +65,35 @@ public class BMP280Sensor extends I2CDevice {
 
   @Override
   public boolean isConnected() {
-    return false;
+    return true;
   }
 
   private byte crc4(int[] prom) {
     int cnt; // simple counter
-    int n_rem; // crc reminder
-    int crc_read; // original value of the crc
-    byte n_bit;
-    n_rem = 0x00;
-    crc_read = prom[7]; // save read CRC
+    int nRem; // crc reminder
+    int crcRead; // original value of the crc
+    byte nBit;
+    nRem = 0x00;
+    crcRead = prom[7]; // save read CRC
     prom[7] &= 0xFF00; // CRC byte is replaced by 0
     for (cnt = 0; cnt < 16; cnt++) { // operation is performed on bytes
 // choose LSB or MSB
       if (cnt % 2 == 1) {
-        n_rem ^= prom[cnt >> 1] & 0x00FF;
+        nRem ^= prom[cnt >> 1] & 0x00FF;
       } else {
-        n_rem ^= prom[cnt >> 1] >> 8;
+        nRem ^= prom[cnt >> 1] >> 8;
       }
-      for (n_bit = 8; n_bit > 0; n_bit--) {
-        if ((n_rem & 0x8000) == 0x8000) {
-          n_rem = (n_rem << 1) ^ 0x3000;
+      for (nBit = 8; nBit > 0; nBit--) {
+        if ((nRem & 0x8000) == 0x8000) {
+          nRem = (nRem << 1) ^ 0x3000;
         } else {
-          n_rem <<= 1;
+          nRem <<= 1;
         }
       }
     }
-    n_rem = 0x000F & (n_rem >> 12); // final 4-bit reminder is CRC code
-    prom[7] = crc_read; // restore the crc_read to its original place
-    return (byte) (n_rem ^ 0x00);
+    nRem = 0x000F & (nRem >> 12); // final 4-bit reminder is CRC code
+    prom[7] = crcRead; // restore the crc_read to its original place
+    return (byte) (nRem);
   }
 
 
@@ -105,7 +105,7 @@ public class BMP280Sensor extends I2CDevice {
     return sb.toString();
   }
 
-  protected void read(byte command, int length, byte[] values) throws IOException {
+  protected void read(byte command, int length, byte[] values) {
     readRegister(command, values, 0, length);
   }
 

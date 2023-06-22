@@ -28,45 +28,46 @@ public class AM2315Sensor extends I2CDevice {
   //
   // Command Codes
   //
-  private final static byte READ_REGISTER = 0x03; // Read data from one or more registers
-  private final static byte WRITE_REGISTER = 0x10; // Multiple sets of binary data is written to mutliple registers
+  private static final byte READ_REGISTER = 0x03; // Read data from one or more registers
+  private static final byte WRITE_REGISTER = 0x10; // Multiple sets of binary data is written to mutliple registers
   //
   // Registers
   //
-  private final static byte HIGH_RH = 0x00;
-  private final static byte LOW_RH = 0x01;
-  private final static byte HIGH_TEMP = 0x02;
-  private final static byte LOW_TEMP = 0x03;
-  private final static byte Retention1 = 0x04;
-  private final static byte Retention2 = 0x05;
-  private final static byte Retention3 = 0x06;
-  private final static byte Retention4 = 0x07;
-  private final static byte MODEL_HIGH = 0x08;
-  private final static byte MODEL_LOW = 0x09;
-  private final static byte VERSION = 0x0A;
-  private final static byte ID_24_31 = 0x0B;
-  private final static byte ID_16_23 = 0x0C;
-  private final static byte ID_8_15 = 0x0D;
-  private final static byte ID_0_7 = 0x0E;
-  private final static byte STATUS = 0x0F;
-  private final static byte USER_REGISTER1_HIGH = 0x10;
-  private final static byte USER_REGISTER1_LOW = 0x11;
-  private final static byte USER_REGISTER2_HIGH = 0x12;
-  private final static byte USER_REGISTER2_LOW = 0x13;
-  private final static byte Retention5 = 0x14;
-  private final static byte Retention6 = 0x15;
-  private final static byte Retention7 = 0x16;
-  private final static byte Retention8 = 0x17;
-  private final static byte Retention9 = 0x18;
-  private final static byte RetentionA = 0x19;
-  private final static byte RetentionB = 0x1A;
-  private final static byte RetentionC = 0x1B;
-  private final static byte RetentionD = 0x1C;
-  private final static byte RetentionE = 0x1D;
-  private final static byte RetentionF = 0x1E;
-  private final static byte Retention10 = 0x1F;
+  private static final byte HIGH_RH = 0x00;
+  private static final byte LOW_RH = 0x01;
+  private static final byte HIGH_TEMP = 0x02;
+  private static final byte LOW_TEMP = 0x03;
+  private static final byte Retention1 = 0x04;
+  private static final byte Retention2 = 0x05;
+  private static final byte Retention3 = 0x06;
+  private static final byte Retention4 = 0x07;
+  private static final byte MODEL_HIGH = 0x08;
+  private static final byte MODEL_LOW = 0x09;
+  private static final byte VERSION = 0x0A;
+  private static final byte ID_24_31 = 0x0B;
+  private static final byte ID_16_23 = 0x0C;
+  private static final byte ID_8_15 = 0x0D;
+  private static final byte ID_0_7 = 0x0E;
+  private static final byte STATUS = 0x0F;
+  private static final byte USER_REGISTER1_HIGH = 0x10;
+  private static final byte USER_REGISTER1_LOW = 0x11;
+  private static final byte USER_REGISTER2_HIGH = 0x12;
+  private static final byte USER_REGISTER2_LOW = 0x13;
+  private static final byte Retention5 = 0x14;
+  private static final byte Retention6 = 0x15;
+  private static final byte Retention7 = 0x16;
+  private static final byte Retention8 = 0x17;
+  private static final byte Retention9 = 0x18;
+  private static final byte RetentionA = 0x19;
+  private static final byte RetentionB = 0x1A;
+  private static final byte RetentionC = 0x1B;
+  private static final byte RetentionD = 0x1C;
+  private static final byte RetentionE = 0x1D;
+  private static final byte RetentionF = 0x1E;
+  private static final byte Retention10 = 0x1F;
+
   private final Logger logger = LoggerFactory.getLogger("AM2315");
-  private byte[] sensor_readings = new byte[4];
+  private byte[] sensorReadings = new byte[4];
   private long lastRead;
 
 
@@ -74,7 +75,6 @@ public class AM2315Sensor extends I2CDevice {
     super(device);
     lastRead = 0;
     loadValues();
-    //logger.debug("Created new AM2315 device");
   }
 
   @Override
@@ -83,16 +83,16 @@ public class AM2315Sensor extends I2CDevice {
   }
 
   private void loadValues() throws IOException {
-    sensor_readings = retryReads(HIGH_RH, Retention1);
+    sensorReadings = retryReads(HIGH_RH, Retention1);
   }
 
   public float getTemperature() {
-    int val = (sensor_readings[2] & 0xff) << 8 | (sensor_readings[3] & 0xff) + 10;
+    int val = (sensorReadings[2] & 0xff) << 8 | (sensorReadings[3] & 0xff) + 10;
     return val / 10.0f;
   }
 
   public float getHumidity() {
-    int val = (sensor_readings[0] & 0xff) << 8 | (sensor_readings[1] & 0xff);
+    int val = (sensorReadings[0] & 0xff) << 8 | (sensorReadings[1] & 0xff);
     return val / 10.0f;
   }
 
@@ -147,9 +147,9 @@ public class AM2315Sensor extends I2CDevice {
         byte[] val = retryReads(HIGH_RH, Retention1);
         boolean changed = false;
         for (int x = 0; x < val.length; x++) {
-          if (val[x] != sensor_readings[x]) {
+          if (val[x] != sensorReadings[x]) {
             changed = true;
-            sensor_readings = val;
+            sensorReadings = val;
             break;
           }
         }
@@ -170,7 +170,7 @@ public class AM2315Sensor extends I2CDevice {
         delay(10);
       }
     }
-    return null;
+    return new byte[0];
   }
 
   private byte[] readRegisters(byte startReg, byte endReg) throws IOException {

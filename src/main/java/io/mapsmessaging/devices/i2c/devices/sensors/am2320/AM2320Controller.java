@@ -64,11 +64,6 @@ public class AM2320Controller implements I2CDeviceEntry {
     return sensor != null && sensor.isConnected();
   }
 
-  @Override
-  public void setPayload(byte[] val) {
-
-  }
-
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setComments("i2c device AM2320 Pressure and Temperature Sensor https://learn.adafruit.com/adafruit-am2320-temperature-humidity-i2c-sensor");

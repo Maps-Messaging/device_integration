@@ -52,9 +52,12 @@ public class AM2315Controller implements I2CDeviceEntry {
 
   public byte[] getStaticPayload() {
     JSONObject jsonObject = new JSONObject();
-    jsonObject.put("model", sensor.getModel());
-    jsonObject.put("status", sensor.getStatus());
-    jsonObject.put("version", sensor.getVersion());
+    if(sensor != null) {
+      jsonObject.put("model", sensor.getModel());
+      jsonObject.put("status", sensor.getStatus());
+      jsonObject.put("version", sensor.getVersion());
+      jsonObject.put("id", sensor.getId());
+    }
     return jsonObject.toString(2).getBytes();
   }
 
@@ -90,6 +93,11 @@ public class AM2315Controller implements I2CDeviceEntry {
             StringSchema.builder()
                 .description("Model number of sensor")
                 .build()
+        )
+        .addPropertySchema("id",
+                StringSchema.builder()
+                        .description("Unique ID of sensor")
+                        .build()
         )
         .addPropertySchema("status",
             BooleanSchema.builder()
