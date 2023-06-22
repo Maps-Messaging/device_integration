@@ -20,6 +20,7 @@ import io.mapsmessaging.devices.oneWire.OneWireDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
+import org.everit.json.schema.*;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -65,13 +66,30 @@ public class DS18B20Controller implements OneWireDeviceEntry {
 
   @Override
   public byte[] getUpdatePayload() {
-    JSONObject jsonObject = new JSONObject();
+    JSONObject jsonObject = new JSONObject(buildSchema());
     if(sensor != null) {
       sensor.update();
       jsonObject.put("temperature", sensor.getCurrent());
-      jsonObject.put("minimum", sensor.getMin());
-      jsonObject.put("maximum", sensor.getMax());
     }
     return jsonObject.toString(2).getBytes();
+  }
+
+  private Schema buildSchema() {
+    ObjectSchema.Builder updateSchema = ObjectSchema.builder()
+        .addPropertySchema("temperature",
+            NumberSchema.builder()
+                .minimum(-55.0)
+                .maximum(125.0)
+                .description("Temperature")
+                .build()
+        );
+
+    ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
+    schemaBuilder
+        .addPropertySchema("updateSchema", updateSchema.build())
+        .description("Temperature Module")
+        .title("DS18B20");
+
+    return schemaBuilder.build();
   }
 }

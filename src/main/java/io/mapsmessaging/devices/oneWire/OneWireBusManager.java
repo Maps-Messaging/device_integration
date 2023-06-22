@@ -25,6 +25,7 @@ import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class OneWireBusManager {
+  private static final String ONE_WIRE_ROOT_PATH = "/sys/bus/w1/devices/";
 
   private final Map<String, OneWireDeviceEntry> knownDevices;
   private final Map<String, DeviceController> activeDevices;
@@ -34,7 +35,7 @@ public class OneWireBusManager {
   public OneWireBusManager() {
     knownDevices = new LinkedHashMap<>();
     activeDevices = new ConcurrentHashMap<>();
-    rootDirectory = new File("/sys/bus/w1/devices/");
+    rootDirectory = new File(ONE_WIRE_ROOT_PATH);
     if (rootDirectory.exists()) {
       ServiceLoader<OneWireDeviceEntry> deviceEntries = ServiceLoader.load(OneWireDeviceEntry.class);
       for (OneWireDeviceEntry device : deviceEntries) {
@@ -54,16 +55,14 @@ public class OneWireBusManager {
 
   public void scan() {
     File[] files = rootDirectory.listFiles();
+    if(files == null)return;
     for (File device : files) {
-      for (String id : knownDevices.keySet()) {
-        if (device.getName().startsWith(id)) {
+      for (Map.Entry<String, OneWireDeviceEntry> entry : knownDevices.entrySet()) {
+        if (device.getName().startsWith(entry.getKey())) {
           File data = new File(device, "w1_slave");
           if (data.exists()) {
             String path = device.getName();
-            if (!activeDevices.containsKey(path)) {
-              OneWireDeviceEntry entry = knownDevices.get(id);
-              activeDevices.put(path, entry.mount(data));
-            }
+            activeDevices.computeIfAbsent(path, s -> entry.getValue().mount(data));
           }
         }
       }
