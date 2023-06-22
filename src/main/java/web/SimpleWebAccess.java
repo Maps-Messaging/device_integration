@@ -1,12 +1,16 @@
 package web;
 
 import io.javalin.Javalin;
+import io.javalin.http.Context;
 import io.mapsmessaging.devices.DeviceBusManager;
+import io.mapsmessaging.devices.DeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.devices.oneWire.OneWireDeviceEntry;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -28,38 +32,17 @@ public class SimpleWebAccess {
 
   private void startServer() {
     Javalin app = Javalin.create().start(7000);
-
       app.get("/device/list", ctx -> {
       JSONObject jsonObject = new JSONObject();
-      Map<String, I2CDeviceEntry> map = deviceBusManager.getI2cBusManager().getActive();
-      JSONArray i2cList = new JSONArray();
-      for (Map.Entry<String, I2CDeviceEntry> deviceEntryEntry : map.entrySet()) {
-        JSONObject entry = new JSONObject();
-        entry.put("id", deviceEntryEntry.getKey());
-        entry.put("name", deviceEntryEntry.getValue().getName());
-        i2cList.put(entry);
-      }
-      jsonObject.put("i2c", i2cList);
-
-      Map<String, OneWireDeviceEntry> oneMap = deviceBusManager.getOneWireBusManager().getActive();
-      JSONArray oneList = new JSONArray();
-      for (Map.Entry<String, OneWireDeviceEntry> device : oneMap.entrySet()) {
-        JSONObject entry = new JSONObject();
-        entry.put("id", device.getKey());
-        entry.put("name", device.getValue().getName());
-        oneList.put(entry);
-      }
-      jsonObject.put("1Wire", oneList);
+      jsonObject.put("i2c", packList(deviceBusManager.getI2cBusManager().getActive()));
+      jsonObject.put("1Wire",  packList(deviceBusManager.getOneWireBusManager().getActive()));
       ctx.json(jsonObject.toString(2));
     });
     app.get("/device/i2c/{id}", ctx -> {
       String id = ctx.pathParam("id");
       I2CDeviceEntry device = deviceBusManager.getI2cBusManager().get(id);
       if (device != null) {
-        JSONObject result = new JSONObject();
-        result.put("static", new JSONObject(new String(device.getStaticPayload())));
-        result.put("update", new JSONObject(new String(device.getUpdatePayload())));
-        ctx.json(result.toString(2));
+        handleDeviceGet(ctx, device);
       } else {
         ctx.status(404).result("Device not found");
       }
@@ -68,9 +51,7 @@ public class SimpleWebAccess {
       String id = ctx.pathParam("id");
       I2CDeviceEntry device = deviceBusManager.getI2cBusManager().get(id);
       if (device != null) {
-        JSONObject result = new JSONObject();
-        result.put("schema", new JSONObject(new String(device.getSchema().toString())));
-        ctx.json(result.toString(2));
+        handleGetSchema(ctx, device);
       } else {
         ctx.status(404).result("Device not found");
       }
@@ -80,10 +61,7 @@ public class SimpleWebAccess {
       String id = ctx.pathParam("id");
       OneWireDeviceEntry device = deviceBusManager.getOneWireBusManager().get(id);
       if (device != null) {
-        JSONObject result = new JSONObject();
-        result.put("static", new JSONObject(new String(device.getStaticPayload())));
-        result.put("update", new JSONObject(new String(device.getUpdatePayload())));
-        ctx.json(result.toString(2));
+        handleDeviceGet(ctx, device);
       } else {
         ctx.status(404).result("Device not found");
       }
@@ -92,9 +70,7 @@ public class SimpleWebAccess {
       String id = ctx.pathParam("id");
       OneWireDeviceEntry device = deviceBusManager.getOneWireBusManager().get(id);
       if (device != null) {
-        JSONObject result = new JSONObject();
-        result.put("schema", new JSONObject(new String(device.getSchema().toString())));
-        ctx.json(result.toString(2));
+        handleGetSchema(ctx, device);
       } else {
         ctx.status(404).result("Device not found");
       }
@@ -116,6 +92,32 @@ public class SimpleWebAccess {
     executor.scheduleAtFixedRate(deviceBusManager.getI2cBusManager()::scanForDevices, 0, 1, TimeUnit.MINUTES);
   }
 
+
+  private void handleGetSchema(Context ctx, DeviceController deviceController) throws IOException {
+    JSONObject result = new JSONObject();
+    String schema = deviceController.getSchema().pack();
+    result.put("schema", new JSONObject(schema));
+    ctx.json(result.toString(2));
+  }
+
+
+  private void handleDeviceGet(Context ctx, DeviceController deviceController){
+    JSONObject result = new JSONObject();
+    result.put("static", new JSONObject(new String(deviceController.getStaticPayload())));
+    result.put("update", new JSONObject(new String(deviceController.getUpdatePayload())));
+    ctx.json(result.toString(2));
+  }
+
+  private JSONArray packList(Map<String, DeviceController> devices){
+    JSONArray list = new JSONArray();
+    for (Map.Entry<String, DeviceController> deviceEntryEntry : devices.entrySet()) {
+      JSONObject entry = new JSONObject();
+      entry.put("id", deviceEntryEntry.getKey());
+      entry.put("name", deviceEntryEntry.getValue().getName());
+      list.put(entry);
+    }
+    return list;
+  }
 
 }
 
