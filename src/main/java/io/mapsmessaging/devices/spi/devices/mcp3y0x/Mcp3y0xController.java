@@ -19,6 +19,7 @@ package io.mapsmessaging.devices.spi.devices.mcp3y0x;
 import io.mapsmessaging.devices.spi.SpiDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
+import org.everit.json.schema.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -60,12 +61,49 @@ public class Mcp3y0xController extends SpiDeviceController {
   }
 
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig();
+    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setComments("SPI device Analog to Digital convertor");
     config.setSource("SPI Device");
     config.setVersion("1.0");
     config.setResourceType("sensor");
     config.setInterfaceDescription("Returns JSON object containing the latest readings from all channels");
     return config;
+  }
+
+  private Schema buildSchema() {
+    ObjectSchema.Builder staticSchema = ObjectSchema.builder()
+        .addPropertySchema("resolution",
+            NumberSchema.builder()
+                .description("The number of bits of resulution that the result has")
+                .build()
+        )
+        .addPropertySchema("channels",
+            NumberSchema.builder()
+                .description("Number of ADC channels available")
+                .build()
+        )
+        .addPropertySchema("dutyCycle",
+            NumberSchema.builder()
+                .description("Number of times per second that the device can be read")
+                .build()
+        );
+
+    ObjectSchema.Builder updateSchema = ObjectSchema.builder()
+        .addPropertySchema("current",
+            ArraySchema.builder()
+                .minItems(0)
+                .maxItems(device.channels)
+                .description("Current values of all channels on the ADC")
+                .build()
+        );
+
+    ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
+    schemaBuilder
+        .addPropertySchema("updateSchema", updateSchema.build())
+        .addPropertySchema("staticSchema", staticSchema.build())
+        .description("Analog to digital convertor")
+        .title("Mcp3y0x");
+
+    return schemaBuilder.build();
   }
 }
