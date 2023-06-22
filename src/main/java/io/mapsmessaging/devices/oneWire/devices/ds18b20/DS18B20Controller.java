@@ -50,7 +50,7 @@ public class DS18B20Controller implements OneWireDeviceEntry {
   }
 
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig();
+    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setComments("1-Wire temperature sensor");
     config.setSource("1-wire");
     config.setVersion("1.0");
@@ -66,7 +66,7 @@ public class DS18B20Controller implements OneWireDeviceEntry {
 
   @Override
   public byte[] getUpdatePayload() {
-    JSONObject jsonObject = new JSONObject(buildSchema());
+    JSONObject jsonObject = new JSONObject();
     if(sensor != null) {
       sensor.update();
       jsonObject.put("temperature", sensor.getCurrent());
