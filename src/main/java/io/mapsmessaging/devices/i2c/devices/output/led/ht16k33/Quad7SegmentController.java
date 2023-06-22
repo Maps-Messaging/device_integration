@@ -20,6 +20,8 @@ import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import lombok.Getter;
+import org.everit.json.schema.ObjectSchema;
+import org.everit.json.schema.Schema;
 
 public class Quad7SegmentController extends HT16K33Controller {
 
@@ -45,6 +47,21 @@ public class Quad7SegmentController extends HT16K33Controller {
     config.setComments("I2C HT16K33 device drives 4 7 segment LEDs with a : in the center");
     return config;
   }
+
+  @Override
+  protected Schema buildSchema() {
+
+    ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
+    schemaBuilder
+        .addPropertySchema("updateSchema", buildUpdateSchema())
+        .addPropertySchema("writeableSchema", buildWritablePayload("^\\d{2}[: ]\\d{2}$"))
+        .description("Quad 7 Segment LED")
+        .title("HT16K33");
+
+    return schemaBuilder.build();
+  }
+
+
 
   @Override
   public int[] getAddressRange() {

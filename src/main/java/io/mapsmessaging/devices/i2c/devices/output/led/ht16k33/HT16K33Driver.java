@@ -37,6 +37,7 @@ public abstract class HT16K33Driver extends I2CDevice {
     super(device);
   }
 
+  @Override
   public void close() {
     turnOff();
   }

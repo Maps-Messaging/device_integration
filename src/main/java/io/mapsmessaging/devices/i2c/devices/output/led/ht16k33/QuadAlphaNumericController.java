@@ -20,6 +20,8 @@ import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import lombok.Getter;
+import org.everit.json.schema.ObjectSchema;
+import org.everit.json.schema.Schema;
 
 public class QuadAlphaNumericController extends HT16K33Controller {
 
@@ -48,6 +50,17 @@ public class QuadAlphaNumericController extends HT16K33Controller {
     return config;
   }
 
+  @Override
+  protected Schema buildSchema() {
+    ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
+    schemaBuilder
+        .addPropertySchema("updateSchema", buildUpdateSchema())
+        .addPropertySchema("writeableSchema", buildWritablePayload("^[A-Za-z0-9]{1,4}(\\.[A-Za-z0-9]{1,4})*$"))
+        .description("Quad Alpha Numeric Segment LED")
+        .title("HT16K33");
+
+    return schemaBuilder.build();
+  }
 
   @Override
   public int[] getAddressRange() {

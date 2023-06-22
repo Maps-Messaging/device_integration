@@ -17,23 +17,29 @@
 package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
-import io.mapsmessaging.devices.util.Delay;
+import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks.Clock;
+import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks.Task;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
+import org.everit.json.schema.*;
 import org.json.JSONObject;
 
-import java.time.LocalDateTime;
+import java.util.regex.Pattern;
 
 public abstract class HT16K33Controller implements I2CDeviceEntry {
 
   protected final HT16K33Driver display;
 
+  private Task currentTask;
+
   protected HT16K33Controller() {
     this.display = null;
+    currentTask = null;
   }
 
   protected HT16K33Controller(HT16K33Driver display) {
     this.display = display;
+    currentTask = null;
   }
 
   @Override
@@ -90,14 +96,35 @@ public abstract class HT16K33Controller implements I2CDeviceEntry {
         }
       }
     }
-    String text = jsonObject.getString("display");
-    if (text.length() <= 5) {
-      display.write(text);
+    if(jsonObject.has("display")) {
+      synchronized (this){
+        if(currentTask != null){
+          currentTask.stop();
+          currentTask = null;
+        }
+      }
+      String text = jsonObject.getString("display");
+      if (text.length() <= 5) {
+        display.write(text);
+      }
+    }
+    else if(jsonObject.has("task")){
+      synchronized (this){
+        if(currentTask != null){
+          currentTask.stop();
+          currentTask = null;
+          display.write("    ");
+        }
+        String task = jsonObject.getString("task");
+        if(task.equalsIgnoreCase("clock")){
+          currentTask = new Clock(this);
+        }
+      }
     }
   }
 
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig();
+    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setSource("I2C bus address configurable from 0x70 to 0x77");
     config.setVersion("1.0");
     config.setResourceType("LED");
@@ -105,33 +132,73 @@ public abstract class HT16K33Controller implements I2CDeviceEntry {
     return config;
   }
 
-  private void clock() {
-    boolean hasColon = false;
-    String val;
-    LocalDateTime dateTime = LocalDateTime.now();
-    int hour = dateTime.getHour();
-    int min = dateTime.getMinute();
-    if (hour < 10) {
-      val = "0" + hour;
-    } else {
-      val = String.valueOf(hour);
-    }
-    if (hasColon) {
-      val += " ";
-    } else {
-      val += ":";
-    }
-    hasColon = !hasColon;
-    if (min < 10) {
-      val += "0" + min;
-    } else {
-      val += String.valueOf(min);
-    }
-    dateTime.getSecond();
-    dateTime.getNano();
-    JSONObject payload = new JSONObject();
-    payload.put("display", val);
-    setPayload(payload.toString(2).getBytes());
-    Delay.pause(450);
+
+  protected abstract Schema buildSchema();
+
+  protected Schema buildWritablePayload(String pattern) {
+    ObjectSchema.Builder updateSchema = ObjectSchema.builder()
+        .addPropertySchema("display",
+            StringSchema.builder()
+                .pattern(pattern)
+                .description("Update the LED display with the supplied string")
+                .build()
+        )
+        .addPropertySchema("task",
+            StringSchema.builder()
+                .pattern(pattern)
+                .description("This is an optional server side task, currently only supports 'clock'")
+                .build()
+        )
+        .addPropertySchema("blink",
+            BooleanSchema.builder()
+                .description("If the LED is blinking or not")
+                .build()
+        )
+        .addPropertySchema("blink-fast",
+            BooleanSchema.builder()
+                .description("If the fast blink cycle is enabled")
+                .build())
+        .addPropertySchema("enabled",
+            BooleanSchema.builder()
+                .description("If the LED is actually on")
+                .build())
+        .addPropertySchema("brightness",
+            NumberSchema.builder()
+                .maximum(16)
+                .minimum(0)
+                .description("Brightness of the LED")
+                .build());
+
+    return updateSchema.build();
+  }
+
+  protected Schema buildUpdateSchema() {
+    ObjectSchema.Builder updateSchema = ObjectSchema.builder()
+        .addPropertySchema("display",
+            StringSchema.builder()
+                .description("What is currently being displayed on the LED")
+                .build()
+        )
+        .addPropertySchema("blink",
+            BooleanSchema.builder()
+                .description("If the LED is blinking or not")
+                .build()
+        )
+        .addPropertySchema("blink-fast",
+            BooleanSchema.builder()
+                .description("If the fast blink cycle is enabled")
+                .build())
+        .addPropertySchema("enabled",
+            BooleanSchema.builder()
+                .description("If the LED is actually on")
+                .build())
+        .addPropertySchema("brightness",
+            NumberSchema.builder()
+                .maximum(16)
+                .minimum(0)
+                .description("Brightness of the LED")
+                .build());
+
+    return updateSchema.build();
   }
 }
