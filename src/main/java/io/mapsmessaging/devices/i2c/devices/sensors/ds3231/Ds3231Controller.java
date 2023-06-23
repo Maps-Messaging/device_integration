@@ -26,9 +26,6 @@ import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
 import org.json.JSONObject;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-
 public class Ds3231Controller implements I2CDeviceEntry {
 
   private final int i2cAddr = 0x68;
