@@ -20,14 +20,23 @@ import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.logging.Logger;
 import io.mapsmessaging.logging.LoggerFactory;
+import lombok.Getter;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class Ds3231Rtc extends I2CDevice {
 
   private final Logger logger = LoggerFactory.getLogger(Ds3231Rtc.class);
 
+  @Getter
+  private final Ds3231Registers registers;
+
   public Ds3231Rtc(I2C device) {
     super(device);
-    initialise();
+    registers = new Ds3231Registers();
+    read();
   }
 
   @Override
@@ -35,11 +44,87 @@ public class Ds3231Rtc extends I2CDevice {
     return true;
   }
 
-  public synchronized boolean initialise() {
-    return true;
+  public void read() {
+    byte[] registerRead = new byte[19];
+    for(int x=0;x< registerRead.length;x++){
+      registerRead[x] = (byte)(readRegister(x) & 0xff);
+    }
+    registers.setRegisterValues(registerRead, device);
+    System.err.println(registers);
   }
 
-  private synchronized void scanForChange() {
+  public void write(){
+    byte[] values = registers.getRegisterValues();
+    for(int x=0;x< values.length;x++){
+      write(x, values[x]);
+    }
+  }
+
+  public LocalDateTime getDateTime(){
+    return LocalDateTime.of(getDate(), getTime());
+  }
+
+  public void setDateTime(LocalDateTime dateTime){
+    setDate(dateTime.toLocalDate());
+    setTime(dateTime.toLocalTime());
+  }
+
+  public LocalDate getDate(){
+    return LocalDate.of(registers.getYear(), registers.getMonth(), registers.getDate());
+  }
+  
+  public void setDate(LocalDate date){
+    boolean change = false;
+    if(registers.getMonth() != date.getMonthValue()){
+      registers.setMonth(date.getMonthValue());
+      change = true;
+    }
+    if(registers.getDate() != date.getDayOfMonth()){
+      registers.setDate(date.getDayOfMonth());
+      change = true;
+    }
+    if(registers.getYear() != date.getYear()){
+      registers.setYear(date.getYear());
+      change = true;
+    }
+    if(registers.getDayOfWeek() != date.getDayOfWeek().getValue()){
+      registers.setDayOfWeek(date.getDayOfWeek().getValue());
+      change = true;
+    }
+    if(change){
+      write();
+    }
+  }
+  
+  public LocalTime getTime(){
+    return LocalTime.of(registers.getHours(), registers.getMinutes(), registers.getSeconds());
+  }
+  
+  public void setTime(LocalTime time){
+    boolean change = false;
+    if(registers.getHours() != time.getHour()){
+      registers.setHours(time.getHour(), true);
+      change = true;
+    }
+    if(registers.getMinutes() != time.getMinute()){
+      registers.setMinutes(time.getMinute());
+      change = true;
+    }
+    if(registers.getSeconds() != time.getSecond()){
+      registers.setSeconds(time.getSecond());
+      change = true;
+    }
+    if(change){
+      write();
+    }
+  }
+
+  public Alarm getAlarm1(){
+    return registers.getAlarm1();
+  }
+
+  public Alarm getAlarm2(){
+    return registers.getAlarm2();
   }
 
   @Override

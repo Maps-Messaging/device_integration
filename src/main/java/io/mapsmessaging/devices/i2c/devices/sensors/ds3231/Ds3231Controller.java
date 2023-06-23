@@ -23,6 +23,10 @@ import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
 import org.json.JSONObject;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 public class Ds3231Controller implements I2CDeviceEntry {
 
   private final int i2cAddr = 0x68;
@@ -59,7 +63,18 @@ public class Ds3231Controller implements I2CDeviceEntry {
 
   public byte[] getUpdatePayload() {
     JSONObject jsonObject = new JSONObject();
-
+    if(rtc != null){
+      rtc.read();
+      jsonObject.put("date", rtc.getDate());
+      jsonObject.put("time", rtc.getTime());
+      jsonObject.put("alarm1", rtc.getAlarm1().getTime());
+      jsonObject.put("alarm2", rtc.getAlarm2().getTime());
+      rtc.setDateTime(LocalDateTime.now());
+      rtc.getAlarm1().setRate(Alarm.RATE.HOURS_MINUTE_SECONDS_MATCH);
+      rtc.getAlarm1().setTime(LocalTime.now().plusHours(12));
+      rtc.getAlarm2().setRate(Alarm.RATE.HOURS_MINUTES_MATCH);
+      rtc.getAlarm2().setTime(LocalTime.now().plusHours(15));
+    }
     return jsonObject.toString(2).getBytes();
   }
 
