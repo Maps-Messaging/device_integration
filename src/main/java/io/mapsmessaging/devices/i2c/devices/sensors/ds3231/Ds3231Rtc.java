@@ -46,84 +46,84 @@ public class Ds3231Rtc extends I2CDevice {
 
   public void read() {
     byte[] registerRead = new byte[19];
-    for(int x=0;x< registerRead.length;x++){
-      registerRead[x] = (byte)(readRegister(x) & 0xff);
+    for (int x = 0; x < registerRead.length; x++) {
+      registerRead[x] = (byte) (readRegister(x) & 0xff);
     }
     registers.setRegisterValues(registerRead, device);
     System.err.println(registers);
   }
 
-  public void write(){
+  public void write() {
     byte[] values = registers.getRegisterValues();
-    for(int x=0;x< values.length;x++){
+    for (int x = 0; x < values.length; x++) {
       write(x, values[x]);
     }
   }
 
-  public LocalDateTime getDateTime(){
+  public LocalDateTime getDateTime() {
     return LocalDateTime.of(getDate(), getTime());
   }
 
-  public void setDateTime(LocalDateTime dateTime){
+  public void setDateTime(LocalDateTime dateTime) {
     setDate(dateTime.toLocalDate());
     setTime(dateTime.toLocalTime());
   }
 
-  public LocalDate getDate(){
+  public LocalDate getDate() {
     return LocalDate.of(registers.getYear(), registers.getMonth(), registers.getDate());
   }
-  
-  public void setDate(LocalDate date){
+
+  public void setDate(LocalDate date) {
     boolean change = false;
-    if(registers.getMonth() != date.getMonthValue()){
+    if (registers.getMonth() != date.getMonthValue()) {
       registers.setMonth(date.getMonthValue());
       change = true;
     }
-    if(registers.getDate() != date.getDayOfMonth()){
+    if (registers.getDate() != date.getDayOfMonth()) {
       registers.setDate(date.getDayOfMonth());
       change = true;
     }
-    if(registers.getYear() != date.getYear()){
+    if (registers.getYear() != date.getYear()) {
       registers.setYear(date.getYear());
       change = true;
     }
-    if(registers.getDayOfWeek() != date.getDayOfWeek().getValue()){
+    if (registers.getDayOfWeek() != date.getDayOfWeek().getValue()) {
       registers.setDayOfWeek(date.getDayOfWeek().getValue());
       change = true;
     }
-    if(change){
+    if (change) {
       write();
     }
   }
-  
-  public LocalTime getTime(){
+
+  public LocalTime getTime() {
     return LocalTime.of(registers.getHours(), registers.getMinutes(), registers.getSeconds());
   }
-  
-  public void setTime(LocalTime time){
+
+  public void setTime(LocalTime time) {
     boolean change = false;
-    if(registers.getHours() != time.getHour()){
+    if (registers.getHours() != time.getHour()) {
       registers.setHours(time.getHour(), true);
       change = true;
     }
-    if(registers.getMinutes() != time.getMinute()){
+    if (registers.getMinutes() != time.getMinute()) {
       registers.setMinutes(time.getMinute());
       change = true;
     }
-    if(registers.getSeconds() != time.getSecond()){
+    if (registers.getSeconds() != time.getSecond()) {
       registers.setSeconds(time.getSecond());
       change = true;
     }
-    if(change){
+    if (change) {
       write();
     }
   }
 
-  public Alarm getAlarm1(){
+  public Alarm getAlarm1() {
     return registers.getAlarm1();
   }
 
-  public Alarm getAlarm2(){
+  public Alarm getAlarm2() {
     return registers.getAlarm2();
   }
 

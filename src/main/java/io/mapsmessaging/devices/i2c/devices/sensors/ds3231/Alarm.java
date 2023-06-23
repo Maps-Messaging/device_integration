@@ -1,7 +1,22 @@
+/*
+ *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
+ *
+ *      Licensed under the Apache License, Version 2.0 (the "License");
+ *      you may not use this file except in compliance with the License.
+ *      You may obtain a copy of the License at
+ *
+ *          http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *      Unless required by applicable law or agreed to in writing, software
+ *      distributed under the License is distributed on an "AS IS" BASIS,
+ *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *      See the License for the specific language governing permissions and
+ *      limitations under the License.
+ */
+
 package io.mapsmessaging.devices.i2c.devices.sensors.ds3231;
 
 import com.pi4j.io.i2c.I2C;
-import io.mapsmessaging.devices.i2c.I2CDevice;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -25,17 +40,16 @@ public class Alarm {
   private RATE rate;
 
 
-  public Alarm(byte[] alarmRegisters, boolean hasSeconds, I2C device, int addressOffset){
+  public Alarm(byte[] alarmRegisters, boolean hasSeconds, I2C device, int addressOffset) {
     this.device = device;
     this.addressOffset = addressOffset;
     this.registers = alarmRegisters;
-    if(hasSeconds){
+    if (hasSeconds) {
       secondIndex = 0;
       minuteIndex = 1;
       hourIndex = 2;
       dayDayIndex = 3;
-    }
-    else{
+    } else {
       secondIndex = -1;
       minuteIndex = 0;
       hourIndex = 1;
@@ -44,16 +58,17 @@ public class Alarm {
     rate = computeRate();
   }
 
-  private void write(){
-    for(int x=0;x<registers.length;x++){
-      device.writeRegister((addressOffset+x), registers[x]);
+  private void write() {
+    for (int x = 0; x < registers.length; x++) {
+      device.writeRegister((addressOffset + x), registers[x]);
     }
   }
-  protected byte[] getRegisters(){
+
+  protected byte[] getRegisters() {
     return registers;
   }
 
-  private RATE computeRate(){
+  private RATE computeRate() {
     int val = buildMaskFromBytes();
     boolean isDayOfWeek = isDayOfWeek();
     if (val == 0) {
@@ -79,33 +94,17 @@ public class Alarm {
     write();
   }
 
-  public LocalTime getTime(){
+  public LocalTime getTime() {
     int sec = getSeconds();
     int min = getMinutes();
     int hours = getHours();
     return LocalTime.of(hours, min, sec);
   }
 
-  public void setTime(LocalTime localTime){
+  public void setTime(LocalTime localTime) {
     setSeconds(localTime.getSecond());
     setMinutes(localTime.getMinute());
     setHours(localTime.getHour());
-    write();
-  }
-
-
-  public void setDayOrDate(int dayOrDate) {
-    boolean isMask = (registers[dayDayIndex] & 0b10000000) != 0;
-    if(rate.isDayOfWeek){
-      registers[dayDayIndex] = decimalToBcd(dayOrDate % 7);
-      registers[dayDayIndex] |= 0b1000000;
-    }
-    else{
-      registers[dayDayIndex] = decimalToBcd(dayOrDate % 32);
-    }
-    if(isMask){
-      registers[dayOrDate] |= 0b10000000;
-    }
     write();
   }
 
@@ -113,13 +112,36 @@ public class Alarm {
     return bcdToDecimal(registers[dayDayIndex] & 0x3F);
   }
 
+  public void setDayOrDate(int dayOrDate) {
+    boolean isMask = (registers[dayDayIndex] & 0b10000000) != 0;
+    if (rate.isDayOfWeek) {
+      registers[dayDayIndex] = decimalToBcd(dayOrDate % 7);
+      registers[dayDayIndex] |= 0b1000000;
+    } else {
+      registers[dayDayIndex] = decimalToBcd(dayOrDate % 32);
+    }
+    if (isMask) {
+      registers[dayOrDate] |= 0b10000000;
+    }
+    write();
+  }
+
   private int getSeconds() {
-    if(secondIndex < 0)return 0;
+    if (secondIndex < 0) return 0;
     return bcdToDecimal(registers[secondIndex] & 0x7F);
+  }
+
+  private void setSeconds(int seconds) {
+    if (secondIndex < 0) return;
+    registers[secondIndex] = (byte) ((registers[secondIndex] & 0b10000000) | decimalToBcd(seconds % 60));
   }
 
   private int getMinutes() {
     return bcdToDecimal(registers[minuteIndex] & 0x7F);
+  }
+
+  private void setMinutes(int minutes) {
+    registers[minuteIndex] = (byte) ((registers[minuteIndex] & 0b10000000) | decimalToBcd(minutes % 60));
   }
 
   private int getHours() {
@@ -134,20 +156,11 @@ public class Alarm {
     return hours;
   }
 
-  private void setSeconds(int seconds) {
-    if(secondIndex < 0)return;
-    registers[secondIndex] = (byte)((registers[secondIndex] & 0b10000000) | decimalToBcd(seconds % 60));
-  }
-
-  private void setMinutes(int minutes) {
-    registers[minuteIndex] = (byte)((registers[minuteIndex] & 0b10000000) | decimalToBcd(minutes % 60));
-  }
-
   private void setHours(int hours) {
-    registers[hourIndex] = (byte)((registers[hourIndex] & 0b10000000) | decimalToBcd(hours % 24));
+    registers[hourIndex] = (byte) ((registers[hourIndex] & 0b10000000) | decimalToBcd(hours % 24));
   }
 
-  private boolean isDayOfWeek(){
+  private boolean isDayOfWeek() {
     return (registers[dayDayIndex] & 0b1000000) != 0;
   }
 
@@ -175,18 +188,18 @@ public class Alarm {
   }
 
   @Override
-  public String toString(){
-    if(rate.ignoreDayOrDate){
-      return getTime()+" "+rate;
+  public String toString() {
+    if (rate.ignoreDayOrDate) {
+      return getTime() + " " + rate;
     }
-    return getDayOrDate()+" "+getTime()+" "+rate;
+    return getDayOrDate() + " " + getTime() + " " + rate;
   }
 
   @ToString
   public enum RATE {
-    UNKNOWN( 0, false, false),
+    UNKNOWN(0, false, false),
 
-    ONCE_PER_SECOND (0b1111),
+    ONCE_PER_SECOND(0b1111),
     SECONDS_MATCH(0b1110),
     MINUTES_SECONDS_MATCH(0b1100),
     HOURS_MINUTE_SECONDS_MATCH(0b1000),
@@ -209,23 +222,23 @@ public class Alarm {
     @Getter
     private final boolean ignoreDayOrDate;
 
-    RATE(int mask){
+    RATE(int mask) {
       this(mask, false, true);
     }
 
-    RATE(int mask, boolean isDayOfWeek){
+    RATE(int mask, boolean isDayOfWeek) {
       this(mask, isDayOfWeek, false);
     }
 
-    RATE(int mask, boolean isDayOfWeek, boolean ignoreDayOrDate){
+    RATE(int mask, boolean isDayOfWeek, boolean ignoreDayOrDate) {
       this.mask = mask;
       this.ignoreDayOrDate = ignoreDayOrDate;
       this.isDayOfWeek = isDayOfWeek;
     }
 
-    public static RATE findRate(int mask){
-      for(RATE rate: RATE.values()){
-        if(rate.mask == mask){
+    public static RATE findRate(int mask) {
+      for (RATE rate : RATE.values()) {
+        if (rate.mask == mask) {
           return rate;
         }
       }
