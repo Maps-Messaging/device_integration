@@ -54,7 +54,7 @@ public class Quad7SegmentController extends HT16K33Controller {
     ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
     schemaBuilder
         .addPropertySchema("updateSchema", buildUpdateSchema())
-        .addPropertySchema("writeableSchema", buildWritablePayload("^\\d{2}[: ]\\d{2}$"))
+        .addPropertySchema("writeableSchema", buildWritablePayload("^[\\d\\s]{2}[:\\s][\\d\\s]{2}$"))
         .description("Quad 7 Segment LED")
         .title("HT16K33");
 

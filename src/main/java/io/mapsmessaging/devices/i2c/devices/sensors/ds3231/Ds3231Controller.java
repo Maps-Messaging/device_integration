@@ -66,13 +66,10 @@ public class Ds3231Controller implements I2CDeviceEntry {
       rtc.read();
       jsonObject.put("date", rtc.getDate());
       jsonObject.put("time", rtc.getTime());
+      jsonObject.put("dateTime", rtc.getDateTime());
+      jsonObject.put("temperature",rtc.getTemperature());
       jsonObject.put("alarm1", rtc.getAlarm1().getTime());
       jsonObject.put("alarm2", rtc.getAlarm2().getTime());
-      rtc.setDateTime(LocalDateTime.now());
-      rtc.getAlarm1().setRate(Alarm.RATE.HOURS_MINUTE_SECONDS_MATCH);
-      rtc.getAlarm1().setTime(LocalTime.now().plusHours(12));
-      rtc.getAlarm2().setRate(Alarm.RATE.HOURS_MINUTES_MATCH);
-      rtc.getAlarm2().setTime(LocalTime.now().plusHours(15));
     }
     return jsonObject.toString(2).getBytes();
   }

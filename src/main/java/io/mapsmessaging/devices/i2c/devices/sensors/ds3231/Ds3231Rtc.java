@@ -30,12 +30,11 @@ public class Ds3231Rtc extends I2CDevice {
 
   private final Logger logger = LoggerFactory.getLogger(Ds3231Rtc.class);
 
-  @Getter
   private final Ds3231Registers registers;
 
   public Ds3231Rtc(I2C device) {
     super(device);
-    registers = new Ds3231Registers();
+    registers = new Ds3231Registers(device);
     read();
   }
 
@@ -44,20 +43,16 @@ public class Ds3231Rtc extends I2CDevice {
     return true;
   }
 
-  public void read() {
+  protected void read() {
     byte[] registerRead = new byte[19];
     for (int x = 0; x < registerRead.length; x++) {
       registerRead[x] = (byte) (readRegister(x) & 0xff);
     }
-    registers.setRegisterValues(registerRead, device);
-    System.err.println(registers);
+    registers.setRegisterValues(registerRead);
   }
 
-  public void write() {
-    byte[] values = registers.getRegisterValues();
-    for (int x = 0; x < values.length; x++) {
-      write(x, values[x]);
-    }
+  public float getTemperature(){
+    return registers.getTemperature();
   }
 
   public LocalDateTime getDateTime() {
@@ -74,25 +69,17 @@ public class Ds3231Rtc extends I2CDevice {
   }
 
   public void setDate(LocalDate date) {
-    boolean change = false;
     if (registers.getMonth() != date.getMonthValue()) {
       registers.setMonth(date.getMonthValue());
-      change = true;
     }
     if (registers.getDate() != date.getDayOfMonth()) {
       registers.setDate(date.getDayOfMonth());
-      change = true;
     }
     if (registers.getYear() != date.getYear()) {
       registers.setYear(date.getYear());
-      change = true;
     }
     if (registers.getDayOfWeek() != date.getDayOfWeek().getValue()) {
       registers.setDayOfWeek(date.getDayOfWeek().getValue());
-      change = true;
-    }
-    if (change) {
-      write();
     }
   }
 
@@ -101,21 +88,14 @@ public class Ds3231Rtc extends I2CDevice {
   }
 
   public void setTime(LocalTime time) {
-    boolean change = false;
     if (registers.getHours() != time.getHour()) {
-      registers.setHours(time.getHour(), true);
-      change = true;
+      registers.setHours(time.getHour(), false);
     }
     if (registers.getMinutes() != time.getMinute()) {
       registers.setMinutes(time.getMinute());
-      change = true;
     }
     if (registers.getSeconds() != time.getSecond()) {
       registers.setSeconds(time.getSecond());
-      change = true;
-    }
-    if (change) {
-      write();
     }
   }
 
