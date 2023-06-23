@@ -18,9 +18,12 @@ package io.mapsmessaging.devices.i2c.devices.sensors.ds3231;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.sensors.ds3231.register.AlarmRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.ds3231.register.ControlRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.ds3231.register.Registers;
+import io.mapsmessaging.devices.i2c.devices.sensors.ds3231.register.StatusRegister;
 import io.mapsmessaging.logging.Logger;
 import io.mapsmessaging.logging.LoggerFactory;
-import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,11 +33,11 @@ public class Ds3231Rtc extends I2CDevice {
 
   private final Logger logger = LoggerFactory.getLogger(Ds3231Rtc.class);
 
-  private final Ds3231Registers registers;
+  private final Registers registers;
 
   public Ds3231Rtc(I2C device) {
     super(device);
-    registers = new Ds3231Registers(device);
+    registers = new Registers(device);
     read();
   }
 
@@ -99,12 +102,20 @@ public class Ds3231Rtc extends I2CDevice {
     }
   }
 
-  public Alarm getAlarm1() {
+  public AlarmRegister getAlarm1() {
     return registers.getAlarm1();
   }
 
-  public Alarm getAlarm2() {
+  public AlarmRegister getAlarm2() {
     return registers.getAlarm2();
+  }
+
+  public ControlRegister getControlRegister(){
+    return registers.getControlRegister();
+  }
+
+  public StatusRegister getStatusRegiser(){
+    return registers.getStatusRegister();
   }
 
   @Override

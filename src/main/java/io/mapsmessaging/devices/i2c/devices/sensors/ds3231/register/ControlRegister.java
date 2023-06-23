@@ -14,13 +14,17 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.ds3231;
+package io.mapsmessaging.devices.i2c.devices.sensors.ds3231.register;
+
+import com.pi4j.io.i2c.I2C;
 
 public class ControlRegister {
   private byte controlByte;
+  private final I2C device;
 
-  public ControlRegister(byte controlByte) {
+  public ControlRegister(I2C device,  byte controlByte) {
     this.controlByte = controlByte;
+    this.device = device;
   }
 
   public boolean isOscillatorEnabled() {
@@ -33,6 +37,7 @@ public class ControlRegister {
     } else {
       controlByte &= 0x7F;
     }
+    write();
   }
 
   public boolean isSquareWaveEnabled() {
@@ -45,6 +50,7 @@ public class ControlRegister {
     } else {
       controlByte &= 0xBF;
     }
+    write();
   }
 
   public boolean isConvertTemperatureEnabled() {
@@ -57,6 +63,7 @@ public class ControlRegister {
     } else {
       controlByte &= 0xDF;
     }
+    write();
   }
 
   public int getSquareWaveFrequency() {
@@ -94,6 +101,7 @@ public class ControlRegister {
         frequencyBits = 0; // Invalid frequency, default to 1Hz
     }
     controlByte = (byte) ((controlByte & 0xC7) | (frequencyBits << 3));
+    write();
   }
 
   public boolean isSquareWaveInterruptEnabled() {
@@ -106,6 +114,7 @@ public class ControlRegister {
     } else {
       controlByte &= 0xFB;
     }
+    write();
   }
 
   public boolean isAlarm1InterruptEnabled() {
@@ -118,6 +127,7 @@ public class ControlRegister {
     } else {
       controlByte &= 0xFE;
     }
+    write();
   }
 
   public boolean isAlarm2InterruptEnabled() {
@@ -130,11 +140,11 @@ public class ControlRegister {
     } else {
       controlByte &= 0xFD;
     }
+    write();
   }
 
-
-  public byte toByte() {
-    return controlByte;
+  private void write(){
+    device.writeRegister(0xE, controlByte);
   }
 
   @Override

@@ -14,7 +14,7 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.ds3231;
+package io.mapsmessaging.devices.i2c.devices.sensors.ds3231.register;
 
 import com.pi4j.io.i2c.I2C;
 import lombok.Getter;
@@ -22,9 +22,9 @@ import lombok.ToString;
 
 import java.time.LocalTime;
 
-import static io.mapsmessaging.devices.i2c.devices.sensors.ds3231.Ds3231Registers.*;
+import static io.mapsmessaging.devices.i2c.devices.sensors.ds3231.register.Registers.*;
 
-public class Alarm {
+public class AlarmRegister {
 
   private final int secondIndex;
   private final int minuteIndex;
@@ -40,7 +40,7 @@ public class Alarm {
   private RATE rate;
 
 
-  public Alarm(byte[] alarmRegisters, boolean hasSeconds, I2C device, int addressOffset) {
+  public AlarmRegister(byte[] alarmRegisters, boolean hasSeconds, I2C device, int addressOffset) {
     this.device = device;
     this.addressOffset = addressOffset;
     this.registers = alarmRegisters;
@@ -211,7 +211,6 @@ public class Alarm {
     HOURS_MINUTES_MATCH(0b0100),
     DATE_HOURS_MINUTES_MATCH(0b0000, false),
     DAY_HOURS_MINUTES_MATCH(0b0000, true);
-
 
     @Getter
     private final int mask;

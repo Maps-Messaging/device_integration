@@ -14,12 +14,12 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.ds3231;
+package io.mapsmessaging.devices.i2c.devices.sensors.ds3231.register;
 
 import com.pi4j.io.i2c.I2C;
 import lombok.Getter;
 
-public class Ds3231Registers {
+public class Registers {
 
   private byte[] registerValues;
 
@@ -30,14 +30,14 @@ public class Ds3231Registers {
   private StatusRegister statusRegister;
 
   @Getter
-  private Alarm alarm1;
+  private AlarmRegister alarm1;
 
   @Getter
-  private Alarm alarm2;
+  private AlarmRegister alarm2;
 
   private final I2C device;
 
-  public Ds3231Registers(I2C device) {
+  public Registers(I2C device) {
     this.device = device;
   }
 
@@ -56,25 +56,17 @@ public class Ds3231Registers {
     return (byte) (((decimalValue / 10) << 4) | (decimalValue % 10));
   }
 
-  void setRegisterValues(byte[] values) {
+  public void setRegisterValues(byte[] values) {
     registerValues = values;
-    controlRegister = new ControlRegister(registerValues[0xE]);
-    statusRegister = new StatusRegister(registerValues[0xf]);
+    controlRegister = new ControlRegister(device, registerValues[0xE]);
+    statusRegister = new StatusRegister(device, registerValues[0xf]);
     byte[] alarm1Register = new byte[4];
     System.arraycopy(values, 7, alarm1Register, 0, 4);
-    alarm1 = new Alarm(alarm1Register, true, device, 7);
+    alarm1 = new AlarmRegister(alarm1Register, true, device, 7);
 
     byte[] alarm2Register = new byte[3];
     System.arraycopy(values, 11, alarm2Register, 0, 3);
-    alarm2 = new Alarm(alarm2Register, false, device, 11);
-  }
-
-  byte[] getRegisterValues() {
-    registerValues[0xE] = controlRegister.toByte();
-    registerValues[0xF] = statusRegister.toByte();
-    System.arraycopy(alarm1.getRegisters(), 0, registerValues, 7, 4);
-    System.arraycopy(alarm2.getRegisters(), 0, registerValues, 11, 3);
-    return registerValues;
+    alarm2 = new AlarmRegister(alarm2Register, false, device, 11);
   }
 
   public int getSeconds() {

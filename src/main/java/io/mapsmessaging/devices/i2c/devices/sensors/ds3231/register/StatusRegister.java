@@ -14,14 +14,19 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.ds3231;
+package io.mapsmessaging.devices.i2c.devices.sensors.ds3231.register;
+
+import com.pi4j.io.i2c.I2C;
 
 public class StatusRegister {
 
   private byte statusByte;
+  private final I2C device;
 
-  public StatusRegister(byte statusByte) {
+  public StatusRegister(I2C device, byte statusByte) {
     this.statusByte = statusByte;
+    this.device = device;
+
   }
 
   public boolean isOscillatorStopped() {
@@ -42,10 +47,12 @@ public class StatusRegister {
 
   public void clearAlarm2Flag() {
     statusByte &= 0xFD;
+    device.writeRegister(0xf, statusByte);
   }
 
   public void clearAlarm1Flag() {
     statusByte &= 0xFE;
+    device.writeRegister(0xf, statusByte);
   }
 
   public byte toByte() {
