@@ -20,10 +20,13 @@ import io.mapsmessaging.devices.spi.SpiDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import org.everit.json.schema.*;
+import org.everit.json.schema.internal.JSONPrinter;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONWriter;
 
 import java.io.IOException;
+import java.io.StringWriter;
 
 public class Mcp3y0xController extends SpiDeviceController {
 
@@ -70,7 +73,7 @@ public class Mcp3y0xController extends SpiDeviceController {
     return config;
   }
 
-  private Schema buildSchema() {
+  private String buildSchema() {
     ObjectSchema.Builder staticSchema = ObjectSchema.builder()
         .addPropertySchema("resolution",
             NumberSchema.builder()
@@ -103,7 +106,11 @@ public class Mcp3y0xController extends SpiDeviceController {
         .addPropertySchema("staticSchema", staticSchema.build())
         .description("Analog to digital convertor")
         .title("Mcp3y0x");
+    return schemaToString(schemaBuilder.build());
+  }
 
-    return schemaBuilder.build();
+  public static void main(String[] args){
+    Mcp3y0xController t = new Mcp3y0xController(new mcp3208Device(null));
+    System.err.println(t.buildSchema());
   }
 }

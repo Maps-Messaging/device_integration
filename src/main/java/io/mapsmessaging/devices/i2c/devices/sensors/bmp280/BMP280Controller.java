@@ -81,7 +81,7 @@ public class BMP280Controller implements I2CDeviceEntry {
     return new int[]{i2cAddr};
   }
 
-  private Schema buildSchema() {
+  private String buildSchema() {
     ObjectSchema.Builder updateSchema = ObjectSchema.builder()
         .addPropertySchema("temperature",
             NumberSchema.builder()
@@ -104,6 +104,6 @@ public class BMP280Controller implements I2CDeviceEntry {
         .description("pressure and Temperature Module")
         .title("BMP280");
 
-    return schemaBuilder.build();
+    return schemaToString(schemaBuilder.build());
   }
 }

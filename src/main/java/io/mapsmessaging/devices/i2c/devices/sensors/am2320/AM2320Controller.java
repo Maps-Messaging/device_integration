@@ -79,7 +79,7 @@ public class AM2320Controller implements I2CDeviceEntry {
     return new int[]{i2cAddr};
   }
 
-  private Schema buildSchema() {
+  private String buildSchema() {
     ObjectSchema.Builder updateSchema = ObjectSchema.builder()
         .addPropertySchema("temperature",
             NumberSchema.builder()
@@ -102,6 +102,6 @@ public class AM2320Controller implements I2CDeviceEntry {
         .description("Humidity and Temperature Module")
         .title("AM2320");
 
-    return schemaBuilder.build();
+    return schemaToString(schemaBuilder.build());
   }
 }

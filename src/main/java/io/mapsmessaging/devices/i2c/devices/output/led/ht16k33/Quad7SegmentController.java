@@ -49,7 +49,7 @@ public class Quad7SegmentController extends HT16K33Controller {
   }
 
   @Override
-  protected Schema buildSchema() {
+  protected String buildSchema() {
 
     ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
     schemaBuilder
@@ -58,7 +58,7 @@ public class Quad7SegmentController extends HT16K33Controller {
         .description("Quad 7 Segment LED")
         .title("HT16K33");
 
-    return schemaBuilder.build();
+    return schemaToString(schemaBuilder.build());
   }
 
 

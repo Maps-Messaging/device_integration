@@ -87,7 +87,7 @@ public class AM2315Controller implements I2CDeviceEntry {
   }
 
 
-  private Schema buildSchema() {
+  private String buildSchema() {
     ObjectSchema.Builder staticSchema = ObjectSchema.builder()
         .addPropertySchema("model",
             StringSchema.builder()
@@ -131,6 +131,6 @@ public class AM2315Controller implements I2CDeviceEntry {
         .description("Humidity and Temperature Module")
         .title("AM2315");
 
-    return schemaBuilder.build();
+    return schemaToString(schemaBuilder.build());
   }
 }

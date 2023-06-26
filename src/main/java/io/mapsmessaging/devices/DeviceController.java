@@ -17,6 +17,11 @@
 package io.mapsmessaging.devices;
 
 import io.mapsmessaging.schemas.config.SchemaConfig;
+import org.everit.json.schema.ObjectSchema;
+import org.everit.json.schema.internal.JSONPrinter;
+import org.json.JSONWriter;
+
+import java.io.StringWriter;
 
 public interface DeviceController {
 
@@ -31,4 +36,11 @@ public interface DeviceController {
   default void setPayload(byte[] val) {
   }
 
+  default String schemaToString(ObjectSchema schema){
+    StringWriter stringWriter = new StringWriter();
+    JSONWriter jsonWriter = new JSONWriter(stringWriter);
+    JSONPrinter printer = new JSONPrinter(jsonWriter);
+    schema.describeTo(printer);
+    return stringWriter.getBuffer().toString();
+  }
 }

@@ -7,7 +7,7 @@ import java.io.IOException;
 public class mcp3004Device extends mcp3y0xDevice {
 
 
-  public mcp3004Device(Spi spi) throws IOException {
+  public mcp3004Device(Spi spi) {
     super(spi, 10, 4);
   }
 

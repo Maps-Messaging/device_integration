@@ -83,7 +83,7 @@ public class TLS2561Controller implements I2CDeviceEntry {
     return new int[]{i2cAddr};
   }
 
-  private Schema buildSchema() {
+  private String buildSchema() {
     ObjectSchema.Builder staticSchema = ObjectSchema.builder()
         .addPropertySchema("integration",
             StringSchema.builder()
@@ -124,6 +124,7 @@ public class TLS2561Controller implements I2CDeviceEntry {
         .description("Digital Luminosity/Lux/Light Sensor Breakout")
         .title("TLS2561");
 
-    return schemaBuilder.build();
+    ObjectSchema schema = schemaBuilder.build();
+    return schema.toString();
   }
 }

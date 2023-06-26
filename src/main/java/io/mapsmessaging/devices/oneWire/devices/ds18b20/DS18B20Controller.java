@@ -74,7 +74,7 @@ public class DS18B20Controller implements OneWireDeviceEntry {
     return jsonObject.toString(2).getBytes();
   }
 
-  private Schema buildSchema() {
+  private String buildSchema() {
     ObjectSchema.Builder updateSchema = ObjectSchema.builder()
         .addPropertySchema("temperature",
             NumberSchema.builder()
@@ -90,6 +90,6 @@ public class DS18B20Controller implements OneWireDeviceEntry {
         .description("Temperature Module")
         .title("DS18B20");
 
-    return schemaBuilder.build();
+    return schemaToString(schemaBuilder.build());
   }
 }

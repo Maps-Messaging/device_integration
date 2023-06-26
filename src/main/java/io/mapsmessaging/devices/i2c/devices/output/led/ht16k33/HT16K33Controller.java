@@ -133,7 +133,7 @@ public abstract class HT16K33Controller implements I2CDeviceEntry {
   }
 
 
-  protected abstract Schema buildSchema();
+  protected abstract String buildSchema();
 
   protected Schema buildWritablePayload(String pattern) {
     ObjectSchema.Builder updateSchema = ObjectSchema.builder()

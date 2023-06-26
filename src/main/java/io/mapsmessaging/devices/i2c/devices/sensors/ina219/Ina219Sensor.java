@@ -120,11 +120,9 @@ public class Ina219Sensor extends I2CDevice {
   private int readDevice(int command) {
     write((byte) (command & 0xff));
     delay(10);
-    int val1 = device.read();
-    int val2 = device.read();
-    System.out.println("Read : " + Integer.toHexString(val1) + " : " + Integer.toHexString(val2));
-    val1 = (val1 & 0xff) << 8;
-    return val1 | val2;
+    int val1 = device.read() & 0xff;
+    int val2 = device.read() & 0xff;
+    return (val1 << 8) | val2;
   }
 
   private void writeDevice(int command, int data) {
