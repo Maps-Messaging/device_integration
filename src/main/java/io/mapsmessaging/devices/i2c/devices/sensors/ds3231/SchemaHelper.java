@@ -17,7 +17,8 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.ds3231;
 
 import org.everit.json.schema.*;
-import org.json.JSONObject;
+
+
 
 public class SchemaHelper {
   public static ObjectSchema generateUpdatePayloadSchema() {
@@ -29,16 +30,23 @@ public class SchemaHelper {
         .addPropertySchema("alarm1",
             ObjectSchema.builder()
                 .addPropertySchema("rate", EnumSchema.builder()
-                    .possibleValue("HOURS_MINUTES_MATCH")
+                    .possibleValue("ONCE_PER_SECOND")
+                    .possibleValue("SECONDS_MATCH")
+                    .possibleValue("MINUTES_SECONDS_MATCH")
                     .possibleValue("HOURS_MINUTE_SECONDS_MATCH")
+                    .possibleValue("DATE_HOURS_MINUTES_SECOND_MATCH")
+                    .possibleValue("DAY_HOURS_MINUTES_SECOND_MATCH")
                     .build())
                 .addPropertySchema("time", StringSchema.builder().build())
                 .build())
         .addPropertySchema("alarm2",
             ObjectSchema.builder()
                 .addPropertySchema("rate", EnumSchema.builder()
+                    .possibleValue("ONCE_PER_MINUTE")
+                    .possibleValue("MINUTES_MATCH")
                     .possibleValue("HOURS_MINUTES_MATCH")
-                    .possibleValue("HOURS_MINUTE_SECONDS_MATCH")
+                    .possibleValue("DATE_HOURS_MINUTES_MATCH")
+                    .possibleValue("DAY_HOURS_MINUTES_MATCH")
                     .build())
                 .addPropertySchema("time", StringSchema.builder().build())
                 .build())
@@ -55,9 +63,9 @@ public class SchemaHelper {
                 .build())
         .addPropertySchema("status",
             ObjectSchema.builder()
+                .addPropertySchema("alarm1Set", BooleanSchema.builder().build())
                 .addPropertySchema("alarm2Set", BooleanSchema.builder().build())
                 .addPropertySchema("32khz", BooleanSchema.builder().build())
-                .addPropertySchema("alarm1Set", BooleanSchema.builder().build())
                 .addPropertySchema("oscillatorStopped", BooleanSchema.builder().build())
                 .build());
 

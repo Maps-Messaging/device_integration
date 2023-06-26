@@ -112,7 +112,7 @@ public class Ds3231Controller implements I2CDeviceEntry {
   }
 
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig();
+    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setComments("i2c RTC");
     config.setSource("I2C bus address : 0x68");
     config.setVersion("1.0");
@@ -124,5 +124,9 @@ public class Ds3231Controller implements I2CDeviceEntry {
   @Override
   public int[] getAddressRange() {
     return new int[]{i2cAddr};
+  }
+
+  private String buildSchema() {
+    return schemaToString(SchemaHelper.generateUpdatePayloadSchema());
   }
 }

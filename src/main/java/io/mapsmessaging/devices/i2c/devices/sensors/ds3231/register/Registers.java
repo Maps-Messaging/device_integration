@@ -18,7 +18,9 @@ package io.mapsmessaging.devices.i2c.devices.sensors.ds3231.register;
 
 import com.pi4j.io.i2c.I2C;
 import lombok.Getter;
+import lombok.ToString;
 
+@ToString
 public class Registers {
 
   private byte[] registerValues;
@@ -181,16 +183,4 @@ public class Registers {
     return tempValue / 4.0f;
   }
 
-  @Override
-  public String toString() {
-    String stringBuffer = "Date   : " + getDate() + "-" + getMonth() + "-" + getYear() + " DOW:" + getDayOfWeek() + "\n" +
-        "Time   : " + getHours() + ":" + getMinutes() + ":" + getSeconds() + "\n" +
-        "Alarm1 : " + getAlarm1() + "\n" +
-        "Alarm2 : " + getAlarm2() + "\n" +
-        "Aging  : " + getAgingOffset() + "\n" +
-        "Temp   : " + getTemperature() + "\n" +
-        "Control Register\n" + controlRegister + "\n" +
-        "Status Register\n" + statusRegister + "\n";
-    return stringBuffer;
-  }
 }

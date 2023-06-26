@@ -23,7 +23,6 @@ import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
 import org.everit.json.schema.NumberSchema;
 import org.everit.json.schema.ObjectSchema;
-import org.everit.json.schema.Schema;
 import org.json.JSONObject;
 
 import java.io.IOException;
