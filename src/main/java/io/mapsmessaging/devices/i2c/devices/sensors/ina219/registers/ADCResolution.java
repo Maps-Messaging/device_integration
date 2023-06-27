@@ -1,4 +1,4 @@
-package io.mapsmessaging.devices.i2c.devices.sensors.ina219;
+package io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers;
 
 public enum ADCResolution {
   RES_9BIT(0x0080),  // 9-bit bus res = 0..511

@@ -1,4 +1,4 @@
-package io.mapsmessaging.devices.i2c.devices.sensors.ina219;
+package io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers;
 
 public enum GainMask {
   GAIN_1_40MV(0x0000),  // Gain 1, 40mV Range

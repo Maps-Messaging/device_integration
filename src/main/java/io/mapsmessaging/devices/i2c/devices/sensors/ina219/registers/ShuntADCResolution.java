@@ -1,4 +1,4 @@
-package io.mapsmessaging.devices.i2c.devices.sensors.ina219;
+package io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers;
 
 public enum ShuntADCResolution {
   RES_9BIT_1S_84US(0x0000),  // 1 x 9-bit shunt sample

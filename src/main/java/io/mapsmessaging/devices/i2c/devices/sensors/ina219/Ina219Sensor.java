@@ -18,20 +18,46 @@ package io.mapsmessaging.devices.i2c.devices.sensors.ina219;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.*;
 import io.mapsmessaging.logging.Logger;
 import io.mapsmessaging.logging.LoggerFactory;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.IOException;
 
 public class Ina219Sensor extends I2CDevice {
 
   private final Logger logger = LoggerFactory.getLogger(Ina219Sensor.class);
-  private int ina219_calValue;
-  private float ina219_currentDivider_mA;
-  private int ina219_powerDivider_mW;
+
+  @Getter
+  @Setter
+  private ADCResolution adcResolution;
+
+  @Getter
+  @Setter
+  private BusVoltageRange busVoltageRange;
+
+  @Getter
+  @Setter
+  private GainMask gainMask;
+
+  @Getter
+  @Setter
+  private OperatingMode operatingMode;
+
+  @Getter
+  @Setter
+  private ShuntADCResolution shuntADCResolution;
 
   public Ina219Sensor(I2C device) {
     super(device);
+    adcResolution = ADCResolution.RES_12BIT;
+    busVoltageRange = BusVoltageRange.RANGE_32V;
+    gainMask = GainMask.GAIN_8_320MV;
+    operatingMode = OperatingMode.BVOLT_CONTINUOUS;
+    shuntADCResolution = ShuntADCResolution.RES_12BIT_1S_532US;
+    setCalibration();
   }
 
   @Override
@@ -39,114 +65,58 @@ public class Ina219Sensor extends I2CDevice {
     return true;
   }
 
-  public void setCalibration( ADCResolution resolution, BusVoltageRange voltage, GainMask gain, OperatingMode mode, ShuntADCResolution shuntResolution){
-    int mask =
-        voltage.getValue() |
-        resolution.getValue() |
-        mode.getValue()|
-        gain.getValue()|
-        shuntResolution.getValue();
-    writeDevice(Constants.INA219_REG_CALIBRATION, ina219_calValue);
-    writeDevice(Constants.INA219_REG_CONFIG, mask);
+  public void setCalibration(){
+    writeDevice(Registers.CALIBRATION, buildMask());
   }
 
-  public void setCalibration_32V_2A() {
-    ina219_calValue = 4096;
-    ina219_currentDivider_mA = 10;    // Current LSB = 100uA per bit (1000/100 = 10)
-    ina219_powerDivider_mW = 2;
-    writeDevice(Constants.INA219_REG_CALIBRATION, ina219_calValue);
-
-    setCalibration(
-        ADCResolution.RES_12BIT,
-        BusVoltageRange.RANGE_32V,
-        GainMask.GAIN_8_320MV,
-        OperatingMode.BVOLT_CONTINUOUS,
-        ShuntADCResolution.RES_12BIT_1S_532US
-    );
-  }
-
-  public void setCalibration_32V_1A() throws IOException {
-    setCalibration(
-        ADCResolution.RES_12BIT,
-        BusVoltageRange.RANGE_32V,
-        GainMask.GAIN_8_320MV,
-        OperatingMode.BVOLT_CONTINUOUS,
-        ShuntADCResolution.RES_12BIT_1S_532US
-    );
-
-    ina219_calValue = 10240;
-    ina219_currentDivider_mA = 25.0f;
-    ina219_powerDivider_mW = 1;
-    writeDevice(Constants.INA219_REG_CALIBRATION, ina219_calValue);
-
-    int config =
-        Constants.INA219_CONFIG_BVOLTAGERANGE_32V |
-            Constants.INA219_CONFIG_GAIN_8_320MV |
-            Constants.INA219_CONFIG_BADCRES_12BIT |
-            Constants.INA219_CONFIG_SADCRES_12BIT_1S_532US |
-            Constants.INA219_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
-    writeDevice(Constants.INA219_REG_CONFIG, config);
-  }
-
-  public void setCalibration_16V_400mA() throws IOException {
-    ina219_calValue = 8192;
-    ina219_currentDivider_mA = 20.0f;
-    ina219_powerDivider_mW = 1;     // Power LSB = 1mW per bit
-
-    writeDevice(Constants.INA219_REG_CALIBRATION, ina219_calValue);
-
-    // Set Config register to take into account the settings above
-    int config =
-        Constants.INA219_CONFIG_BVOLTAGERANGE_16V |
-            Constants.INA219_CONFIG_GAIN_1_40MV |
-            Constants.INA219_CONFIG_BADCRES_12BIT |
-            Constants.INA219_CONFIG_SADCRES_12BIT_1S_532US |
-            Constants.INA219_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
-    writeDevice(Constants.INA219_REG_CONFIG, config);
-  }
-
-  public int getBusVoltage_raw() {
-    int value = readDevice(Constants.INA219_REG_BUSVOLTAGE);
-    value = ((value >> 3) << 2);
+  public int getBusVoltage() {
+    int value = readDevice(Registers.BUS_VOLTAGE);
+    value = ((value >> 3));
     return value;
   }
 
-  public int getShuntVoltage_raw() {
-    return readDevice(Constants.INA219_REG_SHUNTVOLTAGE);
+  public int getCurrent() {
+    return readDevice(Registers.CURRENT);
   }
 
-  public int getCurrent_raw() {
-    writeDevice(Constants.INA219_REG_CALIBRATION, ina219_calValue);
-    return readDevice(Constants.INA219_REG_CURRENT);
+  public int getPower() {
+    return readDevice(Registers.POWER);
   }
 
-  public float getShuntVoltage_mV() {
-    return getShuntVoltage_raw() * 0.01f;
+  public int getShuntVoltageRaw() {
+    return readDevice(Registers.SHUNT_VOLTAGE);
   }
 
-  public float getBusVoltage_V() {
-    return getBusVoltage_raw() * 0.001f;
+  public double getShuntVoltage() {
+    int rawValue = getShuntVoltageRaw();
+    return rawValue * 0.01;
   }
 
   public float getCurrent_mA() {
-    float valueDec = getCurrent_raw();
-    System.out.println("Raw Amp:" + valueDec);
-    valueDec /= ina219_currentDivider_mA;
+    float valueDec = getCurrent();
     return valueDec;
   }
 
-  private int readDevice(int command) {
-    write((byte) (command & 0xff));
-    delay(10);
-    int val1 = device.read() & 0xff;
-    int val2 = device.read() & 0xff;
-    return (val1 << 8) | val2;
+  private int readDevice(Registers register) {
+    byte[] buf = new byte[2];
+    readRegister(register.getAddress(), buf, 0, 2);
+    return (buf[0] & 0xff) << 8 | (buf[1] & 0xff);
   }
 
-  private void writeDevice(int command, int data) {
-    write((byte) (command & 0xff));
-    write((byte) ((data >> 8) & 0xff));
-    write((byte) (data & 0xff));
+  private void writeDevice(Registers register, int data) {
+    byte[] buf = new byte[2];
+    buf[0] = (byte)((data >> 8) & 0xff);
+    buf[1] = (byte)(data & 0xff);
+    write(register.getAddress(), buf);
+  }
+
+  private int buildMask(){
+    return
+        busVoltageRange.getValue() |
+        adcResolution.getValue() |
+        operatingMode.getValue()|
+        gainMask.getValue()|
+        shuntADCResolution.getValue();
   }
 
   @Override

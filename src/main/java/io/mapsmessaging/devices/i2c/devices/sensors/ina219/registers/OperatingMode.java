@@ -1,4 +1,4 @@
-package io.mapsmessaging.devices.i2c.devices.sensors.ina219;
+package io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers;
 
 public enum OperatingMode {
   POWERDOWN(0x0000),
