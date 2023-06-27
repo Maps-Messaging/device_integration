@@ -18,18 +18,18 @@ package io.mapsmessaging.devices.i2c.devices.sensors.ds3231;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
-import io.mapsmessaging.devices.i2c.devices.sensors.ds3231.register.AlarmRegister;
-import io.mapsmessaging.devices.i2c.devices.sensors.ds3231.register.ControlRegister;
-import io.mapsmessaging.devices.i2c.devices.sensors.ds3231.register.StatusRegister;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
+import org.everit.json.schema.ObjectSchema;
 import org.json.JSONObject;
 
 public class Ds3231Controller implements I2CDeviceEntry {
 
   private final int i2cAddr = 0x68;
   private final Ds3231Rtc rtc;
+  private final JsonPacker packer;
+  private final JsonUnpacker unpacker;
 
   @Getter
   private final String name = "DS3231";
@@ -37,10 +37,14 @@ public class Ds3231Controller implements I2CDeviceEntry {
 
   public Ds3231Controller() {
     rtc = null;
+    packer = null;
+    unpacker = null;
   }
 
   public Ds3231Controller(I2C device) {
     rtc = new Ds3231Rtc(device);
+    packer = new JsonPacker(rtc);
+    unpacker = new JsonUnpacker(rtc);
   }
 
   @Override
@@ -52,6 +56,7 @@ public class Ds3231Controller implements I2CDeviceEntry {
     return new Ds3231Controller(device);
   }
 
+  @Override
   public byte[] getStaticPayload() {
     JSONObject jsonObject = new JSONObject();
     if (rtc != null) {
@@ -60,55 +65,21 @@ public class Ds3231Controller implements I2CDeviceEntry {
     return jsonObject.toString(2).getBytes();
   }
 
+  @Override
   public byte[] getUpdatePayload() {
-    JSONObject jsonObject = new JSONObject();
-    if (rtc != null) {
+    if (packer != null && rtc != null) {
       rtc.read();
-      jsonObject.put("date", rtc.getDate());
-      jsonObject.put("time", rtc.getTime());
-      jsonObject.put("alarm1", packAlarm(rtc.getAlarm1()));
-      jsonObject.put("alarm2", packAlarm(rtc.getAlarm2()));
-      jsonObject.put("status", packStatus(rtc.getStatusRegiser()));
-      jsonObject.put("control", packControl(rtc.getControlRegister()));
-      jsonObject.put("temperature",rtc.getTemperature());
+      return packer.pack();
     }
-    return jsonObject.toString(2).getBytes();
+    return "{}".getBytes();
   }
 
-  private JSONObject packControl(ControlRegister controlRegister){
-    JSONObject control = new JSONObject();
-    control.put("covertTemperatureEnabled", controlRegister.isConvertTemperatureEnabled());
-    control.put("oscillatorEnabled", controlRegister.isOscillatorEnabled());
-    control.put("squareWaveEnabled", controlRegister.isSquareWaveEnabled());
-    control.put("squareWaveInterruptEnabled", controlRegister.isSquareWaveInterruptEnabled());
-    control.put("squareWaveFrequency", controlRegister.getSquareWaveFrequency());
-    control.put("alarm1InterruptEnabled", controlRegister.isAlarm1InterruptEnabled());
-    control.put("alarm2InterruptEnabled", controlRegister.isAlarm2InterruptEnabled());
-    return control;
-  }
-
-  private JSONObject packStatus(StatusRegister statusRegister){
-    JSONObject status = new JSONObject();
-    status.put("32khz", statusRegister.is32kHzOutputEnabled());
-    status.put("alarm1Set", statusRegister.isAlarm1FlagSet());
-    status.put("alarm2Set", statusRegister.isAlarm2FlagSet());
-    status.put("oscillatorStopped", statusRegister.isOscillatorStopped());
-    return status;
-  }
-
-  private JSONObject packAlarm(AlarmRegister alarmRegister){
-    JSONObject alarm = new JSONObject();
-    alarm.put("time", alarmRegister.getTime());
-    alarm.put("rate", alarmRegister.getRate().name());
-    if(alarmRegister.getRate().getMask() == 0) {
-      if(alarmRegister.getRate().isDayOfWeek()){
-        alarm.put("dayOfWeek", alarmRegister.getDayOrDate());
-      }
-      else{
-        alarm.put("dayOfMonth", alarmRegister.getDayOrDate());
-      }
+  @Override
+  public void setPayload(byte[] val) {
+    if(unpacker != null){
+      JSONObject jsonObject = new JSONObject(new String(val));
+      unpacker.unpack(jsonObject);
     }
-    return alarm;
   }
 
   public SchemaConfig getSchema() {
@@ -127,6 +98,13 @@ public class Ds3231Controller implements I2CDeviceEntry {
   }
 
   private String buildSchema() {
-    return schemaToString(SchemaHelper.generateUpdatePayloadSchema());
+    ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
+    schemaBuilder
+        .addPropertySchema("updateSchema", SchemaHelper.generateUpdatePayloadSchema())
+        .addPropertySchema("writeableSchema", SchemaHelper.buildWritablePayload())
+        .description("Quad 7 Segment LED")
+        .title("HT16K33");
+
+    return schemaToString(schemaBuilder.build());
   }
 }
