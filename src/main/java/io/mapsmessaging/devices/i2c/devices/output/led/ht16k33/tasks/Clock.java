@@ -12,21 +12,21 @@ public class Clock implements Task {
   private final HT16K33Controller controller;
   private final AtomicBoolean runFlag;
 
-  public Clock(HT16K33Controller controller){
+  public Clock(HT16K33Controller controller) {
     this.controller = controller;
     runFlag = new AtomicBoolean(true);
   }
 
   @Override
-  public void stop(){
+  public void stop() {
     runFlag.set(false);
   }
 
   @Override
-  public void run(){
+  public void run() {
     boolean hasColon = false;
     StringBuffer val = new StringBuffer();
-    while(runFlag.get()){
+    while (runFlag.get()) {
       LocalDateTime dateTime = LocalDateTime.now();
       int hour = dateTime.getHour();
       int min = dateTime.getMinute();

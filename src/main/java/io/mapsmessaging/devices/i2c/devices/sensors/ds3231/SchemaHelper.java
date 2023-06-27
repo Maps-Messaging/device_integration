@@ -19,10 +19,9 @@ package io.mapsmessaging.devices.i2c.devices.sensors.ds3231;
 import org.everit.json.schema.*;
 
 
-
 public class SchemaHelper {
 
-  private SchemaHelper(){
+  private SchemaHelper() {
 
   }
 

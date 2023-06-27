@@ -54,7 +54,7 @@ public class Ds3231Rtc extends I2CDevice {
     registers.setRegisterValues(registerRead);
   }
 
-  public float getTemperature(){
+  public float getTemperature() {
     return registers.getTemperature();
   }
 
@@ -110,11 +110,11 @@ public class Ds3231Rtc extends I2CDevice {
     return registers.getAlarm2();
   }
 
-  public ControlRegister getControlRegister(){
+  public ControlRegister getControlRegister() {
     return registers.getControlRegister();
   }
 
-  public StatusRegister getStatusRegiser(){
+  public StatusRegister getStatusRegiser() {
     return registers.getStatusRegister();
   }
 

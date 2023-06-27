@@ -21,7 +21,8 @@ import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
-import org.everit.json.schema.*;
+import org.everit.json.schema.NumberSchema;
+import org.everit.json.schema.ObjectSchema;
 import org.json.JSONObject;
 
 import java.io.IOException;

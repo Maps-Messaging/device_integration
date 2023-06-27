@@ -9,7 +9,7 @@ public class JsonPacker {
 
   private final Ds3231Rtc rtc;
 
-  public JsonPacker(Ds3231Rtc rtc){
+  public JsonPacker(Ds3231Rtc rtc) {
     this.rtc = rtc;
   }
 
@@ -21,11 +21,11 @@ public class JsonPacker {
     jsonObject.put("alarm2", packAlarm(rtc.getAlarm2()));
     jsonObject.put("status", packStatus(rtc.getStatusRegiser()));
     jsonObject.put("control", packControl(rtc.getControlRegister()));
-    jsonObject.put("temperature",rtc.getTemperature());
+    jsonObject.put("temperature", rtc.getTemperature());
     return jsonObject.toString(2).getBytes();
   }
 
-  private JSONObject packControl(ControlRegister controlRegister){
+  private JSONObject packControl(ControlRegister controlRegister) {
     JSONObject control = new JSONObject();
     control.put("covertTemperatureEnabled", controlRegister.isConvertTemperatureEnabled());
     control.put("oscillatorEnabled", controlRegister.isOscillatorEnabled());
@@ -37,7 +37,7 @@ public class JsonPacker {
     return control;
   }
 
-  private JSONObject packStatus(StatusRegister statusRegister){
+  private JSONObject packStatus(StatusRegister statusRegister) {
     JSONObject status = new JSONObject();
     status.put("32khz", statusRegister.is32kHzOutputEnabled());
     status.put("alarm1Set", statusRegister.isAlarm1FlagSet());
@@ -46,15 +46,14 @@ public class JsonPacker {
     return status;
   }
 
-  private JSONObject packAlarm(AlarmRegister alarmRegister){
+  private JSONObject packAlarm(AlarmRegister alarmRegister) {
     JSONObject alarm = new JSONObject();
     alarm.put("time", alarmRegister.getTime());
     alarm.put("rate", alarmRegister.getRate().name());
-    if(alarmRegister.getRate().getMask() == 0) {
-      if(alarmRegister.getRate().isDayOfWeek()){
+    if (alarmRegister.getRate().getMask() == 0) {
+      if (alarmRegister.getRate().isDayOfWeek()) {
         alarm.put("dayOfWeek", alarmRegister.getDayOrDate());
-      }
-      else{
+      } else {
         alarm.put("dayOfMonth", alarmRegister.getDayOrDate());
       }
     }

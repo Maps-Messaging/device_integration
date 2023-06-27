@@ -76,7 +76,7 @@ public class Ds3231Controller implements I2CDeviceEntry {
 
   @Override
   public void setPayload(byte[] val) {
-    if(unpacker != null){
+    if (unpacker != null) {
       JSONObject jsonObject = new JSONObject(new String(val));
       unpacker.unpack(jsonObject);
     }

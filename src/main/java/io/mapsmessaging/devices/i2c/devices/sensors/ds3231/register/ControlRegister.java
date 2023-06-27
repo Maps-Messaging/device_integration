@@ -19,10 +19,10 @@ package io.mapsmessaging.devices.i2c.devices.sensors.ds3231.register;
 import com.pi4j.io.i2c.I2C;
 
 public class ControlRegister {
-  private byte controlByte;
   private final I2C device;
+  private byte controlByte;
 
-  public ControlRegister(I2C device,  byte controlByte) {
+  public ControlRegister(I2C device, byte controlByte) {
     this.controlByte = controlByte;
     this.device = device;
   }
@@ -143,7 +143,7 @@ public class ControlRegister {
     write();
   }
 
-  private void write(){
+  private void write() {
     device.writeRegister(0xE, controlByte);
   }
 

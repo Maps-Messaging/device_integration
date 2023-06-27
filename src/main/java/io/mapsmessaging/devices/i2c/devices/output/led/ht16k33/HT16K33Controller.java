@@ -24,8 +24,6 @@ import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import org.everit.json.schema.*;
 import org.json.JSONObject;
 
-import java.util.regex.Pattern;
-
 public abstract class HT16K33Controller implements I2CDeviceEntry {
 
   protected final HT16K33Driver display;
@@ -96,9 +94,9 @@ public abstract class HT16K33Controller implements I2CDeviceEntry {
         }
       }
     }
-    if(jsonObject.has("display")) {
-      synchronized (this){
-        if(currentTask != null){
+    if (jsonObject.has("display")) {
+      synchronized (this) {
+        if (currentTask != null) {
           currentTask.stop();
           currentTask = null;
         }
@@ -107,16 +105,15 @@ public abstract class HT16K33Controller implements I2CDeviceEntry {
       if (text.length() <= 5) {
         display.write(text);
       }
-    }
-    else if(jsonObject.has("task")){
-      synchronized (this){
-        if(currentTask != null){
+    } else if (jsonObject.has("task")) {
+      synchronized (this) {
+        if (currentTask != null) {
           currentTask.stop();
           currentTask = null;
           display.write("    ");
         }
         String task = jsonObject.getString("task");
-        if(task.equalsIgnoreCase("clock")){
+        if (task.equalsIgnoreCase("clock")) {
           currentTask = new Clock(this);
         }
       }

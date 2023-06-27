@@ -23,21 +23,16 @@ import lombok.ToString;
 @ToString
 public class Registers {
 
+  private final I2C device;
   private byte[] registerValues;
-
   @Getter
   private ControlRegister controlRegister;
-
   @Getter
   private StatusRegister statusRegister;
-
   @Getter
   private AlarmRegister alarm1;
-
   @Getter
   private AlarmRegister alarm2;
-
-  private final I2C device;
 
   public Registers(I2C device) {
     this.device = device;

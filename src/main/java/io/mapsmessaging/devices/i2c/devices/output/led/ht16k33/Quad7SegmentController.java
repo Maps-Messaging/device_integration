@@ -21,7 +21,6 @@ import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import lombok.Getter;
 import org.everit.json.schema.ObjectSchema;
-import org.everit.json.schema.Schema;
 
 public class Quad7SegmentController extends HT16K33Controller {
 
@@ -60,7 +59,6 @@ public class Quad7SegmentController extends HT16K33Controller {
 
     return schemaToString(schemaBuilder.build());
   }
-
 
 
   @Override

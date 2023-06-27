@@ -93,7 +93,7 @@ public class Ina219Sensor extends I2CDevice {
     return value;
   }
 
-  public int getShuntVoltage_raw()  {
+  public int getShuntVoltage_raw() {
     return readDevice(Constants.INA219_REG_SHUNTVOLTAGE);
   }
 
@@ -106,7 +106,7 @@ public class Ina219Sensor extends I2CDevice {
     return getShuntVoltage_raw() * 0.01f;
   }
 
-  public float getBusVoltage_V()  {
+  public float getBusVoltage_V() {
     return getBusVoltage_raw() * 0.001f;
   }
 
@@ -130,7 +130,7 @@ public class Ina219Sensor extends I2CDevice {
     write((byte) ((data >> 8) & 0xff));
     write((byte) (data & 0xff));
   }
-  
+
   @Override
   public String getName() {
     return "INA219";

@@ -52,7 +52,7 @@ public class AS3935Controller implements I2CDeviceEntry {
 
   public byte[] getStaticPayload() {
     JSONObject jsonObject = new JSONObject();
-    if(sensor != null) {
+    if (sensor != null) {
       jsonObject.put("Reason", sensor.getReason());
       jsonObject.put("Distance", sensor.getDistance());
       jsonObject.put("MinimumStrikes", sensor.getMinimumStrikes());
@@ -64,7 +64,7 @@ public class AS3935Controller implements I2CDeviceEntry {
 
   public byte[] getUpdatePayload() {
     JSONObject jsonObject = new JSONObject();
-    if(sensor != null) {
+    if (sensor != null) {
       jsonObject.put("Reason", sensor.getReason());
       jsonObject.put("Distance", sensor.getDistance());
       jsonObject.put("MinimumStrikes", sensor.getMinimumStrikes());

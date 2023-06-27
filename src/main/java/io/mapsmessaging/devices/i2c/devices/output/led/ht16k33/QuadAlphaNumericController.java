@@ -21,7 +21,6 @@ import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import lombok.Getter;
 import org.everit.json.schema.ObjectSchema;
-import org.everit.json.schema.Schema;
 
 public class QuadAlphaNumericController extends HT16K33Controller {
 

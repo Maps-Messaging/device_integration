@@ -21,7 +21,10 @@ import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
-import org.everit.json.schema.*;
+import org.everit.json.schema.BooleanSchema;
+import org.everit.json.schema.NumberSchema;
+import org.everit.json.schema.ObjectSchema;
+import org.everit.json.schema.StringSchema;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -52,7 +55,7 @@ public class AM2315Controller implements I2CDeviceEntry {
 
   public byte[] getStaticPayload() {
     JSONObject jsonObject = new JSONObject();
-    if(sensor != null) {
+    if (sensor != null) {
       jsonObject.put("model", sensor.getModel());
       jsonObject.put("status", sensor.getStatus());
       jsonObject.put("version", sensor.getVersion());
@@ -63,7 +66,7 @@ public class AM2315Controller implements I2CDeviceEntry {
 
   public byte[] getUpdatePayload() {
     JSONObject jsonObject = new JSONObject();
-    if(sensor != null) {
+    if (sensor != null) {
       jsonObject.put("temperature", sensor.getTemperature());
       jsonObject.put("humidity", sensor.getHumidity());
     }
@@ -95,18 +98,18 @@ public class AM2315Controller implements I2CDeviceEntry {
                 .build()
         )
         .addPropertySchema("id",
-                StringSchema.builder()
-                        .description("Unique ID of sensor")
-                        .build()
+            StringSchema.builder()
+                .description("Unique ID of sensor")
+                .build()
         )
         .addPropertySchema("status",
             BooleanSchema.builder()
                 .description("Current Status")
                 .build())
         .addPropertySchema("version",
-        BooleanSchema.builder()
-            .description("Chip Version")
-            .build());
+            BooleanSchema.builder()
+                .description("Chip Version")
+                .build());
 
     ObjectSchema.Builder updateSchema = ObjectSchema.builder()
         .addPropertySchema("temperature",

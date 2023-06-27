@@ -21,10 +21,11 @@ import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
-import org.everit.json.schema.*;
+import org.everit.json.schema.BooleanSchema;
+import org.everit.json.schema.NumberSchema;
+import org.everit.json.schema.ObjectSchema;
+import org.everit.json.schema.StringSchema;
 import org.json.JSONObject;
-
-import java.io.IOException;
 
 public class TLS2561Controller implements I2CDeviceEntry {
 
@@ -37,7 +38,7 @@ public class TLS2561Controller implements I2CDeviceEntry {
     sensor = null;
   }
 
-  public TLS2561Controller(I2C device){
+  public TLS2561Controller(I2C device) {
     sensor = new TLS2561Sensor(device);
   }
 
@@ -52,7 +53,7 @@ public class TLS2561Controller implements I2CDeviceEntry {
 
   public byte[] getStaticPayload() {
     JSONObject jsonObject = new JSONObject();
-    if(sensor != null) {
+    if (sensor != null) {
       jsonObject.put("integration", sensor.getIntegrationTime().getTime());
       jsonObject.put("highGain", sensor.getHighGain() != 0);
     }

@@ -18,8 +18,7 @@ package io.mapsmessaging.devices.i2c.devices.drivers.pca9685;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
-import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos.*;
-import io.mapsmessaging.devices.util.Delay;
+import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos.Servo;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;

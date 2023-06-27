@@ -20,8 +20,8 @@ import com.pi4j.io.i2c.I2C;
 
 public class StatusRegister {
 
-  private byte statusByte;
   private final I2C device;
+  private byte statusByte;
 
   public StatusRegister(I2C device, byte statusByte) {
     this.statusByte = statusByte;

@@ -11,10 +11,11 @@ public class JsonUnpacker {
 
   private final Ds3231Rtc rtc;
 
-  public JsonUnpacker(Ds3231Rtc rtc){
+  public JsonUnpacker(Ds3231Rtc rtc) {
     this.rtc = rtc;
   }
-  public void unpack (JSONObject jsonObject) {
+
+  public void unpack(JSONObject jsonObject) {
     if (jsonObject.has("date")) {
       rtc.setDate(LocalDate.parse(jsonObject.getString("date")));
     }

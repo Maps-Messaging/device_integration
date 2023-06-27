@@ -94,12 +94,12 @@ public class TLS2561Sensor extends I2CDevice {
     }
   }
 
-  public int getIr(){
+  public int getIr() {
     scanForChange();
     return ir;
   }
 
-  public int getFull(){
+  public int getFull() {
     scanForChange();
     return full;
   }
