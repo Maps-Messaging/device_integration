@@ -39,23 +39,41 @@ public class Ina219Sensor extends I2CDevice {
     return true;
   }
 
-  public void setCalibration_32V_2A() throws IOException {
+  public void setCalibration( ADCResolution resolution, BusVoltageRange voltage, GainMask gain, OperatingMode mode, ShuntADCResolution shuntResolution){
+    int mask =
+        voltage.getValue() |
+        resolution.getValue() |
+        mode.getValue()|
+        gain.getValue()|
+        shuntResolution.getValue();
+    writeDevice(Constants.INA219_REG_CALIBRATION, ina219_calValue);
+    writeDevice(Constants.INA219_REG_CONFIG, mask);
+  }
+
+  public void setCalibration_32V_2A() {
     ina219_calValue = 4096;
     ina219_currentDivider_mA = 10;    // Current LSB = 100uA per bit (1000/100 = 10)
-    ina219_powerDivider_mW = 2;     // Power LSB = 1mW per bit (2/1)
+    ina219_powerDivider_mW = 2;
     writeDevice(Constants.INA219_REG_CALIBRATION, ina219_calValue);
 
-    int config =
-        Constants.INA219_CONFIG_BVOLTAGERANGE_32V |
-            Constants.INA219_CONFIG_GAIN_8_320MV |
-            Constants.INA219_CONFIG_BADCRES_12BIT |
-            Constants.INA219_CONFIG_SADCRES_12BIT_1S_532US |
-            Constants.INA219_CONFIG_MODE_SANDBVOLT_CONTINUOUS;
-
-    writeDevice(Constants.INA219_REG_CONFIG, config);
+    setCalibration(
+        ADCResolution.RES_12BIT,
+        BusVoltageRange.RANGE_32V,
+        GainMask.GAIN_8_320MV,
+        OperatingMode.BVOLT_CONTINUOUS,
+        ShuntADCResolution.RES_12BIT_1S_532US
+    );
   }
 
   public void setCalibration_32V_1A() throws IOException {
+    setCalibration(
+        ADCResolution.RES_12BIT,
+        BusVoltageRange.RANGE_32V,
+        GainMask.GAIN_8_320MV,
+        OperatingMode.BVOLT_CONTINUOUS,
+        ShuntADCResolution.RES_12BIT_1S_532US
+    );
+
     ina219_calValue = 10240;
     ina219_currentDivider_mA = 25.0f;
     ina219_powerDivider_mW = 1;
