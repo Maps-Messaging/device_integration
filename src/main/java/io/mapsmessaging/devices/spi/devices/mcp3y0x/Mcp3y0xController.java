@@ -76,20 +76,24 @@ public class Mcp3y0xController extends SpiDeviceController {
 
   public byte[] getStaticPayload() {
     JSONObject jsonObject = new JSONObject();
-    jsonObject.put("resolution", device.getBits());
-    jsonObject.put("channels", device.getChannels());
-    jsonObject.put("dutyCycle", device.getDutyCycle());
+    if(device != null) {
+      jsonObject.put("resolution", device.getBits());
+      jsonObject.put("channels", device.getChannels());
+      jsonObject.put("dutyCycle", device.getDutyCycle());
+    }
     return jsonObject.toString(2).getBytes();
   }
 
   public byte[] getUpdatePayload() {
     JSONObject jsonObject = new JSONObject();
     JSONArray jsonArray = new JSONArray();
-    for (short x = 0; x < device.channels; x++) {
-      try {
-        jsonArray.put(device.readFromChannel(false, x));
-      } catch (IOException e) {
-        jsonArray.put(Integer.MIN_VALUE);
+    if(device != null) {
+      for (short x = 0; x < device.channels; x++) {
+        try {
+          jsonArray.put(device.readFromChannel(false, x));
+        } catch (IOException e) {
+          jsonArray.put(Integer.MIN_VALUE);
+        }
       }
     }
     jsonObject.put("current", jsonArray);
@@ -128,7 +132,7 @@ public class Mcp3y0xController extends SpiDeviceController {
         .addPropertySchema("current",
             ArraySchema.builder()
                 .minItems(0)
-                .maxItems(device.channels)
+                .maxItems(device == null? 8:device.channels)
                 .description("Current values of all channels on the ADC")
                 .build()
         );
