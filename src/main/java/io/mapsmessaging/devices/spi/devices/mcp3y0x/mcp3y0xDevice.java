@@ -31,7 +31,7 @@ public abstract class mcp3y0xDevice extends SpiDevice {
   @Getter
   protected final int bits;
   @Getter
-  protected final int dutyCycle = 200000;
+  protected final int dutyCycle = 100000;
 
   protected mcp3y0xDevice(Spi spi, DigitalOutput clientSelect, int bits, int channels) {
     super(spi, clientSelect);
@@ -75,6 +75,8 @@ public abstract class mcp3y0xDevice extends SpiDevice {
       value = ((buf[1] & 0b1111) << 8); //merge data[1] & data[2] to get 12-bit result
     }
     value |= (buf[2] & 0xff);
+    System.err.println("Buf[1]::"+buf[1]);
+    System.err.println("Buf[2]::"+buf[2]);
     return value;
   }
 
