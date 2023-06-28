@@ -67,6 +67,7 @@ public class Ina219Controller implements I2CDeviceEntry {
     return jsonObject.toString(2).getBytes();
   }
 
+  @Override
   public void setPayload(byte[] payload) {
     if(sensor == null)return;
     JSONObject jsonObject = new JSONObject(new String(payload));
