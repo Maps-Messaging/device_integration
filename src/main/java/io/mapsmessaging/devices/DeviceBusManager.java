@@ -22,6 +22,7 @@ import com.pi4j.io.i2c.I2CProvider;
 import io.mapsmessaging.devices.i2c.I2CBusManager;
 import io.mapsmessaging.devices.interrupts.InterruptFactory;
 import io.mapsmessaging.devices.oneWire.OneWireBusManager;
+import io.mapsmessaging.devices.spi.SpiBusManager;
 import lombok.Getter;
 
 public class DeviceBusManager {
@@ -36,16 +37,18 @@ public class DeviceBusManager {
   @Getter
   private final OneWireBusManager oneWireBusManager;
   @Getter
+  private final SpiBusManager spiBusManager;
+
+  @Getter
   private final InterruptFactory interruptFactory;
 
   private DeviceBusManager() {
-
-
     pi4j = Pi4J.newAutoContext();
     i2cProvider = pi4j.provider(getProvider());
     i2cBusManager = new I2CBusManager(pi4j, i2cProvider);
     oneWireBusManager = new OneWireBusManager();
     interruptFactory = new InterruptFactory(pi4j);
+    spiBusManager = new SpiBusManager(pi4j);
   }
 
   public static DeviceBusManager getInstance() {

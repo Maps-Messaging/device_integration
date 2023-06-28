@@ -55,7 +55,7 @@ public class OneWireBusManager {
 
   public void scan() {
     File[] files = rootDirectory.listFiles();
-    if(files == null)return;
+    if (files == null) return;
     for (File device : files) {
       for (Map.Entry<String, OneWireDeviceEntry> entry : knownDevices.entrySet()) {
         if (device.getName().startsWith(entry.getKey())) {

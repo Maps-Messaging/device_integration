@@ -84,7 +84,7 @@ public class I2CBusManager {
         I2CDeviceEntry physicalDevice = deviceEntry.mount(device);
         if (physicalDevice.detect()) {
           activeDevices.put(Integer.toHexString(addr), physicalDevice);
-          System.err.println("Found Device "+physicalDevice.getName());
+          System.err.println("Found Device " + physicalDevice.getName());
         }
       } catch (IOException e) {
         e.printStackTrace();

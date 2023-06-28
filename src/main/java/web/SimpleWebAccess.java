@@ -6,11 +6,12 @@ import io.mapsmessaging.devices.DeviceBusManager;
 import io.mapsmessaging.devices.DeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.devices.oneWire.OneWireDeviceEntry;
+import io.mapsmessaging.devices.spi.SpiDeviceController;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -31,16 +32,34 @@ public class SimpleWebAccess {
   }
 
   private void startServer() {
+    Map<String, String> map = new LinkedHashMap<>();
+    map.put("spiBus", "0");
+    map.put("csAddress", "5");
+    map.put("resolution", "12");
+    map.put("channels", "8");
+    System.err.println("Mounting ADC");
+    deviceBusManager.getSpiBusManager().mount("Mcp3y0x", map);
+
     Javalin app = Javalin.create().start(7000);
-      app.get("/device/list", ctx -> {
+    app.get("/device/list", ctx -> {
       JSONObject jsonObject = new JSONObject();
       jsonObject.put("i2c", packList(deviceBusManager.getI2cBusManager().getActive()));
-      jsonObject.put("1Wire",  packList(deviceBusManager.getOneWireBusManager().getActive()));
+      jsonObject.put("1Wire", packList(deviceBusManager.getOneWireBusManager().getActive()));
+      jsonObject.put("spi", packList(deviceBusManager.getSpiBusManager().getActive()));
       ctx.json(jsonObject.toString(2));
     });
     app.get("/device/i2c/{id}", ctx -> {
       String id = ctx.pathParam("id");
       I2CDeviceEntry device = deviceBusManager.getI2cBusManager().get(id);
+      if (device != null) {
+        handleDeviceGet(ctx, device);
+      } else {
+        ctx.status(404).result("Device not found");
+      }
+    });
+    app.get("/device/spi/{id}", ctx -> {
+      String id = ctx.pathParam("id");
+      SpiDeviceController device = deviceBusManager.getSpiBusManager().get(id);
       if (device != null) {
         handleDeviceGet(ctx, device);
       } else {
@@ -56,7 +75,15 @@ public class SimpleWebAccess {
         ctx.status(404).result("Device not found");
       }
     });
-
+    app.get("/device/spi/{id}/schema", ctx -> {
+      String id = ctx.pathParam("id");
+      SpiDeviceController device = deviceBusManager.getSpiBusManager().get(id);
+      if (device != null) {
+        handleGetSchema(ctx, device);
+      } else {
+        ctx.status(404).result("Device not found");
+      }
+    });
     app.get("/device/1wire/{id}", ctx -> {
       String id = ctx.pathParam("id");
       OneWireDeviceEntry device = deviceBusManager.getOneWireBusManager().get(id);
@@ -101,14 +128,14 @@ public class SimpleWebAccess {
   }
 
 
-  private void handleDeviceGet(Context ctx, DeviceController deviceController){
+  private void handleDeviceGet(Context ctx, DeviceController deviceController) {
     JSONObject result = new JSONObject();
     result.put("static", new JSONObject(new String(deviceController.getStaticPayload())));
     result.put("update", new JSONObject(new String(deviceController.getUpdatePayload())));
     ctx.json(result.toString(2));
   }
 
-  private JSONArray packList(Map<String, DeviceController> devices){
+  private JSONArray packList(Map<String, DeviceController> devices) {
     JSONArray list = new JSONArray();
     for (Map.Entry<String, DeviceController> deviceEntryEntry : devices.entrySet()) {
       JSONObject entry = new JSONObject();

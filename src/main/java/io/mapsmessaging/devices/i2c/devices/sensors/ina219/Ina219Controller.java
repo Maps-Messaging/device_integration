@@ -69,7 +69,7 @@ public class Ina219Controller implements I2CDeviceEntry {
 
   @Override
   public void setPayload(byte[] payload) {
-    if(sensor == null)return;
+    if (sensor == null) return;
     JSONObject jsonObject = new JSONObject(new String(payload));
     if (jsonObject.has("adcResolution")) {
       String adcResolutionStr = jsonObject.getString("adcResolution");
@@ -117,7 +117,7 @@ public class Ina219Controller implements I2CDeviceEntry {
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setComments("High Side DC Current Sensor");
-    config.setSource("I2C bus address : "+i2cAddr);
+    config.setSource("I2C bus address : " + i2cAddr);
     config.setVersion("1.0");
     config.setResourceType("sensor");
     config.setInterfaceDescription("Returns json object with current readings from sensor");
@@ -159,7 +159,6 @@ public class Ina219Controller implements I2CDeviceEntry {
                 .description("Power measurement in Watts (W)")
                 .build()
         );
-
 
 
     ObjectSchema.Builder staticSchema = ObjectSchema.builder()

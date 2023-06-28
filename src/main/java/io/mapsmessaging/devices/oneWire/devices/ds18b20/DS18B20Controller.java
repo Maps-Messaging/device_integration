@@ -20,7 +20,8 @@ import io.mapsmessaging.devices.oneWire.OneWireDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
-import org.everit.json.schema.*;
+import org.everit.json.schema.NumberSchema;
+import org.everit.json.schema.ObjectSchema;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -67,7 +68,7 @@ public class DS18B20Controller implements OneWireDeviceEntry {
   @Override
   public byte[] getUpdatePayload() {
     JSONObject jsonObject = new JSONObject();
-    if(sensor != null) {
+    if (sensor != null) {
       sensor.update();
       jsonObject.put("temperature", sensor.getCurrent());
     }

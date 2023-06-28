@@ -24,8 +24,6 @@ import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.IOException;
-
 public class Ina219Sensor extends I2CDevice {
 
   private final Logger logger = LoggerFactory.getLogger(Ina219Sensor.class);
@@ -65,7 +63,7 @@ public class Ina219Sensor extends I2CDevice {
     return true;
   }
 
-  public void setCalibration(){
+  public void setCalibration() {
     writeDevice(Registers.CALIBRATION, buildMask());
   }
 
@@ -105,18 +103,18 @@ public class Ina219Sensor extends I2CDevice {
 
   private void writeDevice(Registers register, int data) {
     byte[] buf = new byte[2];
-    buf[0] = (byte)((data >> 8) & 0xff);
-    buf[1] = (byte)(data & 0xff);
+    buf[0] = (byte) ((data >> 8) & 0xff);
+    buf[1] = (byte) (data & 0xff);
     write(register.getAddress(), buf);
   }
 
-  private int buildMask(){
+  private int buildMask() {
     return
         busVoltageRange.getValue() |
-        adcResolution.getValue() |
-        operatingMode.getValue()|
-        gainMask.getValue()|
-        shuntADCResolution.getValue();
+            adcResolution.getValue() |
+            operatingMode.getValue() |
+            gainMask.getValue() |
+            shuntADCResolution.getValue();
   }
 
   @Override

@@ -36,7 +36,7 @@ public interface DeviceController {
   default void setPayload(byte[] val) {
   }
 
-  default String schemaToString(ObjectSchema schema){
+  default String schemaToString(ObjectSchema schema) {
     StringWriter stringWriter = new StringWriter();
     JSONWriter jsonWriter = new JSONWriter(stringWriter);
     JSONPrinter printer = new JSONPrinter(jsonWriter);

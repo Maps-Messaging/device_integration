@@ -16,28 +16,61 @@
 
 package io.mapsmessaging.devices.spi.devices.mcp3y0x;
 
+import com.pi4j.context.Context;
+import com.pi4j.io.gpio.digital.DigitalOutput;
+import com.pi4j.io.spi.Spi;
+import com.pi4j.io.spi.SpiChipSelect;
+import com.pi4j.io.spi.SpiMode;
 import io.mapsmessaging.devices.spi.SpiDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import org.everit.json.schema.*;
-import org.everit.json.schema.internal.JSONPrinter;
+import org.everit.json.schema.ArraySchema;
+import org.everit.json.schema.NumberSchema;
+import org.everit.json.schema.ObjectSchema;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONWriter;
 
 import java.io.IOException;
-import java.io.StringWriter;
+import java.util.Map;
 
 public class Mcp3y0xController extends SpiDeviceController {
 
   private final mcp3y0xDevice device;
 
-  public Mcp3y0xController(mcp3y0xDevice device){
+  public Mcp3y0xController() {
+    device = null;
+  }
+
+  public Mcp3y0xController(mcp3y0xDevice device) {
     this.device = device;
   }
 
   @Override
+  public SpiDeviceController mount(Context pi4j, Map<String, String> map) {
+    int spiBus = Integer.parseInt(map.get("spiBus"));
+    int csAddress = Integer.parseInt(map.get("csAddress"));
+    int resolution = Integer.parseInt(map.get("resolution"));
+    int channels = Integer.parseInt(map.get("channels"));
+    DigitalOutput cs = null;//super.createClientSelect(pi4j, getName(), device.getDescription(), csAddress, DigitalState.HIGH, DigitalState.HIGH);
+
+    String description = "Microchip Technology Analog to Digital " + channels + " channel " + resolution + " bit convertor";
+    Spi spi = createDevice(pi4j, getName(), description, spiBus, SpiChipSelect.CS_0, SpiMode.MODE_0);
+    if (channels == 4) {
+      if (resolution == 10) {
+        return new Mcp3y0xController(new mcp3004Device(spi, cs));
+      }
+      return new Mcp3y0xController(new mcp3204Device(spi, cs));
+    } else {
+      if (resolution == 10) {
+        return new Mcp3y0xController(new mcp3008Device(spi, cs));
+      }
+    }
+    return new Mcp3y0xController(new mcp3208Device(spi, cs));
+  }
+
+  @Override
   public String getName() {
+    if (device == null) return "Mcp3y0x";
     return device.getName();
   }
 
@@ -52,7 +85,7 @@ public class Mcp3y0xController extends SpiDeviceController {
   public byte[] getUpdatePayload() {
     JSONObject jsonObject = new JSONObject();
     JSONArray jsonArray = new JSONArray();
-    for(short x=0;x<device.channels;x++){
+    for (short x = 0; x < device.channels; x++) {
       try {
         jsonArray.put(device.readFromChannel(false, x));
       } catch (IOException e) {
@@ -109,8 +142,4 @@ public class Mcp3y0xController extends SpiDeviceController {
     return schemaToString(schemaBuilder.build());
   }
 
-  public static void main(String[] args){
-    Mcp3y0xController t = new Mcp3y0xController(new mcp3208Device(null));
-    System.err.println(t.buildSchema());
-  }
 }

@@ -18,8 +18,10 @@ package io.mapsmessaging.devices.interrupts;
 
 public interface InterruptHandler {
 
-  default void high(){}
+  default void high() {
+  }
 
-  default void low(){}
+  default void low() {
+  }
 
 }

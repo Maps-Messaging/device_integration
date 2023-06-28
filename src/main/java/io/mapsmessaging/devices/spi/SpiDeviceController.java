@@ -16,9 +16,46 @@
 
 package io.mapsmessaging.devices.spi;
 
+import com.pi4j.context.Context;
+import com.pi4j.io.gpio.digital.DigitalOutput;
+import com.pi4j.io.gpio.digital.DigitalState;
+import com.pi4j.io.spi.Spi;
+import com.pi4j.io.spi.SpiChipSelect;
+import com.pi4j.io.spi.SpiMode;
 import io.mapsmessaging.devices.DeviceController;
+
+import java.util.Map;
 
 public abstract class SpiDeviceController implements DeviceController {
 
+  public abstract SpiDeviceController mount(Context pi4j, Map<String, String> config);
 
+  public Spi createDevice(Context pi4j, String name, String id, int spiBus, SpiChipSelect chipSelect, SpiMode mode) {
+    var spiConfig = Spi.newConfigBuilder(pi4j)
+        .id(id)
+        .name(name)
+        .bus(spiBus)
+        .chipSelect(chipSelect) // not used
+        .mode(mode)
+        .provider("pigpio-spi")
+        .build();
+    System.err.println("Creating new device " + id);
+    return pi4j.create(spiConfig);
+  }
+
+  public DigitalOutput createClientSelect(Context pi4j, String id, String name, int address, DigitalState initialState, DigitalState shutdownState) {
+    // required all configs
+    var outputConfig = DigitalOutput.newConfigBuilder(pi4j)
+        .id(id)
+        .name(name)
+        .address(address)
+        .shutdown(shutdownState)
+        .initial(initialState)
+        .provider("pigpio-digital-output");
+    return pi4j.create(outputConfig);
+  }
+
+  public void closeDevice(Spi device) {
+    device.close();
+  }
 }

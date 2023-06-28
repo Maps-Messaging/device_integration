@@ -1,14 +1,13 @@
 package io.mapsmessaging.devices.spi.devices.mcp3y0x;
 
+import com.pi4j.io.gpio.digital.DigitalOutput;
 import com.pi4j.io.spi.Spi;
-
-import java.io.IOException;
 
 public class mcp3208Device extends mcp3y0xDevice {
 
 
-  public mcp3208Device(Spi spi) {
-    super(spi, 12, 8);
+  public mcp3208Device(Spi spi, DigitalOutput clientSelect) {
+    super(spi, clientSelect, 12, 8);
   }
 
   @Override
