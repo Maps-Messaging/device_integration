@@ -47,11 +47,11 @@ public abstract class I2CDevice implements Device, AutoCloseable {
     device.write(buffer, off, len);
   }
 
-  protected void write(int register, byte data) {
+  public void write(int register, byte data) {
     device.writeRegister(register, data);
   }
 
-  protected void write(int register, byte[] data) {
+  public void write(int register, byte[] data) {
     device.writeRegister(register, data);
   }
 
@@ -63,11 +63,11 @@ public abstract class I2CDevice implements Device, AutoCloseable {
     return device.read(buffer, offset, length);
   }
 
-  protected int readRegister(int register) {
+  public int readRegister(int register) {
     return device.readRegister(register);
   }
 
-  protected int readRegister(int register, byte[] output, int offset, int length) {
+  public int readRegister(int register, byte[] output, int offset, int length) {
     return device.readRegister(register, output, offset, length);
   }
 

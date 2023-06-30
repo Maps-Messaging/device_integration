@@ -21,6 +21,7 @@ import com.pi4j.io.i2c.I2C;
 import com.pi4j.io.i2c.I2CConfig;
 import com.pi4j.io.i2c.I2CProvider;
 import io.mapsmessaging.devices.DeviceController;
+import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.HT16K33Controller;
 
 import java.io.IOException;
 import java.util.*;
@@ -81,10 +82,15 @@ public class I2CBusManager {
   private void attemptToConnect(int addr, I2C device, I2CDeviceEntry deviceEntry) {
     if (isOnBus(addr, device)) {
       try {
+        System.err.println("Attempting connection for "+deviceEntry.getName());
         I2CDeviceEntry physicalDevice = deviceEntry.mount(device);
+        System.err.println("Mounted "+deviceEntry.getName());
         if (physicalDevice.detect()) {
           activeDevices.put(Integer.toHexString(addr), physicalDevice);
           System.err.println("Found Device " + physicalDevice.getName());
+          if(addr == 0x72){
+            ((HT16K33Controller)physicalDevice).startClock();
+          }
         }
       } catch (IOException e) {
         e.printStackTrace();

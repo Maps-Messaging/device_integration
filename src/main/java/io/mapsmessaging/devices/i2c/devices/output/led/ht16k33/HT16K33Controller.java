@@ -19,6 +19,7 @@ package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks.Clock;
 import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks.Task;
+import io.mapsmessaging.devices.util.Delay;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import org.everit.json.schema.*;
@@ -37,7 +38,16 @@ public abstract class HT16K33Controller implements I2CDeviceEntry {
 
   protected HT16K33Controller(HT16K33Driver display) {
     this.display = display;
-    currentTask = null;
+  }
+
+  public void startClock(){
+    System.err.println("New LED display");
+    display.turnOn();
+    display.write("88:88");
+    display.enableBlink(true, false);
+    Delay.pause(1000);
+    display.enableBlink(false, false);
+    currentTask = new Clock(this);
   }
 
   @Override
@@ -59,6 +69,10 @@ public abstract class HT16K33Controller implements I2CDeviceEntry {
       jsonObject.put("brightness", display.getBrightness());
     }
     return jsonObject.toString(2).getBytes();
+  }
+
+  public void rawWrite(String value){
+    display.write(value);
   }
 
   @Override

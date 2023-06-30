@@ -2,7 +2,6 @@ package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks;
 
 import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.HT16K33Controller;
 import io.mapsmessaging.devices.util.Delay;
-import org.json.JSONObject;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -15,6 +14,8 @@ public class Clock implements Task {
   public Clock(HT16K33Controller controller) {
     this.controller = controller;
     runFlag = new AtomicBoolean(true);
+    Thread thread = new Thread(this);
+    thread.start();
   }
 
   @Override
@@ -25,8 +26,8 @@ public class Clock implements Task {
   @Override
   public void run() {
     boolean hasColon = false;
-    StringBuffer val = new StringBuffer();
     while (runFlag.get()) {
+      StringBuilder val = new StringBuilder();
       LocalDateTime dateTime = LocalDateTime.now();
       int hour = dateTime.getHour();
       int min = dateTime.getMinute();
@@ -43,10 +44,8 @@ public class Clock implements Task {
       if (min < 10) {
         val.append("0");
       }
-      val.append("0").append(min);
-      JSONObject payload = new JSONObject();
-      payload.put("display", val);
-      controller.setPayload(payload.toString(2).getBytes());
+      val.append(min);
+      controller.rawWrite(val.toString());
       Delay.pause(450);
     }
   }

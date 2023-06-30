@@ -63,6 +63,6 @@ public class QuadAlphaNumericController extends HT16K33Controller {
 
   @Override
   public int[] getAddressRange() {
-    return i2cAddr;
+    return new int[]{90, 91};
   }
 }
