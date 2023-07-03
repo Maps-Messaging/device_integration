@@ -92,8 +92,7 @@ public abstract class HT16K33Driver extends I2CDevice {
 
 
   public void writeRaw(String val){
-    byte[] buf = Base64.getDecoder().decode(val);
-    write(0, buf);
+    write(0, Base64.getDecoder().decode(val));
   }
 
   public void write(String val) {

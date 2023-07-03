@@ -45,7 +45,7 @@ public class Clock implements Task {
         val.append("0");
       }
       val.append(min);
-      controller.rawWrite(val.toString());
+      controller.write(val.toString());
       Delay.pause(450);
     }
   }

@@ -19,6 +19,7 @@ package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks.Clock;
 import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks.Task;
+import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks.TestTask;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import org.everit.json.schema.*;
@@ -61,7 +62,15 @@ public abstract class HT16K33Controller implements I2CDeviceEntry {
   }
 
   public void rawWrite(String value){
-    display.write(value);
+    if(display != null) {
+      display.writeRaw(value);
+    }
+  }
+
+  public void write(String value){
+    if(display != null) {
+      display.write(value);
+    }
   }
 
   @Override
@@ -129,6 +138,9 @@ public abstract class HT16K33Controller implements I2CDeviceEntry {
         String task = jsonObject.getString("task");
         if (task.equalsIgnoreCase("clock")) {
           currentTask = new Clock(this);
+        }
+        if (task.equalsIgnoreCase("test")) {
+          currentTask = new TestTask(this);
         }
       }
     }
