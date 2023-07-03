@@ -127,5 +127,4 @@ public class Ina219Sensor extends I2CDevice {
     return "Zero-Drift, Bidirectional Current/Power Monitor";
   }
 
-
 }
