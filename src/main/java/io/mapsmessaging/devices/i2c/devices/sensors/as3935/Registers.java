@@ -184,7 +184,11 @@ public class Registers {
   // DISTANCE Register
   public int getDistanceEstimation() {
     int value = readRegister(DISTANCE_ADDR);
-    return value & 0x3F;
+    value = value & 0x3F;
+    if(value == 63){
+      return -1;
+    }
+    return value;
   }
 
   // TUN_CAP Register
