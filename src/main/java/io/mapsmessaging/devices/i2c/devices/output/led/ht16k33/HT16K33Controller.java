@@ -108,7 +108,18 @@ public abstract class HT16K33Controller implements I2CDeviceEntry {
       if (text.length() <= 5) {
         display.write(text);
       }
-    } else if (jsonObject.has("task")) {
+    }
+    else if (jsonObject.has("raw")) {
+      synchronized (this) {
+        if (currentTask != null) {
+          currentTask.stop();
+          currentTask = null;
+        }
+      }
+      String text = jsonObject.getString("raw");
+      display.writeRaw(text);
+    }
+    else if (jsonObject.has("task")) {
       synchronized (this) {
         if (currentTask != null) {
           currentTask.stop();

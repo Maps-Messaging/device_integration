@@ -20,6 +20,8 @@ import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import lombok.Getter;
 
+import java.util.Base64;
+
 public abstract class HT16K33Driver extends I2CDevice {
 
   @Getter
@@ -86,6 +88,12 @@ public abstract class HT16K33Driver extends I2CDevice {
     this.brightness = (byte) (brightness & 0xf);
     byte val = (byte) (0xE0 | (brightness & 0xf));
     write(val); //Brightness
+  }
+
+
+  public void writeRaw(String val){
+    byte[] buf = Base64.getDecoder().decode(val);
+    write(0, buf);
   }
 
   public void write(String val) {

@@ -18,7 +18,9 @@ package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
 public class Constants {
 
-  public static final byte[] NUMERIC_MAPPING = {
+  private Constants(){}
+
+  protected static final byte[] NUMERIC_MAPPING = {
       (byte) 0b00111111, // 0
       (byte) 0b00000110, // 1
       (byte) 0b01011011, // 2
@@ -31,7 +33,7 @@ public class Constants {
       (byte) 0b01101111, // 9
   };
 
-  public static final short[] ALPHA_NUMERIC_MAPPING = {
+  protected static final short[] ALPHA_NUMERIC_MAPPING = {
       0b0000000000000001,
       0b0000000000000010,
       0b0000000000000100,
