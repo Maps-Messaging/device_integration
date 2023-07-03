@@ -32,6 +32,7 @@ public class SimpleWebAccess {
   }
 
   private void startServer() {
+    /*
     Map<String, String> map = new LinkedHashMap<>();
     map.put("spiBus", "0");
     map.put("csAddress", "5");
@@ -39,7 +40,7 @@ public class SimpleWebAccess {
     map.put("channels", "8");
     System.err.println("Mounting ADC");
     deviceBusManager.getSpiBusManager().mount("Mcp3y0x", map);
-
+*/
     Javalin app = Javalin.create().start(7000);
     app.get("/device/list", ctx -> {
       JSONObject jsonObject = new JSONObject();
@@ -121,10 +122,15 @@ public class SimpleWebAccess {
 
 
   private void handleGetSchema(Context ctx, DeviceController deviceController) throws IOException {
-    JSONObject result = new JSONObject();
     String schema = deviceController.getSchema().pack();
-    result.put("schema", new JSONObject(schema));
-    ctx.json(result.toString(2));
+    JSONObject schemaObject = new JSONObject(schema);
+    JSONObject obj1 = schemaObject.getJSONObject("schema");
+    if(obj1.has("jsonSchema")){
+      JSONObject rawSchema = new JSONObject(obj1.getString("jsonSchema"));
+      obj1.remove("jsonSchema");
+      obj1.put("jsonSchema", rawSchema);
+    }
+    ctx.json(schemaObject.toString(2));
   }
 
 

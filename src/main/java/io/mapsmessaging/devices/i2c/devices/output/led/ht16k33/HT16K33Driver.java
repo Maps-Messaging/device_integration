@@ -35,6 +35,13 @@ public abstract class HT16K33Driver extends I2CDevice {
 
   protected HT16K33Driver(I2C device) {
     super(device);
+    isOn = false;
+    blinkOn = false;
+    fastBlink = false;
+    current = "     ";
+    turnOff();
+    enableBlink(false, false);
+    setBrightness((byte)0);
   }
 
   @Override
