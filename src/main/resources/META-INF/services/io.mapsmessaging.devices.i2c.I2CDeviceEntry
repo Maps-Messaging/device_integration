@@ -23,6 +23,7 @@ io.mapsmessaging.devices.i2c.devices.sensors.bno055.BNO055Manager
 io.mapsmessaging.devices.i2c.devices.sensors.ina219.Ina219Controller
 io.mapsmessaging.devices.i2c.devices.sensors.pmsa003i.Pmsa003iController
 io.mapsmessaging.devices.i2c.devices.sensors.tls2561.TLS2561Controller
+io.mapsmessaging.devices.i2c.devices.sensors.gravity.GasSensorController
 
 # Real Time Clocks
 #
