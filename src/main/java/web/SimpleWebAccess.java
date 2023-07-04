@@ -11,27 +11,30 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class SimpleWebAccess {
-/*
-    Map<String, String> map = new LinkedHashMap<>();
-    map.put("spiBus", "0");
-    map.put("csAddress", "5");
-    map.put("resolution", "12");
-    map.put("channels", "8");
-    System.err.println("Mounting ADC");
-    deviceBusManager.getSpiBusManager().mount("Mcp3y0x", map);
-*/
+
 
   private final DeviceBusManager deviceBusManager;
 
   public SimpleWebAccess() {
     deviceBusManager = DeviceBusManager.getInstance();
     deviceBusManager.getI2cBusManager().scanForDevices();
+/*
+    Map<String, Object> deviceConfig = new LinkedHashMap<>();
+    deviceConfig.put("spiBus", "0");
+    deviceConfig.put("csAddress", "5");
+    deviceConfig.put("resolution", "12");
+    deviceConfig.put("channels", "8");
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put("Mcp3y0x", deviceConfig);
+    deviceBusManager.getSpiBusManager().configureDevices(map);
+*/
   }
 
   public static void main(String[] args) {
