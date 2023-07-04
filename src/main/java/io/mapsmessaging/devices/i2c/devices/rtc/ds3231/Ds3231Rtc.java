@@ -14,14 +14,14 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.ds3231;
+package io.mapsmessaging.devices.i2c.devices.rtc.ds3231;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.sensors.ds3231.register.AlarmRegister;
-import io.mapsmessaging.devices.i2c.devices.sensors.ds3231.register.ControlRegister;
-import io.mapsmessaging.devices.i2c.devices.sensors.ds3231.register.Registers;
-import io.mapsmessaging.devices.i2c.devices.sensors.ds3231.register.StatusRegister;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.AlarmRegister;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.ControlRegister;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.Registers;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.StatusRegister;
 import io.mapsmessaging.logging.Logger;
 import io.mapsmessaging.logging.LoggerFactory;
 

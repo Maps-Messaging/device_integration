@@ -14,7 +14,7 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.ds3231.register;
+package io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register;
 
 import com.pi4j.io.i2c.I2C;
 import lombok.Getter;

@@ -14,7 +14,7 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.ds3231;
+package io.mapsmessaging.devices.i2c.devices.rtc.ds3231;
 
 import org.everit.json.schema.*;
 

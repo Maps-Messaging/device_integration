@@ -14,7 +14,7 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.ds3231;
+package io.mapsmessaging.devices.i2c.devices.rtc.ds3231;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;

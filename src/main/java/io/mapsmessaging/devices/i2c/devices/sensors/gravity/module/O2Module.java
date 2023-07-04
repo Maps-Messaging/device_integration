@@ -8,6 +8,6 @@ public class O2Module  extends SensorModule{
 
   @Override
   protected float calculateSensorConcentration(float temperature, float rawConcentration) {
-    return 0;
+    return rawConcentration;
   }
 }

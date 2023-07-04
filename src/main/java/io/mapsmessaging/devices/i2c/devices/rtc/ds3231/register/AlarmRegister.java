@@ -14,15 +14,13 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.ds3231.register;
+package io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register;
 
 import com.pi4j.io.i2c.I2C;
 import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalTime;
-
-import static io.mapsmessaging.devices.i2c.devices.sensors.ds3231.register.Registers.*;
 
 public class AlarmRegister {
 
@@ -109,16 +107,16 @@ public class AlarmRegister {
   }
 
   public int getDayOrDate() {
-    return bcdToDecimal(registers[dayDayIndex] & 0x3F);
+    return Registers.bcdToDecimal(registers[dayDayIndex] & 0x3F);
   }
 
   public void setDayOrDate(int dayOrDate) {
     boolean isMask = (registers[dayDayIndex] & 0b10000000) != 0;
     if (rate.isDayOfWeek) {
-      registers[dayDayIndex] = decimalToBcd(dayOrDate % 7);
+      registers[dayDayIndex] = Registers.decimalToBcd(dayOrDate % 7);
       registers[dayDayIndex] |= 0b1000000;
     } else {
-      registers[dayDayIndex] = decimalToBcd(dayOrDate % 32);
+      registers[dayDayIndex] = Registers.decimalToBcd(dayOrDate % 32);
     }
     if (isMask) {
       registers[dayOrDate] |= 0b10000000;
@@ -128,36 +126,36 @@ public class AlarmRegister {
 
   private int getSeconds() {
     if (secondIndex < 0) return 0;
-    return bcdToDecimal(registers[secondIndex] & 0x7F);
+    return Registers.bcdToDecimal(registers[secondIndex] & 0x7F);
   }
 
   private void setSeconds(int seconds) {
     if (secondIndex < 0) return;
-    registers[secondIndex] = (byte) ((registers[secondIndex] & 0b10000000) | decimalToBcd(seconds % 60));
+    registers[secondIndex] = (byte) ((registers[secondIndex] & 0b10000000) | Registers.decimalToBcd(seconds % 60));
   }
 
   private int getMinutes() {
-    return bcdToDecimal(registers[minuteIndex] & 0x7F);
+    return Registers.bcdToDecimal(registers[minuteIndex] & 0x7F);
   }
 
   private void setMinutes(int minutes) {
-    registers[minuteIndex] = (byte) ((registers[minuteIndex] & 0b10000000) | decimalToBcd(minutes % 60));
+    registers[minuteIndex] = (byte) ((registers[minuteIndex] & 0b10000000) | Registers.decimalToBcd(minutes % 60));
   }
 
   private int getHours() {
     byte value = registers[hourIndex];
     boolean is12HourFormat = (value & 0x40) != 0;
-    int hours = bcdToDecimal(value & 0x3F);
+    int hours = Registers.bcdToDecimal(value & 0x3F);
 
     if (is12HourFormat) {
       boolean isPM = (value & 0x20) != 0;
-      hours = convert12HourTo24Hour(hours, isPM);
+      hours = Registers.convert12HourTo24Hour(hours, isPM);
     }
     return hours;
   }
 
   private void setHours(int hours) {
-    registers[hourIndex] = (byte) ((registers[hourIndex] & 0b10000000) | decimalToBcd(hours % 24));
+    registers[hourIndex] = (byte) ((registers[hourIndex] & 0b10000000) | Registers.decimalToBcd(hours % 24));
   }
 
   private boolean isDayOfWeek() {
