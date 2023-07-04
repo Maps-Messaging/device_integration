@@ -96,15 +96,6 @@ public class BMP280Sensor extends I2CDevice {
     return (byte) (nRem);
   }
 
-
-  public String getRegisters() {
-    StringBuilder sb = new StringBuilder("\n");
-    for (int x = 0; x < prom.length; x++) {
-      sb.append("Prom[" + x + "] = " + prom[x] + "\n");
-    }
-    return sb.toString();
-  }
-
   protected void read(byte command, int length, byte[] values) {
     readRegister(command, values, 0, length);
   }
@@ -133,7 +124,7 @@ public class BMP280Sensor extends I2CDevice {
     return pressure;
   }
 
-  public void initialise() throws IOException {
+  public void initialise() {
     write((byte) sReset);
     delay(1000);
     byte[] readBuffer = new byte[2];
@@ -167,9 +158,9 @@ public class BMP280Sensor extends I2CDevice {
     temp += 2000;
     temp = temp / 100.0f;
 
-    long OFF = OFF_T1 + dT * TCO;
-    long SENS = SENS_T1 + dT * TCS;
-    float p = (((float) (D1 * SENS / 2097152 /* 2^21 */ - OFF) / 0x8000 /* 2^15 */) / 100.0f);
+    long off = OFF_T1 + dT * TCO;
+    long sens = SENS_T1 + dT * TCS;
+    float p = (((float) (D1 * sens / 2097152 /* 2^21 */ - off) / 0x8000 /* 2^15 */) / 100.0f);
 
     if (p != pressure || temp != temperature) {
       pressure = p;

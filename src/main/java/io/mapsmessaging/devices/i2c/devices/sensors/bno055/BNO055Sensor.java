@@ -43,9 +43,9 @@ public class BNO055Sensor extends I2CDevice {
       write(BNO055Constants.BNO055_PAGE_ID_ADDR, (byte) 0);  // Send a NO OP to get the device ready to chat
       setConfigMode();
       write(BNO055Constants.BNO055_PAGE_ID_ADDR, (byte) 0);  // Send a NO OP to get the device ready to chat
-      int bno_id = readRegister(BNO055Constants.BNO055_CHIP_ID_ADDR);
-      if (bno_id != BNO055Constants.BNO055_ID) {
-        throw new IOException("Detected alien device " + bno_id + " expected " + BNO055Constants.BNO055_ID);
+      int bnoId = readRegister(BNO055Constants.BNO055_CHIP_ID_ADDR);
+      if (bnoId != BNO055Constants.BNO055_ID) {
+        throw new IOException("Detected alien device " + bnoId + " expected " + BNO055Constants.BNO055_ID);
       }
 
       write(BNO055Constants.BNO055_SYS_TRIGGER_ADDR, (byte) 0x20); // Command line reset instead

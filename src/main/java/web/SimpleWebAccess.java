@@ -11,13 +11,21 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class SimpleWebAccess {
+/*
+    Map<String, String> map = new LinkedHashMap<>();
+    map.put("spiBus", "0");
+    map.put("csAddress", "5");
+    map.put("resolution", "12");
+    map.put("channels", "8");
+    System.err.println("Mounting ADC");
+    deviceBusManager.getSpiBusManager().mount("Mcp3y0x", map);
+*/
 
   private final DeviceBusManager deviceBusManager;
 
@@ -32,15 +40,7 @@ public class SimpleWebAccess {
   }
 
   private void startServer() {
-    /*
-    Map<String, String> map = new LinkedHashMap<>();
-    map.put("spiBus", "0");
-    map.put("csAddress", "5");
-    map.put("resolution", "12");
-    map.put("channels", "8");
-    System.err.println("Mounting ADC");
-    deviceBusManager.getSpiBusManager().mount("Mcp3y0x", map);
-*/
+
     Javalin app = Javalin.create().start(7000);
     app.get("/device/list", ctx -> {
       JSONObject jsonObject = new JSONObject();

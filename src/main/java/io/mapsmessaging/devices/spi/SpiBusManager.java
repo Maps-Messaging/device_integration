@@ -1,7 +1,6 @@
 package io.mapsmessaging.devices.spi;
 
 import com.pi4j.context.Context;
-import com.pi4j.io.spi.SpiProvider;
 import io.mapsmessaging.devices.DeviceController;
 
 import java.util.LinkedHashMap;
@@ -15,16 +14,22 @@ public class SpiBusManager {
   private final Map<String, DeviceController> activeDevices;
 
   private final Context pi4j;
-  private final SpiProvider spiProvider;
 
   public SpiBusManager(Context pi4j) {
     this.pi4j = pi4j;
-    spiProvider = pi4j.getSpiProvider();
     knownDevices = new LinkedHashMap<>();
     activeDevices = new ConcurrentHashMap<>();
     ServiceLoader<SpiDeviceController> deviceEntries = ServiceLoader.load(SpiDeviceController.class);
     for (SpiDeviceController controller : deviceEntries) {
       knownDevices.putIfAbsent(controller.getName(), controller);
+    }
+  }
+
+  public void configureDevices(Map<String, Object> configuration){
+    for (Map.Entry<String, Object> entry : configuration.entrySet()) {
+      String spiName = entry.getKey();
+      Map<String, String> deviceConfig = (Map<String, String>) entry.getValue();
+      mount(spiName, deviceConfig);
     }
   }
 

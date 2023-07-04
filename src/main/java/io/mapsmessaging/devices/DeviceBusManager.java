@@ -25,34 +25,70 @@ import io.mapsmessaging.devices.oneWire.OneWireBusManager;
 import io.mapsmessaging.devices.spi.SpiBusManager;
 import lombok.Getter;
 
+import java.io.IOException;
+import java.util.Map;
+
 public class DeviceBusManager {
 
   private static final String[] PROVIDERS = {"pigpio-i2c", "linuxfs-i2c"};
 
   private static final DeviceBusManager instance = new DeviceBusManager();
+
+  public static DeviceBusManager getInstance() {
+    return instance;
+  }
+
+
   private final Context pi4j;
-  private final I2CProvider i2cProvider;
+
   @Getter
   private final I2CBusManager i2cBusManager;
   @Getter
   private final OneWireBusManager oneWireBusManager;
   @Getter
   private final SpiBusManager spiBusManager;
-
   @Getter
   private final InterruptFactory interruptFactory;
 
   private DeviceBusManager() {
     pi4j = Pi4J.newAutoContext();
-    i2cProvider = pi4j.provider(getProvider());
+    I2CProvider i2cProvider = pi4j.provider(getProvider());
     i2cBusManager = new I2CBusManager(pi4j, i2cProvider);
     oneWireBusManager = new OneWireBusManager();
     interruptFactory = new InterruptFactory(pi4j);
     spiBusManager = new SpiBusManager(pi4j);
   }
 
-  public static DeviceBusManager getInstance() {
-    return instance;
+  public void configureDevices(Map<String, Object> config) throws IOException {
+    // Note: 1-Wire autoconfigures within the filesystem
+
+    if(config.containsKey("i2c")) {
+      Map<String, Object> i2c = (Map) config.get("i2c");
+      i2cBusManager.configureDevices(i2c);
+    }
+    if(config.containsKey("spi")) {
+      Map<String, Object> spi = (Map) config.get("spi");
+      spiBusManager.configureDevices(spi);
+    }
+  }
+
+  public void close() {
+    pi4j.shutdown();
+  }
+
+  /*
+  if(addr == 0x72){
+            JSONObject config = new JSONObject();
+            config.put("enabled", true);
+            config.put("task", "clock");
+            config.put("brightness", 1);
+            physicalDevice.setPayload(config.toString(2).getBytes());
+          }
+   */
+
+
+  private void configureSpiDevices(Map<String, Object> configuration){
+
   }
 
   private static String getProvider() {
@@ -70,7 +106,4 @@ public class DeviceBusManager {
     return provider;
   }
 
-  public void close() {
-    pi4j.shutdown();
-  }
 }
