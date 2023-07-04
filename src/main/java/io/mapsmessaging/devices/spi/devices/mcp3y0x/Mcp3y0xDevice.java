@@ -20,9 +20,7 @@ import com.pi4j.io.spi.Spi;
 import io.mapsmessaging.devices.spi.SpiDevice;
 import lombok.Getter;
 
-import java.io.IOException;
-
-public abstract class Mcp3y0xDevice extends SpiDevice {
+public class Mcp3y0xDevice extends SpiDevice {
 
   // SPI device
   @Getter
@@ -32,10 +30,13 @@ public abstract class Mcp3y0xDevice extends SpiDevice {
   @Getter
   protected final int dutyCycle = 100000;
 
-  protected Mcp3y0xDevice(Spi spi, int bits, int channels) {
+  protected final String name;
+
+  public Mcp3y0xDevice(Spi spi, int bits, int channels) {
     super(spi);
     this.channels = channels;
     this.bits = bits;
+    name = "MCP3" +(bits == 12?"2":"0")+"0"+(channels==8?"8":"4");
   }
 
   /**
@@ -43,11 +44,10 @@ public abstract class Mcp3y0xDevice extends SpiDevice {
    *
    * @param channel analog input channel on ADC chip
    * @return conversion value for specified analog input channel
-   * @throws IOException
    */
-  public int readFromChannel(boolean differential, short channel) throws IOException {
+  public int readFromChannel(boolean differential, short channel)  {
     if (channel >= channels) {
-      throw new IOException("Channel count exceeded physical channels");
+      return -1;
     }
     byte commandByte;
     if (differential) {
@@ -74,9 +74,12 @@ public abstract class Mcp3y0xDevice extends SpiDevice {
       value = ((buf[1] & 0b1111) << 8); //merge data[1] & data[2] to get 12-bit result
     }
     value |= (buf[2] & 0xff);
-    System.err.println("Buf[1]::"+buf[1]);
-    System.err.println("Buf[2]::"+buf[2]);
     return value;
+  }
+
+  @Override
+  public String getName() {
+    return name;
   }
 
   @Override

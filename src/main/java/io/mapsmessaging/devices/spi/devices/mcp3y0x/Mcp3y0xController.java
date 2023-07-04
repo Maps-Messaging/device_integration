@@ -27,7 +27,6 @@ import org.everit.json.schema.ObjectSchema;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.Map;
 
 public class Mcp3y0xController extends SpiDeviceController {
@@ -53,17 +52,7 @@ public class Mcp3y0xController extends SpiDeviceController {
 
     String description = "Microchip Technology Analog to Digital " + channels + " channel " + resolution + " bit convertor";
     Spi spi = createDevice(pi4j, getName(), description, spiBus, getChipSelect(chipSelectInt), getMode(spiModeInt));
-    if (channels == 4) {
-      if (resolution == 10) {
-        return new Mcp3y0xController(new Mcp3004Device(spi));
-      }
-      return new Mcp3y0xController(new Mcp3204Device(spi));
-    } else {
-      if (resolution == 10) {
-        return new Mcp3y0xController(new Mcp3008Device(spi));
-      }
-    }
-    return new Mcp3y0xController(new Mcp3208Device(spi));
+    return new Mcp3y0xController(new Mcp3y0xDevice(spi, resolution, channels));
   }
 
 
@@ -89,11 +78,7 @@ public class Mcp3y0xController extends SpiDeviceController {
     JSONArray jsonArray = new JSONArray();
     if(device != null) {
       for (short x = 0; x < device.channels; x++) {
-        try {
-          jsonArray.put(device.readFromChannel(false, x));
-        } catch (IOException e) {
-          jsonArray.put(Integer.MIN_VALUE);
-        }
+        jsonArray.put(device.readFromChannel(false, x));
       }
     }
     jsonObject.put("current", jsonArray);
