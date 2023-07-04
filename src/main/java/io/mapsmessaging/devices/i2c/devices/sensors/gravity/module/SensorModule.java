@@ -1,16 +1,10 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.gravity.module;
 
-import lombok.Getter;
-
 import static java.lang.Math.log;
 
 public abstract class SensorModule {
 
-  @Getter
-  SensorType type;
-
-  protected SensorModule(SensorType type){
-    this.type = type;
+  protected SensorModule(){
   }
 
   public float computeGasConcentration(float temperature, int sensorReading, int decimalPoint){

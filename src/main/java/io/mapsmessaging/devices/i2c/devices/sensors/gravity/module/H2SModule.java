@@ -3,7 +3,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.gravity.module;
 public class H2SModule  extends SensorModule{
 
   public H2SModule(){
-    super(SensorType.H2S);
+    super();
   }
 
   @Override

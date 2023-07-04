@@ -3,7 +3,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.gravity.module;
 public class COModule extends SensorModule {
 
   public COModule(){
-    super(SensorType.CO);
+    super();
   }
 
   @Override
