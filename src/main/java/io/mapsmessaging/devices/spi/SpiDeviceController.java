@@ -58,4 +58,35 @@ public abstract class SpiDeviceController implements DeviceController {
   public void closeDevice(Spi device) {
     device.close();
   }
+
+  protected SpiChipSelect getChipSelect(int chipSelectInt){
+    SpiChipSelect chipSelect;
+    switch(chipSelectInt){
+      case 2:
+        chipSelect = SpiChipSelect.CS_2;
+        break;
+
+      case 1:
+        chipSelect = SpiChipSelect.CS_1;
+        break;
+
+      default:
+        chipSelect = SpiChipSelect.CS_0;
+    }
+    return chipSelect;
+  }
+
+  protected SpiMode getMode(int spiModeInt){
+    switch (spiModeInt){
+      case 1:
+        return SpiMode.MODE_1;
+      case 2:
+        return SpiMode.MODE_2;
+      case 3:
+        return SpiMode.MODE_3;
+      default:
+        return SpiMode.MODE_0;
+
+    }
+  }
 }

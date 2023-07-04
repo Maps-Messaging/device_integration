@@ -16,14 +16,13 @@
 
 package io.mapsmessaging.devices.spi.devices.mcp3y0x;
 
-import com.pi4j.io.gpio.digital.DigitalOutput;
 import com.pi4j.io.spi.Spi;
 import io.mapsmessaging.devices.spi.SpiDevice;
 import lombok.Getter;
 
 import java.io.IOException;
 
-public abstract class mcp3y0xDevice extends SpiDevice {
+public abstract class Mcp3y0xDevice extends SpiDevice {
 
   // SPI device
   @Getter
@@ -33,8 +32,8 @@ public abstract class mcp3y0xDevice extends SpiDevice {
   @Getter
   protected final int dutyCycle = 100000;
 
-  protected mcp3y0xDevice(Spi spi, DigitalOutput clientSelect, int bits, int channels) {
-    super(spi, clientSelect);
+  protected Mcp3y0xDevice(Spi spi, int bits, int channels) {
+    super(spi);
     this.channels = channels;
     this.bits = bits;
   }

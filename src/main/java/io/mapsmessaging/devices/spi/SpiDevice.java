@@ -16,27 +16,18 @@
 
 package io.mapsmessaging.devices.spi;
 
-import com.pi4j.io.gpio.digital.DigitalOutput;
 import com.pi4j.io.spi.Spi;
 import io.mapsmessaging.devices.Device;
 
 public abstract class SpiDevice implements Device {
 
   protected final Spi spi;
-  protected final DigitalOutput chipSelect;
 
-  protected SpiDevice(Spi spi, DigitalOutput chipSelect) {
+  protected SpiDevice(Spi spi) {
     this.spi = spi;
-    this.chipSelect = chipSelect;
   }
 
   public void transfer(byte[] request, byte[] response) {
-    if (chipSelect != null) {
-      chipSelect.high();
-      chipSelect.low();
-    }
     spi.transfer(request, response);
-    if (chipSelect != null) chipSelect.high();
-    // Delay.pause(100); // allow for transfer to complete
   }
 }

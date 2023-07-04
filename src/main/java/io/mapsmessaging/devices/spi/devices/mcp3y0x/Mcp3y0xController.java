@@ -17,10 +17,7 @@
 package io.mapsmessaging.devices.spi.devices.mcp3y0x;
 
 import com.pi4j.context.Context;
-import com.pi4j.io.gpio.digital.DigitalOutput;
 import com.pi4j.io.spi.Spi;
-import com.pi4j.io.spi.SpiChipSelect;
-import com.pi4j.io.spi.SpiMode;
 import io.mapsmessaging.devices.spi.SpiDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -35,38 +32,41 @@ import java.util.Map;
 
 public class Mcp3y0xController extends SpiDeviceController {
 
-  private final mcp3y0xDevice device;
+  private final Mcp3y0xDevice device;
 
   public Mcp3y0xController() {
     device = null;
   }
 
-  public Mcp3y0xController(mcp3y0xDevice device) {
+  public Mcp3y0xController(Mcp3y0xDevice device) {
     this.device = device;
   }
 
   @Override
   public SpiDeviceController mount(Context pi4j, Map<String, String> map) {
     int spiBus = Integer.parseInt(map.get("spiBus"));
-    int csAddress = Integer.parseInt(map.get("csAddress"));
+    int chipSelectInt = Integer.parseInt(map.get("spiChipSelect"));
+    int spiModeInt = Integer.parseInt("spiMode");
+
     int resolution = Integer.parseInt(map.get("resolution"));
     int channels = Integer.parseInt(map.get("channels"));
-    DigitalOutput cs = null;//super.createClientSelect(pi4j, getName(), device.getDescription(), csAddress, DigitalState.HIGH, DigitalState.HIGH);
 
     String description = "Microchip Technology Analog to Digital " + channels + " channel " + resolution + " bit convertor";
-    Spi spi = createDevice(pi4j, getName(), description, spiBus, SpiChipSelect.CS_0, SpiMode.MODE_0);
+    Spi spi = createDevice(pi4j, getName(), description, spiBus, getChipSelect(chipSelectInt), getMode(spiModeInt));
     if (channels == 4) {
       if (resolution == 10) {
-        return new Mcp3y0xController(new mcp3004Device(spi, cs));
+        return new Mcp3y0xController(new Mcp3004Device(spi));
       }
-      return new Mcp3y0xController(new mcp3204Device(spi, cs));
+      return new Mcp3y0xController(new Mcp3204Device(spi));
     } else {
       if (resolution == 10) {
-        return new Mcp3y0xController(new mcp3008Device(spi, cs));
+        return new Mcp3y0xController(new Mcp3008Device(spi));
       }
     }
-    return new Mcp3y0xController(new mcp3208Device(spi, cs));
+    return new Mcp3y0xController(new Mcp3208Device(spi));
   }
+
+
 
   @Override
   public String getName() {

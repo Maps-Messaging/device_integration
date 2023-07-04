@@ -11,7 +11,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -28,9 +27,11 @@ public class SimpleWebAccess {
 /*
     Map<String, Object> deviceConfig = new LinkedHashMap<>();
     deviceConfig.put("spiBus", "0");
-    deviceConfig.put("csAddress", "5");
+    deviceConfig.put("spiMode", "0");
+    deviceConfig.put("spiChipSelect", "0");
     deviceConfig.put("resolution", "12");
     deviceConfig.put("channels", "8");
+
     Map<String, Object> map = new LinkedHashMap<>();
     map.put("Mcp3y0x", deviceConfig);
     deviceBusManager.getSpiBusManager().configureDevices(map);

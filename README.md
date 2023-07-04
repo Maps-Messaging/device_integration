@@ -22,14 +22,19 @@ This document describes the configuration parameters for an SPI device using the
 ### Example Configuration
 
 ```java
-Map<String, Object> deviceConfig = new LinkedHashMap<>();
-deviceConfig.put("spiBus", "0");
-deviceConfig.put("csAddress", "5");
-deviceConfig.put("resolution", "12");
-deviceConfig.put("channels", "8");
-Map<String, Object> map = new LinkedHashMap<>();
-map.put("Mcp3y0x", deviceConfig);
-deviceBusManager.getSpiBusManager().configureDevices(map);
+        Map<String, Object> deviceConfig = new LinkedHashMap<>();
+        // Required for SPI Bus Configuration
+        deviceConfig.put("spiBus", "0"); // Can be 0 to 6
+        deviceConfig.put("spiChipSelect", "0"); // Either 0, 1 or 2
+        deviceConfig.put("spiMode", "0");    // Can be 0 to 3
+
+        // Device Specific configuration
+        deviceConfig.put("resolution", "12");
+        deviceConfig.put("channels", "8");
+        
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("Mcp3y0x", deviceConfig);
+        deviceBusManager.getSpiBusManager().configureDevices(map);
 ```
 #### Configuration Parameters
 
