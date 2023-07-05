@@ -28,9 +28,10 @@ import static java.lang.Math.log;
 
 public class GasSensor extends I2CDevice {
 
+  private final Logger logger = LoggerFactory.getLogger(GasSensor.class);
+
   @Getter
   private final SensorType sensorType;
-  private final Logger logger = LoggerFactory.getLogger(GasSensor.class);
   @Getter
   private float temperature;
   @Getter
@@ -39,10 +40,6 @@ public class GasSensor extends I2CDevice {
   public GasSensor(I2C device) {
     super(device);
     sensorType = detectType();
-  }
-
-  public float getTemperature() {
-    return temperature;
   }
 
   public float getCurrentConcentration() {
