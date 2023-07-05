@@ -58,7 +58,7 @@ public enum SensorType {
     this.sensorModule = sensorModule;
   }
 
-  public SensorType getByType(int type){
+  public static SensorType getByType(int type){
     for(SensorType module: SensorType.values()){
       if(module.type == type){
         return module;

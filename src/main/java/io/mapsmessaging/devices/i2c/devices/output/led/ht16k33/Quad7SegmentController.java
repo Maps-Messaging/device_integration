@@ -24,7 +24,7 @@ import org.everit.json.schema.ObjectSchema;
 
 public class Quad7SegmentController extends HT16K33Controller {
 
-  private final int[] i2cAddr = {0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77};
+  private final int[] i2cAddr = {};
 
   @Getter
   private final String name = "Quad 7-Segment LED";
