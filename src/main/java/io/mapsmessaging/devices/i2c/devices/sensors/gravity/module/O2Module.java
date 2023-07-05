@@ -1,8 +1,8 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.gravity.module;
 
-public class O2Module  extends SensorModule{
+public class O2Module extends SensorModule {
 
-  public O2Module(){
+  public O2Module() {
     super();
   }
 

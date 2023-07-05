@@ -30,25 +30,22 @@ public class GasSensor extends I2CDevice {
 
   @Getter
   private final SensorType sensorType;
-
-
+  private final Logger logger = LoggerFactory.getLogger(GasSensor.class);
   @Getter
   private float temperature;
   @Getter
   private float concentration;
-
-  private final Logger logger = LoggerFactory.getLogger(GasSensor.class);
 
   public GasSensor(I2C device) {
     super(device);
     sensorType = detectType();
   }
 
-  public float getTemperature(){
+  public float getTemperature() {
     return temperature;
   }
 
-  public float getCurrentConcentration(){
+  public float getCurrentConcentration() {
     byte[] data = new byte[9];
     request(Command.GET_GAS_CONCENTRATION, data);
     concentration = (data[2] << 8 | (data[3] & 0xff));
@@ -56,54 +53,53 @@ public class GasSensor extends I2CDevice {
     return concentration;
   }
 
-  public float getTemperatureAdjustedConcentration(){
-    if(sensorType != null){
+  public float getTemperatureAdjustedConcentration() {
+    if (sensorType != null) {
       return sensorType.getSensorModule().computeGasConcentration(temperature, concentration);
     }
     return 0;
   }
 
-  public boolean setI2CAddress(byte group){
+  public boolean setI2CAddress(byte group) {
     byte[] data = new byte[9];
     byte[] request = new byte[6];
     request[1] = group;
     return (request(Command.CHANGE_I2C_ADDR, request, data) && data[2] == 1);
   }
 
-
-  public boolean changeAcquireMode(AcquireMode acquireMode){
+  public boolean changeAcquireMode(AcquireMode acquireMode) {
     byte[] data = new byte[9];
     byte[] buf = new byte[6];
     buf[1] = acquireMode.getValue();
-    return(request(Command.CHANGE_GET_METHOD, buf, data) && data[2] == 1);
+    return (request(Command.CHANGE_GET_METHOD, buf, data) && data[2] == 1);
   }
 
-  public boolean setThresholdAlarm(int threshold, AlarmType alarmType){
-    if(threshold == 0){
+  public boolean setThresholdAlarm(int threshold, AlarmType alarmType) {
+    if (threshold == 0) {
       threshold = sensorType.getThreshold();
     }
     byte[] data = new byte[9];
     byte[] buf = new byte[6];
     buf[1] = 0x1; // enable
-    buf[2] = (byte)(threshold >> 8 & 0xff);
-    buf[3] = (byte)(threshold  & 0xff);
+    buf[2] = (byte) (threshold >> 8 & 0xff);
+    buf[3] = (byte) (threshold & 0xff);
     buf[4] = alarmType.getValue();
-    return(request(Command.SET_THRESHOLD_ALARMS, buf, data) && data[2] == 1);
+    return (request(Command.SET_THRESHOLD_ALARMS, buf, data) && data[2] == 1);
   }
 
-  public boolean clearThresholdAlarm(AlarmType alarmType){
+  public boolean clearThresholdAlarm(AlarmType alarmType) {
     byte[] data = new byte[9];
     byte[] buf = new byte[6];
     buf[1] = 0x0; // disable
     buf[2] = 0x0;
-    buf[3] = (byte)0xff;
+    buf[3] = (byte) 0xff;
     buf[4] = alarmType.getValue();
-    return(request(Command.SET_THRESHOLD_ALARMS, buf, data) && data[2] == 1);
+    return (request(Command.SET_THRESHOLD_ALARMS, buf, data) && data[2] == 1);
   }
 
-  public float readTempC(){
+  public float readTempC() {
     byte[] data = new byte[9];
-    if(request(Command.GET_TEMP, data)){
+    if (request(Command.GET_TEMP, data)) {
       int raw = data[2] << 8 | (data[3] & 0xff);
       temperature = computeTemperature(raw);
       return temperature;
@@ -111,23 +107,22 @@ public class GasSensor extends I2CDevice {
     return Float.NaN;
   }
 
-  public float readVoltageData(){
+  public float readVoltageData() {
     byte[] recvbuf = new byte[9];
-    if(request(Command.SENSOR_VOLTAGE, recvbuf)){
-      return ((recvbuf[2] <<8 | recvbuf[3]&0xff) * 3.0f)/1024.0f * 2f;
+    if (request(Command.SENSOR_VOLTAGE, recvbuf)) {
+      return ((recvbuf[2] << 8 | recvbuf[3] & 0xff) * 3.0f) / 1024.0f * 2f;
     }
     return Float.NaN;
   }
 
-  public void updateAllFields(){
+  public void updateAllFields() {
     byte[] data = new byte[9];
-    if(request(Command.GET_ALL_DATA, data)){
+    if (request(Command.GET_ALL_DATA, data)) {
       concentration = (data[2] << 8 | (data[3] & 0xff));
       concentration = adjustPowers(data[5], concentration);
       int raw = data[6] << 8 | (data[7] & 0xff);
       temperature = computeTemperature(raw);
-    }
-    else{
+    } else {
       System.err.println("Failed to get all");
     }
   }
@@ -140,7 +135,7 @@ public class GasSensor extends I2CDevice {
 
   @Override
   public String getName() {
-    if(sensorType != null){
+    if (sensorType != null) {
       return sensorType.getSku();
     }
     return "GasSensor";
@@ -148,18 +143,18 @@ public class GasSensor extends I2CDevice {
 
   @Override
   public String getDescription() {
-    if(sensorType != null){
-      return sensorType.name()+" gas sensor detects from "+sensorType.getMinimumRange()+
-          " to "+sensorType.getMaximumRange()+" "+sensorType.getUnits();
+    if (sensorType != null) {
+      return sensorType.name() + " gas sensor detects from " + sensorType.getMinimumRange() +
+          " to " + sensorType.getMaximumRange() + " " + sensorType.getUnits();
     }
     return "Generic Gas Sensor";
   }
 
 
-  private float computeTemperature(int rawTemperature){
-    float vpd3 = 3 * (float)rawTemperature / 1024.0f;
+  private float computeTemperature(int rawTemperature) {
+    float vpd3 = 3 * (float) rawTemperature / 1024.0f;
     float rth = vpd3 * 10000f / (3f - vpd3);
-    return (float)(1 / (1 / (273.15f + 25) + 1 / 3380.13f * log(rth / 10000f)) - 273.15f);
+    return (float) (1 / (1 / (273.15f + 25) + 1 / 3380.13f * log(rth / 10000f)) - 273.15f);
   }
 
 
@@ -173,14 +168,14 @@ public class GasSensor extends I2CDevice {
     buf[0] = command.getCommandValue();
     write(pack(buf));
     Delay.pause(100);
-    readRegister(0, result,0, result.length);
+    readRegister(0, result, 0, result.length);
     byte checksum = calculateChecksum(result);
     return (result[8] == checksum);
   }
 
-  private byte[] pack(byte[] data){
+  private byte[] pack(byte[] data) {
     byte[] payload = new byte[9];
-    payload[0] =(byte) 0xff;
+    payload[0] = (byte) 0xff;
     payload[1] = 0x1;
     System.arraycopy(data, 0, payload, 2, data.length);
     payload[8] = calculateChecksum(payload);
@@ -199,16 +194,16 @@ public class GasSensor extends I2CDevice {
     return (byte) checksum;
   }
 
-  private SensorType detectType(){
+  private SensorType detectType() {
     byte[] data = new byte[9];
-    if(request(Command.GET_GAS_CONCENTRATION, data)){
+    if (request(Command.GET_GAS_CONCENTRATION, data)) {
       return SensorType.getByType(data[4]);
     }
     return null;
   }
 
-  private float adjustPowers(int decimalPoint, float raw){
-    switch(decimalPoint){
+  private float adjustPowers(int decimalPoint, float raw) {
+    switch (decimalPoint) {
       case 1:
         raw = raw * 0.1f;
         break;

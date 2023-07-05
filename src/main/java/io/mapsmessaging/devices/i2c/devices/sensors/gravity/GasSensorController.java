@@ -61,7 +61,7 @@ public class GasSensorController implements I2CDeviceEntry {
 
   @Override
   public void setPayload(byte[] payload) {
-    if(sensor == null)return;
+    if (sensor == null) return;
     JSONObject json = new JSONObject(new String(payload));
     if (json.has("functionName") && json.has("parameters")) {
       String functionName = json.getString("functionName");
@@ -72,13 +72,13 @@ public class GasSensorController implements I2CDeviceEntry {
         case "setThresholdAlarm":
           int threshold = parameters.getInt("threshold");
           alarmTypeName = parameters.getString("alarmType");
-          alarmType  = AlarmType.valueOf(alarmTypeName);
+          alarmType = AlarmType.valueOf(alarmTypeName);
           sensor.setThresholdAlarm(threshold, alarmType);
           break;
 
         case "clearThresholdAlarm":
           alarmTypeName = parameters.getString("alarmType");
-          alarmType  = AlarmType.valueOf(alarmTypeName);
+          alarmType = AlarmType.valueOf(alarmTypeName);
           sensor.clearThresholdAlarm(alarmType);
           break;
 
@@ -99,8 +99,8 @@ public class GasSensorController implements I2CDeviceEntry {
     }
   }
 
-  public String getName(){
-    if(sensor == null){
+  public String getName() {
+    if (sensor == null) {
       return "Generic Gas Sensor";
     }
     return sensor.getName();
