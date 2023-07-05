@@ -119,8 +119,6 @@ public class GasSensor extends I2CDevice {
       concentration = adjustPowers(data[5], concentration);
       int raw = data[6] << 8 | (data[7] & 0xff);
       temperature = computeTemperature(raw);
-    } else {
-      System.err.println("Failed to get all");
     }
   }
 
