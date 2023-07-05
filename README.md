@@ -122,6 +122,16 @@ Before using the controller, make sure all your I2C devices are connected correc
 | TLS2561             | Texas Instruments | Digital light sensor                                  | - Measures ambient light intensity                               | [Datasheet](https://cdn-shop.adafruit.com/datasheets/TSL2561.pdf)                                             |
 | DFRobot Gas Sensors | DFRobot        | Gas detection sensors                                  | - Detects various gases such as Carbon Monoxide, Hydrogen Sulfide, Alcohol, Oxygen, Hydrogen, Ozone, Sulfur Dioxide, Nitrogen Dioxide, Hydrogen Chloride, Chlorine, Hydrogen Fluoride, and Phosphine | [Datasheet](https://wiki.dfrobot.com/SKU_SEN0465toSEN0476_Gravity_Gas_Sensor_Calibrated_I2C_UART) |
 
+### SPI
+
+| Device   | Manufacturer | Description                                               | Functionality                                            | Datasheet                                                        |
+|----------|--------------|-----------------------------------------------------------|----------------------------------------------------------|------------------------------------------------------------------|
+| MCP3004  | Microchip    | 10-bit Analog-to-Digital Converter - 4 channels            | Converts analog signals to digital with 10-bit resolution | [Datasheet](https://www.microchip.com/wwwproducts/en/MCP3004)   |
+| MCP3204  | Microchip    | 12-bit Analog-to-Digital Converter - 4 channels            | Converts analog signals to digital with 12-bit resolution | [Datasheet](https://www.microchip.com/wwwproducts/en/MCP3204)   |
+| MCP3008  | Microchip    | 10-bit Analog-to-Digital Converter - 8 channels            | Converts analog signals to digital with 10-bit resolution | [Datasheet](https://www.microchip.com/wwwproducts/en/MCP3008)   |
+| MCP3208  | Microchip    | 12-bit Analog-to-Digital Converter - 8 channels            | Converts analog signals to digital with 12-bit resolution | [Datasheet](https://www.microchip.com/wwwproducts/en/MCP3208)   |
+
+
 ## Contribute
 
 Contributions are always welcome! Please read the contributing guidelines first.
