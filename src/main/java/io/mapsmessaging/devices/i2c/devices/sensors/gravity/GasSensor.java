@@ -18,6 +18,9 @@ package io.mapsmessaging.devices.i2c.devices.sensors.gravity;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.AcquireMode;
+import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.AlarmType;
+import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.Command;
 import io.mapsmessaging.devices.i2c.devices.sensors.gravity.module.SensorType;
 import io.mapsmessaging.devices.util.Delay;
 import io.mapsmessaging.logging.Logger;

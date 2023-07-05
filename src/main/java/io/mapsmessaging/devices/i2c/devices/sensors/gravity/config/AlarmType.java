@@ -1,4 +1,4 @@
-package io.mapsmessaging.devices.i2c.devices.sensors.gravity;
+package io.mapsmessaging.devices.i2c.devices.sensors.gravity.config;
 
 public enum AlarmType {
   LOW_THRESHOLD((byte) 0x00),

@@ -1,4 +1,4 @@
-package io.mapsmessaging.devices.i2c.devices.sensors.gravity;
+package io.mapsmessaging.devices.i2c.devices.sensors.gravity.config;
 
 public enum AcquireMode {
   INITIATIVE((byte) 0x03),
