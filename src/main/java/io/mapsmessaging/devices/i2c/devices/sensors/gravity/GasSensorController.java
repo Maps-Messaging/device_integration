@@ -61,7 +61,42 @@ public class GasSensorController implements I2CDeviceEntry {
 
   @Override
   public void setPayload(byte[] payload) {
+    if(sensor == null)return;
+    JSONObject json = new JSONObject(new String(payload));
+    if (json.has("functionName") && json.has("parameters")) {
+      String functionName = json.getString("functionName");
+      JSONObject parameters = json.getJSONObject("parameters");
+      String alarmTypeName;
+      AlarmType alarmType;
+      switch (functionName) {
+        case "setThresholdAlarm":
+          int threshold = parameters.getInt("threshold");
+          alarmTypeName = parameters.getString("alarmType");
+          alarmType  = AlarmType.valueOf(alarmTypeName);
+          sensor.setThresholdAlarm(threshold, alarmType);
+          break;
 
+        case "clearThresholdAlarm":
+          alarmTypeName = parameters.getString("alarmType");
+          alarmType  = AlarmType.valueOf(alarmTypeName);
+          sensor.clearThresholdAlarm(alarmType);
+          break;
+
+        case "setI2CAddress":
+          byte group = (byte) parameters.getInt("group");
+          sensor.setI2CAddress(group);
+          break;
+
+        case "changeAcquireMode":
+          String acquireMode = parameters.getString("acquireMode");
+          AcquireMode mode = AcquireMode.valueOf(acquireMode);
+          sensor.changeAcquireMode(mode);
+          break;
+
+        default:
+          break;
+      }
+    }
   }
 
   public String getName(){
