@@ -5,19 +5,8 @@ public abstract class SensorModule {
   protected SensorModule(){
   }
 
-  public float computeGasConcentration(float temperature, int sensorReading, int decimalPoint){
-    float computed = sensorReading;
-    switch(decimalPoint){
-      case 1:
-        computed = computed * 0.1f;
-        break;
-      case 2:
-        computed = computed * 0.01f;
-        break;
+  public float computeGasConcentration(float temperature, float computed){
 
-      default:
-        break;
-    }
     return calculateSensorConcentration(temperature, computed);
   }
 

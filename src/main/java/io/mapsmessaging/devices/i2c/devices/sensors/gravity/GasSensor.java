@@ -31,9 +31,11 @@ public class GasSensor extends I2CDevice {
   @Getter
   private final SensorType sensorType;
 
+
+  @Getter
   private float temperature;
-  private int concentration;
-  private int decimalPoint;
+  @Getter
+  private float concentration;
 
   private final Logger logger = LoggerFactory.getLogger(GasSensor.class);
 
@@ -46,17 +48,17 @@ public class GasSensor extends I2CDevice {
     return temperature;
   }
 
-  public float getConcentration(){
+  public float getCurrentConcentration(){
     byte[] data = new byte[9];
     request(Command.GET_GAS_CONCENTRATION, data);
     concentration = (data[2] << 8 | (data[3] & 0xff));
-    decimalPoint = data[5];
+    concentration = adjustPowers(data[5], concentration);
     return concentration;
   }
 
   public float getTemperatureAdjustedConcentration(){
     if(sensorType != null){
-      return sensorType.getSensorModule().computeGasConcentration(temperature, concentration, decimalPoint);
+      return sensorType.getSensorModule().computeGasConcentration(temperature, concentration);
     }
     return 0;
   }
@@ -65,23 +67,38 @@ public class GasSensor extends I2CDevice {
     byte[] data = new byte[9];
     byte[] request = new byte[6];
     request[1] = group;
-    if (request(Command.CHANGE_I2C_ADDR, request, data)){
-      return data[2] != 0;
-    }
-    return false;
+    return (request(Command.CHANGE_I2C_ADDR, request, data) && data[2] == 1);
   }
 
 
   public boolean changeAcquireMode(AcquireMode acquireMode){
-    return false;
+    byte[] data = new byte[9];
+    byte[] buf = new byte[6];
+    buf[1] = acquireMode.getValue();
+    return(request(Command.CHANGE_GET_METHOD, buf, data) && data[2] == 1);
   }
 
   public boolean setThresholdAlarm(int threshold, AlarmType alarmType){
-   return false;
+    if(threshold == 0){
+      threshold = sensorType.getThreshold();
+    }
+    byte[] data = new byte[9];
+    byte[] buf = new byte[6];
+    buf[1] = 0x1; // enable
+    buf[2] = (byte)(threshold >> 8 & 0xff);
+    buf[3] = (byte)(threshold  & 0xff);
+    buf[4] = alarmType.getValue();
+    return(request(Command.SET_THRESHOLD_ALARMS, buf, data) && data[2] == 1);
   }
 
-  public boolean clearThresholdAlarm(int threshold, AlarmType alarmType){
-    return false;
+  public boolean clearThresholdAlarm(AlarmType alarmType){
+    byte[] data = new byte[9];
+    byte[] buf = new byte[6];
+    buf[1] = 0x0; // disable
+    buf[2] = 0x0;
+    buf[3] = (byte)0xff;
+    buf[4] = alarmType.getValue();
+    return(request(Command.SET_THRESHOLD_ALARMS, buf, data) && data[2] == 1);
   }
 
   public float readTempC(){
@@ -102,9 +119,19 @@ public class GasSensor extends I2CDevice {
     return Float.NaN;
   }
 
-  public boolean isDataAvailable(){
-    return false;
+  public void updateAllFields(){
+    byte[] data = new byte[9];
+    if(request(Command.GET_ALL_DATA, data)){
+      concentration = (data[2] << 8 | (data[3] & 0xff));
+      concentration = adjustPowers(data[5], concentration);
+      int raw = data[6] << 8 | (data[7] & 0xff);
+      temperature = computeTemperature(raw);
+    }
+    else{
+      System.err.println("Failed to get all");
+    }
   }
+
 
   @Override
   public boolean isConnected() {
@@ -162,12 +189,14 @@ public class GasSensor extends I2CDevice {
 
 
   private byte calculateChecksum(byte[] data) {
-    byte checksum = 0;
-    for (int i = 1; i < data.length - 1; i++) {
-      checksum += data[i];
+    int checksum = 0;
+    for (int i = 1; i < data.length - 2; i++) {
+      int t = (data[i] & 0xff);
+      checksum += t;
     }
-    checksum = (byte) (~checksum + 1);
-    return checksum;
+    checksum = (~checksum) & 0xff;
+    checksum = (checksum + 1);
+    return (byte) checksum;
   }
 
   private SensorType detectType(){
@@ -176,5 +205,20 @@ public class GasSensor extends I2CDevice {
       return SensorType.getByType(data[4]);
     }
     return null;
+  }
+
+  private float adjustPowers(int decimalPoint, float raw){
+    switch(decimalPoint){
+      case 1:
+        raw = raw * 0.1f;
+        break;
+      case 2:
+        raw = raw * 0.01f;
+        break;
+
+      default:
+        break;
+    }
+    return raw;
   }
 }

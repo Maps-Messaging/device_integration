@@ -47,7 +47,14 @@ public class GasSensorController implements I2CDeviceEntry {
   public byte[] getStaticPayload() {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
-
+      jsonObject.put("sku", sensor.getSensorType().getSku());
+      jsonObject.put("name", sensor.getSensorType().name());
+      jsonObject.put("resolution", sensor.getSensorType().getResolution());
+      jsonObject.put("units", sensor.getSensorType().getUnits());
+      jsonObject.put("minimum", sensor.getSensorType().getMinimumRange());
+      jsonObject.put("maximum", sensor.getSensorType().getMaximumRange());
+      jsonObject.put("responseTime", sensor.getSensorType().getResponseTime());
+      jsonObject.put("threshold", sensor.getSensorType().getThreshold());
     }
     return jsonObject.toString(2).getBytes();
   }
@@ -67,17 +74,22 @@ public class GasSensorController implements I2CDeviceEntry {
   public byte[] getUpdatePayload() {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
+      sensor.updateAllFields();
+      jsonObject.put("temperature", sensor.getTemperature());
+      jsonObject.put("concentration", sensor.getConcentration());
+      jsonObject.put("compensated", sensor.getTemperatureAdjustedConcentration());
+      jsonObject.put("voltage", sensor.readVoltageData());
     }
     return jsonObject.toString(2).getBytes();
   }
 
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
-    config.setComments("High Side DC Current Sensor");
+    config.setComments(getName());
     config.setSource("I2C bus address : " + i2cAddr);
     config.setVersion("1.0");
     config.setResourceType("sensor");
-    config.setInterfaceDescription("Returns json object with current readings from sensor");
+    config.setInterfaceDescription("Gravity Gas sensor");
     return config;
   }
 

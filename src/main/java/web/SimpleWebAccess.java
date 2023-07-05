@@ -89,6 +89,24 @@ public class SimpleWebAccess {
         ctx.status(404).result("Device not found");
       }
     });
+    app.get("/device/i2c/{id}/static", ctx -> {
+      String id = ctx.pathParam("id");
+      I2CDeviceEntry device = deviceBusManager.getI2cBusManager().get(id);
+      if (device != null) {
+        handleGetStatic(ctx, device);
+      } else {
+        ctx.status(404).result("Device not found");
+      }
+    });
+    app.get("/device/spi/{id}/static", ctx -> {
+      String id = ctx.pathParam("id");
+      SpiDeviceController device = deviceBusManager.getSpiBusManager().get(id);
+      if (device != null) {
+        handleGetStatic(ctx, device);
+      } else {
+        ctx.status(404).result("Device not found");
+      }
+    });
     app.get("/device/1wire/{id}", ctx -> {
       String id = ctx.pathParam("id");
       OneWireDeviceEntry device = deviceBusManager.getOneWireBusManager().get(id);
@@ -137,12 +155,12 @@ public class SimpleWebAccess {
     ctx.json(schemaObject.toString(2));
   }
 
+  private void handleGetStatic(Context ctx, DeviceController deviceController) throws IOException {
+    ctx.json(new String(deviceController.getStaticPayload()));
+  }
 
   private void handleDeviceGet(Context ctx, DeviceController deviceController) {
-    JSONObject result = new JSONObject();
-    result.put("static", new JSONObject(new String(deviceController.getStaticPayload())));
-    result.put("update", new JSONObject(new String(deviceController.getUpdatePayload())));
-    ctx.json(result.toString(2));
+    ctx.json(new String(new String(deviceController.getUpdatePayload())));
   }
 
   private JSONArray packList(Map<String, DeviceController> devices) {
