@@ -108,30 +108,19 @@ Before using the controller, make sure all your I2C devices are connected correc
 
 ### I2C
 
-| Device     | Manufacturer    | Description                            | Datasheet                                                         |
-|------------|-----------------|----------------------------------------|-------------------------------------------------------------------|
-| PCA9685    | NXP             | 16-channel PWM controller              | [Datasheet](https://www.nxp.com/docs/en/data-sheet/PCA9685.pdf) |
-| DS3231     | Maxim Integrated| Real-time clock                        | [Datasheet](https://www.analog.com/media/en/technical-documentation/data-sheets/DS3231.pdf) |
-| AM2315     | Aosong          | Temperature and humidity sensor         | [Datasheet](https://asairsensors.com/wp-content/uploads/2021/09/Data-Sheet-AM2315C-Humidity-and-Temperature-Module-ASAIR-V1.0.02.pdf) |
-| AM2320     | Aosong          | Temperature and humidity sensor         | [Datasheet](https://core-electronics.com.au/attachments/localcontent/AM2320_13434819210.pdf)  |
-| AS3935     | AMS             | Lightning sensor                       | [Datasheet](https://www.mouser.com/datasheet/2/588/ams_AS3935_Datasheet_EN_v5-1214568.pdf)      |
-| BMP280     | Bosch Sensortec | Pressure and temperature sensor         | [Datasheet](https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/bmp280/)  |
-| BNO055     | Bosch Sensortec | 9-axis absolute orientation sensor      | [Datasheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf) |
-| INA219     | Texas Instruments | High-side current sensor              | [Datasheet](https://www.ti.com/lit/ds/symlink/ina219.pdf)|
-| PMSA003I   | Plantower       | Particulate matter sensor              | [Datasheet](https://cdn-shop.adafruit.com/product-files/4632/4505_PMSA003I_series_data_manual_English_V2.6.pdf)  |
-| TLS2561    | Texas Instruments | Digital light sensor                   | [Datasheet](https://cdn-shop.adafruit.com/datasheets/TSL2561.pdf) |
-| SEN0469    | DFRobot         | Carbon Monoxide Detector               | [Datasheet](https://wiki.dfrobot.com/SKU_SEN0465toSEN0476_Gravity_Gas_Sensor_Calibrated_I2C_UART) |
-| SEN0467    | DFRobot         | Hydrogen Sulfide Detector              | [Datasheet](https://wiki.dfrobot.com/SKU_SEN0465toSEN0476_Gravity_Gas_Sensor_Calibrated_I2C_UART) |
-| SEN0466    | DFRobot         | Alcohol Detector                       | [Datasheet](https://wiki.dfrobot.com/SKU_SEN0465toSEN0476_Gravity_Gas_Sensor_Calibrated_I2C_UART) |
-| SEN0465    | DFRobot         | Oxygen Detector                        | [Datasheet](https://wiki.dfrobot.com/SKU_SEN0465toSEN0476_Gravity_Gas_Sensor_Calibrated_I2C_UART) |
-| SEN0473    | DFRobot         | Hydrogen Detector                      | [Datasheet](https://wiki.dfrobot.com/SKU_SEN0465toSEN0476_Gravity_Gas_Sensor_Calibrated_I2C_UART) |
-| SEN0472    | DFRobot         | Ozone Detector                         | [Datasheet](https://wiki.dfrobot.com/SKU_SEN0465toSEN0476_Gravity_Gas_Sensor_Calibrated_I2C_UART) |
-| SEN0470    | DFRobot         | Sulfur Dioxide Detector                | [Datasheet](https://wiki.dfrobot.com/SKU_SEN0465toSEN0476_Gravity_Gas_Sensor_Calibrated_I2C_UART) |
-| SEN0471    | DFRobot         | Nitrogen Dioxide Detector              | [Datasheet](https://wiki.dfrobot.com/SKU_SEN0465toSEN0476_Gravity_Gas_Sensor_Calibrated_I2C_UART) |
-| SEN0474    | DFRobot         | Hydrogen Chloride Detector             | [Datasheet](https://wiki.dfrobot.com/SKU_SEN0465toSEN0476_Gravity_Gas_Sensor_Calibrated_I2C_UART) |
-| SEN0468    | DFRobot         | Chlorine Detector                       | [Datasheet](https://wiki.dfrobot.com/SKU_SEN0465toSEN0476_Gravity_Gas_Sensor_Calibrated_I2C_UART) |
-| SEN0475    | DFRobot         | Hydrogen Fluoride Detector              | [Datasheet](https://wiki.dfrobot.com/SKU_SEN0465toSEN0476_Gravity_Gas_Sensor_Calibrated_I2C_UART) |
-| SEN0476    | DFRobot         | Phosphine Detector                      | [Datasheet](https://wiki.dfrobot.com/SKU_SEN0465toSEN0476_Gravity_Gas_Sensor_Calibrated_I2C_UART) |
+ Device              | Manufacturer   | Description                                            | Functionality                                                     | Datasheet                                                            |
+|---------------------|----------------|--------------------------------------------------------|-------------------------------------------------------------------|----------------------------------------------------------------------|
+| PCA9685             | NXP            | 16-channel PWM controller                              | - Controls up to 16 channels of PWM output                        | [Datasheet](https://www.nxp.com/docs/en/data-sheet/PCA9685.pdf)                                             |
+| DS3231              | Maxim Integrated | Real-time clock                                        | - Provides accurate timekeeping and calendar functions            | [Datasheet](https://www.analog.com/media/en/technical-documentation/data-sheets/DS3231.pdf)                                             |
+| AM2315              | Aosong         | Temperature and humidity sensor                        | - Measures ambient temperature and humidity                       | [Datasheet](https://asairsensors.com/wp-content/uploads/2021/09/Data-Sheet-AM2315C-Humidity-and-Temperature-Module-ASAIR-V1.0.02.pdf)                                             |
+| AM2320              | Aosong         | Temperature and humidity sensor                        | - Measures ambient temperature and humidity                       | [Datasheet](https://core-electronics.com.au/attachments/localcontent/AM2320_13434819210.pdf)                                             |
+| AS3935              | AMS            | Lightning sensor                                       | - Detects and provides information on nearby lightning activity   | [Datasheet](https://www.mouser.com/datasheet/2/588/ams_AS3935_Datasheet_EN_v5-1214568.pdf)                                             |
+| BMP280              | Bosch Sensortec| Pressure and temperature sensor                        | - Measures atmospheric pressure and ambient temperature          | [Datasheet](https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/bmp280/)                                             |
+| BNO055              | Bosch Sensortec| 9-axis absolute orientation sensor                     | - Provides precise orientation, acceleration, and magnetic data   | [Datasheet](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf)                                             |
+| INA219              | Texas Instruments | High-side current sensor                             | - Measures high-side current and voltage                          | [Datasheet](https://www.ti.com/lit/ds/symlink/ina219.pdf)                                             |
+| PMSA003I            | Plantower      | Particulate matter sensor                              | - Detects and measures particulate matter in the air              | [Datasheet](https://cdn-shop.adafruit.com/product-files/4632/4505_PMSA003I_series_data_manual_English_V2.6.pdf)                                             |
+| TLS2561             | Texas Instruments | Digital light sensor                                  | - Measures ambient light intensity                               | [Datasheet](https://cdn-shop.adafruit.com/datasheets/TSL2561.pdf)                                             |
+| DFRobot Gas Sensors | DFRobot        | Gas detection sensors                                  | - Detects various gases such as Carbon Monoxide, Hydrogen Sulfide, Alcohol, Oxygen, Hydrogen, Ozone, Sulfur Dioxide, Nitrogen Dioxide, Hydrogen Chloride, Chlorine, Hydrogen Fluoride, and Phosphine | [Datasheet](https://wiki.dfrobot.com/SKU_SEN0465toSEN0476_Gravity_Gas_Sensor_Calibrated_I2C_UART) |
 
 ## Contribute
 
