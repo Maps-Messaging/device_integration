@@ -51,8 +51,10 @@ public class I2CBusManager {
     ServiceLoader<I2CDeviceEntry> deviceEntries = ServiceLoader.load(I2CDeviceEntry.class);
     for (I2CDeviceEntry device : deviceEntries) {
       knownDevices.put(device.getName(), device);
+      logger.log(DeviceLogMessage.I2C_BUS_LOADED_DEVICE, device.getName());
       int[] addressRange = device.getAddressRange();
       for (int i : addressRange) {
+        logger.log(DeviceLogMessage.I2C_BUS_LOADED_DEVICE, i, device.getName());
         mappedDevices.computeIfAbsent(i, k -> new ArrayList<>()).add(device);
       }
     }
@@ -62,16 +64,15 @@ public class I2CBusManager {
     for (Map.Entry<String, Object> entry : configuration.entrySet()) {
       int i2cAddress = Integer.parseInt(entry.getKey());
       Map<String, Object> deviceConfig = (Map<String, Object>) entry.getValue();
-
       // Retrieve the device name from the configuration
       String deviceName = (String) deviceConfig.get("deviceName");
-
       // Find the matching device in the known devices list
       I2CDeviceEntry deviceEntry = knownDevices.get(deviceName);
       if (deviceEntry != null) {
+        logger.log(DeviceLogMessage.I2C_BUS_CONFIGURING_DEVICE, deviceEntry.getName(), i2cAddress);
         createAndMountDevice(i2cAddress, deviceEntry);
       } else {
-        System.out.println("Device entry not found for device name: " + deviceName);
+        logger.log(DeviceLogMessage.I2C_BUS_DEVICE_NOT_FOUND, deviceName);
       }
     }
   }
@@ -116,7 +117,7 @@ public class I2CBusManager {
           activeDevices.put(Integer.toHexString(addr), new I2CDeviceScheduler(physicalDevice));
         }
       } catch (IOException e) {
-        e.printStackTrace();
+        // Ignore
       }
     } else {
       device.close();

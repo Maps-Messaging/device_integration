@@ -9,12 +9,17 @@ public enum DeviceLogMessage implements LogMessage {
 
   //<editor-fold desc="Bus Manager messages">
   BUS_MANAGER_STARTUP(LEVEL.WARN, BUS.MANAGER, "Bus Manager starting up"),
-
+  BUS_MANAGER_CONFIGURE_DEVICES(LEVEL.DEBUG, BUS.MANAGER, "Configure devices called"),
+  BUS_MANAGER_PROVIDER(LEVEL.WARN, BUS.MANAGER, "Using GPIO Provider {} from PiGPIO"),
   BUS_MANAGER_SHUTDOWN(LEVEL.WARN, BUS.MANAGER, "Bus Manager shutting down"),
   //</editor-fold>
 
   //<editor-fold desc="I2C Bus Manager messages">
   I2C_BUS_MANAGER_STARTUP(LEVEL.WARN, BUS.I2C, "I2C Bus Manager starting up"),
+  I2C_BUS_LOADED_DEVICE(LEVEL.WARN, BUS.I2C, "I2C Bus Manager ServiceLoader discovered device {} "),
+  I2C_BUS_ALLOCATING_ADDRESS(LEVEL.WARN, BUS.I2C, "I2C Bus Manager allocating I2C address {} for device {}"),
+  I2C_BUS_CONFIGURING_DEVICE(LEVEL.WARN, BUS.I2C, "I2C Bus Manager configuring device {} at address {}"),
+  I2C_BUS_DEVICE_NOT_FOUND(LEVEL.WARN, BUS.I2C, "I2C Bus Manager failed to locate {}, unknown device"),
 
   I2C_BUS_MANAGER_SHUTDOWN(LEVEL.WARN, BUS.I2C, "I2C Bus Manager shutting down"),
   //</editor-fold>
