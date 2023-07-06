@@ -74,4 +74,12 @@ public abstract class I2CDevice implements Device, AutoCloseable {
   protected void delay(int ms) {
     LockSupport.parkNanos(ms * 1000000L);
   }
+
+  protected void dumpBuffer(byte[] data){
+    System.err.print("[");
+    for(int x=0;x<data.length;x++){
+      System.err.print(Integer.toHexString((data[x]&0xff))+",");
+    }
+    System.err.println("]");
+  }
 }
