@@ -122,7 +122,7 @@ Before using the controller, make sure all your I2C devices are connected correc
 | PMSA003I            | Plantower      | Particulate matter sensor                              | - Detects and measures particulate matter in the air              | [Datasheet](https://cdn-shop.adafruit.com/product-files/4632/4505_PMSA003I_series_data_manual_English_V2.6.pdf)                                             |
 | TLS2561             | Texas Instruments | Digital light sensor                                  | - Measures ambient light intensity                               | [Datasheet](https://cdn-shop.adafruit.com/datasheets/TSL2561.pdf)                                             |
 | DFRobot Gas Sensors | DFRobot        | Gas detection sensors                                  | - Detects various gases such as Carbon Monoxide, Hydrogen Sulfide, Alcohol, Oxygen, Hydrogen, Ozone, Sulfur Dioxide, Nitrogen Dioxide, Hydrogen Chloride, Chlorine, Hydrogen Fluoride, and Phosphine | [Datasheet](https://wiki.dfrobot.com/SKU_SEN0465toSEN0476_Gravity_Gas_Sensor_Calibrated_I2C_UART) |
-
+| LPS35HW             | STMicroelectronics | MEMS pressure sensor                                    | Measures barometric pressure                                      | [Datasheet](https://www.st.com/resource/en/datasheet/lps35hw.pdf)   |
 #### Output Devices
 
 | Device                 | Manufacturer | Description                                      | Functionality                                             | Datasheet                                                      |
