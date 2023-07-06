@@ -25,7 +25,7 @@ public abstract class I2CDevice implements Device, AutoCloseable {
 
   protected I2C device;
 
-  public I2CDevice(I2C device) {
+  protected I2CDevice(I2C device) {
     this.device = device;
   }
 

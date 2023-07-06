@@ -34,6 +34,7 @@ public class AM2320Controller implements I2CDeviceEntry {
   @Getter
   private final String name = "AM2320";
 
+  // Used during ServiceLoading
   public AM2320Controller() {
     sensor = null;
   }

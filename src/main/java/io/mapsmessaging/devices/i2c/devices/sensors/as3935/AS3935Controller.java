@@ -36,6 +36,7 @@ public class AS3935Controller implements I2CDeviceEntry {
   @Getter
   private final String name = "AS3935";
 
+  // Used during ServiceLoading
   public AS3935Controller() {
     sensor = null;
   }
