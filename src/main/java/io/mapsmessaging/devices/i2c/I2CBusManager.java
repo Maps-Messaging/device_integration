@@ -108,7 +108,7 @@ public class I2CBusManager {
       try {
         I2CDeviceEntry physicalDevice = deviceEntry.mount(device);
         if (physicalDevice.detect()) {
-          activeDevices.put(Integer.toHexString(addr), physicalDevice);
+          activeDevices.put(Integer.toHexString(addr), new I2CDeviceScheduler(physicalDevice));
         }
       } catch (IOException e) {
         e.printStackTrace();
@@ -147,5 +147,7 @@ public class I2CBusManager {
     I2CDeviceEntry device = deviceEntry.mount(i2cProvider.create(i2cConfig));
     activeDevices.put(Integer.toHexString(i2cAddress), device);
   }
+
+
 
 }
