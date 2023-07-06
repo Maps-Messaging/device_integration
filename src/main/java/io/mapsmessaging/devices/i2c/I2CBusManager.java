@@ -21,6 +21,9 @@ import com.pi4j.io.i2c.I2C;
 import com.pi4j.io.i2c.I2CConfig;
 import com.pi4j.io.i2c.I2CProvider;
 import io.mapsmessaging.devices.DeviceController;
+import io.mapsmessaging.devices.logging.DeviceLogMessage;
+import io.mapsmessaging.logging.Logger;
+import io.mapsmessaging.logging.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -28,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class I2CBusManager {
+  private final Logger logger = LoggerFactory.getLogger(I2CBusManager.class);
 
   private final Map<String, I2CDeviceEntry> knownDevices;
   private final Map<Integer, List<I2CDeviceEntry>> mappedDevices;
@@ -38,6 +42,7 @@ public class I2CBusManager {
 
 
   public I2CBusManager(Context pi4j, I2CProvider i2cProvider) {
+    logger.log(DeviceLogMessage.I2C_BUS_MANAGER_STARTUP);
     this.pi4j = pi4j;
     this.i2cProvider = i2cProvider;
     mappedDevices = new LinkedHashMap<>();

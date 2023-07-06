@@ -5,7 +5,7 @@ import io.javalin.http.Context;
 import io.mapsmessaging.devices.DeviceBusManager;
 import io.mapsmessaging.devices.DeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
-import io.mapsmessaging.devices.oneWire.OneWireDeviceEntry;
+import io.mapsmessaging.devices.onewire.OneWireDeviceEntry;
 import io.mapsmessaging.devices.spi.SpiDeviceController;
 import org.json.JSONArray;
 import org.json.JSONObject;

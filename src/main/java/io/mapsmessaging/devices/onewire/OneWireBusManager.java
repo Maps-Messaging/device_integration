@@ -14,9 +14,12 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.oneWire;
+package io.mapsmessaging.devices.onewire;
 
 import io.mapsmessaging.devices.DeviceController;
+import io.mapsmessaging.devices.logging.DeviceLogMessage;
+import io.mapsmessaging.logging.Logger;
+import io.mapsmessaging.logging.LoggerFactory;
 
 import java.io.File;
 import java.util.LinkedHashMap;
@@ -27,12 +30,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public class OneWireBusManager {
   private static final String ONE_WIRE_ROOT_PATH = "/sys/bus/w1/devices/";
 
+  private final Logger logger = LoggerFactory.getLogger(OneWireBusManager.class);
+
   private final Map<String, OneWireDeviceEntry> knownDevices;
   private final Map<String, DeviceController> activeDevices;
 
   private final File rootDirectory;
 
   public OneWireBusManager() {
+    logger.log(DeviceLogMessage.ONE_WIRE_BUS_MANAGER_STARTUP, ONE_WIRE_ROOT_PATH);
+
     knownDevices = new LinkedHashMap<>();
     activeDevices = new ConcurrentHashMap<>();
     rootDirectory = new File(ONE_WIRE_ROOT_PATH);

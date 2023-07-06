@@ -21,8 +21,11 @@ import com.pi4j.context.Context;
 import com.pi4j.io.i2c.I2CProvider;
 import io.mapsmessaging.devices.i2c.I2CBusManager;
 import io.mapsmessaging.devices.interrupts.InterruptFactory;
-import io.mapsmessaging.devices.oneWire.OneWireBusManager;
+import io.mapsmessaging.devices.logging.DeviceLogMessage;
+import io.mapsmessaging.devices.onewire.OneWireBusManager;
 import io.mapsmessaging.devices.spi.SpiBusManager;
+import io.mapsmessaging.logging.Logger;
+import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
 import java.io.IOException;
@@ -38,6 +41,7 @@ public class DeviceBusManager {
     return instance;
   }
 
+  private final Logger logger = LoggerFactory.getLogger(DeviceBusManager.class);
 
   private final Context pi4j;
 
@@ -51,6 +55,7 @@ public class DeviceBusManager {
   private final InterruptFactory interruptFactory;
 
   private DeviceBusManager() {
+    logger.log(DeviceLogMessage.BUS_MANAGER_STARTUP);
     pi4j = Pi4J.newAutoContext();
     I2CProvider i2cProvider = pi4j.provider(getProvider());
     i2cBusManager = new I2CBusManager(pi4j, i2cProvider);
@@ -74,6 +79,7 @@ public class DeviceBusManager {
 
   public void close() {
     pi4j.shutdown();
+    logger.log(DeviceLogMessage.BUS_MANAGER_SHUTDOWN);
   }
 
   /*

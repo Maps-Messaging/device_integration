@@ -2,6 +2,9 @@ package io.mapsmessaging.devices.spi;
 
 import com.pi4j.context.Context;
 import io.mapsmessaging.devices.DeviceController;
+import io.mapsmessaging.devices.logging.DeviceLogMessage;
+import io.mapsmessaging.logging.Logger;
+import io.mapsmessaging.logging.LoggerFactory;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -10,12 +13,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SpiBusManager {
 
+  private final Logger logger = LoggerFactory.getLogger(SpiBusManager.class);
+
   private final Map<String, SpiDeviceController> knownDevices;
   private final Map<String, DeviceController> activeDevices;
 
   private final Context pi4j;
 
   public SpiBusManager(Context pi4j) {
+    logger.log(DeviceLogMessage.SPI_BUS_MANAGER_STARTUP);
+
     this.pi4j = pi4j;
     knownDevices = new LinkedHashMap<>();
     activeDevices = new ConcurrentHashMap<>();

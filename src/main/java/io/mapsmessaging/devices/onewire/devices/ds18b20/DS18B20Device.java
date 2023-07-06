@@ -14,9 +14,9 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.oneWire.devices.ds18b20;
+package io.mapsmessaging.devices.onewire.devices.ds18b20;
 
-import io.mapsmessaging.devices.oneWire.OneWireDevice;
+import io.mapsmessaging.devices.onewire.OneWireDevice;
 import lombok.Getter;
 
 import java.io.File;
