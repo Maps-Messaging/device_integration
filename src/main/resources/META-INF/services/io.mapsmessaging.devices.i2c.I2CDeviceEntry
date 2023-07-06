@@ -29,7 +29,7 @@ io.mapsmessaging.devices.i2c.devices.sensors.gravity.GasSensorController
 
 # Real Time Clocks
 #
-#io.mapsmessaging.devices.i2c.devices.rtc.ds3231.Ds3231Controller
+io.mapsmessaging.devices.i2c.devices.rtc.ds3231.Ds3231Controller
 
 #
 # PWM controllers
