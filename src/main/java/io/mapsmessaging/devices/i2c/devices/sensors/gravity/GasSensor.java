@@ -54,7 +54,7 @@ public class GasSensor extends I2CDevice {
   }
 
   public float getTemperatureAdjustedConcentration() {
-    if (sensorType != null) {
+    if (sensorType != null && concentration > 0) {
       return sensorType.getSensorModule().computeGasConcentration(temperature, concentration);
     }
     return 0;
