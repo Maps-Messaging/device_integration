@@ -4,11 +4,21 @@ import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 
 import java.io.IOException;
-import java.util.concurrent.Semaphore;
 
+/**
+ *
+ * The locking here basically disables multiple access to the same device and will limit the
+ * access to the I2C bus. If a device calls delay, then another device can take ownership of the bus
+ * and perform any operation required. The device that has called delay will need to wait for the
+ * new operation on the I2C bus to complete.
+ */
 public class I2CDeviceScheduler implements I2CDeviceController {
 
-  private static final Semaphore I2C_BUS_SEMAPHORE = new Semaphore(1);
+  private static final Object I2C_BUS_LOCK = new Object();
+
+  public static Object getI2cBusLock(){
+    return I2C_BUS_LOCK;
+  }
 
   private final I2CDeviceController deviceController;
 
@@ -28,34 +38,28 @@ public class I2CDeviceScheduler implements I2CDeviceController {
 
   @Override
   public byte[] getStaticPayload() {
-    try {
-      I2C_BUS_SEMAPHORE.acquireUninterruptibly();
-      return deviceController.getStaticPayload();
-    }
-    finally {
-      I2C_BUS_SEMAPHORE.release();
+    synchronized (deviceController) {
+      synchronized (I2C_BUS_LOCK){
+        return deviceController.getStaticPayload();
+      }
     }
   }
 
   @Override
   public byte[] getUpdatePayload() {
-    try {
-      I2C_BUS_SEMAPHORE.acquireUninterruptibly();
-      return deviceController.getUpdatePayload();
-    }
-    finally {
-      I2C_BUS_SEMAPHORE.release();
+    synchronized (deviceController) {
+      synchronized (I2C_BUS_LOCK){
+        return deviceController.getUpdatePayload();
+      }
     }
   }
 
   @Override
   public void setPayload(byte[] val) {
-    try {
-      I2C_BUS_SEMAPHORE.acquireUninterruptibly();
-      deviceController.setPayload(val);
-    }
-    finally {
-      I2C_BUS_SEMAPHORE.release();
+    synchronized (deviceController) {
+      synchronized (I2C_BUS_LOCK){
+        deviceController.setPayload(val);
+      }
     }
   }
 
