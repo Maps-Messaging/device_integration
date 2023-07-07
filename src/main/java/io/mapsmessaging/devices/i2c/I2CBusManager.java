@@ -54,7 +54,7 @@ public class I2CBusManager {
       logger.log(DeviceLogMessage.I2C_BUS_LOADED_DEVICE, device.getName());
       int[] addressRange = device.getAddressRange();
       for (int i : addressRange) {
-        logger.log(DeviceLogMessage.I2C_BUS_LOADED_DEVICE, i, device.getName());
+        logger.log(DeviceLogMessage.I2C_BUS_ALLOCATING_ADDRESS, "0x"+Integer.toHexString(i), device.getName());
         mappedDevices.computeIfAbsent(i, k -> new ArrayList<>()).add(device);
       }
     }
