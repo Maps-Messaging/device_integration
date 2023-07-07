@@ -2,6 +2,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.lps35;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps35.registers.DataRate;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -43,7 +44,7 @@ public class Lps35Controller implements I2CDeviceEntry {
   public byte[] getStaticPayload() {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
-
+      return PackJson.pack(sensor).toString(2).getBytes();
     }
     return jsonObject.toString(2).getBytes();
   }
@@ -60,8 +61,6 @@ public class Lps35Controller implements I2CDeviceEntry {
       jsonObject.put("temperature", temp);
       jsonObject.put("pressure", pres);
       jsonObject.put("altitudeDiff", altitude);
-      jsonObject.put("whoAmI", sensor.whoAmI());
-
     }
     return jsonObject.toString(2).getBytes();
   }
