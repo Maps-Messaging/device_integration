@@ -69,7 +69,7 @@ public class Lps35Sensor extends I2CDevice {
     setControlRegister(INTERRUPT_CFG, 0b10111111, 0b01000000);
   }
 
-  public void enableAutoZeo(boolean flag) {
+  public void enableAutoZero(boolean flag) {
     int value = flag?0b00100000:0;
     setControlRegister(INTERRUPT_CFG, 0b11011111, value);
   }
@@ -257,7 +257,6 @@ public class Lps35Sensor extends I2CDevice {
   public boolean isFiFoOverrunInterruptEnabled(){
     return (readRegister(CTRL_REG3) & 0b001000) != 0;
   }
-
 
   public void setSignalOnInterrupt(DataReadyInterrupt flag) {
     int value = flag.getMask();

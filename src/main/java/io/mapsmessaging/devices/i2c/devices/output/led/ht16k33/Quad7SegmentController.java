@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import lombok.Getter;
@@ -52,8 +53,8 @@ public class Quad7SegmentController extends HT16K33Controller {
 
     ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
     schemaBuilder
-        .addPropertySchema("updateSchema", buildUpdateSchema())
-        .addPropertySchema("writeableSchema", buildWritablePayload("^[\\d\\s]{2}[:\\s][\\d\\s]{2}$"))
+        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, buildUpdateSchema())
+        .addPropertySchema(NamingConstants.DEVICE_WRITE_SCHEMA, buildWritablePayload("^[\\d\\s]{2}[:\\s][\\d\\s]{2}$"))
         .description("Quad 7 Segment LED")
         .title("HT16K33");
 

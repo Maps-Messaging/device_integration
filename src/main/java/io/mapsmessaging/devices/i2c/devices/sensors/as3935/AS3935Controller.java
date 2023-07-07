@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -316,9 +317,9 @@ public class AS3935Controller implements I2CDeviceEntry {
 
     ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
     schemaBuilder
-        .addPropertySchema("staticPayloadSchema", staticPayloadSchema.build())
-        .addPropertySchema("updatePayloadSchema", updatePayloadSchema.build())
-        .addPropertySchema("updateSchema", setPayloadSchema.build())
+        .addPropertySchema(NamingConstants.DEVICE_STATIC_DATA_SCHEMA, staticPayloadSchema.build())
+        .addPropertySchema(NamingConstants.DEVICE_WRITE_SCHEMA, updatePayloadSchema.build())
+        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, setPayloadSchema.build())
         .description("Lightning Detector")
         .title("AS3935");
 

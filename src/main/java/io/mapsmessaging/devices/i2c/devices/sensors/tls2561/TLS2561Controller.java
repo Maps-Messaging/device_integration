@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.tls2561;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -120,8 +121,8 @@ public class TLS2561Controller implements I2CDeviceEntry {
 
     ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
     schemaBuilder
-        .addPropertySchema("updateSchema", updateSchema.build())
-        .addPropertySchema("staticSchema", staticSchema.build())
+        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, updateSchema.build())
+        .addPropertySchema(NamingConstants.DEVICE_STATIC_DATA_SCHEMA, staticSchema.build())
         .description("Digital Luminosity/Lux/Light Sensor Breakout")
         .title("TLS2561");
 

@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -100,8 +101,8 @@ public class Ds3231Controller implements I2CDeviceEntry {
   private String buildSchema() {
     ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
     schemaBuilder
-        .addPropertySchema("updateSchema", SchemaHelper.generateUpdatePayloadSchema())
-        .addPropertySchema("writeableSchema", SchemaHelper.buildWritablePayload())
+        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, SchemaHelper.generateUpdatePayloadSchema())
+        .addPropertySchema(NamingConstants.DEVICE_WRITE_SCHEMA, SchemaHelper.buildWritablePayload())
         .description("Quad 7 Segment LED")
         .title("HT16K33");
 

@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import lombok.Getter;
@@ -53,8 +54,8 @@ public class QuadAlphaNumericController extends HT16K33Controller {
   protected String buildSchema() {
     ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
     schemaBuilder
-        .addPropertySchema("updateSchema", buildUpdateSchema())
-        .addPropertySchema("writeableSchema", buildWritablePayload("^[A-Za-z0-9]{1,4}(\\.[A-Za-z0-9]{1,4})*$"))
+        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, buildUpdateSchema())
+        .addPropertySchema(NamingConstants.DEVICE_WRITE_SCHEMA, buildWritablePayload("^[A-Za-z0-9]{1,4}(\\.[A-Za-z0-9]{1,4})*$"))
         .description("Quad Alpha Numeric Segment LED")
         .title("HT16K33");
 

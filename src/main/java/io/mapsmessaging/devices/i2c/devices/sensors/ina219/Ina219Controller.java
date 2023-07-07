@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.ina219;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
 import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.*;
 import io.mapsmessaging.schemas.config.SchemaConfig;
@@ -214,9 +215,9 @@ public class Ina219Controller implements I2CDeviceEntry {
 
     ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
     schemaBuilder
-        .addPropertySchema("updateSchema", updateSchema.build())
-        .addPropertySchema("staticSchema", staticSchema.build())
-        .addPropertySchema("writeableSchema", staticSchema.build())
+        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, updateSchema.build())
+        .addPropertySchema(NamingConstants.DEVICE_STATIC_DATA_SCHEMA, staticSchema.build())
+        .addPropertySchema(NamingConstants.DEVICE_WRITE_SCHEMA, staticSchema.build())
         .description("High Side DC Current Sensor")
         .title("INA219");
 
