@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.am2320;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -100,7 +101,7 @@ public class AM2320Controller implements I2CDeviceController {
 
     ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
     schemaBuilder
-        .addPropertySchema("updateSchema", updateSchema.build())
+        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, updateSchema.build())
         .description("Humidity and Temperature Module")
         .title("AM2320");
 
