@@ -18,6 +18,7 @@ package io.mapsmessaging.devices.spi.devices.mcp3y0x;
 
 import com.pi4j.context.Context;
 import com.pi4j.io.spi.Spi;
+import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.spi.SpiDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -124,8 +125,8 @@ public class Mcp3y0xController extends SpiDeviceController {
 
     ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
     schemaBuilder
-        .addPropertySchema("updateSchema", updateSchema.build())
-        .addPropertySchema("staticSchema", staticSchema.build())
+        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, updateSchema.build())
+        .addPropertySchema(NamingConstants.DEVICE_STATIC_DATA_SCHEMA, staticSchema.build())
         .description("Analog to digital convertor")
         .title("Mcp3y0x");
     return schemaToString(schemaBuilder.build());

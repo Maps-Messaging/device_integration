@@ -166,12 +166,11 @@ public abstract class HT16K33Controller implements I2CDeviceController {
                 .description("Update the LED display with the supplied string")
                 .build()
         )
-        .addPropertySchema("task",
-            StringSchema.builder()
-                .pattern(pattern)
-                .description("This is an optional server side task, currently only supports 'clock'")
-                .build()
-        )
+        .addPropertySchema("task", EnumSchema.builder()
+                .possibleValue("clock")
+                .possibleValue("test")
+                .description("This is an optional server side task")
+                .build())
         .addPropertySchema("blink",
             BooleanSchema.builder()
                 .description("If the LED is blinking or not")

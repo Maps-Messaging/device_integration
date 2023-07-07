@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.onewire.devices.ds18b20;
 
+import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.onewire.OneWireDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -87,7 +88,7 @@ public class DS18B20Controller implements OneWireDeviceController {
 
     ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
     schemaBuilder
-        .addPropertySchema("updateSchema", updateSchema.build())
+        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, updateSchema.build())
         .description("Temperature Module")
         .title("DS18B20");
 
