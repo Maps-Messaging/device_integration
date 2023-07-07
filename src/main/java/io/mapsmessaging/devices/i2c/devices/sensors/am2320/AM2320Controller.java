@@ -40,12 +40,12 @@ public class AM2320Controller implements I2CDeviceController {
     sensor = null;
   }
 
-  protected AM2320Controller(I2C device) throws IOException {
+  protected AM2320Controller(I2C device) {
     sensor = new AM2320Sensor(device);
   }
 
 
-  public I2CDeviceController mount(I2C device) throws IOException {
+  public I2CDeviceController mount(I2C device) {
     return new AM2320Controller(device);
   }
 

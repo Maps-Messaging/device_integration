@@ -34,7 +34,7 @@ public class AM2320Sensor extends I2CDevice {
   @Getter
   private float humidity;
 
-  public AM2320Sensor(I2C device) throws IOException {
+  public AM2320Sensor(I2C device) {
     super(device);
     scanForChange();
   }

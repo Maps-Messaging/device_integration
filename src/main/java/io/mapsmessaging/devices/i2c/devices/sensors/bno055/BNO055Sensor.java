@@ -39,24 +39,20 @@ public class BNO055Sensor extends I2CDevice {
   }
 
   public void initialise() throws IOException {
-    try {
-      write(BNO055Constants.BNO055_PAGE_ID_ADDR, (byte) 0);  // Send a NO OP to get the device ready to chat
-      setConfigMode();
-      write(BNO055Constants.BNO055_PAGE_ID_ADDR, (byte) 0);  // Send a NO OP to get the device ready to chat
-      int bnoId = readRegister(BNO055Constants.BNO055_CHIP_ID_ADDR);
-      if (bnoId != BNO055Constants.BNO055_ID) {
-        throw new IOException("Detected alien device " + bnoId + " expected " + BNO055Constants.BNO055_ID);
-      }
-
-      write(BNO055Constants.BNO055_SYS_TRIGGER_ADDR, (byte) 0x20); // Command line reset instead
-      delay(650);
-      write(BNO055Constants.BNO055_PWR_MODE_ADDR, BNO055Constants.POWER_MODE_NORMAL);
-      write(BNO055Constants.BNO055_SYS_TRIGGER_ADDR, (byte) 0x0);
-      setOperationalMode();
-      version = computeVersion();
-    } catch (Exception e) {
-      throw new IOException(e);
+    write(BNO055Constants.BNO055_PAGE_ID_ADDR, (byte) 0);  // Send a NO OP to get the device ready to chat
+    setConfigMode();
+    write(BNO055Constants.BNO055_PAGE_ID_ADDR, (byte) 0);  // Send a NO OP to get the device ready to chat
+    int bnoId = readRegister(BNO055Constants.BNO055_CHIP_ID_ADDR);
+    if (bnoId != BNO055Constants.BNO055_ID) {
+      throw new IOException("Detected alien device " + bnoId + " expected " + BNO055Constants.BNO055_ID);
     }
+
+    write(BNO055Constants.BNO055_SYS_TRIGGER_ADDR, (byte) 0x20); // Command line reset instead
+    delay(650);
+    write(BNO055Constants.BNO055_PWR_MODE_ADDR, BNO055Constants.POWER_MODE_NORMAL);
+    write(BNO055Constants.BNO055_SYS_TRIGGER_ADDR, (byte) 0x0);
+    setOperationalMode();
+    version = computeVersion();
   }
 
   @Override

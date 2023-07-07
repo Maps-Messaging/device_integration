@@ -20,8 +20,9 @@ public enum DeviceLogMessage implements LogMessage {
   I2C_BUS_ALLOCATING_ADDRESS(LEVEL.WARN, BUS.I2C, "I2C Bus Manager allocating I2C address {} for device {}"),
   I2C_BUS_CONFIGURING_DEVICE(LEVEL.WARN, BUS.I2C, "I2C Bus Manager configuring device {} at address {}"),
   I2C_BUS_DEVICE_NOT_FOUND(LEVEL.WARN, BUS.I2C, "I2C Bus Manager failed to locate {}, unknown device"),
-
   I2C_BUS_MANAGER_SHUTDOWN(LEVEL.WARN, BUS.I2C, "I2C Bus Manager shutting down"),
+  I2C_BUS_SCAN(LEVEL.WARN, BUS.I2C, "I2C Detect : {}"),
+  I2C_BUS_SCAN_MULTIPLE_DEVICES(LEVEL.WARN, BUS.I2C, "Unable to detect which device has been found, needs to be configured {}"),
   //</editor-fold>
 
   //<editor-fold desc="SPI Bus Manager messages">

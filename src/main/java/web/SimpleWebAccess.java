@@ -136,10 +136,6 @@ public class SimpleWebAccess {
         ctx.status(404).result("Device not found");
       }
     });
-
-    // Schedule a task to scan for I2C devices every 5 seconds
-    ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    executor.scheduleAtFixedRate(deviceBusManager.getI2cBusManager()::scanForDevices, 0, 1, TimeUnit.MINUTES);
   }
 
 

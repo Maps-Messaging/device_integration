@@ -32,7 +32,6 @@ public class Panel {
     }
     actual = actual *2;
     if(actual > display.length){
-      System.err.println("Exceeds index");
       return;
     }
     display[actual] = (byte)(mask & 0xff);

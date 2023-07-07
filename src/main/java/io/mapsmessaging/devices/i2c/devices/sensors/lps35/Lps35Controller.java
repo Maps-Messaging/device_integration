@@ -78,8 +78,6 @@ public class Lps35Controller implements I2CDeviceController {
   }
 
   private String buildSchema() {
-
-
     ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
     schemaBuilder
        // .addPropertySchema("staticPayloadSchema", staticPayloadSchema.build())
@@ -88,7 +86,6 @@ public class Lps35Controller implements I2CDeviceController {
         .description("Pressure and Temperature sensor")
         .id("LPD35HW");
 
-    ObjectSchema schema = schemaBuilder.build();
-    return schema.toString();
+    return schemaToString(schemaBuilder.build());
   }
 }

@@ -30,12 +30,16 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+import static io.mapsmessaging.devices.logging.DeviceLogMessage.I2C_BUS_SCAN;
+import static io.mapsmessaging.devices.logging.DeviceLogMessage.I2C_BUS_SCAN_MULTIPLE_DEVICES;
+
 public class I2CBusManager {
   private final Logger logger = LoggerFactory.getLogger(I2CBusManager.class);
 
   private final Map<String, I2CDeviceController> knownDevices;
   private final Map<Integer, List<I2CDeviceController>> mappedDevices;
   private final Map<String, DeviceController> activeDevices;
+  private final Map<Integer, I2C> physicalDevices;
 
   private final Context pi4j;
   private final I2CProvider i2cProvider;
@@ -48,6 +52,7 @@ public class I2CBusManager {
     mappedDevices = new LinkedHashMap<>();
     activeDevices = new ConcurrentHashMap<>();
     knownDevices = new ConcurrentHashMap<>();
+    physicalDevices = new ConcurrentHashMap<>();
     ServiceLoader<I2CDeviceController> deviceEntries = ServiceLoader.load(I2CDeviceController.class);
     for (I2CDeviceController device : deviceEntries) {
       knownDevices.put(device.getName(), device);
@@ -86,74 +91,93 @@ public class I2CBusManager {
   }
 
   public void scanForDevices() {
-    for (int x = 0; x < 0x77; x++) {
-      if (!activeDevices.containsKey(Integer.toHexString(x))) {
-        List<I2CDeviceController> deviceList = mappedDevices.get(x);
-        if (deviceList != null && !deviceList.isEmpty()) {
+    List<Integer> foundDevices = findDevicesOnBus();
+    for(Integer addr : foundDevices){
+      List<I2CDeviceController> devices = mappedDevices.get(addr);
+      if(devices != null && !devices.isEmpty()) {
+        if(devices.size() == 1) {
           try {
-            I2CConfig i2cConfig = I2C.newConfigBuilder(pi4j)
-                .id("Device::" + Integer.toHexString(x))
-                .description("Device::" + Integer.toHexString(x))
-                .bus(1)
-                .device(x)
-                .build();
-            I2C device = i2cProvider.create(i2cConfig);
-            for (I2CDeviceController deviceEntry : deviceList) {
-              attemptToConnect(x, device, deviceEntry);
-            }
-          } catch (Exception e) {
-            // Ignore
+            createAndMountDevice(addr, devices.get(0));
+          } catch (IOException e) {
+            e.printStackTrace();
           }
+        }
+        else{
+          StringBuilder sb = new StringBuilder();
+          for(I2CDeviceController controller:devices){
+            sb.append(controller.getName()).append(" ");
+          }
+          logger.log(I2C_BUS_SCAN_MULTIPLE_DEVICES, sb.toString());
         }
       }
     }
   }
 
-  private void attemptToConnect(int addr, I2C device, I2CDeviceController deviceEntry) {
-    if (isOnBus(addr, device)) {
-      try {
-        I2CDeviceController physicalDevice = deviceEntry.mount(device);
-        if (physicalDevice.detect()) {
-          activeDevices.put(Integer.toHexString(addr), new I2CDeviceScheduler(physicalDevice));
+  public List<Integer> findDevicesOnBus() {
+    List<Integer> found = new ArrayList<>();
+    for (int x = 0; x < 0x77; x++) {
+      if (!activeDevices.containsKey(Integer.toHexString(x))) {
+        try {
+          I2CConfig i2cConfig = I2C.newConfigBuilder(pi4j)
+              .id("Device::" + Integer.toHexString(x))
+              .description("Device::" + Integer.toHexString(x))
+              .bus(1)
+              .device(x)
+              .build();
+          I2C device = i2cProvider.create(i2cConfig);
+          if(isOnBus(x, device)){
+            found.add(x);
+          }
+          physicalDevices.put(x, device);
+        } catch (Exception e) {
+          // Ignore since we are simply looking for devices
         }
-      } catch (IOException e) {
-        // Ignore
       }
-    } else {
-      device.close();
     }
+    logDetect(found);
+    return found;
   }
 
   private boolean isOnBus(int addr, I2C device) {
     try {
       byte[] buf = new byte[1];
       if (addr == 0x5c) {
-        try {
-          device.read(buf, 0, 1);
-        } catch (Exception e) {
-          // Ignore first read
-          TimeUnit.MILLISECONDS.sleep(20);
-        }
+        device.read(buf, 0, 1);
+        TimeUnit.MILLISECONDS.sleep(20);
       }
-      device.read(buf, 0, 1);
-      return true;
+      return device.read(buf, 0, 1) ==1;
     } catch (Exception ex) {
       return false;
     }
   }
 
   private void createAndMountDevice(int i2cAddress, I2CDeviceController deviceEntry) throws IOException {
-    I2CConfig i2cConfig = I2C.newConfigBuilder(pi4j)
-        .id("Device::" + Integer.toHexString(i2cAddress))
-        .description("Device::" + Integer.toHexString(i2cAddress))
-        .bus(1)
-        .device(i2cAddress)
-        .build();
-    // Mount the device and get the bound instance
-    I2CDeviceController device = deviceEntry.mount(i2cProvider.create(i2cConfig));
-    activeDevices.put(Integer.toHexString(i2cAddress), device);
+    I2CDeviceController device = deviceEntry.mount(physicalDevices.get(i2cAddress));
+    activeDevices.put(Integer.toHexString(i2cAddress), new I2CDeviceScheduler(device));
   }
 
+  private void logDetect(List<Integer> found){
+    int addr = 0;
+    logger.log(I2C_BUS_SCAN,"     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f");
+    for(int x=0;x<8;x++){
+      StringBuilder sb = new StringBuilder(x+"0: ");
+      for(int y=0;y<16;y++){
+        String display;
+        if(found.contains(addr)){
+          display = Integer.toHexString(addr);
+          if(addr<16){
+            display="0"+display;
+          }
+        }
+        else{
+          display = "--";
+        }
+        sb.append(display).append(" ");
+        addr++;
+      }
+      logger.log(I2C_BUS_SCAN,sb.toString());
+    }
+  }
 
 
 }
