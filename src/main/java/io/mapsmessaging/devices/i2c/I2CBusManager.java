@@ -33,8 +33,8 @@ import java.util.concurrent.TimeUnit;
 public class I2CBusManager {
   private final Logger logger = LoggerFactory.getLogger(I2CBusManager.class);
 
-  private final Map<String, I2CDeviceEntry> knownDevices;
-  private final Map<Integer, List<I2CDeviceEntry>> mappedDevices;
+  private final Map<String, I2CDeviceController> knownDevices;
+  private final Map<Integer, List<I2CDeviceController>> mappedDevices;
   private final Map<String, DeviceController> activeDevices;
 
   private final Context pi4j;
@@ -48,8 +48,8 @@ public class I2CBusManager {
     mappedDevices = new LinkedHashMap<>();
     activeDevices = new ConcurrentHashMap<>();
     knownDevices = new ConcurrentHashMap<>();
-    ServiceLoader<I2CDeviceEntry> deviceEntries = ServiceLoader.load(I2CDeviceEntry.class);
-    for (I2CDeviceEntry device : deviceEntries) {
+    ServiceLoader<I2CDeviceController> deviceEntries = ServiceLoader.load(I2CDeviceController.class);
+    for (I2CDeviceController device : deviceEntries) {
       knownDevices.put(device.getName(), device);
       logger.log(DeviceLogMessage.I2C_BUS_LOADED_DEVICE, device.getName());
       int[] addressRange = device.getAddressRange();
@@ -67,7 +67,7 @@ public class I2CBusManager {
       // Retrieve the device name from the configuration
       String deviceName = (String) deviceConfig.get("deviceName");
       // Find the matching device in the known devices list
-      I2CDeviceEntry deviceEntry = knownDevices.get(deviceName);
+      I2CDeviceController deviceEntry = knownDevices.get(deviceName);
       if (deviceEntry != null) {
         logger.log(DeviceLogMessage.I2C_BUS_CONFIGURING_DEVICE, deviceEntry.getName(), i2cAddress);
         createAndMountDevice(i2cAddress, deviceEntry);
@@ -77,8 +77,8 @@ public class I2CBusManager {
     }
   }
 
-  public I2CDeviceEntry get(String id) {
-    return (I2CDeviceEntry) activeDevices.get(id);
+  public I2CDeviceController get(String id) {
+    return (I2CDeviceController) activeDevices.get(id);
   }
 
   public Map<String, DeviceController> getActive() {
@@ -88,7 +88,7 @@ public class I2CBusManager {
   public void scanForDevices() {
     for (int x = 0; x < 0x77; x++) {
       if (!activeDevices.containsKey(Integer.toHexString(x))) {
-        List<I2CDeviceEntry> deviceList = mappedDevices.get(x);
+        List<I2CDeviceController> deviceList = mappedDevices.get(x);
         if (deviceList != null && !deviceList.isEmpty()) {
           try {
             I2CConfig i2cConfig = I2C.newConfigBuilder(pi4j)
@@ -98,7 +98,7 @@ public class I2CBusManager {
                 .device(x)
                 .build();
             I2C device = i2cProvider.create(i2cConfig);
-            for (I2CDeviceEntry deviceEntry : deviceList) {
+            for (I2CDeviceController deviceEntry : deviceList) {
               attemptToConnect(x, device, deviceEntry);
             }
           } catch (Exception e) {
@@ -109,10 +109,10 @@ public class I2CBusManager {
     }
   }
 
-  private void attemptToConnect(int addr, I2C device, I2CDeviceEntry deviceEntry) {
+  private void attemptToConnect(int addr, I2C device, I2CDeviceController deviceEntry) {
     if (isOnBus(addr, device)) {
       try {
-        I2CDeviceEntry physicalDevice = deviceEntry.mount(device);
+        I2CDeviceController physicalDevice = deviceEntry.mount(device);
         if (physicalDevice.detect()) {
           activeDevices.put(Integer.toHexString(addr), new I2CDeviceScheduler(physicalDevice));
         }
@@ -142,7 +142,7 @@ public class I2CBusManager {
     }
   }
 
-  private void createAndMountDevice(int i2cAddress, I2CDeviceEntry deviceEntry) throws IOException {
+  private void createAndMountDevice(int i2cAddress, I2CDeviceController deviceEntry) throws IOException {
     I2CConfig i2cConfig = I2C.newConfigBuilder(pi4j)
         .id("Device::" + Integer.toHexString(i2cAddress))
         .description("Device::" + Integer.toHexString(i2cAddress))
@@ -150,7 +150,7 @@ public class I2CBusManager {
         .device(i2cAddress)
         .build();
     // Mount the device and get the bound instance
-    I2CDeviceEntry device = deviceEntry.mount(i2cProvider.create(i2cConfig));
+    I2CDeviceController device = deviceEntry.mount(i2cProvider.create(i2cConfig));
     activeDevices.put(Integer.toHexString(i2cAddress), device);
   }
 

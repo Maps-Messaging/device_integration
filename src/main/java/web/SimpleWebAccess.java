@@ -4,8 +4,8 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.mapsmessaging.devices.DeviceBusManager;
 import io.mapsmessaging.devices.DeviceController;
-import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
-import io.mapsmessaging.devices.onewire.OneWireDeviceEntry;
+import io.mapsmessaging.devices.i2c.I2CDeviceController;
+import io.mapsmessaging.devices.onewire.OneWireDeviceController;
 import io.mapsmessaging.devices.spi.SpiDeviceController;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -55,7 +55,7 @@ public class SimpleWebAccess {
     });
     app.get("/device/i2c/{id}", ctx -> {
       String id = ctx.pathParam("id");
-      I2CDeviceEntry device = deviceBusManager.getI2cBusManager().get(id);
+      I2CDeviceController device = deviceBusManager.getI2cBusManager().get(id);
       if (device != null) {
         handleDeviceGet(ctx, device);
       } else {
@@ -73,7 +73,7 @@ public class SimpleWebAccess {
     });
     app.get("/device/i2c/{id}/schema", ctx -> {
       String id = ctx.pathParam("id");
-      I2CDeviceEntry device = deviceBusManager.getI2cBusManager().get(id);
+      I2CDeviceController device = deviceBusManager.getI2cBusManager().get(id);
       if (device != null) {
         handleGetSchema(ctx, device);
       } else {
@@ -91,7 +91,7 @@ public class SimpleWebAccess {
     });
     app.get("/device/i2c/{id}/static", ctx -> {
       String id = ctx.pathParam("id");
-      I2CDeviceEntry device = deviceBusManager.getI2cBusManager().get(id);
+      I2CDeviceController device = deviceBusManager.getI2cBusManager().get(id);
       if (device != null) {
         handleGetStatic(ctx, device);
       } else {
@@ -109,7 +109,7 @@ public class SimpleWebAccess {
     });
     app.get("/device/1wire/{id}", ctx -> {
       String id = ctx.pathParam("id");
-      OneWireDeviceEntry device = deviceBusManager.getOneWireBusManager().get(id);
+      OneWireDeviceController device = deviceBusManager.getOneWireBusManager().get(id);
       if (device != null) {
         handleDeviceGet(ctx, device);
       } else {
@@ -118,7 +118,7 @@ public class SimpleWebAccess {
     });
     app.get("/device/1wire/{id}/schema", ctx -> {
       String id = ctx.pathParam("id");
-      OneWireDeviceEntry device = deviceBusManager.getOneWireBusManager().get(id);
+      OneWireDeviceController device = deviceBusManager.getOneWireBusManager().get(id);
       if (device != null) {
         handleGetSchema(ctx, device);
       } else {
@@ -128,7 +128,7 @@ public class SimpleWebAccess {
 
     app.post("/device/i2c/{id}", ctx -> {
       String id = ctx.pathParam("id");
-      I2CDeviceEntry device = deviceBusManager.getI2cBusManager().get(id);
+      I2CDeviceController device = deviceBusManager.getI2cBusManager().get(id);
       if (device != null) {
         device.setPayload(ctx.body().getBytes());
         ctx.status(200).result("Data written successfully");

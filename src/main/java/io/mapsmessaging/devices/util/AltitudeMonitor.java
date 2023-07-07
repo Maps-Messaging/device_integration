@@ -1,4 +1,4 @@
-package io.mapsmessaging.devices.i2c.devices.sensors.lps35;
+package io.mapsmessaging.devices.util;
 
 public class AltitudeMonitor {
 

@@ -6,13 +6,13 @@ import io.mapsmessaging.schemas.config.SchemaConfig;
 import java.io.IOException;
 import java.util.concurrent.Semaphore;
 
-public class I2CDeviceScheduler implements I2CDeviceEntry {
+public class I2CDeviceScheduler implements I2CDeviceController {
 
   private static final Semaphore I2C_BUS_SEMAPHORE = new Semaphore(1);
 
-  private final I2CDeviceEntry deviceController;
+  private final I2CDeviceController deviceController;
 
-  public I2CDeviceScheduler(I2CDeviceEntry deviceController){
+  public I2CDeviceScheduler(I2CDeviceController deviceController){
     this.deviceController = deviceController;
   }
 
@@ -60,7 +60,7 @@ public class I2CDeviceScheduler implements I2CDeviceEntry {
   }
 
   @Override
-  public I2CDeviceEntry mount(I2C device) throws IOException {
+  public I2CDeviceController mount(I2C device) throws IOException {
     throw new IOException("Device already mounted");
   }
 

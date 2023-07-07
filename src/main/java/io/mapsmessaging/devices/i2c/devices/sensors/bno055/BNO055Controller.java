@@ -17,7 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.bno055;
 
 import com.pi4j.io.i2c.I2C;
-import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
+import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -26,18 +26,18 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 
-public class BNO055Manager implements I2CDeviceEntry {
+public class BNO055Controller implements I2CDeviceController {
 
   private final int[] i2cAddr = {0x28, 0x29};
   private final BNO055Sensor sensor;
   @Getter
   private final String name = "BNO055";
 
-  public BNO055Manager() {
+  public BNO055Controller() {
     sensor = null;
   }
 
-  protected BNO055Manager(I2C device) throws IOException {
+  protected BNO055Controller(I2C device) throws IOException {
     sensor = new BNO055Sensor(device);
   }
 
@@ -47,8 +47,8 @@ public class BNO055Manager implements I2CDeviceEntry {
     return sensor != null && sensor.isConnected();
   }
 
-  public I2CDeviceEntry mount(I2C device) throws IOException {
-    return new BNO055Manager(device);
+  public I2CDeviceController mount(I2C device) throws IOException {
+    return new BNO055Controller(device);
   }
 
   public byte[] getUpdatePayload() {

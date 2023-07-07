@@ -18,7 +18,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.tls2561;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.NamingConstants;
-import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
+import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -28,7 +28,7 @@ import org.everit.json.schema.ObjectSchema;
 import org.everit.json.schema.StringSchema;
 import org.json.JSONObject;
 
-public class TLS2561Controller implements I2CDeviceEntry {
+public class TLS2561Controller implements I2CDeviceController {
 
   private final TLS2561Sensor sensor;
 
@@ -48,7 +48,7 @@ public class TLS2561Controller implements I2CDeviceEntry {
     return sensor != null && sensor.isConnected();
   }
 
-  public I2CDeviceEntry mount(I2C device) {
+  public I2CDeviceController mount(I2C device) {
     return new TLS2561Controller(device);
   }
 
