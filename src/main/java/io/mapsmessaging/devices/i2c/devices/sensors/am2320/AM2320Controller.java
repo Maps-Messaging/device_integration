@@ -17,7 +17,8 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.am2320;
 
 import com.pi4j.io.i2c.I2C;
-import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
+import io.mapsmessaging.devices.NamingConstants;
+import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -27,13 +28,14 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class AM2320Controller implements I2CDeviceEntry {
+public class AM2320Controller implements I2CDeviceController {
 
   private final int i2cAddr = 0x5C;
   private final AM2320Sensor sensor;
   @Getter
   private final String name = "AM2320";
 
+  // Used during ServiceLoading
   public AM2320Controller() {
     sensor = null;
   }
@@ -43,7 +45,7 @@ public class AM2320Controller implements I2CDeviceEntry {
   }
 
 
-  public I2CDeviceEntry mount(I2C device) throws IOException {
+  public I2CDeviceController mount(I2C device) throws IOException {
     return new AM2320Controller(device);
   }
 
@@ -99,7 +101,7 @@ public class AM2320Controller implements I2CDeviceEntry {
 
     ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
     schemaBuilder
-        .addPropertySchema("updateSchema", updateSchema.build())
+        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, updateSchema.build())
         .description("Humidity and Temperature Module")
         .title("AM2320");
 

@@ -17,7 +17,8 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.ina219;
 
 import com.pi4j.io.i2c.I2C;
-import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
+import io.mapsmessaging.devices.NamingConstants;
+import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.*;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -29,7 +30,7 @@ import org.json.JSONObject;
 
 import static io.mapsmessaging.devices.i2c.devices.sensors.ina219.Constants.INA219_ADDRESS;
 
-public class Ina219Controller implements I2CDeviceEntry {
+public class Ina219Controller implements I2CDeviceController {
 
   private final int i2cAddr = INA219_ADDRESS;
   private final Ina219Sensor sensor;
@@ -51,7 +52,7 @@ public class Ina219Controller implements I2CDeviceEntry {
     return sensor != null && sensor.isConnected();
   }
 
-  public I2CDeviceEntry mount(I2C device) {
+  public I2CDeviceController mount(I2C device) {
     return new Ina219Controller(device);
   }
 
@@ -214,9 +215,9 @@ public class Ina219Controller implements I2CDeviceEntry {
 
     ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
     schemaBuilder
-        .addPropertySchema("updateSchema", updateSchema.build())
-        .addPropertySchema("staticSchema", staticSchema.build())
-        .addPropertySchema("writeableSchema", staticSchema.build())
+        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, updateSchema.build())
+        .addPropertySchema(NamingConstants.DEVICE_STATIC_DATA_SCHEMA, staticSchema.build())
+        .addPropertySchema(NamingConstants.DEVICE_WRITE_SCHEMA, staticSchema.build())
         .description("High Side DC Current Sensor")
         .title("INA219");
 

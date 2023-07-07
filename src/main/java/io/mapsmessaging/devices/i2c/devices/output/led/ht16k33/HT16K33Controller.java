@@ -16,7 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
-import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
+import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks.Clock;
 import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks.Task;
 import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks.TestTask;
@@ -25,7 +25,7 @@ import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import org.everit.json.schema.*;
 import org.json.JSONObject;
 
-public abstract class HT16K33Controller implements I2CDeviceEntry {
+public abstract class HT16K33Controller implements I2CDeviceController {
 
   protected final HT16K33Driver display;
 
@@ -166,12 +166,11 @@ public abstract class HT16K33Controller implements I2CDeviceEntry {
                 .description("Update the LED display with the supplied string")
                 .build()
         )
-        .addPropertySchema("task",
-            StringSchema.builder()
-                .pattern(pattern)
-                .description("This is an optional server side task, currently only supports 'clock'")
-                .build()
-        )
+        .addPropertySchema("task", EnumSchema.builder()
+                .possibleValue("clock")
+                .possibleValue("test")
+                .description("This is an optional server side task")
+                .build())
         .addPropertySchema("blink",
             BooleanSchema.builder()
                 .description("If the LED is blinking or not")

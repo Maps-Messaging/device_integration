@@ -17,7 +17,8 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.bmp280;
 
 import com.pi4j.io.i2c.I2C;
-import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
+import io.mapsmessaging.devices.NamingConstants;
+import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -27,7 +28,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class BMP280Controller implements I2CDeviceEntry {
+public class BMP280Controller implements I2CDeviceController {
 
   private final int i2cAddr = 0x76;
   private final BMP280Sensor sensor;
@@ -48,7 +49,7 @@ public class BMP280Controller implements I2CDeviceEntry {
     return sensor != null && sensor.isConnected();
   }
 
-  public I2CDeviceEntry mount(I2C device) throws IOException {
+  public I2CDeviceController mount(I2C device) throws IOException {
     return new BMP280Controller(device);
   }
 
@@ -99,7 +100,7 @@ public class BMP280Controller implements I2CDeviceEntry {
 
     ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
     schemaBuilder
-        .addPropertySchema("updateSchema", updateSchema.build())
+        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, updateSchema.build())
         .description("pressure and Temperature Module")
         .title("BMP280");
 

@@ -17,14 +17,15 @@
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231;
 
 import com.pi4j.io.i2c.I2C;
-import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
+import io.mapsmessaging.devices.NamingConstants;
+import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
 import org.everit.json.schema.ObjectSchema;
 import org.json.JSONObject;
 
-public class Ds3231Controller implements I2CDeviceEntry {
+public class Ds3231Controller implements I2CDeviceController {
 
   private final int i2cAddr = 0x68;
   private final Ds3231Rtc rtc;
@@ -52,7 +53,7 @@ public class Ds3231Controller implements I2CDeviceEntry {
     return rtc != null && rtc.isConnected();
   }
 
-  public I2CDeviceEntry mount(I2C device) {
+  public I2CDeviceController mount(I2C device) {
     return new Ds3231Controller(device);
   }
 
@@ -100,8 +101,8 @@ public class Ds3231Controller implements I2CDeviceEntry {
   private String buildSchema() {
     ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
     schemaBuilder
-        .addPropertySchema("updateSchema", SchemaHelper.generateUpdatePayloadSchema())
-        .addPropertySchema("writeableSchema", SchemaHelper.buildWritablePayload())
+        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, SchemaHelper.generateUpdatePayloadSchema())
+        .addPropertySchema(NamingConstants.DEVICE_WRITE_SCHEMA, SchemaHelper.buildWritablePayload())
         .description("Quad 7 Segment LED")
         .title("HT16K33");
 

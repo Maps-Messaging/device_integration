@@ -14,7 +14,7 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.oneWire;
+package io.mapsmessaging.devices.onewire;
 
 import java.io.File;
 import java.util.ArrayList;

@@ -17,7 +17,8 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935;
 
 import com.pi4j.io.i2c.I2C;
-import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
+import io.mapsmessaging.devices.NamingConstants;
+import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -28,7 +29,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class AS3935Controller implements I2CDeviceEntry {
+public class AS3935Controller implements I2CDeviceController {
 
   private final int i2cAddr = 0x03;
   private final AS3935Sensor sensor;
@@ -36,6 +37,7 @@ public class AS3935Controller implements I2CDeviceEntry {
   @Getter
   private final String name = "AS3935";
 
+  // Used during ServiceLoading
   public AS3935Controller() {
     sensor = null;
   }
@@ -49,7 +51,7 @@ public class AS3935Controller implements I2CDeviceEntry {
     return sensor != null && sensor.isConnected();
   }
 
-  public I2CDeviceEntry mount(I2C device) throws IOException {
+  public I2CDeviceController mount(I2C device) throws IOException {
     return new AS3935Controller(device);
   }
 
@@ -315,9 +317,9 @@ public class AS3935Controller implements I2CDeviceEntry {
 
     ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
     schemaBuilder
-        .addPropertySchema("staticPayloadSchema", staticPayloadSchema.build())
-        .addPropertySchema("updatePayloadSchema", updatePayloadSchema.build())
-        .addPropertySchema("updateSchema", setPayloadSchema.build())
+        .addPropertySchema(NamingConstants.DEVICE_STATIC_DATA_SCHEMA, staticPayloadSchema.build())
+        .addPropertySchema(NamingConstants.DEVICE_WRITE_SCHEMA, updatePayloadSchema.build())
+        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, setPayloadSchema.build())
         .description("Lightning Detector")
         .title("AS3935");
 

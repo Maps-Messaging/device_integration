@@ -17,13 +17,13 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.pmsa003i;
 
 import com.pi4j.io.i2c.I2C;
-import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
+import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
 import org.json.JSONObject;
 
-public class Pmsa003iController implements I2CDeviceEntry {
+public class Pmsa003iController implements I2CDeviceController {
 
   private final int i2cAddr = 0x12;
   private final Pmsa003iSensor sensor;
@@ -45,7 +45,7 @@ public class Pmsa003iController implements I2CDeviceEntry {
     return sensor != null && sensor.isConnected();
   }
 
-  public I2CDeviceEntry mount(I2C device) {
+  public I2CDeviceController mount(I2C device) {
     return new Pmsa003iController(device);
   }
 

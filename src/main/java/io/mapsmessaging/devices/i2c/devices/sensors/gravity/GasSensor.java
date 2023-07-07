@@ -18,8 +18,10 @@ package io.mapsmessaging.devices.i2c.devices.sensors.gravity;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.AcquireMode;
+import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.AlarmType;
+import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.Command;
 import io.mapsmessaging.devices.i2c.devices.sensors.gravity.module.SensorType;
-import io.mapsmessaging.devices.util.Delay;
 import io.mapsmessaging.logging.Logger;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
@@ -51,7 +53,7 @@ public class GasSensor extends I2CDevice {
   }
 
   public float getTemperatureAdjustedConcentration() {
-    if (sensorType != null) {
+    if (sensorType != null && concentration > 0) {
       return sensorType.getSensorModule().computeGasConcentration(temperature, concentration);
     }
     return 0;
@@ -162,7 +164,7 @@ public class GasSensor extends I2CDevice {
   private boolean request(Command command, byte[] buf, byte[] result) {
     buf[0] = command.getCommandValue();
     write(pack(buf));
-    Delay.pause(100);
+    delay(100);
     readRegister(0, result, 0, result.length);
     byte checksum = calculateChecksum(result);
     return (result[8] == checksum);

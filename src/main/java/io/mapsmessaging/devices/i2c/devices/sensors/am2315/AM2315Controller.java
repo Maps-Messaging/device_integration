@@ -17,7 +17,8 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.am2315;
 
 import com.pi4j.io.i2c.I2C;
-import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
+import io.mapsmessaging.devices.NamingConstants;
+import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -29,13 +30,14 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class AM2315Controller implements I2CDeviceEntry {
+public class AM2315Controller implements I2CDeviceController {
 
   private final AM2315Sensor sensor;
 
   @Getter
   private final String name = "AM2315";
 
+  // Used during ServiceLoading
   public AM2315Controller() {
     sensor = null;
   }
@@ -49,7 +51,7 @@ public class AM2315Controller implements I2CDeviceEntry {
     return sensor != null && sensor.isConnected();
   }
 
-  public I2CDeviceEntry mount(I2C device) throws IOException {
+  public I2CDeviceController mount(I2C device) throws IOException {
     return new AM2315Controller(device);
   }
 
@@ -129,8 +131,8 @@ public class AM2315Controller implements I2CDeviceEntry {
 
     ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
     schemaBuilder
-        .addPropertySchema("updateSchema", updateSchema.build())
-        .addPropertySchema("staticSchema", staticSchema.build())
+        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, updateSchema.build())
+        .addPropertySchema(NamingConstants.DEVICE_STATIC_DATA_SCHEMA, staticSchema.build())
         .description("Humidity and Temperature Module")
         .title("AM2315");
 

@@ -14,9 +14,10 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.oneWire.devices.ds18b20;
+package io.mapsmessaging.devices.onewire.devices.ds18b20;
 
-import io.mapsmessaging.devices.oneWire.OneWireDeviceEntry;
+import io.mapsmessaging.devices.NamingConstants;
+import io.mapsmessaging.devices.onewire.OneWireDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -26,7 +27,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 
-public class DS18B20Controller implements OneWireDeviceEntry {
+public class DS18B20Controller implements OneWireDeviceController {
 
   private final DS18B20Device sensor;
 
@@ -46,7 +47,7 @@ public class DS18B20Controller implements OneWireDeviceEntry {
   }
 
   @Override
-  public OneWireDeviceEntry mount(File path) {
+  public OneWireDeviceController mount(File path) {
     return new DS18B20Controller(path);
   }
 
@@ -87,7 +88,7 @@ public class DS18B20Controller implements OneWireDeviceEntry {
 
     ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
     schemaBuilder
-        .addPropertySchema("updateSchema", updateSchema.build())
+        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, updateSchema.build())
         .description("Temperature Module")
         .title("DS18B20");
 

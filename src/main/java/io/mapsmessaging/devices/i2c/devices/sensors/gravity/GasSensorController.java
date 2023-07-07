@@ -17,12 +17,14 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.gravity;
 
 import com.pi4j.io.i2c.I2C;
-import io.mapsmessaging.devices.i2c.I2CDeviceEntry;
+import io.mapsmessaging.devices.i2c.I2CDeviceController;
+import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.AcquireMode;
+import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.AlarmType;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import org.json.JSONObject;
 
-public class GasSensorController implements I2CDeviceEntry {
+public class GasSensorController implements I2CDeviceController {
 
   private final int i2cAddr = 0x74;
   private final GasSensor sensor;
@@ -40,7 +42,7 @@ public class GasSensorController implements I2CDeviceEntry {
     return sensor != null && sensor.isConnected();
   }
 
-  public I2CDeviceEntry mount(I2C device) {
+  public I2CDeviceController mount(I2C device) {
     return new GasSensorController(device);
   }
 

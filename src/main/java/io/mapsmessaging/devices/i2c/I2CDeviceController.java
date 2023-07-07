@@ -14,17 +14,19 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.oneWire;
+package io.mapsmessaging.devices.i2c;
 
+import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.DeviceController;
 
-import java.io.File;
+import java.io.IOException;
 
-public interface OneWireDeviceEntry extends DeviceController {
+public interface I2CDeviceController extends DeviceController {
 
-  String getId();
+  I2CDeviceController mount(I2C device) throws IOException;
 
-  OneWireDeviceEntry mount(File path);
+  int[] getAddressRange();
 
+  boolean detect();
 
 }

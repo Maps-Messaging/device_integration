@@ -19,13 +19,11 @@ package io.mapsmessaging.devices.i2c;
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.Device;
 
-import java.util.concurrent.locks.LockSupport;
-
 public abstract class I2CDevice implements Device, AutoCloseable {
 
   protected I2C device;
 
-  public I2CDevice(I2C device) {
+  protected I2CDevice(I2C device) {
     this.device = device;
   }
 
@@ -67,11 +65,21 @@ public abstract class I2CDevice implements Device, AutoCloseable {
     return device.readRegister(register);
   }
 
+  public int readRegister(int register, byte[] output) {
+    return readRegister(register, output, 0, output.length);
+  }
+
   public int readRegister(int register, byte[] output, int offset, int length) {
     return device.readRegister(register, output, offset, length);
   }
 
   protected void delay(int ms) {
-    LockSupport.parkNanos(ms * 1000000L);
+    try {
+      //this will allow other devices access to the I2C bus
+      I2CDeviceScheduler.getI2cBusLock().wait(ms);
+    } catch (InterruptedException e) {
+      // Ignore the interrupt
+      Thread.currentThread().interrupt(); // Pass it up
+    }
   }
 }
