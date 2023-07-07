@@ -24,26 +24,28 @@ import java.util.Base64;
 
 public abstract class HT16K33Driver extends I2CDevice {
 
+  private static final byte BRIGHTNESS_COMMAND = (byte) 0xE0;
+
+  private static final byte BLINK_COMMAND = (byte)0x80;
+  private static final byte BLINK_DISPLAYON = 0x01;
+
   @Getter
   private byte brightness;
   @Getter
   private boolean isOn;
   @Getter
-  private boolean blinkOn;
-  @Getter
-  private boolean fastBlink;
+  private BlinkRate rate;
   @Getter
   private String current;
 
   protected HT16K33Driver(I2C device) {
     super(device);
     isOn = false;
-    blinkOn = false;
-    fastBlink = false;
+    rate = BlinkRate.OFF;
     current = "     ";
-    turnOff();
-    enableBlink(false, false);
+    turnOn();
     setBrightness((byte)0);
+    setBlinkRate(rate);
   }
 
   @Override
@@ -59,35 +61,24 @@ public abstract class HT16K33Driver extends I2CDevice {
   public abstract byte[] encode(String val);
 
   public void turnOn() {
-    write((byte) 0x21); // Turn on
-    write((byte) 0x81); // Turn on display
-    byte[] empty = new byte[8];
-    write(empty);
+    writeCommand( (byte)0x21); // Turn on
+    writeCommand( (byte)0x81); // Turn on display
     isOn = true;
   }
 
   public void turnOff() {
-    write((byte) 0x20); // Turn off
+    writeCommand((byte)0x20); // Turn off
     isOn = false;
   }
 
-  public void enableBlink(boolean enable, boolean fast) {
-    blinkOn = enable;
-    fastBlink = fast;
-    byte val = (byte) 0x81;
-    if (enable) {
-      if (fast)
-        val = (byte) (val | 0x6);
-      else
-        val = (byte) (val | 0x2);
-    }
-    write(val);
+  public void setBlinkRate(BlinkRate rate){
+    writeCommand((byte) (BLINK_COMMAND | BLINK_DISPLAYON | (rate.getRate() << 1)));
+    this.rate = rate;
   }
 
   public void setBrightness(byte brightness) {
     this.brightness = (byte) (brightness & 0xf);
-    byte val = (byte) (0xE0 | (brightness & 0xf));
-    write(val); //Brightness
+    writeCommand((byte) (BRIGHTNESS_COMMAND | (brightness & 0xf)));
   }
 
 
@@ -98,6 +89,10 @@ public abstract class HT16K33Driver extends I2CDevice {
   public void write(String val) {
     current = val;
     write(0, encode(val));
+  }
+
+  private void writeCommand(byte command){
+    write(new byte[]{command});
   }
 
 }

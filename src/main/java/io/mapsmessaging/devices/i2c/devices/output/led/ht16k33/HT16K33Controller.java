@@ -53,8 +53,7 @@ public abstract class HT16K33Controller implements I2CDeviceController {
     JSONObject jsonObject = new JSONObject();
     if (display != null) {
       jsonObject.put("display", display.getCurrent());
-      jsonObject.put("blink", display.isBlinkOn());
-      jsonObject.put("blink-fast", display.isFastBlink());
+      jsonObject.put("blink", display.getRate().name());
       jsonObject.put("enabled", display.isOn());
       jsonObject.put("brightness", display.getBrightness());
     }
@@ -84,18 +83,10 @@ public abstract class HT16K33Controller implements I2CDeviceController {
       }
     }
     if (jsonObject.has("blink")) {
-      boolean blink = jsonObject.optBoolean("blink", display.isBlinkOn());
-      if (blink != display.isBlinkOn()) {
-        display.enableBlink(blink, display.isFastBlink());
-      }
+      String blink = jsonObject.optString("blink", "OFF");
+      BlinkRate rate = BlinkRate.valueOf(blink);
+      display.setBlinkRate(rate);
     }
-    if (jsonObject.has("blink-fast")) {
-      boolean fast = jsonObject.optBoolean("blink", display.isFastBlink());
-      if (fast != display.isFastBlink()) {
-        display.enableBlink(display.isBlinkOn(), fast);
-      }
-    }
-
     if (jsonObject.has("enabled")) {
       boolean isOn = jsonObject.optBoolean("enabled", display.isOn());
       if (isOn != display.isOn()) {

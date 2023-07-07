@@ -24,6 +24,7 @@ public class Quad7Segment extends HT16K33Driver {
 
   public Quad7Segment(I2C device) {
     super(device);
+    write("     ");
   }
 
   public byte[] encode(String val) {
