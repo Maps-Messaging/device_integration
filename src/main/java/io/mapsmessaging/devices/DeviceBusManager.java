@@ -19,6 +19,7 @@ package io.mapsmessaging.devices;
 import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
 import com.pi4j.io.i2c.I2CProvider;
+import io.mapsmessaging.devices.direct.PinManagement;
 import io.mapsmessaging.devices.i2c.I2CBusManager;
 import io.mapsmessaging.devices.interrupts.InterruptFactory;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
@@ -53,6 +54,9 @@ public class DeviceBusManager {
   private final SpiBusManager spiBusManager;
   @Getter
   private final InterruptFactory interruptFactory;
+  @Getter
+  private final PinManagement pinManagement;
+
 
   private DeviceBusManager() {
     logger.log(DeviceLogMessage.BUS_MANAGER_STARTUP);
@@ -64,6 +68,7 @@ public class DeviceBusManager {
     oneWireBusManager = new OneWireBusManager();
     interruptFactory = new InterruptFactory(pi4j);
     spiBusManager = new SpiBusManager(pi4j);
+    pinManagement = new PinManagement(pi4j);
   }
 
   public void configureDevices(Map<String, Object> config) throws IOException {

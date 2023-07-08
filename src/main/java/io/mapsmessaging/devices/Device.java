@@ -16,10 +16,21 @@
 
 package io.mapsmessaging.devices;
 
+import java.util.concurrent.TimeUnit;
+
 public interface Device {
 
   String getName();
 
   String getDescription();
+
+  default void delay(int ms) {
+    try {
+      TimeUnit.MILLISECONDS.sleep(ms);
+    } catch (InterruptedException e) {
+      // Ignore the interrupt
+      Thread.currentThread().interrupt(); // Pass it up
+    }
+  }
 
 }

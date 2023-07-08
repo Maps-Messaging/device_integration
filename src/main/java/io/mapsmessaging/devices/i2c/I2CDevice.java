@@ -73,7 +73,8 @@ public abstract class I2CDevice implements Device, AutoCloseable {
     return device.readRegister(register, output, offset, length);
   }
 
-  protected void delay(int ms) {
+  @Override
+  public void delay(int ms) {
     try {
       //this will allow other devices access to the I2C bus
       I2CDeviceScheduler.getI2cBusLock().wait(ms);
