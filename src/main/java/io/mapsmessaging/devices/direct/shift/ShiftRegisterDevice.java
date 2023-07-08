@@ -120,7 +120,7 @@ public class ShiftRegisterDevice implements Device {
 
   @Override
   public String getName() {
-    return "Shitf Register";
+    return "Shift Register";
   }
 
   @Override
