@@ -22,6 +22,7 @@ import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.AlarmRegister;
 import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.ControlRegister;
 import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.Registers;
 import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.StatusRegister;
+import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.LoggerFactory;
 
 import java.time.LocalDate;
@@ -52,11 +53,19 @@ public class Ds3231Rtc extends I2CDevice {
   }
 
   public float getTemperature() {
-    return registers.getTemperature();
+    float val = registers.getTemperature();
+    if(logger.isDebugEnabled()){
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), val +" = getTemperature()");
+    }
+    return val;
   }
 
   public LocalDateTime getDateTime() {
-    return LocalDateTime.of(getDate(), getTime());
+    LocalDateTime dateTime = LocalDateTime.of(getDate(), getTime());
+    if(logger.isDebugEnabled()){
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), dateTime +" = getDateTime()");
+    }
+    return dateTime;
   }
 
   public void setDateTime(LocalDateTime dateTime) {
@@ -65,7 +74,11 @@ public class Ds3231Rtc extends I2CDevice {
   }
 
   public LocalDate getDate() {
-    return LocalDate.of(registers.getYear(), registers.getMonth(), registers.getDate());
+    LocalDate localDate = LocalDate.of(registers.getYear(), registers.getMonth(), registers.getDate());
+    if(logger.isDebugEnabled()){
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), localDate +" = getDate()");
+    }
+    return localDate;
   }
 
   public void setDate(LocalDate date) {
@@ -84,7 +97,11 @@ public class Ds3231Rtc extends I2CDevice {
   }
 
   public LocalTime getTime() {
-    return LocalTime.of(registers.getHours(), registers.getMinutes(), registers.getSeconds());
+    LocalTime localTime = LocalTime.of(registers.getHours(), registers.getMinutes(), registers.getSeconds());
+    if(logger.isDebugEnabled()){
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), localTime +" = getTime()");
+    }
+    return localTime;
   }
 
   public void setTime(LocalTime time) {
@@ -100,11 +117,20 @@ public class Ds3231Rtc extends I2CDevice {
   }
 
   public AlarmRegister getAlarm1() {
-    return registers.getAlarm1();
+
+    AlarmRegister alarmRegister = registers.getAlarm1();
+    if(logger.isDebugEnabled()){
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), alarmRegister +" = getAlarm1()");
+    }
+    return alarmRegister;
   }
 
   public AlarmRegister getAlarm2() {
-    return registers.getAlarm2();
+    AlarmRegister alarmRegister= registers.getAlarm2();
+    if(logger.isDebugEnabled()){
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), alarmRegister +" = getAlarm2()");
+    }
+    return alarmRegister;
   }
 
   public ControlRegister getControlRegister() {
