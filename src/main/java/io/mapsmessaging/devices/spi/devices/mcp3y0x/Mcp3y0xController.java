@@ -57,7 +57,6 @@ public class Mcp3y0xController extends SpiDeviceController {
   }
 
 
-
   @Override
   public String getName() {
     if (device == null) return "Mcp3y0x";
@@ -66,7 +65,7 @@ public class Mcp3y0xController extends SpiDeviceController {
 
   public byte[] getStaticPayload() {
     JSONObject jsonObject = new JSONObject();
-    if(device != null) {
+    if (device != null) {
       jsonObject.put("resolution", device.getBits());
       jsonObject.put("channels", device.getChannels());
       jsonObject.put("dutyCycle", device.getDutyCycle());
@@ -77,7 +76,7 @@ public class Mcp3y0xController extends SpiDeviceController {
   public byte[] getUpdatePayload() {
     JSONObject jsonObject = new JSONObject();
     JSONArray jsonArray = new JSONArray();
-    if(device != null) {
+    if (device != null) {
       for (short x = 0; x < device.channels; x++) {
         jsonArray.put(device.readFromChannel(false, x));
       }
@@ -118,7 +117,7 @@ public class Mcp3y0xController extends SpiDeviceController {
         .addPropertySchema("current",
             ArraySchema.builder()
                 .minItems(0)
-                .maxItems(device == null? 8:device.channels)
+                .maxItems(device == null ? 8 : device.channels)
                 .description("Current values of all channels on the ADC")
                 .build()
         );

@@ -2,13 +2,13 @@ package io.mapsmessaging.devices.i2c.devices.sensors.gravity.module;
 
 public abstract class SensorModule {
 
-    protected SensorModule() {
-    }
+  protected SensorModule() {
+  }
 
-    public float computeGasConcentration(float temperature, float computed) {
+  public float computeGasConcentration(float temperature, float computed) {
 
-        return calculateSensorConcentration(temperature, computed);
-    }
+    return calculateSensorConcentration(temperature, computed);
+  }
 
-    protected abstract float calculateSensorConcentration(float temperature, float rawConcentration);
+  protected abstract float calculateSensorConcentration(float temperature, float rawConcentration);
 }

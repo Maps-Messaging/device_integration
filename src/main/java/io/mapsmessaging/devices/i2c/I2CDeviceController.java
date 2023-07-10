@@ -18,15 +18,32 @@ package io.mapsmessaging.devices.i2c;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.DeviceController;
+import lombok.Getter;
 
 import java.io.IOException;
 
-public interface I2CDeviceController extends DeviceController {
+public abstract class I2CDeviceController implements DeviceController {
 
-    I2CDeviceController mount(I2C device) throws IOException;
+  @Getter
+  private final int mountedAddress;
 
-    int[] getAddressRange();
+  protected I2CDeviceController() {
+    this(null);
+  }
 
-    boolean detect();
+  protected I2CDeviceController(I2C device) {
+    if (device != null) {
+      mountedAddress = device.getDevice();
+    } else {
+      mountedAddress = -1;
+    }
+  }
+
+
+  public abstract I2CDeviceController mount(I2C device) throws IOException;
+
+  public abstract int[] getAddressRange();
+
+  public abstract boolean detect();
 
 }

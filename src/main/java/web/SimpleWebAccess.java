@@ -24,6 +24,9 @@ public class SimpleWebAccess {
   public SimpleWebAccess() {
     deviceBusManager = DeviceBusManager.getInstance();
     deviceBusManager.getI2cBusManager().scanForDevices();
+    ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    executor.scheduleAtFixedRate(deviceBusManager.getI2cBusManager()::scanForDevices, 0, 1, TimeUnit.MINUTES);
+
 /*
     Map<String, Object> deviceConfig = new LinkedHashMap<>();
     deviceConfig.put("spiBus", "0");
@@ -143,7 +146,7 @@ public class SimpleWebAccess {
     String schema = deviceController.getSchema().pack();
     JSONObject schemaObject = new JSONObject(schema);
     JSONObject obj1 = schemaObject.getJSONObject("schema");
-    if(obj1.has("jsonSchema")){
+    if (obj1.has("jsonSchema")) {
       JSONObject rawSchema = new JSONObject(obj1.getString("jsonSchema"));
       obj1.remove("jsonSchema");
       obj1.put("jsonSchema", rawSchema);
@@ -156,7 +159,7 @@ public class SimpleWebAccess {
   }
 
   private void handleDeviceGet(Context ctx, DeviceController deviceController) {
-    ctx.json(new String(new String(deviceController.getUpdatePayload())));
+    ctx.json(new String(deviceController.getUpdatePayload()));
   }
 
   private JSONArray packList(Map<String, DeviceController> devices) {

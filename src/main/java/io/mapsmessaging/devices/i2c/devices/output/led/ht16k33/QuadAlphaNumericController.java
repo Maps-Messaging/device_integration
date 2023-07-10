@@ -25,45 +25,45 @@ import org.everit.json.schema.ObjectSchema;
 
 public class QuadAlphaNumericController extends HT16K33Controller {
 
-    private final int[] i2cAddr = {};
+  private final int[] i2cAddr = {};
 
-    @Getter
-    private final String name = "Quad AlphaNumeric LED";
-
-
-    public QuadAlphaNumericController() {
-    }
-
-    public QuadAlphaNumericController(I2C device) {
-        super(new QuadAlphaNumeric(device));
-    }
-
-    public I2CDeviceController mount(I2C device) {
-        return new QuadAlphaNumericController(device);
-    }
+  @Getter
+  private final String name = "Quad AlphaNumeric LED";
 
 
-    @Override
-    public SchemaConfig getSchema() {
-        SchemaConfig config = super.getSchema();
-        config.setComments("I2C HT16K33 device drives 4 Alpha Numeric segment LEDs with a ':' in the center");
-        return config;
-    }
+  public QuadAlphaNumericController() {
+  }
 
-    @Override
-    protected String buildSchema() {
-        ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
-        schemaBuilder
-                .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, buildUpdateSchema())
-                .addPropertySchema(NamingConstants.DEVICE_WRITE_SCHEMA, buildWritablePayload("^[A-Za-z0-9]{1,4}(\\.[A-Za-z0-9]{1,4})*$"))
-                .description("Quad Alpha Numeric Segment LED")
-                .title("HT16K33");
+  public QuadAlphaNumericController(I2C device) {
+    super(new QuadAlphaNumeric(device), device);
+  }
 
-        return schemaToString(schemaBuilder.build());
-    }
+  public I2CDeviceController mount(I2C device) {
+    return new QuadAlphaNumericController(device);
+  }
 
-    @Override
-    public int[] getAddressRange() {
-        return new int[]{};
-    }
+
+  @Override
+  public SchemaConfig getSchema() {
+    SchemaConfig config = super.getSchema();
+    config.setComments("I2C HT16K33 device drives 4 Alpha Numeric segment LEDs with a ':' in the center");
+    return config;
+  }
+
+  @Override
+  protected String buildSchema() {
+    ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
+    schemaBuilder
+        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, buildUpdateSchema())
+        .addPropertySchema(NamingConstants.DEVICE_WRITE_SCHEMA, buildWritablePayload("^[A-Za-z0-9]{1,4}(\\.[A-Za-z0-9]{1,4})*$"))
+        .description("Quad Alpha Numeric Segment LED")
+        .title("HT16K33");
+
+    return schemaToString(schemaBuilder.build());
+  }
+
+  @Override
+  public int[] getAddressRange() {
+    return new int[]{};
+  }
 }

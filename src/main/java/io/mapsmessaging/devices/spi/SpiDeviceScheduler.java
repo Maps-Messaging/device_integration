@@ -6,7 +6,7 @@ import io.mapsmessaging.schemas.config.SchemaConfig;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
-public class SpiDeviceScheduler  extends SpiDeviceController {
+public class SpiDeviceScheduler extends SpiDeviceController {
 
   private static final Semaphore SPI_BUS_SEMAPHORE = new Semaphore(1);
 

@@ -18,33 +18,33 @@ package io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos;
 
 public class ThrottleResponse implements AngleResponse {
 
-    private final int myLowBound;
-    private final int myServoRange;
+  private final int myLowBound;
+  private final int myServoRange;
 
-    public ThrottleResponse(short lowBound, short highBound) {
-        myLowBound = lowBound;
-        myServoRange = highBound - lowBound;
-    }
+  public ThrottleResponse(short lowBound, short highBound) {
+    myLowBound = lowBound;
+    myServoRange = highBound - lowBound;
+  }
 
-    public float getMin() {
-        return 0.0f;
-    }
+  public float getMin() {
+    return 0.0f;
+  }
 
-    public float getMax() {
-        return 100.0f;
-    }
+  public float getMax() {
+    return 100.0f;
+  }
 
-    public float getIdle() {
-        return 0.0f;
-    }
+  public float getIdle() {
+    return 0.0f;
+  }
 
-    @Override
-    public float getResponse(float angle) {
-        if (angle < 0.0f) angle = 0.0f;
-        if (angle > 100.0f) angle = 100.0f;
+  @Override
+  public float getResponse(float angle) {
+    if (angle < 0.0f) angle = 0.0f;
+    if (angle > 100.0f) angle = 100.0f;
 
-        float pos = (100 - angle) / 100;
-        pos = myServoRange * pos + myLowBound;
-        return pos;
-    }
+    float pos = (100 - angle) / 100;
+    pos = myServoRange * pos + myLowBound;
+    return pos;
+  }
 }

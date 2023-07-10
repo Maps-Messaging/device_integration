@@ -28,61 +28,62 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PCA9685Controller implements I2CDeviceController {
+public class PCA9685Controller extends I2CDeviceController {
 
-    private final int i2cAddr = 0x40;
-    private final PCA9685Device device;
-    private final List<Servo> connected = new ArrayList<>();
+  private final int i2cAddr = 0x40;
+  private final PCA9685Device device;
+  private final List<Servo> connected = new ArrayList<>();
 
-    @Getter
-    private final String name = "PCA9685";
+  @Getter
+  private final String name = "PCA9685";
 
-    public PCA9685Controller() {
-        device = null;
-    }
+  public PCA9685Controller() {
+    device = null;
+  }
 
-    public PCA9685Controller(I2C device) throws IOException {
-        this.device = new PCA9685Device(device);
-        this.device.setPWMFrequency(60);
-    }
+  public PCA9685Controller(I2C device) throws IOException {
+    super(device);
+    this.device = new PCA9685Device(device);
+    this.device.setPWMFrequency(60);
+  }
 
 
-    public I2CDeviceController mount(I2C device) throws IOException {
-        return new PCA9685Controller(device);
-    }
+  public I2CDeviceController mount(I2C device) throws IOException {
+    return new PCA9685Controller(device);
+  }
 
-    public byte[] getStaticPayload() {
-        JSONObject jsonObject = new JSONObject();
-        return jsonObject.toString(2).getBytes();
-    }
+  public byte[] getStaticPayload() {
+    JSONObject jsonObject = new JSONObject();
+    return jsonObject.toString(2).getBytes();
+  }
 
-    public byte[] getUpdatePayload() {
-        JSONObject jsonObject = new JSONObject();
-        return jsonObject.toString(2).getBytes();
-    }
+  public byte[] getUpdatePayload() {
+    JSONObject jsonObject = new JSONObject();
+    return jsonObject.toString(2).getBytes();
+  }
 
-    @Override
-    public void setPayload(byte[] val) {
+  @Override
+  public void setPayload(byte[] val) {
 
-    }
+  }
 
-    @Override
-    public boolean detect() {
-        return device != null && device.isConnected();
-    }
+  @Override
+  public boolean detect() {
+    return device != null && device.isConnected();
+  }
 
-    public SchemaConfig getSchema() {
-        JsonSchemaConfig config = new JsonSchemaConfig();
-        config.setComments("i2c device PCA9685 supports 16 PWM devices like servos or LEDs");
-        config.setSource("I2C bus address : 0x40");
-        config.setVersion("1.0");
-        config.setResourceType("driver");
-        config.setInterfaceDescription("Manages the output of 16 PWM devices");
-        return config;
-    }
+  public SchemaConfig getSchema() {
+    JsonSchemaConfig config = new JsonSchemaConfig();
+    config.setComments("i2c device PCA9685 supports 16 PWM devices like servos or LEDs");
+    config.setSource("I2C bus address : 0x40");
+    config.setVersion("1.0");
+    config.setResourceType("driver");
+    config.setInterfaceDescription("Manages the output of 16 PWM devices");
+    return config;
+  }
 
-    @Override
-    public int[] getAddressRange() {
-        return new int[]{i2cAddr};
-    }
+  @Override
+  public int[] getAddressRange() {
+    return new int[]{i2cAddr};
+  }
 }

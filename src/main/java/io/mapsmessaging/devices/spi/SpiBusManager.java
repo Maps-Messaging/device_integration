@@ -32,7 +32,7 @@ public class SpiBusManager {
     }
   }
 
-  public void configureDevices(Map<String, Object> configuration){
+  public void configureDevices(Map<String, Object> configuration) {
     for (Map.Entry<String, Object> entry : configuration.entrySet()) {
       String spiName = entry.getKey();
       Map<String, String> deviceConfig = (Map<String, String>) entry.getValue();

@@ -23,61 +23,62 @@ import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
 import org.json.JSONObject;
 
-public class Pmsa003iController implements I2CDeviceController {
+public class Pmsa003iController extends I2CDeviceController {
 
-    private final int i2cAddr = 0x12;
-    private final Pmsa003iSensor sensor;
+  private final int i2cAddr = 0x12;
+  private final Pmsa003iSensor sensor;
 
-    @Getter
-    private final String name = "PMSA003I";
+  @Getter
+  private final String name = "PMSA003I";
 
 
-    public Pmsa003iController() {
-        sensor = null;
+  public Pmsa003iController() {
+    sensor = null;
+  }
+
+  public Pmsa003iController(I2C device) {
+    super(device);
+    sensor = new Pmsa003iSensor(device);
+  }
+
+  @Override
+  public boolean detect() {
+    return sensor != null && sensor.isConnected();
+  }
+
+  public I2CDeviceController mount(I2C device) {
+    return new Pmsa003iController(device);
+  }
+
+  public byte[] getStaticPayload() {
+    JSONObject jsonObject = new JSONObject();
+    if (sensor != null) {
+      jsonObject.put("version", sensor.getRegisters().getVersion());
     }
+    return jsonObject.toString(2).getBytes();
+  }
 
-    public Pmsa003iController(I2C device) {
-        sensor = new Pmsa003iSensor(device);
+  public byte[] getUpdatePayload() {
+    if (sensor != null) {
+      sensor.readDevice();
+      return sensor.getRegisters().pack().toString(2).getBytes();
     }
+    JSONObject jsonObject = new JSONObject();
+    return jsonObject.toString(2).getBytes();
+  }
 
-    @Override
-    public boolean detect() {
-        return sensor != null && sensor.isConnected();
-    }
+  public SchemaConfig getSchema() {
+    JsonSchemaConfig config = new JsonSchemaConfig();
+    config.setComments("Air Quality Breakout");
+    config.setSource("I2C bus address : " + i2cAddr);
+    config.setVersion("1.0");
+    config.setResourceType("sensor");
+    config.setInterfaceDescription("Air Quality Breakout");
+    return config;
+  }
 
-    public I2CDeviceController mount(I2C device) {
-        return new Pmsa003iController(device);
-    }
-
-    public byte[] getStaticPayload() {
-        JSONObject jsonObject = new JSONObject();
-        if (sensor != null) {
-            jsonObject.put("version", sensor.getRegisters().getVersion());
-        }
-        return jsonObject.toString(2).getBytes();
-    }
-
-    public byte[] getUpdatePayload() {
-        if (sensor != null) {
-            sensor.readDevice();
-            return sensor.getRegisters().pack().toString(2).getBytes();
-        }
-        JSONObject jsonObject = new JSONObject();
-        return jsonObject.toString(2).getBytes();
-    }
-
-    public SchemaConfig getSchema() {
-        JsonSchemaConfig config = new JsonSchemaConfig();
-        config.setComments("Air Quality Breakout");
-        config.setSource("I2C bus address : " + i2cAddr);
-        config.setVersion("1.0");
-        config.setResourceType("sensor");
-        config.setInterfaceDescription("Air Quality Breakout");
-        return config;
-    }
-
-    @Override
-    public int[] getAddressRange() {
-        return new int[]{i2cAddr};
-    }
+  @Override
+  public int[] getAddressRange() {
+    return new int[]{i2cAddr};
+  }
 }

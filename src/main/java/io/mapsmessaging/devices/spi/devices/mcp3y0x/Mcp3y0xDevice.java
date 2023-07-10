@@ -36,7 +36,7 @@ public class Mcp3y0xDevice extends SpiDevice {
     super(spi);
     this.channels = channels;
     this.bits = bits;
-    name = "MCP3" +(bits == 12?"2":"0")+"0"+(channels==8?"8":"4");
+    name = "MCP3" + (bits == 12 ? "2" : "0") + "0" + (channels == 8 ? "8" : "4");
   }
 
   /**
@@ -45,7 +45,7 @@ public class Mcp3y0xDevice extends SpiDevice {
    * @param channel analog input channel on ADC chip
    * @return conversion value for specified analog input channel
    */
-  public int readFromChannel(boolean differential, short channel)  {
+  public int readFromChannel(boolean differential, short channel) {
     if (channel >= channels) {
       return -1;
     }

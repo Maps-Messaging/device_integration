@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
+import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks.Clock;
 import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks.Task;
@@ -25,7 +26,7 @@ import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import org.everit.json.schema.*;
 import org.json.JSONObject;
 
-public abstract class HT16K33Controller implements I2CDeviceController {
+public abstract class HT16K33Controller extends I2CDeviceController {
 
   protected final HT16K33Driver display;
 
@@ -36,7 +37,8 @@ public abstract class HT16K33Controller implements I2CDeviceController {
     currentTask = null;
   }
 
-  protected HT16K33Controller(HT16K33Driver display) {
+  protected HT16K33Controller(HT16K33Driver display, I2C device) {
+    super(device);
     this.display = display;
   }
 

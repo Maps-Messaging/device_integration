@@ -6,5 +6,6 @@ public class NamingConstants {
   public static final String DEVICE_STATIC_DATA_SCHEMA = "DeviceStaticDataSchema";
   public static final String SENSOR_DATA_SCHEMA = "SensorDataSchema";
 
-  private NamingConstants(){}
+  private NamingConstants() {
+  }
 }

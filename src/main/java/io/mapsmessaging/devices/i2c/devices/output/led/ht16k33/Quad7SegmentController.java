@@ -34,7 +34,7 @@ public class Quad7SegmentController extends HT16K33Controller {
   }
 
   public Quad7SegmentController(I2C device) {
-    super(new Quad7Segment(device));
+    super(new Quad7Segment(device), device);
   }
 
   public I2CDeviceController mount(I2C device) {

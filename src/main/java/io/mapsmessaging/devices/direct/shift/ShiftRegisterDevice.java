@@ -40,14 +40,13 @@ public class ShiftRegisterDevice implements Device {
     individualBits = new BitSet(totalBits);
 
     PinManagement pinManagement = DeviceBusManager.getInstance().getPinManagement();
-    dataPort = pinManagement.allocateGPIOPin(NAME+"-data","data", dataPin, "DOWN");
-    clockPort = pinManagement.allocateGPIOPin(NAME+"-clock","clock", clockPin, "DOWN");
-    latchPort = pinManagement.allocateGPIOPin(NAME+"-latch","latch", latchPin, "DOWN");
-    if(clearPin > 0) {
+    dataPort = pinManagement.allocateGPIOPin(NAME + "-data", "data", dataPin, "DOWN");
+    clockPort = pinManagement.allocateGPIOPin(NAME + "-clock", "clock", clockPin, "DOWN");
+    latchPort = pinManagement.allocateGPIOPin(NAME + "-latch", "latch", latchPin, "DOWN");
+    if (clearPin > 0) {
       clearPort = pinManagement.allocateGPIOPin(NAME + "-clear", "clear", clearPin, "DOWN");
       clearPort.low();
-    }
-    else{
+    } else {
       clearPort = null;
     }
     dataPort.low();
@@ -101,8 +100,7 @@ public class ShiftRegisterDevice implements Device {
         if (!dataState) {
           dataPort.high();
           dataState = true;
-        }
-        else {
+        } else {
           dataPort.low();
           dataState = false;
         }

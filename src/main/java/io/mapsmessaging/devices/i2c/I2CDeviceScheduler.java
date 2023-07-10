@@ -11,18 +11,22 @@ import java.io.IOException;
  * and perform any operation required. The device that has called delay will need to wait for the
  * new operation on the I2C bus to complete.
  */
-public class I2CDeviceScheduler implements I2CDeviceController {
+public class I2CDeviceScheduler extends I2CDeviceController {
 
   private static final Object I2C_BUS_LOCK = new Object();
+  private final I2CDeviceController deviceController;
+
+  public I2CDeviceScheduler(I2CDeviceController deviceController) {
+    this.deviceController = deviceController;
+  }
 
   public static Object getI2cBusLock() {
     return I2C_BUS_LOCK;
   }
 
-  private final I2CDeviceController deviceController;
-
-  public I2CDeviceScheduler(I2CDeviceController deviceController) {
-    this.deviceController = deviceController;
+  @Override
+  public int getMountedAddress() {
+    return deviceController.getMountedAddress();
   }
 
   @Override

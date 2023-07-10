@@ -25,11 +25,11 @@ public class PinManagement {
 
   private final Context pi4j;
 
-  public PinManagement(Context pi4J){
+  public PinManagement(Context pi4J) {
     this.pi4j = pi4J;
   }
 
-  public DigitalOutput allocateGPIOPin(String id, String name, int pin, String pullDirection ){
+  public DigitalOutput allocateGPIOPin(String id, String name, int pin, String pullDirection) {
     Properties properties = new Properties();
     properties.put("id", id);
     properties.put("address", pin);

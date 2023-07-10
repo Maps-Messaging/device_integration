@@ -37,15 +37,8 @@ public class DeviceBusManager {
   private static final String[] PROVIDERS = {"pigpio-i2c", "linuxfs-i2c"};
 
   private static final DeviceBusManager instance = new DeviceBusManager();
-
-  public static DeviceBusManager getInstance() {
-    return instance;
-  }
-
   private final Logger logger = LoggerFactory.getLogger(DeviceBusManager.class);
-
   private final Context pi4j;
-
   @Getter
   private final I2CBusManager i2cBusManager;
   @Getter
@@ -56,8 +49,6 @@ public class DeviceBusManager {
   private final InterruptFactory interruptFactory;
   @Getter
   private final PinManagement pinManagement;
-
-
   private DeviceBusManager() {
     logger.log(DeviceLogMessage.BUS_MANAGER_STARTUP);
     pi4j = Pi4J.newAutoContext();
@@ -71,34 +62,9 @@ public class DeviceBusManager {
     pinManagement = new PinManagement(pi4j);
   }
 
-  public void configureDevices(Map<String, Object> config) throws IOException {
-    // Note: 1-Wire autoconfigures within the filesystem
-    logger.log(DeviceLogMessage.BUS_MANAGER_CONFIGURE_DEVICES);
-    if(config.containsKey("i2c")) {
-      Map<String, Object> i2c = (Map) config.get("i2c");
-      i2cBusManager.configureDevices(i2c);
-    }
-    if(config.containsKey("spi")) {
-      Map<String, Object> spi = (Map) config.get("spi");
-      spiBusManager.configureDevices(spi);
-    }
+  public static DeviceBusManager getInstance() {
+    return instance;
   }
-
-  public void close() {
-    pi4j.shutdown();
-    logger.log(DeviceLogMessage.BUS_MANAGER_SHUTDOWN);
-  }
-
-  /*
-  if(addr == 0x72){
-            JSONObject config = new JSONObject();
-            config.put("enabled", true);
-            config.put("task", "clock");
-            config.put("brightness", 1);
-            physicalDevice.setPayload(config.toString(2).getBytes());
-          }
-   */
-
 
   private static String getProvider() {
     String provider = System.getProperty("i2C-PROVIDER", PROVIDERS[0]).toLowerCase();
@@ -113,6 +79,34 @@ public class DeviceBusManager {
       provider = PROVIDERS[0];
     }
     return provider;
+  }
+
+  public void configureDevices(Map<String, Object> config) throws IOException {
+    // Note: 1-Wire autoconfigures within the filesystem
+    logger.log(DeviceLogMessage.BUS_MANAGER_CONFIGURE_DEVICES);
+    if (config.containsKey("i2c")) {
+      Map<String, Object> i2c = (Map) config.get("i2c");
+      i2cBusManager.configureDevices(i2c);
+    }
+    if (config.containsKey("spi")) {
+      Map<String, Object> spi = (Map) config.get("spi");
+      spiBusManager.configureDevices(spi);
+    }
+  }
+
+  /*
+  if(addr == 0x72){
+            JSONObject config = new JSONObject();
+            config.put("enabled", true);
+            config.put("task", "clock");
+            config.put("brightness", 1);
+            physicalDevice.setPayload(config.toString(2).getBytes());
+          }
+   */
+
+  public void close() {
+    pi4j.shutdown();
+    logger.log(DeviceLogMessage.BUS_MANAGER_SHUTDOWN);
   }
 
 }

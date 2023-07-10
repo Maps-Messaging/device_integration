@@ -28,82 +28,83 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class BMP280Controller implements I2CDeviceController {
+public class BMP280Controller extends I2CDeviceController {
 
-    private final int i2cAddr = 0x76;
-    private final BMP280Sensor sensor;
+  private final int i2cAddr = 0x76;
+  private final BMP280Sensor sensor;
 
-    @Getter
-    private final String name = "BMP280";
+  @Getter
+  private final String name = "BMP280";
 
-    public BMP280Controller() {
-        sensor = null;
-    }
+  public BMP280Controller() {
+    sensor = null;
+  }
 
-    protected BMP280Controller(I2C device) throws IOException {
-        sensor = new BMP280Sensor(device);
-    }
+  protected BMP280Controller(I2C device) throws IOException {
+    super(device);
+    sensor = new BMP280Sensor(device);
+  }
 
-    @Override
-    public boolean detect() {
-        return sensor != null && sensor.isConnected();
-    }
+  @Override
+  public boolean detect() {
+    return sensor != null && sensor.isConnected();
+  }
 
-    public I2CDeviceController mount(I2C device) throws IOException {
-        return new BMP280Controller(device);
-    }
+  public I2CDeviceController mount(I2C device) throws IOException {
+    return new BMP280Controller(device);
+  }
 
-    public byte[] getStaticPayload() {
-        return "{}".getBytes();
-    }
-
-
-    public byte[] getUpdatePayload() {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("pressure", sensor.getPressure());
-        jsonObject.put("temperature", sensor.getTemperature());
-        return jsonObject.toString(2).getBytes();
-    }
+  public byte[] getStaticPayload() {
+    return "{}".getBytes();
+  }
 
 
-    public SchemaConfig getSchema() {
-        JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
-        config.setComments("i2c device BMP280 Pressure and Temperature Sensor https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/bmp280/");
-        config.setSource("I2C bus address : 0x76");
-        config.setVersion("1.0");
-        config.setResourceType("sensor");
-        config.setInterfaceDescription("Returns JSON object containing Temperature and Pressure");
-        return config;
-    }
+  public byte[] getUpdatePayload() {
+    JSONObject jsonObject = new JSONObject();
+    jsonObject.put("pressure", sensor.getPressure());
+    jsonObject.put("temperature", sensor.getTemperature());
+    return jsonObject.toString(2).getBytes();
+  }
 
-    @Override
-    public int[] getAddressRange() {
-        return new int[]{i2cAddr};
-    }
 
-    private String buildSchema() {
-        ObjectSchema.Builder updateSchema = ObjectSchema.builder()
-                .addPropertySchema("temperature",
-                        NumberSchema.builder()
-                                .minimum(-40.0)
-                                .maximum(80.0)
-                                .description("Temperature")
-                                .build()
-                )
-                .addPropertySchema("pressure",
-                        NumberSchema.builder()
-                                .minimum(0.0)
-                                .maximum(100.0)
-                                .description("Humidity")
-                                .build()
-                );
+  public SchemaConfig getSchema() {
+    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
+    config.setComments("i2c device BMP280 Pressure and Temperature Sensor https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/bmp280/");
+    config.setSource("I2C bus address : 0x76");
+    config.setVersion("1.0");
+    config.setResourceType("sensor");
+    config.setInterfaceDescription("Returns JSON object containing Temperature and Pressure");
+    return config;
+  }
 
-        ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
-        schemaBuilder
-                .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, updateSchema.build())
-                .description("pressure and Temperature Module")
-                .title("BMP280");
+  @Override
+  public int[] getAddressRange() {
+    return new int[]{i2cAddr};
+  }
 
-        return schemaToString(schemaBuilder.build());
-    }
+  private String buildSchema() {
+    ObjectSchema.Builder updateSchema = ObjectSchema.builder()
+        .addPropertySchema("temperature",
+            NumberSchema.builder()
+                .minimum(-40.0)
+                .maximum(80.0)
+                .description("Temperature")
+                .build()
+        )
+        .addPropertySchema("pressure",
+            NumberSchema.builder()
+                .minimum(0.0)
+                .maximum(100.0)
+                .description("Humidity")
+                .build()
+        );
+
+    ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
+    schemaBuilder
+        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, updateSchema.build())
+        .description("pressure and Temperature Module")
+        .title("BMP280");
+
+    return schemaToString(schemaBuilder.build());
+  }
 }

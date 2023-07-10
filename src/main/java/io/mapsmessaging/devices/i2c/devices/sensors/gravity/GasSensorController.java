@@ -25,7 +25,7 @@ import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import org.json.JSONObject;
 
-public class GasSensorController implements I2CDeviceController {
+public class GasSensorController extends I2CDeviceController {
 
   private final int i2cAddr = 0x74;
   private final GasSensor sensor;
@@ -35,6 +35,7 @@ public class GasSensorController implements I2CDeviceController {
   }
 
   public GasSensorController(I2C device) {
+    super(device);
     sensor = new GasSensor(device);
   }
 

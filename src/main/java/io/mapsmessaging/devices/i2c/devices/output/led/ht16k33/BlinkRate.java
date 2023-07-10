@@ -20,15 +20,15 @@ import lombok.Getter;
 
 public enum BlinkRate {
 
-    OFF(0),
-    TWO_HZ(1),
-    ONE_HZ(2),
-    HALF_HZ(3);
+  OFF(0),
+  TWO_HZ(1),
+  ONE_HZ(2),
+  HALF_HZ(3);
 
-    @Getter
-    private final int rate;
+  @Getter
+  private final int rate;
 
-    BlinkRate(int rate) {
-        this.rate = rate;
-    }
+  BlinkRate(int rate) {
+    this.rate = rate;
+  }
 }

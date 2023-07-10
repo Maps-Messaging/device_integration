@@ -25,13 +25,13 @@ import static io.mapsmessaging.devices.logging.DeviceLogMessage.*;
 
 public abstract class I2CDevice implements Device, AutoCloseable {
 
-  protected I2C device;
   protected final Logger logger;
+  protected I2C device;
 
   protected I2CDevice(I2C device, Logger logger) {
     this.device = device;
     this.logger = logger;
-    logger.log(I2C_BUS_DEVICE_ALLOCATED);
+    log(I2C_BUS_DEVICE_ALLOCATED);
   }
 
   public void close() {
@@ -121,7 +121,15 @@ public abstract class I2CDevice implements Device, AutoCloseable {
     }
   }
 
-  private void log(DeviceLogMessage message, Object... args){
-    logger.log(message, device.getBus(), device.getDevice(),  args);
+  private void log(DeviceLogMessage message, Object... args) {
+    if(args.length == 2) {
+      logger.log(message, device.getBus(), String.format("%02X",device.getDevice()), args[0], args[1]);
+    }
+    else if(args.length == 1) {
+      logger.log(message, device.getBus(), String.format("%02X",device.getDevice()), args[0]);
+    }
+    else{
+      logger.log(message, device.getBus(), String.format("%02X",device.getDevice()));
+    }
   }
 }

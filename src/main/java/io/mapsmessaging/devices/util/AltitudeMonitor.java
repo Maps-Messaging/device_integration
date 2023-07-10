@@ -2,32 +2,20 @@ package io.mapsmessaging.devices.util;
 
 public class AltitudeMonitor {
 
+  private final boolean update;
   private float temperature;
   private float pressure;
-  private final boolean update;
 
-  public AltitudeMonitor(){
+  public AltitudeMonitor() {
     temperature = Float.NaN;
     pressure = Float.NaN;
     update = true;
   }
 
-  public AltitudeMonitor(float temp, float pressure){
+  public AltitudeMonitor(float temp, float pressure) {
     temperature = temp;
     this.pressure = pressure;
     update = false;
-  }
-
-  public double compute(float pressureReading, float temperatureReading){
-    double value = 0;
-    if(temperature != Float.NaN && pressure != Float.NaN){
-      value = calculateHeightDifference(pressure, pressureReading, temperatureReading);
-    }
-    if(update) {
-      temperature = temperatureReading;
-      pressure = pressureReading;
-    }
-    return value;
   }
 
   public static double computeHeightDifference(double pressure1, double pressure2, double temperature1, double temperature2) {
@@ -41,15 +29,14 @@ public class AltitudeMonitor {
     double P0 = pressure1 * 100;  // Convert pressure from hPa to Pa
     double P1 = pressure2 * 100;
 
-    return ((R * (temp1K + temp2K) / (2 * g * M)) * Math.log(P0 / P1)/1000.0);
+    return ((R * (temp1K + temp2K) / (2 * g * M)) * Math.log(P0 / P1) / 1000.0);
   }
-
 
   /**
    * Calculates the height difference based on pressure change and temperature.
    *
-   * @param pressure1 The initial pressure measurement in hPa.
-   * @param pressure2 The final pressure measurement in hPa.
+   * @param pressure1   The initial pressure measurement in hPa.
+   * @param pressure2   The final pressure measurement in hPa.
    * @param temperature The temperature measurement in degrees Celsius.
    * @return The height difference in meters.
    */
@@ -67,6 +54,18 @@ public class AltitudeMonitor {
     double heightDifference = (R * deltaT) / (M * g) * Math.log((P0 - deltaP) / P0);
 
     return heightDifference;
+  }
+
+  public double compute(float pressureReading, float temperatureReading) {
+    double value = 0;
+    if (temperature != Float.NaN && pressure != Float.NaN) {
+      value = calculateHeightDifference(pressure, pressureReading, temperatureReading);
+    }
+    if (update) {
+      temperature = temperatureReading;
+      pressure = pressureReading;
+    }
+    return value;
   }
 
 }

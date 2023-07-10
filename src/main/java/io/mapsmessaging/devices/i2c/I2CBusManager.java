@@ -117,17 +117,20 @@ public class I2CBusManager {
     for (int x = 0; x < 0x77; x++) {
       if (!activeDevices.containsKey(Integer.toHexString(x))) {
         try {
-          I2CConfig i2cConfig = I2C.newConfigBuilder(pi4j)
-              .id("Device::" + Integer.toHexString(x))
-              .description("Device::" + Integer.toHexString(x))
-              .bus(1)
-              .device(x)
-              .build();
-          I2C device = i2cProvider.create(i2cConfig);
+          I2C device = physicalDevices.get(x);
+          if (device == null) {
+            I2CConfig i2cConfig = I2C.newConfigBuilder(pi4j)
+                .id("Device::" + Integer.toHexString(x))
+                .description("Device::" + Integer.toHexString(x))
+                .bus(1)
+                .device(x)
+                .build();
+            device = i2cProvider.create(i2cConfig);
+            physicalDevices.put(x, device);
+          }
           if (isOnBus(x, device)) {
             found.add(x);
           }
-          physicalDevices.put(x, device);
         } catch (Exception e) {
           // Ignore since we are simply looking for devices
         }
@@ -156,13 +159,19 @@ public class I2CBusManager {
   }
 
   private void logDetect(List<Integer> found) {
+    List<Integer> activeList = new ArrayList<>();
+    for (DeviceController controller : activeDevices.values()) {
+      activeList.add(((I2CDeviceController) controller).getMountedAddress());
+    }
     int addr = 0;
     logger.log(I2C_BUS_SCAN, "     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f");
     for (int x = 0; x < 8; x++) {
       StringBuilder sb = new StringBuilder(x + "0: ");
       for (int y = 0; y < 16; y++) {
         String display;
-        if (found.contains(addr)) {
+        if (activeList.contains(addr)) {
+          display = "AA";
+        } else if (found.contains(addr)) {
           display = Integer.toHexString(addr);
           if (addr < 16) {
             display = "0" + display;
