@@ -31,6 +31,10 @@ public enum DeviceLogMessage implements LogMessage {
   I2C_BUS_DEVICE_READ(LEVEL.DEBUG, BUS.I2C_DEVICE, "Reading from device on Bus: {} Address: {}, Register: {}, Data : {}"),
   I2C_BUS_DEVICE_CLOSE(LEVEL.INFO, BUS.I2C_DEVICE, "Closing device on Bus: {} to Address: {}"),
   I2C_BUS_DEVICE_DELAY(LEVEL.DEBUG, BUS.I2C_DEVICE, "Delaying device on Bus: {} to Address: {} for {}ms"),
+
+  I2C_BUS_DEVICE_READ_REQUEST(LEVEL.DEBUG, BUS.I2C_DEVICE, "{}, requesting {} and received result {}"),
+  I2C_BUS_DEVICE_WRITE_REQUEST(LEVEL.DEBUG, BUS.I2C_DEVICE, "{} Called {}"),
+
   //</editor-fold>
 
   //<editor-fold desc="SPI Bus Manager messages">
