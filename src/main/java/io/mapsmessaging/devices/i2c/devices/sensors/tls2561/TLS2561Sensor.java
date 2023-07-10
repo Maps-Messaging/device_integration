@@ -18,6 +18,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.tls2561;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
@@ -56,16 +57,26 @@ public class TLS2561Sensor extends I2CDevice {
       this.highGain = 0x0;
     }
     integrationTime = times;
+    if(logger.isDebugEnabled()){
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "setIntegrationTime("+times.name()+","+highGain+")");
+    }
+
     write(0x81, (byte) (integrationTime.getSettingValue() | this.highGain));
     delay(500);
   }
 
   public void powerOn() {
+    if(logger.isDebugEnabled()){
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "powerOn()");
+    }
     write(0x80, (byte) 0x03);
     delay(500);
   }
 
   public void powerOff() {
+    if(logger.isDebugEnabled()){
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "powerOff()");
+    }
     write(0x80, (byte) 0x0);
   }
 
@@ -93,11 +104,17 @@ public class TLS2561Sensor extends I2CDevice {
 
   public int getIr() {
     scanForChange();
+    if(logger.isDebugEnabled()){
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), ir +" = getIr()");
+    }
     return ir;
   }
 
   public int getFull() {
     scanForChange();
+    if(logger.isDebugEnabled()){
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), full +" = getFull()");
+    }
     return full;
   }
 
@@ -116,7 +133,11 @@ public class TLS2561Sensor extends I2CDevice {
     } else {
       lux = 0.0; // high IR, out of range
     }
-    return lux * integrationTime.getScale();
+    lux = lux * integrationTime.getScale();
+    if(logger.isDebugEnabled()){
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), lux +" = calculateLux()");
+    }
+    return lux;
   }
 
   @Override

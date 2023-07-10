@@ -18,6 +18,7 @@ package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
@@ -64,31 +65,43 @@ public abstract class HT16K33Driver extends I2CDevice {
   public void turnOn() {
     writeCommand((byte) 0x21); // Turn on
     writeCommand((byte) 0x81); // Turn on display
+    logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "turnOn()");
     isOn = true;
   }
 
   public void turnOff() {
     writeCommand((byte) 0x20); // Turn off
+    logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "turnOff()");
     isOn = false;
   }
 
   public void setBlinkRate(BlinkRate rate) {
     writeCommand((byte) (BLINK_COMMAND | BLINK_DISPLAYON | (rate.getRate() << 1)));
+    logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "setBlinkRate("+rate.name()+")");
     this.rate = rate;
   }
 
   public void setBrightness(byte brightness) {
     this.brightness = (byte) (brightness & 0xf);
+    logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "setBlinkRate("+brightness+")");
+
     writeCommand((byte) (BRIGHTNESS_COMMAND | (brightness & 0xf)));
   }
 
 
   public void writeRaw(String val) {
-    write(0, Base64.getDecoder().decode(val));
+    byte[] data = Base64.getDecoder().decode(val);
+    if(logger.isDebugEnabled()){
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "writeRaw("+val+")");
+    }
+    write(0, data);
   }
 
   public void write(String val) {
     current = val;
+    if(logger.isDebugEnabled()){
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "write("+val+")");
+    }
     write(0, encode(val));
   }
 
