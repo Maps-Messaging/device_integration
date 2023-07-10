@@ -58,8 +58,8 @@ public class TLS2561Sensor extends I2CDevice {
       this.highGain = 0x0;
     }
     integrationTime = times;
-    if(logger.isDebugEnabled()){
-      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "setIntegrationTime("+times.name()+","+highGain+")");
+    if (logger.isDebugEnabled()) {
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "setIntegrationTime(" + times.name() + "," + highGain + ")");
     }
 
     write(0x81, (byte) (integrationTime.getSettingValue() | this.highGain));
@@ -67,7 +67,7 @@ public class TLS2561Sensor extends I2CDevice {
   }
 
   public void powerOn() throws IOException {
-    if(logger.isDebugEnabled()){
+    if (logger.isDebugEnabled()) {
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "powerOn()");
     }
     write(0x80, (byte) 0x03);
@@ -75,7 +75,7 @@ public class TLS2561Sensor extends I2CDevice {
   }
 
   public void powerOff() throws IOException {
-    if(logger.isDebugEnabled()){
+    if (logger.isDebugEnabled()) {
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "powerOff()");
     }
     write(0x80, (byte) 0x0);
@@ -105,16 +105,16 @@ public class TLS2561Sensor extends I2CDevice {
 
   public int getIr() {
     scanForChange();
-    if(logger.isDebugEnabled()){
-      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), ir +" = getIr()");
+    if (logger.isDebugEnabled()) {
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), ir + " = getIr()");
     }
     return ir;
   }
 
   public int getFull() {
     scanForChange();
-    if(logger.isDebugEnabled()){
-      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), full +" = getFull()");
+    if (logger.isDebugEnabled()) {
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), full + " = getFull()");
     }
     return full;
   }
@@ -135,8 +135,8 @@ public class TLS2561Sensor extends I2CDevice {
       lux = 0.0; // high IR, out of range
     }
     lux = lux * integrationTime.getScale();
-    if(logger.isDebugEnabled()){
-      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), lux +" = calculateLux()");
+    if (logger.isDebugEnabled()) {
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), lux + " = calculateLux()");
     }
     return lux;
   }

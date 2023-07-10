@@ -82,7 +82,7 @@ public class I2CBusManager {
     }
   }
 
-  public void close(I2CDeviceController deviceController){
+  public void close(I2CDeviceController deviceController) {
     deviceController.close();
     String key = Integer.toHexString(deviceController.getMountedAddress());
     activeDevices.remove(key);

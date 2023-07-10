@@ -49,6 +49,7 @@ public class DeviceBusManager {
   private final InterruptFactory interruptFactory;
   @Getter
   private final PinManagement pinManagement;
+
   private DeviceBusManager() {
     logger.log(DeviceLogMessage.BUS_MANAGER_STARTUP);
     pi4j = Pi4J.newAutoContext();

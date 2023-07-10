@@ -45,7 +45,7 @@ public abstract class HT16K33Controller extends I2CDeviceController {
   }
 
   @Override
-  public void close(){
+  public void close() {
     cancelCurrentTask();
   }
 
@@ -124,7 +124,7 @@ public abstract class HT16K33Controller extends I2CDeviceController {
         setTask(new Clock(this));
       }
       if (task.equalsIgnoreCase("test")) {
-        setTask( new TestTask(this));
+        setTask(new TestTask(this));
       }
     }
   }
@@ -206,13 +206,13 @@ public abstract class HT16K33Controller extends I2CDeviceController {
     return updateSchema.build();
   }
 
-  private synchronized void setTask(Task task){
+  private synchronized void setTask(Task task) {
     cancelCurrentTask();
     currentTask = task;
   }
 
-  private synchronized void cancelCurrentTask(){
-    if(currentTask != null){
+  private synchronized void cancelCurrentTask() {
+    if (currentTask != null) {
       currentTask.stop();
       currentTask = null;
     }

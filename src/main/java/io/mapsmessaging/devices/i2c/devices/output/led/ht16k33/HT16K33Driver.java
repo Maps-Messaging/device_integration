@@ -52,11 +52,10 @@ public abstract class HT16K33Driver extends I2CDevice {
   }
 
   @Override
-  public void close(){
+  public void close() {
     try {
       turnOff();
-    }
-    catch(IOException ex){
+    } catch (IOException ex) {
       // we might have lost the device, so this will fail
     }
   }
@@ -83,13 +82,13 @@ public abstract class HT16K33Driver extends I2CDevice {
 
   public void setBlinkRate(BlinkRate rate) throws IOException {
     writeCommand((byte) (BLINK_COMMAND | BLINK_DISPLAYON | (rate.getRate() << 1)));
-    logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "setBlinkRate("+rate.name()+")");
+    logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "setBlinkRate(" + rate.name() + ")");
     this.rate = rate;
   }
 
   public void setBrightness(byte brightness) throws IOException {
     this.brightness = (byte) (brightness & 0xf);
-    logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "setBlinkRate("+brightness+")");
+    logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "setBlinkRate(" + brightness + ")");
 
     writeCommand((byte) (BRIGHTNESS_COMMAND | (brightness & 0xf)));
   }
@@ -97,16 +96,16 @@ public abstract class HT16K33Driver extends I2CDevice {
 
   public void writeRaw(String val) throws IOException {
     byte[] data = Base64.getDecoder().decode(val);
-    if(logger.isDebugEnabled()){
-      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "writeRaw("+val+")");
+    if (logger.isDebugEnabled()) {
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "writeRaw(" + val + ")");
     }
     write(0, data);
   }
 
   public void write(String val) throws IOException {
     current = val;
-    if(logger.isDebugEnabled()){
-      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "write("+val+")");
+    if (logger.isDebugEnabled()) {
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "write(" + val + ")");
     }
     write(0, encode(val));
   }

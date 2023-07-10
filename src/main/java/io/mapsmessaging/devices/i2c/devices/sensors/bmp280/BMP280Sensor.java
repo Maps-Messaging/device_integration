@@ -138,7 +138,7 @@ public class BMP280Sensor extends I2CDevice {
     CRC = prom[7] & 0x0F;
     byte crc4 = crc4(prom);
     if (crc4 != CRC) {
-      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_REQUEST_FAILED, getName(), "initialise()", "crc mismatch "+CRC+" (read) != " + crc4 + " (calculated).");
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_REQUEST_FAILED, getName(), "initialise()", "crc mismatch " + CRC + " (read) != " + crc4 + " (calculated).");
     }
 
     SENS_T1 = C1 * (1 << 15) /* 2^15 */;
@@ -148,7 +148,7 @@ public class BMP280Sensor extends I2CDevice {
   }
 
   private void loadValues() {
-    if(lastRead < System.currentTimeMillis()) {
+    if (lastRead < System.currentTimeMillis()) {
       conversion();
       long dT = D2 - (C5 << 8);
       long t = dT * C6;

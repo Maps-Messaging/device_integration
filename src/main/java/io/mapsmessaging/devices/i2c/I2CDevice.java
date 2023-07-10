@@ -47,7 +47,7 @@ public abstract class I2CDevice implements Device, AutoCloseable {
     if (logger.isDebugEnabled()) {
       log(I2C_BUS_DEVICE_WRITE, 0, String.format("%02X", val));
     }
-    if(device.write(val) != 1) throw new IOException("Failed to write to device");
+    if (device.write(val) != 1) throw new IOException("Failed to write to device");
   }
 
   protected void write(byte[] buffer) throws IOException {
@@ -55,7 +55,7 @@ public abstract class I2CDevice implements Device, AutoCloseable {
   }
 
   protected void write(byte[] buffer, int off, int len) throws IOException {
-    if(device.write(buffer, off, len) != (len -off)){
+    if (device.write(buffer, off, len) != (len - off)) {
       throw new IOException("Failed to write buffer to device");
     }
     if (logger.isDebugEnabled()) {
@@ -73,7 +73,7 @@ public abstract class I2CDevice implements Device, AutoCloseable {
   }
 
   public void write(int register, byte[] data) throws IOException {
-    if(device.writeRegister(register, data) != data.length){
+    if (device.writeRegister(register, data) != data.length) {
       throw new IOException("Failed to write buffer to device");
     }
 
@@ -130,14 +130,12 @@ public abstract class I2CDevice implements Device, AutoCloseable {
   }
 
   private void log(DeviceLogMessage message, Object... args) {
-    if(args.length == 2) {
-      logger.log(message, device.getBus(), String.format("%02X",device.getDevice()), args[0], args[1]);
-    }
-    else if(args.length == 1) {
-      logger.log(message, device.getBus(), String.format("%02X",device.getDevice()), args[0]);
-    }
-    else{
-      logger.log(message, device.getBus(), String.format("%02X",device.getDevice()));
+    if (args.length == 2) {
+      logger.log(message, device.getBus(), String.format("%02X", device.getDevice()), args[0], args[1]);
+    } else if (args.length == 1) {
+      logger.log(message, device.getBus(), String.format("%02X", device.getDevice()), args[0]);
+    } else {
+      logger.log(message, device.getBus(), String.format("%02X", device.getDevice()));
     }
   }
 }

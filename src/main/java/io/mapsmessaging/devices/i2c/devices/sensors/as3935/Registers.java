@@ -37,6 +37,7 @@ public class Registers {
   private static final int CALIB_SCRO_SRCO_CALIB_SRCO_BIT = 6;
   private static final int CALIB_SCRO_SRCO_CALIB_SRCO_DONE_BIT = 7;
   private final I2CDevice sensor;
+
   public Registers(I2CDevice sensor) {
     this.sensor = sensor;
   }

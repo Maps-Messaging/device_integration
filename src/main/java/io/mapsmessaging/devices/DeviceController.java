@@ -37,7 +37,8 @@ public interface DeviceController {
   default void setPayload(byte[] val) throws IOException {
   }
 
-  default void close(){}
+  default void close() {
+  }
 
   default String schemaToString(ObjectSchema schema) {
     StringWriter stringWriter = new StringWriter();
