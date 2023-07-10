@@ -35,6 +35,7 @@ public enum DeviceLogMessage implements LogMessage {
   I2C_BUS_DEVICE_READ_REQUEST(LEVEL.DEBUG, BUS.I2C_DEVICE, "{}, requesting {} and received result {}"),
   I2C_BUS_DEVICE_WRITE_REQUEST(LEVEL.DEBUG, BUS.I2C_DEVICE, "{} Called {}"),
 
+  I2C_BUS_DEVICE_REQUEST_FAILED(LEVEL.DEBUG, BUS.I2C_DEVICE, "{} Failed on request {}, reason {}"),
   //</editor-fold>
 
   //<editor-fold desc="SPI Bus Manager messages">

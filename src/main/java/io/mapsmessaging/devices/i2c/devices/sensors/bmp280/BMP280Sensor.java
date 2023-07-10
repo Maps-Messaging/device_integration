@@ -18,7 +18,10 @@ package io.mapsmessaging.devices.i2c.devices.sensors.bmp280;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.LoggerFactory;
+
+import static io.mapsmessaging.devices.logging.DeviceLogMessage.I2C_BUS_DEVICE_READ_REQUEST;
 
 public class BMP280Sensor extends I2CDevice {
 
@@ -51,20 +54,111 @@ public class BMP280Sensor extends I2CDevice {
   private long TCO;
   private int D1; // 24 bit unsigned int
   private int D2; // 24 bit unsigned int
+
   private float temperature;
   private float pressure;
 
+  private long lastRead;
 
   public BMP280Sensor(I2C device) {
     super(device, LoggerFactory.getLogger(BMP280Sensor.class));
     prom = new int[8];
+    lastRead = 0;
     initialise();
-    scanForChange();
+    loadValues();
+  }
+
+  @Override
+  public String getName() {
+    return "BMP280";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Temperature and Pressure sensor";
   }
 
   @Override
   public boolean isConnected() {
     return true;
+  }
+
+  public float getTemperature() {
+    loadValues();
+    if (logger.isDebugEnabled()) {
+      logger.log(I2C_BUS_DEVICE_READ_REQUEST, getName(), "getTemperature()", temperature);
+    }
+    return temperature;
+  }
+
+  public float getPressure() {
+    loadValues();
+    if (logger.isDebugEnabled()) {
+      logger.log(I2C_BUS_DEVICE_READ_REQUEST, getName(), "getPressure()", pressure);
+    }
+    return pressure;
+  }
+
+  protected void read(byte command, int length, byte[] values) {
+    readRegister(command, values, 0, length);
+  }
+
+  private void conversion() {
+    try {
+      byte[] readBuffer = new byte[3];
+      write(CONVERT_D2_OSR_4096);
+      delay(10);
+      read(ADC_READ, 3, readBuffer);
+      D2 = ((readBuffer[0] & 0xFF) << 16) | ((readBuffer[1] & 0xFF) << 8) | ((readBuffer[2] & 0xFF));
+      write(CONVERT_D1_OSR_4096);
+      delay(10);
+      read(ADC_READ, 3, readBuffer);
+      D1 = ((readBuffer[0] & 0xFF) << 16) | ((readBuffer[1] & 0xFF) << 8) | ((readBuffer[2] & 0xFF));
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void initialise() {
+    write((byte) sReset);
+    delay(1000);
+    byte[] readBuffer = new byte[2];
+    for (int i = 0; i < 8; i++) {
+      read((byte) (PROM_READ_SEQUENCE + i * 2), 2, readBuffer);
+      prom[i] = ((readBuffer[0] & 0xFF) << 8) | ((readBuffer[1] & 0xFF));
+    }
+    C1 = prom[1];
+    C2 = prom[2];
+    C3 = prom[3];
+    C4 = prom[4];
+    C5 = prom[5];
+    C6 = prom[6];
+    CRC = prom[7] & 0x0F;
+    byte crc4 = crc4(prom);
+    if (crc4 != CRC) {
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_REQUEST_FAILED, getName(), "initialise()", "crc mismatch "+CRC+" (read) != " + crc4 + " (calculated).");
+    }
+
+    SENS_T1 = C1 * (1 << 15) /* 2^15 */;
+    OFF_T1 = C2 * (1 << 16) /* 2^16 */;
+    TCS = C3 / (1 << 8)  /* 2^8 */;
+    TCO = C4 / (1 << 7)  /* 2^7 */;
+  }
+
+  private void loadValues() {
+    if(lastRead < System.currentTimeMillis()) {
+      conversion();
+      long dT = D2 - (C5 << 8);
+      long t = dT * C6;
+      float temp = (t >> 23);
+      temp += 2000;
+      temperature = temp / 100.0f;
+
+      long off = OFF_T1 + dT * TCO;
+      long sens = SENS_T1 + dT * TCS;
+      pressure = (((float) (D1 * sens / 2097152.0 /* 2^21 */ - off) / 0x8000 /* 2^15 */) / 100.0f);
+      lastRead = System.currentTimeMillis() + 100;
+    }
   }
 
   private byte crc4(int[] prom) {
@@ -93,87 +187,5 @@ public class BMP280Sensor extends I2CDevice {
     nRem = 0x000F & (nRem >> 12); // final 4-bit reminder is CRC code
     prom[7] = crcRead; // restore the crc_read to its original place
     return (byte) (nRem);
-  }
-
-  protected void read(byte command, int length, byte[] values) {
-    readRegister(command, values, 0, length);
-  }
-
-  private void conversion() {
-    try {
-      byte[] readBuffer = new byte[3];
-      write(CONVERT_D2_OSR_4096);
-      delay(10);
-      read(ADC_READ, 3, readBuffer);
-      D2 = ((readBuffer[0] & 0xFF) << 16) | ((readBuffer[1] & 0xFF) << 8) | ((readBuffer[2] & 0xFF));
-      write(CONVERT_D1_OSR_4096);
-      delay(10);
-      read(ADC_READ, 3, readBuffer);
-      D1 = ((readBuffer[0] & 0xFF) << 16) | ((readBuffer[1] & 0xFF) << 8) | ((readBuffer[2] & 0xFF));
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-
-  public float getTemperature() {
-    return temperature;
-  }
-
-  public float getPressure() {
-    return pressure;
-  }
-
-  public void initialise() {
-    write((byte) sReset);
-    delay(1000);
-    byte[] readBuffer = new byte[2];
-    for (int i = 0; i < 8; i++) {
-      read((byte) (PROM_READ_SEQUENCE + i * 2), 2, readBuffer);
-      prom[i] = ((readBuffer[0] & 0xFF) << 8) | ((readBuffer[1] & 0xFF));
-    }
-    C1 = prom[1];
-    C2 = prom[2];
-    C3 = prom[3];
-    C4 = prom[4];
-    C5 = prom[5];
-    C6 = prom[6];
-    CRC = prom[7] & 0x0F;
-    byte crc4 = crc4(prom);
-    if (crc4 != CRC) {
-      System.err.println(this.getClass().getSimpleName() + " PROM CRC mismatch, " + CRC + " (read) != " + crc4 + " (calculated).");
-    }
-
-    SENS_T1 = C1 * (1 << 15) /* 2^15 */;
-    OFF_T1 = C2 * (1 << 16) /* 2^16 */;
-    TCS = C3 / (1 << 8)  /* 2^8 */;
-    TCO = C4 / (1 << 7)  /* 2^7 */;
-  }
-
-  public void scanForChange() {
-    conversion();
-    long dT = D2 - (C5 << 8);
-    long t = dT * C6;
-    float temp = (t >> 23);
-    temp += 2000;
-    temp = temp / 100.0f;
-
-    long off = OFF_T1 + dT * TCO;
-    long sens = SENS_T1 + dT * TCS;
-    float p = (((float) (D1 * sens / 2097152 /* 2^21 */ - off) / 0x8000 /* 2^15 */) / 100.0f);
-
-    if (p != pressure || temp != temperature) {
-      pressure = p;
-      temperature = temp;
-    }
-  }
-
-  @Override
-  public String getName() {
-    return "BMP280";
-  }
-
-  @Override
-  public String getDescription() {
-    return "Temperature and Pressure sensor";
   }
 }
