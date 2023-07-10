@@ -397,7 +397,5 @@ public class Lps35Sensor extends I2CDevice {
     int ctl1 = readRegister(register) & 0xff;
     ctl1 = (ctl1 & mask) | value;
     write(register, (byte) ctl1);
-
   }
-
 }
