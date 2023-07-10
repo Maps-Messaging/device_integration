@@ -18,29 +18,28 @@ package io.mapsmessaging.devices.i2c.devices.sensors.as3935;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.sensors.am2320.AM2320Sensor;
 import io.mapsmessaging.logging.LoggerFactory;
 
 import java.io.IOException;
 
 public class AS3935Sensor extends I2CDevice {
 
-  public static final byte IDLE = 0x0;
-  public static final byte INTERRUPT_TOO_HIGH = 0x1;
-  public static final byte INTERRUPT_DISTURBER = 0x4;
-  public static final byte INTERRUPT_LIGHTNING = 0x8;
+    public static final byte IDLE = 0x0;
+    public static final byte INTERRUPT_TOO_HIGH = 0x1;
+    public static final byte INTERRUPT_DISTURBER = 0x4;
+    public static final byte INTERRUPT_LIGHTNING = 0x8;
 
-  private final Registers register;
-  private final byte[] registers;
-  private final int tuning;
+    private final Registers register;
+    private final byte[] registers;
+    private final int tuning;
 
-  public AS3935Sensor(I2C device, int tuning) throws IOException {
-    super(device, LoggerFactory.getLogger(AS3935Sensor.class));
-    registers = new byte[128];
+    public AS3935Sensor(I2C device, int tuning) throws IOException {
+        super(device, LoggerFactory.getLogger(AS3935Sensor.class));
+        registers = new byte[128];
 
-    register = new Registers(this);
-    this.tuning = tuning;
-    setup();
+        register = new Registers(this);
+        this.tuning = tuning;
+        setup();
     /*
     if (pinNumber > -1) {
       InterruptFactory interruptFactory = DeviceBusManager.getInstance().getInterruptFactory();
@@ -52,50 +51,50 @@ public class AS3935Sensor extends I2CDevice {
           this);
     }
      */
-  }
-
-  @Override
-  public boolean isConnected() {
-    return true;
-  }
-
-  public Registers getRegisters() {
-    return register;
-  }
-
-  private void readData() {
-    read(registers, 0, 128);
-  }
-
-  public void setup() throws IOException {
-    delay(80);
-    readData();
-    if (tuning != 0) {
-      if (tuning < 0x10 && tuning > -1) {
-        write(0x08, (byte) ((registers[0x08] & 0xF0) | tuning));
-        registers[8] = (byte) ((registers[0x08] & 0xF0) | tuning);
-      }
-      delay(200);
-      readData();
-    } else {
-      throw new IOException("Value of TUN_CAP must be between 0 and 15");
     }
-    write(0x08, (byte) (registers[0x08] | 0x20));
-    delay(200);
-    readData();
-    write(0x08, (byte) (registers[0x08] & 0xDF));
-    delay(200);
-    readData();
-  }
+
+    @Override
+    public boolean isConnected() {
+        return true;
+    }
+
+    public Registers getRegisters() {
+        return register;
+    }
+
+    private void readData() {
+        read(registers, 0, 128);
+    }
+
+    public void setup() throws IOException {
+        delay(80);
+        readData();
+        if (tuning != 0) {
+            if (tuning < 0x10 && tuning > -1) {
+                write(0x08, (byte) ((registers[0x08] & 0xF0) | tuning));
+                registers[8] = (byte) ((registers[0x08] & 0xF0) | tuning);
+            }
+            delay(200);
+            readData();
+        } else {
+            throw new IOException("Value of TUN_CAP must be between 0 and 15");
+        }
+        write(0x08, (byte) (registers[0x08] | 0x20));
+        delay(200);
+        readData();
+        write(0x08, (byte) (registers[0x08] & 0xDF));
+        delay(200);
+        readData();
+    }
 
 
-  @Override
-  public String getName() {
-    return "AS3935";
-  }
+    @Override
+    public String getName() {
+        return "AS3935";
+    }
 
-  @Override
-  public String getDescription() {
-    return "Lightning detector and warning sensor";
-  }
+    @Override
+    public String getDescription() {
+        return "Lightning detector and warning sensor";
+    }
 }

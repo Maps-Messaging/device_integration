@@ -23,10 +23,10 @@ import java.io.IOException;
 
 public interface I2CDeviceController extends DeviceController {
 
-  I2CDeviceController mount(I2C device) throws IOException;
+    I2CDeviceController mount(I2C device) throws IOException;
 
-  int[] getAddressRange();
+    int[] getAddressRange();
 
-  boolean detect();
+    boolean detect();
 
 }

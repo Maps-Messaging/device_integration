@@ -27,85 +27,85 @@ import org.json.JSONObject;
 
 public class Ds3231Controller implements I2CDeviceController {
 
-  private final int i2cAddr = 0x68;
-  private final Ds3231Rtc rtc;
-  private final JsonPacker packer;
-  private final JsonUnpacker unpacker;
+    private final int i2cAddr = 0x68;
+    private final Ds3231Rtc rtc;
+    private final JsonPacker packer;
+    private final JsonUnpacker unpacker;
 
-  @Getter
-  private final String name = "DS3231";
+    @Getter
+    private final String name = "DS3231";
 
 
-  public Ds3231Controller() {
-    rtc = null;
-    packer = null;
-    unpacker = null;
-  }
-
-  public Ds3231Controller(I2C device) {
-    rtc = new Ds3231Rtc(device);
-    packer = new JsonPacker(rtc);
-    unpacker = new JsonUnpacker(rtc);
-  }
-
-  @Override
-  public boolean detect() {
-    return rtc != null && rtc.isConnected();
-  }
-
-  public I2CDeviceController mount(I2C device) {
-    return new Ds3231Controller(device);
-  }
-
-  @Override
-  public byte[] getStaticPayload() {
-    JSONObject jsonObject = new JSONObject();
-    if (rtc != null) {
-
+    public Ds3231Controller() {
+        rtc = null;
+        packer = null;
+        unpacker = null;
     }
-    return jsonObject.toString(2).getBytes();
-  }
 
-  @Override
-  public byte[] getUpdatePayload() {
-    if (packer != null && rtc != null) {
-      rtc.read();
-      return packer.pack();
+    public Ds3231Controller(I2C device) {
+        rtc = new Ds3231Rtc(device);
+        packer = new JsonPacker(rtc);
+        unpacker = new JsonUnpacker(rtc);
     }
-    return "{}".getBytes();
-  }
 
-  @Override
-  public void setPayload(byte[] val) {
-    if (unpacker != null) {
-      JSONObject jsonObject = new JSONObject(new String(val));
-      unpacker.unpack(jsonObject);
+    @Override
+    public boolean detect() {
+        return rtc != null && rtc.isConnected();
     }
-  }
 
-  public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
-    config.setComments("i2c RTC");
-    config.setSource("I2C bus address : 0x68");
-    config.setVersion("1.0");
-    config.setResourceType("rtc");
-    config.setInterfaceDescription("Returns JSON object containing the latest rtc");
-    return config;
-  }
+    public I2CDeviceController mount(I2C device) {
+        return new Ds3231Controller(device);
+    }
 
-  @Override
-  public int[] getAddressRange() {
-    return new int[]{i2cAddr};
-  }
+    @Override
+    public byte[] getStaticPayload() {
+        JSONObject jsonObject = new JSONObject();
+        if (rtc != null) {
 
-  private String buildSchema() {
-    ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
-    schemaBuilder
-        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, SchemaHelper.generateUpdatePayloadSchema())
-        .addPropertySchema(NamingConstants.DEVICE_WRITE_SCHEMA, SchemaHelper.buildWritablePayload())
-        .description("Quad 7 Segment LED")
-        .title("HT16K33");
+        }
+        return jsonObject.toString(2).getBytes();
+    }
 
-    return schemaToString(schemaBuilder.build());
-  }
+    @Override
+    public byte[] getUpdatePayload() {
+        if (packer != null && rtc != null) {
+            rtc.read();
+            return packer.pack();
+        }
+        return "{}".getBytes();
+    }
+
+    @Override
+    public void setPayload(byte[] val) {
+        if (unpacker != null) {
+            JSONObject jsonObject = new JSONObject(new String(val));
+            unpacker.unpack(jsonObject);
+        }
+    }
+
+    public SchemaConfig getSchema() {
+        JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
+        config.setComments("i2c RTC");
+        config.setSource("I2C bus address : 0x68");
+        config.setVersion("1.0");
+        config.setResourceType("rtc");
+        config.setInterfaceDescription("Returns JSON object containing the latest rtc");
+        return config;
+    }
+
+    @Override
+    public int[] getAddressRange() {
+        return new int[]{i2cAddr};
+    }
+
+    private String buildSchema() {
+        ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
+        schemaBuilder
+                .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, SchemaHelper.generateUpdatePayloadSchema())
+                .addPropertySchema(NamingConstants.DEVICE_WRITE_SCHEMA, SchemaHelper.buildWritablePayload())
+                .description("Quad 7 Segment LED")
+                .title("HT16K33");
+
+        return schemaToString(schemaBuilder.build());
+    }
 }

@@ -18,44 +18,44 @@ package io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos;
 
 public class LinearResponse implements AngleResponse {
 
-  private final int myLowBound;
-  private final int myServoRange;
+    private final int myLowBound;
+    private final int myServoRange;
 
-  private final float myMinAngle;
-  private final float myMaxAngle;
-  private final float myRange;
+    private final float myMinAngle;
+    private final float myMaxAngle;
+    private final float myRange;
 
 
-  public LinearResponse(short lowBound, short highBound, float minAngle, float maxAngle) {
-    myLowBound = lowBound;
-    myServoRange = highBound - lowBound;
+    public LinearResponse(short lowBound, short highBound, float minAngle, float maxAngle) {
+        myLowBound = lowBound;
+        myServoRange = highBound - lowBound;
 
-    myMinAngle = minAngle;
-    myMaxAngle = maxAngle;
-    myRange = myMaxAngle - myMinAngle;
-  }
+        myMinAngle = minAngle;
+        myMaxAngle = maxAngle;
+        myRange = myMaxAngle - myMinAngle;
+    }
 
-  public float getMin() {
-    return myMinAngle;
-  }
+    public float getMin() {
+        return myMinAngle;
+    }
 
-  public float getMax() {
-    return myMaxAngle;
-  }
+    public float getMax() {
+        return myMaxAngle;
+    }
 
-  public float getIdle() {
-    return (0.0f) / 2.0f;
-  }
+    public float getIdle() {
+        return (0.0f) / 2.0f;
+    }
 
-  @Override
-  public float getResponse(float angle) {
-    if (angle < myMinAngle)
-      angle = myMinAngle;
-    if (angle > myMaxAngle)
-      angle = myMaxAngle;
+    @Override
+    public float getResponse(float angle) {
+        if (angle < myMinAngle)
+            angle = myMinAngle;
+        if (angle > myMaxAngle)
+            angle = myMaxAngle;
 
-    float pos = (myMaxAngle - angle) / myRange;
-    pos = myServoRange * pos + myLowBound;
-    return pos;
-  }
+        float pos = (myMaxAngle - angle) / myRange;
+        pos = myServoRange * pos + myLowBound;
+        return pos;
+    }
 }

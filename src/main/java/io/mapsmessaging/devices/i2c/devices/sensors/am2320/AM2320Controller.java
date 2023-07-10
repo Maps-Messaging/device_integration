@@ -26,8 +26,6 @@ import org.everit.json.schema.NumberSchema;
 import org.everit.json.schema.ObjectSchema;
 import org.json.JSONObject;
 
-import java.io.IOException;
-
 public class AM2320Controller implements I2CDeviceController {
 
   private final int i2cAddr = 0x5C;

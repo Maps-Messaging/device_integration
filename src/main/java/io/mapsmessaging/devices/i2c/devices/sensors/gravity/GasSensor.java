@@ -22,7 +22,6 @@ import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.AcquireMode;
 import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.AlarmType;
 import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.Command;
 import io.mapsmessaging.devices.i2c.devices.sensors.gravity.module.SensorType;
-import io.mapsmessaging.logging.Logger;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 

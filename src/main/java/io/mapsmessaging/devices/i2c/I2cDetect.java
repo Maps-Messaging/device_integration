@@ -20,11 +20,11 @@ import io.mapsmessaging.devices.DeviceBusManager;
 
 public class I2cDetect {
 
-  public static void main(String[] args){
-    DeviceBusManager deviceBusManager = DeviceBusManager.getInstance();
-    I2CBusManager i2CBusManager = deviceBusManager.getI2cBusManager();
-    i2CBusManager.findDevicesOnBus();
-    System.err.println("All done");
-    deviceBusManager.close();
-  }
+    public static void main(String[] args) {
+        DeviceBusManager deviceBusManager = DeviceBusManager.getInstance();
+        I2CBusManager i2CBusManager = deviceBusManager.getI2cBusManager();
+        i2CBusManager.findDevicesOnBus();
+        System.err.println("All done");
+        deviceBusManager.close();
+    }
 }

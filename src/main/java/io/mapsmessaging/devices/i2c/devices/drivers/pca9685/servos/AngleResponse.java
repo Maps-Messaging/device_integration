@@ -18,12 +18,12 @@ package io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos;
 
 public interface AngleResponse {
 
-  float getResponse(float angle);
+    float getResponse(float angle);
 
-  float getMin();
+    float getMin();
 
-  float getMax();
+    float getMax();
 
-  float getIdle();
+    float getIdle();
 
 }

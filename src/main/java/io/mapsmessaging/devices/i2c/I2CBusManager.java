@@ -59,7 +59,7 @@ public class I2CBusManager {
       logger.log(DeviceLogMessage.I2C_BUS_LOADED_DEVICE, device.getName());
       int[] addressRange = device.getAddressRange();
       for (int i : addressRange) {
-        logger.log(DeviceLogMessage.I2C_BUS_ALLOCATING_ADDRESS, "0x"+Integer.toHexString(i), device.getName());
+        logger.log(DeviceLogMessage.I2C_BUS_ALLOCATING_ADDRESS, "0x" + Integer.toHexString(i), device.getName());
         mappedDevices.computeIfAbsent(i, k -> new ArrayList<>()).add(device);
       }
     }
@@ -92,19 +92,18 @@ public class I2CBusManager {
 
   public void scanForDevices() {
     List<Integer> foundDevices = findDevicesOnBus();
-    for(Integer addr : foundDevices){
+    for (Integer addr : foundDevices) {
       List<I2CDeviceController> devices = mappedDevices.get(addr);
-      if(devices != null && !devices.isEmpty()) {
-        if(devices.size() == 1) {
+      if (devices != null && !devices.isEmpty()) {
+        if (devices.size() == 1) {
           try {
             createAndMountDevice(addr, devices.get(0));
           } catch (IOException e) {
             e.printStackTrace();
           }
-        }
-        else{
+        } else {
           StringBuilder sb = new StringBuilder();
-          for(I2CDeviceController controller:devices){
+          for (I2CDeviceController controller : devices) {
             sb.append(controller.getName()).append(" ");
           }
           logger.log(I2C_BUS_SCAN_MULTIPLE_DEVICES, sb.toString());
@@ -125,7 +124,7 @@ public class I2CBusManager {
               .device(x)
               .build();
           I2C device = i2cProvider.create(i2cConfig);
-          if(isOnBus(x, device)){
+          if (isOnBus(x, device)) {
             found.add(x);
           }
           physicalDevices.put(x, device);
@@ -145,7 +144,7 @@ public class I2CBusManager {
         device.read(buf, 0, 1);
         TimeUnit.MILLISECONDS.sleep(20);
       }
-      return device.read(buf, 0, 1) ==1;
+      return device.read(buf, 0, 1) == 1;
     } catch (Exception ex) {
       return false;
     }
@@ -156,26 +155,25 @@ public class I2CBusManager {
     activeDevices.put(Integer.toHexString(i2cAddress), new I2CDeviceScheduler(device));
   }
 
-  private void logDetect(List<Integer> found){
+  private void logDetect(List<Integer> found) {
     int addr = 0;
-    logger.log(I2C_BUS_SCAN,"     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f");
-    for(int x=0;x<8;x++){
-      StringBuilder sb = new StringBuilder(x+"0: ");
-      for(int y=0;y<16;y++){
+    logger.log(I2C_BUS_SCAN, "     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f");
+    for (int x = 0; x < 8; x++) {
+      StringBuilder sb = new StringBuilder(x + "0: ");
+      for (int y = 0; y < 16; y++) {
         String display;
-        if(found.contains(addr)){
+        if (found.contains(addr)) {
           display = Integer.toHexString(addr);
-          if(addr<16){
-            display="0"+display;
+          if (addr < 16) {
+            display = "0" + display;
           }
-        }
-        else{
+        } else {
           display = "--";
         }
         sb.append(display).append(" ");
         addr++;
       }
-      logger.log(I2C_BUS_SCAN,sb.toString());
+      logger.log(I2C_BUS_SCAN, sb.toString());
     }
   }
 

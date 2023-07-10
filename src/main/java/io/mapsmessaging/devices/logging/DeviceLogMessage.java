@@ -23,9 +23,14 @@ public enum DeviceLogMessage implements LogMessage {
   I2C_BUS_MANAGER_SHUTDOWN(LEVEL.WARN, BUS.I2C, "I2C Bus Manager shutting down"),
   I2C_BUS_SCAN(LEVEL.WARN, BUS.I2C, "I2C Detect : {}"),
   I2C_BUS_SCAN_MULTIPLE_DEVICES(LEVEL.WARN, BUS.I2C, "Unable to detect which device has been found, needs to be configured {}"),
-  I2C_BUS_WRITE(LEVEL.DEBUG, BUS.I2C, "Register : {}, Data : {}"),
-  I2C_BUS_READ(LEVEL.DEBUG, BUS.I2C, "Register : {}, Data : {}"),
+  //</editor-fold>
 
+  //<editor-fold desc="Bus Device messages">
+  I2C_BUS_DEVICE_ALLOCATED(LEVEL.INFO, BUS.I2C_DEVICE, "Allocating device on Bus: {} Address: {}"),
+  I2C_BUS_DEVICE_WRITE(LEVEL.DEBUG, BUS.I2C_DEVICE, "Writing to device on Bus: {} Address: {}, Register: {}, Data : {}"),
+  I2C_BUS_DEVICE_READ(LEVEL.DEBUG, BUS.I2C_DEVICE, "Reading from device on Bus: {} Address: {}, Register: {}, Data : {}"),
+  I2C_BUS_DEVICE_CLOSE(LEVEL.INFO, BUS.I2C_DEVICE, "Closing device on Bus: {} to Address: {}"),
+  I2C_BUS_DEVICE_DELAY(LEVEL.DEBUG, BUS.I2C_DEVICE, "Delaying device on Bus: {} to Address: {} for {}ms"),
   //</editor-fold>
 
   //<editor-fold desc="SPI Bus Manager messages">
@@ -67,6 +72,7 @@ public enum DeviceLogMessage implements LogMessage {
   public enum BUS implements Category {
     MANAGER("Manager"),
     I2C("I2C"),
+    I2C_DEVICE("I2C-DEVICE"),
     SPI("SPI"),
     ONE_WIRE("1Wire");
 

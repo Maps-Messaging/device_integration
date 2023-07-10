@@ -60,14 +60,14 @@ public abstract class HT16K33Controller implements I2CDeviceController {
     return jsonObject.toString(2).getBytes();
   }
 
-  public void rawWrite(String value){
-    if(display != null) {
+  public void rawWrite(String value) {
+    if (display != null) {
       display.writeRaw(value);
     }
   }
 
-  public void write(String value){
-    if(display != null) {
+  public void write(String value) {
+    if (display != null) {
       display.write(value);
     }
   }
@@ -108,8 +108,7 @@ public abstract class HT16K33Controller implements I2CDeviceController {
       if (text.length() <= 5) {
         display.write(text);
       }
-    }
-    else if (jsonObject.has("raw")) {
+    } else if (jsonObject.has("raw")) {
       synchronized (this) {
         if (currentTask != null) {
           currentTask.stop();
@@ -118,8 +117,7 @@ public abstract class HT16K33Controller implements I2CDeviceController {
       }
       String text = jsonObject.getString("raw");
       display.writeRaw(text);
-    }
-    else if (jsonObject.has("task")) {
+    } else if (jsonObject.has("task")) {
       synchronized (this) {
         if (currentTask != null) {
           currentTask.stop();
@@ -158,10 +156,10 @@ public abstract class HT16K33Controller implements I2CDeviceController {
                 .build()
         )
         .addPropertySchema("task", EnumSchema.builder()
-                .possibleValue("clock")
-                .possibleValue("test")
-                .description("This is an optional server side task")
-                .build())
+            .possibleValue("clock")
+            .possibleValue("test")
+            .description("This is an optional server side task")
+            .build())
         .addPropertySchema("blink",
             BooleanSchema.builder()
                 .description("If the LED is blinking or not")

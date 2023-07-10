@@ -19,110 +19,109 @@ package io.mapsmessaging.devices.i2c.devices.sensors.ina219;
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.*;
-import io.mapsmessaging.logging.Logger;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 import lombok.Setter;
 
 public class Ina219Sensor extends I2CDevice {
 
-  @Getter
-  @Setter
-  private ADCResolution adcResolution;
+    @Getter
+    @Setter
+    private ADCResolution adcResolution;
 
-  @Getter
-  @Setter
-  private BusVoltageRange busVoltageRange;
+    @Getter
+    @Setter
+    private BusVoltageRange busVoltageRange;
 
-  @Getter
-  @Setter
-  private GainMask gainMask;
+    @Getter
+    @Setter
+    private GainMask gainMask;
 
-  @Getter
-  @Setter
-  private OperatingMode operatingMode;
+    @Getter
+    @Setter
+    private OperatingMode operatingMode;
 
-  @Getter
-  @Setter
-  private ShuntADCResolution shuntADCResolution;
+    @Getter
+    @Setter
+    private ShuntADCResolution shuntADCResolution;
 
-  public Ina219Sensor(I2C device) {
-    super(device, LoggerFactory.getLogger(Ina219Sensor.class));
-    adcResolution = ADCResolution.RES_12BIT;
-    busVoltageRange = BusVoltageRange.RANGE_32V;
-    gainMask = GainMask.GAIN_8_320MV;
-    operatingMode = OperatingMode.BVOLT_CONTINUOUS;
-    shuntADCResolution = ShuntADCResolution.RES_12BIT_1S_532US;
-    setCalibration();
-  }
+    public Ina219Sensor(I2C device) {
+        super(device, LoggerFactory.getLogger(Ina219Sensor.class));
+        adcResolution = ADCResolution.RES_12BIT;
+        busVoltageRange = BusVoltageRange.RANGE_32V;
+        gainMask = GainMask.GAIN_8_320MV;
+        operatingMode = OperatingMode.BVOLT_CONTINUOUS;
+        shuntADCResolution = ShuntADCResolution.RES_12BIT_1S_532US;
+        setCalibration();
+    }
 
-  @Override
-  public boolean isConnected() {
-    return true;
-  }
+    @Override
+    public boolean isConnected() {
+        return true;
+    }
 
-  public void setCalibration() {
-    writeDevice(Registers.CALIBRATION, buildMask());
-  }
+    public void setCalibration() {
+        writeDevice(Registers.CALIBRATION, buildMask());
+    }
 
-  public int getBusVoltage() {
-    int value = readDevice(Registers.BUS_VOLTAGE);
-    value = ((value >> 3));
-    return value;
-  }
+    public int getBusVoltage() {
+        int value = readDevice(Registers.BUS_VOLTAGE);
+        value = ((value >> 3));
+        return value;
+    }
 
-  public int getCurrent() {
-    return readDevice(Registers.CURRENT);
-  }
+    public int getCurrent() {
+        return readDevice(Registers.CURRENT);
+    }
 
-  public int getPower() {
-    return readDevice(Registers.POWER);
-  }
+    public int getPower() {
+        return readDevice(Registers.POWER);
+    }
 
-  public int getShuntVoltageRaw() {
-    return readDevice(Registers.SHUNT_VOLTAGE);
-  }
+    public int getShuntVoltageRaw() {
+        return readDevice(Registers.SHUNT_VOLTAGE);
+    }
 
-  public double getShuntVoltage() {
-    int rawValue = getShuntVoltageRaw();
-    return rawValue * 0.01;
-  }
+    public double getShuntVoltage() {
+        int rawValue = getShuntVoltageRaw();
+        return rawValue * 0.01;
+    }
 
-  public float getCurrent_mA() {
-    float valueDec = getCurrent();
-    return valueDec;
-  }
+    public float getCurrent_mA() {
+        float valueDec = getCurrent();
+        return valueDec;
+    }
 
-  private int readDevice(Registers register) {
-    byte[] buf = new byte[2];
-    readRegister(register.getAddress(), buf, 0, 2);
-    return (buf[0] & 0xff) << 8 | (buf[1] & 0xff);
-  }
+    private int readDevice(Registers register) {
+        byte[] buf = new byte[2];
+        readRegister(register.getAddress(), buf, 0, 2);
+        return (buf[0] & 0xff) << 8 | (buf[1] & 0xff);
+    }
 
-  private void writeDevice(Registers register, int data) {
-    byte[] buf = new byte[2];
-    buf[0] = (byte) ((data >> 8) & 0xff);
-    buf[1] = (byte) (data & 0xff);
-    write(register.getAddress(), buf);
-  }
+    private void writeDevice(Registers register, int data) {
+        byte[] buf = new byte[2];
+        buf[0] = (byte) ((data >> 8) & 0xff);
+        buf[1] = (byte) (data & 0xff);
+        write(register.getAddress(), buf);
+    }
 
-  private int buildMask() {
-    return
-        busVoltageRange.getValue() |
-            adcResolution.getValue() |
-            operatingMode.getValue() |
-            gainMask.getValue() |
-            shuntADCResolution.getValue();
-  }
+    private int buildMask() {
+        return
+                busVoltageRange.getValue() |
+                        adcResolution.getValue() |
+                        operatingMode.getValue() |
+                        gainMask.getValue() |
+                        shuntADCResolution.getValue();
+    }
 
-  @Override
-  public String getName() {
-    return "INA219";
-  }
+    @Override
+    public String getName() {
+        return "INA219";
+    }
 
-  @Override
-  public String getDescription() {
-    return "Zero-Drift, Bidirectional Current/Power Monitor";
-  }
+    @Override
+    public String getDescription() {
+        return "Zero-Drift, Bidirectional Current/Power Monitor";
+    }
 
 }

@@ -22,7 +22,6 @@ import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.AlarmRegister;
 import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.ControlRegister;
 import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.Registers;
 import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.StatusRegister;
-import io.mapsmessaging.logging.Logger;
 import io.mapsmessaging.logging.LoggerFactory;
 
 import java.time.LocalDate;
@@ -31,98 +30,98 @@ import java.time.LocalTime;
 
 public class Ds3231Rtc extends I2CDevice {
 
-  private final Registers registers;
+    private final Registers registers;
 
-  public Ds3231Rtc(I2C device) {
-    super(device, LoggerFactory.getLogger(Ds3231Rtc.class));
-    registers = new Registers(device);
-    read();
-  }
-
-  @Override
-  public boolean isConnected() {
-    return true;
-  }
-
-  protected void read() {
-    byte[] registerRead = new byte[19];
-    for (int x = 0; x < registerRead.length; x++) {
-      registerRead[x] = (byte) (readRegister(x) & 0xff);
+    public Ds3231Rtc(I2C device) {
+        super(device, LoggerFactory.getLogger(Ds3231Rtc.class));
+        registers = new Registers(device);
+        read();
     }
-    registers.setRegisterValues(registerRead);
-  }
 
-  public float getTemperature() {
-    return registers.getTemperature();
-  }
-
-  public LocalDateTime getDateTime() {
-    return LocalDateTime.of(getDate(), getTime());
-  }
-
-  public void setDateTime(LocalDateTime dateTime) {
-    setDate(dateTime.toLocalDate());
-    setTime(dateTime.toLocalTime());
-  }
-
-  public LocalDate getDate() {
-    return LocalDate.of(registers.getYear(), registers.getMonth(), registers.getDate());
-  }
-
-  public void setDate(LocalDate date) {
-    if (registers.getMonth() != date.getMonthValue()) {
-      registers.setMonth(date.getMonthValue());
+    @Override
+    public boolean isConnected() {
+        return true;
     }
-    if (registers.getDate() != date.getDayOfMonth()) {
-      registers.setDate(date.getDayOfMonth());
+
+    protected void read() {
+        byte[] registerRead = new byte[19];
+        for (int x = 0; x < registerRead.length; x++) {
+            registerRead[x] = (byte) (readRegister(x) & 0xff);
+        }
+        registers.setRegisterValues(registerRead);
     }
-    if (registers.getYear() != date.getYear()) {
-      registers.setYear(date.getYear());
+
+    public float getTemperature() {
+        return registers.getTemperature();
     }
-    if (registers.getDayOfWeek() != date.getDayOfWeek().getValue()) {
-      registers.setDayOfWeek(date.getDayOfWeek().getValue());
+
+    public LocalDateTime getDateTime() {
+        return LocalDateTime.of(getDate(), getTime());
     }
-  }
 
-  public LocalTime getTime() {
-    return LocalTime.of(registers.getHours(), registers.getMinutes(), registers.getSeconds());
-  }
-
-  public void setTime(LocalTime time) {
-    if (registers.getHours() != time.getHour()) {
-      registers.setHours(time.getHour(), false);
+    public void setDateTime(LocalDateTime dateTime) {
+        setDate(dateTime.toLocalDate());
+        setTime(dateTime.toLocalTime());
     }
-    if (registers.getMinutes() != time.getMinute()) {
-      registers.setMinutes(time.getMinute());
+
+    public LocalDate getDate() {
+        return LocalDate.of(registers.getYear(), registers.getMonth(), registers.getDate());
     }
-    if (registers.getSeconds() != time.getSecond()) {
-      registers.setSeconds(time.getSecond());
+
+    public void setDate(LocalDate date) {
+        if (registers.getMonth() != date.getMonthValue()) {
+            registers.setMonth(date.getMonthValue());
+        }
+        if (registers.getDate() != date.getDayOfMonth()) {
+            registers.setDate(date.getDayOfMonth());
+        }
+        if (registers.getYear() != date.getYear()) {
+            registers.setYear(date.getYear());
+        }
+        if (registers.getDayOfWeek() != date.getDayOfWeek().getValue()) {
+            registers.setDayOfWeek(date.getDayOfWeek().getValue());
+        }
     }
-  }
 
-  public AlarmRegister getAlarm1() {
-    return registers.getAlarm1();
-  }
+    public LocalTime getTime() {
+        return LocalTime.of(registers.getHours(), registers.getMinutes(), registers.getSeconds());
+    }
 
-  public AlarmRegister getAlarm2() {
-    return registers.getAlarm2();
-  }
+    public void setTime(LocalTime time) {
+        if (registers.getHours() != time.getHour()) {
+            registers.setHours(time.getHour(), false);
+        }
+        if (registers.getMinutes() != time.getMinute()) {
+            registers.setMinutes(time.getMinute());
+        }
+        if (registers.getSeconds() != time.getSecond()) {
+            registers.setSeconds(time.getSecond());
+        }
+    }
 
-  public ControlRegister getControlRegister() {
-    return registers.getControlRegister();
-  }
+    public AlarmRegister getAlarm1() {
+        return registers.getAlarm1();
+    }
 
-  public StatusRegister getStatusRegiser() {
-    return registers.getStatusRegister();
-  }
+    public AlarmRegister getAlarm2() {
+        return registers.getAlarm2();
+    }
 
-  @Override
-  public String getName() {
-    return "DS3231";
-  }
+    public ControlRegister getControlRegister() {
+        return registers.getControlRegister();
+    }
 
-  @Override
-  public String getDescription() {
-    return "Real Time Clock";
-  }
+    public StatusRegister getStatusRegiser() {
+        return registers.getStatusRegister();
+    }
+
+    @Override
+    public String getName() {
+        return "DS3231";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Real Time Clock";
+    }
 }

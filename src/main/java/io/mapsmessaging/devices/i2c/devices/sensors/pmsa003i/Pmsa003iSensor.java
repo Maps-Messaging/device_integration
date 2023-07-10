@@ -18,7 +18,6 @@ package io.mapsmessaging.devices.i2c.devices.sensors.pmsa003i;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.logging.Logger;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
@@ -26,37 +25,37 @@ import java.nio.ByteBuffer;
 
 public class Pmsa003iSensor extends I2CDevice {
 
-  @Getter
-  private Registers registers;
+    @Getter
+    private Registers registers;
 
-  private final ByteBuffer buffer;
-  private final byte[] raw;
+    private final ByteBuffer buffer;
+    private final byte[] raw;
 
-  public Pmsa003iSensor(I2C device) {
-    super(device, LoggerFactory.getLogger(Pmsa003iSensor.class));
-    raw = new byte[0x1f];
-    buffer = ByteBuffer.wrap(raw);
-    registers = new Registers(buffer);
-  }
+    public Pmsa003iSensor(I2C device) {
+        super(device, LoggerFactory.getLogger(Pmsa003iSensor.class));
+        raw = new byte[0x1f];
+        buffer = ByteBuffer.wrap(raw);
+        registers = new Registers(buffer);
+    }
 
-  @Override
-  public boolean isConnected() {
-    return true;
-  }
+    @Override
+    public boolean isConnected() {
+        return true;
+    }
 
-  protected void readDevice() {
-    readRegister(0, raw, 0, raw.length);
-  }
+    protected void readDevice() {
+        readRegister(0, raw, 0, raw.length);
+    }
 
-  @Override
-  public String getName() {
-    return "PMSA003I";
-  }
+    @Override
+    public String getName() {
+        return "PMSA003I";
+    }
 
-  @Override
-  public String getDescription() {
-    return "Air Quality Breakout";
-  }
+    @Override
+    public String getDescription() {
+        return "Air Quality Breakout";
+    }
 
 
 }
