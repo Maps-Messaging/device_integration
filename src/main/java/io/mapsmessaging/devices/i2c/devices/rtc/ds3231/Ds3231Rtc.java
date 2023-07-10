@@ -25,6 +25,7 @@ import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.StatusRegister;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.LoggerFactory;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -35,7 +36,7 @@ public class Ds3231Rtc extends I2CDevice {
 
   public Ds3231Rtc(I2C device) {
     super(device, LoggerFactory.getLogger(Ds3231Rtc.class));
-    registers = new Registers(device);
+    registers = new Registers(this);
     read();
   }
 
@@ -68,7 +69,7 @@ public class Ds3231Rtc extends I2CDevice {
     return dateTime;
   }
 
-  public void setDateTime(LocalDateTime dateTime) {
+  public void setDateTime(LocalDateTime dateTime) throws IOException {
     setDate(dateTime.toLocalDate());
     setTime(dateTime.toLocalTime());
   }
@@ -81,7 +82,7 @@ public class Ds3231Rtc extends I2CDevice {
     return localDate;
   }
 
-  public void setDate(LocalDate date) {
+  public void setDate(LocalDate date) throws IOException {
     if (registers.getMonth() != date.getMonthValue()) {
       registers.setMonth(date.getMonthValue());
     }
@@ -104,7 +105,7 @@ public class Ds3231Rtc extends I2CDevice {
     return localTime;
   }
 
-  public void setTime(LocalTime time) {
+  public void setTime(LocalTime time) throws IOException {
     if (registers.getHours() != time.getHour()) {
       registers.setHours(time.getHour(), false);
     }

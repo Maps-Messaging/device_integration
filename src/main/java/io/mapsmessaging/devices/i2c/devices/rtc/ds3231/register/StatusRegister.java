@@ -16,14 +16,16 @@
 
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register;
 
-import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.i2c.I2CDevice;
+
+import java.io.IOException;
 
 public class StatusRegister {
 
-  private final I2C device;
+  private final I2CDevice device;
   private byte statusByte;
 
-  public StatusRegister(I2C device, byte statusByte) {
+  public StatusRegister(I2CDevice device, byte statusByte) {
     this.statusByte = statusByte;
     this.device = device;
 
@@ -45,14 +47,14 @@ public class StatusRegister {
     return (statusByte & 0x01) != 0;
   }
 
-  public void clearAlarm2Flag() {
+  public void clearAlarm2Flag() throws IOException {
     statusByte &= 0xFD;
-    device.writeRegister(0xf, statusByte);
+    device.write(0xf, statusByte);
   }
 
-  public void clearAlarm1Flag() {
+  public void clearAlarm1Flag() throws IOException {
     statusByte &= 0xFE;
-    device.writeRegister(0xf, statusByte);
+    device.write(0xf, statusByte);
   }
 
   public byte toByte() {

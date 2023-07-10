@@ -20,6 +20,7 @@ import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.AlarmRegister;
 import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.ControlRegister;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -31,7 +32,7 @@ public class JsonUnpacker {
     this.rtc = rtc;
   }
 
-  public void unpack(JSONObject jsonObject) {
+  public void unpack(JSONObject jsonObject) throws IOException {
     if (jsonObject.has("date")) {
       rtc.setDate(LocalDate.parse(jsonObject.getString("date")));
     }
@@ -52,7 +53,7 @@ public class JsonUnpacker {
     }
   }
 
-  private void unpackAlarm(JSONObject alarmJson, AlarmRegister alarmRegister) {
+  private void unpackAlarm(JSONObject alarmJson, AlarmRegister alarmRegister) throws IOException {
     String time = alarmJson.getString("time");
     String rate = alarmJson.getString("rate");
     int dayOfWeek = alarmJson.optInt("dayOfWeek", -1);
@@ -73,7 +74,7 @@ public class JsonUnpacker {
   }
 
 
-  private void unpackControl(JSONObject controlJson, ControlRegister controlRegister) {
+  private void unpackControl(JSONObject controlJson, ControlRegister controlRegister) throws IOException {
     boolean covertTemperatureEnabled = controlJson.getBoolean("covertTemperatureEnabled");
     boolean oscillatorEnabled = controlJson.getBoolean("oscillatorEnabled");
     boolean squareWaveEnabled = controlJson.getBoolean("squareWaveEnabled");

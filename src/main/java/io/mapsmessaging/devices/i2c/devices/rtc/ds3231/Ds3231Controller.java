@@ -25,6 +25,8 @@ import lombok.Getter;
 import org.everit.json.schema.ObjectSchema;
 import org.json.JSONObject;
 
+import java.io.IOException;
+
 public class Ds3231Controller extends I2CDeviceController {
 
   private final int i2cAddr = 0x68;
@@ -76,7 +78,7 @@ public class Ds3231Controller extends I2CDeviceController {
   }
 
   @Override
-  public void setPayload(byte[] val) {
+  public void setPayload(byte[] val) throws IOException {
     if (unpacker != null) {
       JSONObject jsonObject = new JSONObject(new String(val));
       unpacker.unpack(jsonObject);

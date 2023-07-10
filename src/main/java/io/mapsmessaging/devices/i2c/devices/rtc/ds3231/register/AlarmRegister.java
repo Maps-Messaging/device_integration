@@ -16,10 +16,11 @@
 
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register;
 
-import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.i2c.I2CDevice;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.io.IOException;
 import java.time.LocalTime;
 
 public class AlarmRegister {
@@ -31,14 +32,14 @@ public class AlarmRegister {
 
   private final byte[] registers;
 
-  private final I2C device;
+  private final I2CDevice device;
   private final int addressOffset;
 
   @Getter
   private RATE rate;
 
 
-  public AlarmRegister(byte[] alarmRegisters, boolean hasSeconds, I2C device, int addressOffset) {
+  public AlarmRegister(byte[] alarmRegisters, boolean hasSeconds, I2CDevice device, int addressOffset) {
     this.device = device;
     this.addressOffset = addressOffset;
     this.registers = alarmRegisters;
@@ -56,10 +57,8 @@ public class AlarmRegister {
     rate = computeRate();
   }
 
-  private void write() {
-    for (int x = 0; x < registers.length; x++) {
-      device.writeRegister((addressOffset + x), registers[x]);
-    }
+  private void write() throws IOException {
+    device.write(addressOffset, registers);
   }
 
   protected byte[] getRegisters() {
@@ -86,7 +85,7 @@ public class AlarmRegister {
     return RATE.findRate(val);
   }
 
-  public void setRate(RATE rate) {
+  public void setRate(RATE rate) throws IOException {
     setBytesFromMask(rate.mask);
     this.rate = rate;
     write();
@@ -99,7 +98,7 @@ public class AlarmRegister {
     return LocalTime.of(hours, min, sec);
   }
 
-  public void setTime(LocalTime localTime) {
+  public void setTime(LocalTime localTime) throws IOException {
     setSeconds(localTime.getSecond());
     setMinutes(localTime.getMinute());
     setHours(localTime.getHour());
@@ -110,7 +109,7 @@ public class AlarmRegister {
     return Registers.bcdToDecimal(registers[dayDayIndex] & 0x3F);
   }
 
-  public void setDayOrDate(int dayOrDate) {
+  public void setDayOrDate(int dayOrDate) throws IOException {
     boolean isMask = (registers[dayDayIndex] & 0b10000000) != 0;
     if (rate.isDayOfWeek) {
       registers[dayDayIndex] = Registers.decimalToBcd(dayOrDate % 7);

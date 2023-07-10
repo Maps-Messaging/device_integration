@@ -16,14 +16,17 @@
 
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register;
 
-import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.i2c.I2CDevice;
 import lombok.Getter;
 import lombok.ToString;
+
+import java.io.IOException;
 
 @ToString
 public class Registers {
 
-  private final I2C device;
+  private final I2CDevice device;
+
   private byte[] registerValues;
   @Getter
   private ControlRegister controlRegister;
@@ -34,7 +37,7 @@ public class Registers {
   @Getter
   private AlarmRegister alarm2;
 
-  public Registers(I2C device) {
+  public Registers(I2CDevice device) {
     this.device = device;
   }
 
@@ -70,18 +73,18 @@ public class Registers {
     return bcdToDecimal(registerValues[0] & 0x7F);
   }
 
-  public void setSeconds(int seconds) {
+  public void setSeconds(int seconds) throws IOException {
     registerValues[0] = decimalToBcd(seconds % 60);
-    device.writeRegister(0, registerValues[0]);
+    device.write(0, registerValues[0]);
   }
 
   public int getMinutes() {
     return bcdToDecimal(registerValues[1] & 0x7F);
   }
 
-  public void setMinutes(int minutes) {
+  public void setMinutes(int minutes) throws IOException {
     registerValues[1] = decimalToBcd(minutes % 60);
-    device.writeRegister(1, registerValues[1]);
+    device.write(1, registerValues[1]);
   }
 
   public int getHours() {
@@ -96,7 +99,7 @@ public class Registers {
     return hours % 24;
   }
 
-  public void setHours(int hours, boolean is12HourFormat) {
+  public void setHours(int hours, boolean is12HourFormat) throws IOException {
     if (is12HourFormat) {
       boolean isPM = hours >= 12;
       if (hours > 12) {
@@ -109,7 +112,7 @@ public class Registers {
     } else {
       registerValues[2] = decimalToBcd(hours % 24);
     }
-    device.writeRegister(2, registerValues[2]);
+    device.write(2, registerValues[2]);
   }
 
 
@@ -117,36 +120,36 @@ public class Registers {
     return registerValues[3] & 0b111;
   }
 
-  public void setDayOfWeek(int dayOfWeek) {
+  public void setDayOfWeek(int dayOfWeek) throws IOException {
     registerValues[3] = (byte) (dayOfWeek & 0x07);
-    device.writeRegister(3, registerValues[3]);
+    device.write(3, registerValues[3]);
   }
 
   public int getDate() {
     return bcdToDecimal(registerValues[4] & 0x3F);
   }
 
-  public void setDate(int date) {
+  public void setDate(int date) throws IOException {
     registerValues[4] = decimalToBcd(date % 32);
-    device.writeRegister(4, registerValues[4]);
+    device.write(4, registerValues[4]);
   }
 
   public int getMonth() {
     return bcdToDecimal(registerValues[5] & 0x1F);
   }
 
-  public void setMonth(int month) {
+  public void setMonth(int month) throws IOException {
     registerValues[5] = decimalToBcd(month % 13);
-    device.writeRegister(5, registerValues[5]);
+    device.write(5, registerValues[5]);
   }
 
   public int getYear() {
     return bcdToDecimal(registerValues[6]) + 2000;
   }
 
-  public void setYear(int year) {
+  public void setYear(int year) throws IOException {
     registerValues[6] = decimalToBcd((year - 2000) % 100);
-    device.writeRegister(6, registerValues[6]);
+    device.write(6, registerValues[6]);
   }
 
   public int getControl() {

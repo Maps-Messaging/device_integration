@@ -16,13 +16,15 @@
 
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register;
 
-import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.i2c.I2CDevice;
+
+import java.io.IOException;
 
 public class ControlRegister {
-  private final I2C device;
+  private final I2CDevice device;
   private byte controlByte;
 
-  public ControlRegister(I2C device, byte controlByte) {
+  public ControlRegister(I2CDevice device, byte controlByte) {
     this.controlByte = controlByte;
     this.device = device;
   }
@@ -31,7 +33,7 @@ public class ControlRegister {
     return (controlByte & 0x80) != 0;
   }
 
-  public void setOscillatorEnabled(boolean enabled) {
+  public void setOscillatorEnabled(boolean enabled) throws IOException {
     if (enabled) {
       controlByte |= 0x80;
     } else {
@@ -44,7 +46,7 @@ public class ControlRegister {
     return (controlByte & 0x40) != 0;
   }
 
-  public void setSquareWaveEnabled(boolean enabled) {
+  public void setSquareWaveEnabled(boolean enabled) throws IOException {
     if (enabled) {
       controlByte |= 0x40;
     } else {
@@ -57,7 +59,7 @@ public class ControlRegister {
     return (controlByte & 0x20) != 0;
   }
 
-  public void setConvertTemperature(boolean enabled) {
+  public void setConvertTemperature(boolean enabled) throws IOException {
     if (enabled) {
       controlByte |= 0x20;
     } else {
@@ -82,7 +84,7 @@ public class ControlRegister {
     }
   }
 
-  public void setSquareWaveFrequency(int frequency) {
+  public void setSquareWaveFrequency(int frequency) throws IOException {
     int frequencyBits;
     switch (frequency) {
       case 1:
@@ -108,7 +110,7 @@ public class ControlRegister {
     return (controlByte & 0x04) != 0;
   }
 
-  public void setSquareWaveInterruptEnabled(boolean enabled) {
+  public void setSquareWaveInterruptEnabled(boolean enabled) throws IOException {
     if (enabled) {
       controlByte |= 0x04;
     } else {
@@ -121,7 +123,7 @@ public class ControlRegister {
     return (controlByte & 0x01) != 0;
   }
 
-  public void setAlarm1InterruptEnabled(boolean enabled) {
+  public void setAlarm1InterruptEnabled(boolean enabled) throws IOException {
     if (enabled) {
       controlByte |= 0x01;
     } else {
@@ -134,7 +136,7 @@ public class ControlRegister {
     return (controlByte & 0x02) != 0;
   }
 
-  public void setAlarm2InterruptEnabled(boolean enabled) {
+  public void setAlarm2InterruptEnabled(boolean enabled) throws IOException {
     if (enabled) {
       controlByte |= 0x02;
     } else {
@@ -143,8 +145,8 @@ public class ControlRegister {
     write();
   }
 
-  private void write() {
-    device.writeRegister(0xE, controlByte);
+  private void write() throws IOException {
+    device.write(0xE, controlByte);
   }
 
   @Override
