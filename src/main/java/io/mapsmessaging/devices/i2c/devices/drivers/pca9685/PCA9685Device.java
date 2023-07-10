@@ -21,6 +21,7 @@ import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos.AngleResponse;
 import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos.PwmDevice;
 import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos.Servo;
+import io.mapsmessaging.logging.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ public class PCA9685Device extends I2CDevice {
   private final ArrayList<PwmDevice> myServoList;
 
   public PCA9685Device(I2C device) throws IOException {
-    super(device);
+    super(device, LoggerFactory.getLogger(PCA9685Device.class));
     myServos = new BitSet(16);
     myServoList = new ArrayList<>();
     initialise();

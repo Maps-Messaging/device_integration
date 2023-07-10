@@ -18,6 +18,8 @@ package io.mapsmessaging.devices.i2c.devices.sensors.bmp280;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.sensors.am2315.AM2315Sensor;
+import io.mapsmessaging.logging.LoggerFactory;
 
 import java.io.IOException;
 
@@ -56,8 +58,8 @@ public class BMP280Sensor extends I2CDevice {
   private float pressure;
 
 
-  public BMP280Sensor(I2C device) throws IOException {
-    super(device);
+  public BMP280Sensor(I2C device) {
+    super(device, LoggerFactory.getLogger(BMP280Sensor.class));
     prom = new int[8];
     initialise();
     scanForChange();

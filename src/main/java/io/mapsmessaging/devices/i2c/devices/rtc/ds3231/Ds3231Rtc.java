@@ -31,12 +31,10 @@ import java.time.LocalTime;
 
 public class Ds3231Rtc extends I2CDevice {
 
-  private final Logger logger = LoggerFactory.getLogger(Ds3231Rtc.class);
-
   private final Registers registers;
 
   public Ds3231Rtc(I2C device) {
-    super(device);
+    super(device, LoggerFactory.getLogger(Ds3231Rtc.class));
     registers = new Registers(device);
     read();
   }

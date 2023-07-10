@@ -18,6 +18,7 @@ package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
 import java.util.Base64;
@@ -39,7 +40,7 @@ public abstract class HT16K33Driver extends I2CDevice {
   private String current;
 
   protected HT16K33Driver(I2C device) {
-    super(device);
+    super(device, LoggerFactory.getLogger(HT16K33Driver.class));
     isOn = false;
     rate = BlinkRate.OFF;
     current = "     ";

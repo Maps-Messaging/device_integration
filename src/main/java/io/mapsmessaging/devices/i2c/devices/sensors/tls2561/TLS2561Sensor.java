@@ -27,8 +27,6 @@ import java.nio.ByteOrder;
 
 public class TLS2561Sensor extends I2CDevice {
 
-  private final Logger logger = LoggerFactory.getLogger(TLS2561Sensor.class);
-
   private int full;
   private int ir;
 
@@ -41,7 +39,7 @@ public class TLS2561Sensor extends I2CDevice {
   private IntegrationTime integrationTime;
 
   public TLS2561Sensor(I2C device) {
-    super(device);
+    super(device, LoggerFactory.getLogger(TLS2561Sensor.class));
     highGain = 0;
     initialise();
     lastRead = 0;

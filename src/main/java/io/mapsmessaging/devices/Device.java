@@ -33,4 +33,20 @@ public interface Device {
     }
   }
 
+  default String dump(byte[] buffer, int len){
+    int end = Math.min(buffer.length, len);
+    StringBuilder sb = new StringBuilder();
+    boolean first = true;
+    for(int x=0;x<end;x++){
+      if(!first){
+        sb.append(",");
+      }
+      else{
+        first = false;
+      }
+      sb.append(String.format("%02X", buffer[x]&0xff));
+    }
+    return sb.toString();
+  }
+
 }

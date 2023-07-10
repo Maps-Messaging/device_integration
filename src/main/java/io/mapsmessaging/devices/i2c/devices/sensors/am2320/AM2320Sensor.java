@@ -18,9 +18,8 @@ package io.mapsmessaging.devices.i2c.devices.sensors.am2320;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
-
-import java.io.IOException;
 
 public class AM2320Sensor extends I2CDevice {
 
@@ -35,7 +34,7 @@ public class AM2320Sensor extends I2CDevice {
   private float humidity;
 
   public AM2320Sensor(I2C device) {
-    super(device);
+    super(device, LoggerFactory.getLogger(AM2320Sensor.class));
     scanForChange();
   }
 

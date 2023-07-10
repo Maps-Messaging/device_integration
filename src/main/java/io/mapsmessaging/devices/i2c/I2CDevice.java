@@ -18,13 +18,17 @@ package io.mapsmessaging.devices.i2c;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.Device;
+import io.mapsmessaging.devices.logging.DeviceLogMessage;
+import io.mapsmessaging.logging.Logger;
 
 public abstract class I2CDevice implements Device, AutoCloseable {
 
   protected I2C device;
+  protected final Logger logger;
 
-  protected I2CDevice(I2C device) {
+  protected I2CDevice(I2C device, Logger logger) {
     this.device = device;
+    this.logger = logger;
   }
 
   public void close() {
@@ -34,22 +38,36 @@ public abstract class I2CDevice implements Device, AutoCloseable {
   public abstract boolean isConnected();
 
   protected void write(int val) {
+    if(logger.isDebugEnabled()){
+      logger.log(DeviceLogMessage.I2C_BUS_WRITE, 0, String.format("%02X", val));
+    }
     device.write(val);
   }
 
   protected void write(byte[] buffer) {
-    device.write(buffer, 0, buffer.length);
+    write(buffer, 0, buffer.length);
   }
 
   protected void write(byte[] buffer, int off, int len) {
     device.write(buffer, off, len);
+    if(logger.isDebugEnabled()){
+      String bufferString = dump(buffer, buffer.length);
+      logger.log(DeviceLogMessage.I2C_BUS_WRITE, 0, bufferString);
+    }
   }
 
   public void write(int register, byte data) {
+    if(logger.isDebugEnabled()){
+      logger.log(DeviceLogMessage.I2C_BUS_WRITE, register, String.format("%02X", data));
+    }
     device.writeRegister(register, data);
   }
 
   public void write(int register, byte[] data) {
+    if(logger.isDebugEnabled()){
+      String bufferString = dump(data, data.length);
+      logger.log(DeviceLogMessage.I2C_BUS_WRITE, register, bufferString);
+    }
     device.writeRegister(register, data);
   }
 
@@ -58,11 +76,20 @@ public abstract class I2CDevice implements Device, AutoCloseable {
   }
 
   protected int read(byte[] buffer, int offset, int length) {
-    return device.read(buffer, offset, length);
+    int read = device.read(buffer, offset, length);
+    if(logger.isDebugEnabled()){
+      String bufferString = dump(buffer, read);
+      logger.log(DeviceLogMessage.I2C_BUS_READ, 0, bufferString);
+    }
+    return read;
   }
 
   public int readRegister(int register) {
-    return device.readRegister(register);
+    int val = device.readRegister(register);
+    if(logger.isDebugEnabled()){
+      logger.log(DeviceLogMessage.I2C_BUS_READ, register, String.format("%02X", val));
+    }
+    return val;
   }
 
   public int readRegister(int register, byte[] output) {
@@ -70,7 +97,12 @@ public abstract class I2CDevice implements Device, AutoCloseable {
   }
 
   public int readRegister(int register, byte[] output, int offset, int length) {
-    return device.readRegister(register, output, offset, length);
+    int read = device.readRegister(register, output, offset, length);
+    if(logger.isDebugEnabled()){
+      String bufferString = dump(output, read);
+      logger.log(DeviceLogMessage.I2C_BUS_READ, register, bufferString);
+    }
+    return read;
   }
 
   @Override

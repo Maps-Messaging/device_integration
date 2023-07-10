@@ -26,8 +26,6 @@ import lombok.Setter;
 
 public class Ina219Sensor extends I2CDevice {
 
-  private final Logger logger = LoggerFactory.getLogger(Ina219Sensor.class);
-
   @Getter
   @Setter
   private ADCResolution adcResolution;
@@ -49,7 +47,7 @@ public class Ina219Sensor extends I2CDevice {
   private ShuntADCResolution shuntADCResolution;
 
   public Ina219Sensor(I2C device) {
-    super(device);
+    super(device, LoggerFactory.getLogger(Ina219Sensor.class));
     adcResolution = ADCResolution.RES_12BIT;
     busVoltageRange = BusVoltageRange.RANGE_32V;
     gainMask = GainMask.GAIN_8_320MV;

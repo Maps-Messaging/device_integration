@@ -32,11 +32,8 @@ public class Lps35Sensor extends I2CDevice {
   public static final byte PRESS_OUT_XL = 0x28;
   public static final byte TEMP_OUT_L = 0x2B;
 
-
-  private final Logger logger = LoggerFactory.getLogger(Lps35Sensor.class);
-
   public Lps35Sensor(I2C device) {
-    super(device);
+    super(device, LoggerFactory.getLogger(Lps35Sensor.class));
   }
 
   @Override

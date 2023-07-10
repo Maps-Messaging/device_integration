@@ -18,6 +18,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.am2315;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.sensors.as3935.AS3935Sensor;
 import io.mapsmessaging.logging.Logger;
 import io.mapsmessaging.logging.LoggerFactory;
 
@@ -66,13 +67,12 @@ public class AM2315Sensor extends I2CDevice {
   private static final byte RetentionF = 0x1E;
   private static final byte Retention10 = 0x1F;
 
-  private final Logger logger = LoggerFactory.getLogger("AM2315");
   private byte[] sensorReadings = new byte[4];
   private long lastRead;
 
 
   public AM2315Sensor(I2C device) throws IOException {
-    super(device);
+    super(device, LoggerFactory.getLogger(AM2315Sensor.class));
     lastRead = 0;
     loadValues();
   }

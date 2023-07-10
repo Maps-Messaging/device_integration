@@ -27,14 +27,13 @@ import java.io.IOException;
 
 public class BNO055Sensor extends I2CDevice {
 
-  private final Logger logger = LoggerFactory.getLogger(BNO055Sensor.class);
   private final float[] myEuler = new float[3];
   private long lastRead;
   @Getter
   private String version;
 
   public BNO055Sensor(I2C device) throws IOException {
-    super(device);
+    super(device, LoggerFactory.getLogger(BNO055Sensor.class));
     initialise();
   }
 

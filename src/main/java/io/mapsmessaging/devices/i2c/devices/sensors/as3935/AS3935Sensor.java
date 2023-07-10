@@ -18,6 +18,8 @@ package io.mapsmessaging.devices.i2c.devices.sensors.as3935;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.sensors.am2320.AM2320Sensor;
+import io.mapsmessaging.logging.LoggerFactory;
 
 import java.io.IOException;
 
@@ -33,7 +35,7 @@ public class AS3935Sensor extends I2CDevice {
   private final int tuning;
 
   public AS3935Sensor(I2C device, int tuning) throws IOException {
-    super(device);
+    super(device, LoggerFactory.getLogger(AS3935Sensor.class));
     registers = new byte[128];
 
     register = new Registers(this);

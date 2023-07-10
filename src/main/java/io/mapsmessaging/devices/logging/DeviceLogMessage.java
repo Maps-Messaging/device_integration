@@ -23,6 +23,9 @@ public enum DeviceLogMessage implements LogMessage {
   I2C_BUS_MANAGER_SHUTDOWN(LEVEL.WARN, BUS.I2C, "I2C Bus Manager shutting down"),
   I2C_BUS_SCAN(LEVEL.WARN, BUS.I2C, "I2C Detect : {}"),
   I2C_BUS_SCAN_MULTIPLE_DEVICES(LEVEL.WARN, BUS.I2C, "Unable to detect which device has been found, needs to be configured {}"),
+  I2C_BUS_WRITE(LEVEL.DEBUG, BUS.I2C, "Register : {}, Data : {}"),
+  I2C_BUS_READ(LEVEL.DEBUG, BUS.I2C, "Register : {}, Data : {}"),
+
   //</editor-fold>
 
   //<editor-fold desc="SPI Bus Manager messages">

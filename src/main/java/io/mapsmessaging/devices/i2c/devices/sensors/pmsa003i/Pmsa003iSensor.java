@@ -26,8 +26,6 @@ import java.nio.ByteBuffer;
 
 public class Pmsa003iSensor extends I2CDevice {
 
-  private final Logger logger = LoggerFactory.getLogger(Pmsa003iSensor.class);
-
   @Getter
   private Registers registers;
 
@@ -35,7 +33,7 @@ public class Pmsa003iSensor extends I2CDevice {
   private final byte[] raw;
 
   public Pmsa003iSensor(I2C device) {
-    super(device);
+    super(device, LoggerFactory.getLogger(Pmsa003iSensor.class));
     raw = new byte[0x1f];
     buffer = ByteBuffer.wrap(raw);
     registers = new Registers(buffer);
