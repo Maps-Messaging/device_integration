@@ -22,6 +22,7 @@ import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
+import java.io.IOException;
 import java.util.Base64;
 
 public abstract class HT16K33Driver extends I2CDevice {
@@ -40,7 +41,7 @@ public abstract class HT16K33Driver extends I2CDevice {
   @Getter
   private String current;
 
-  protected HT16K33Driver(I2C device) {
+  protected HT16K33Driver(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(HT16K33Driver.class));
     isOn = false;
     rate = BlinkRate.OFF;
@@ -51,8 +52,13 @@ public abstract class HT16K33Driver extends I2CDevice {
   }
 
   @Override
-  public void close() {
-    turnOff();
+  public void close(){
+    try {
+      turnOff();
+    }
+    catch(IOException ex){
+      // we might have lost the device, so this will fail
+    }
   }
 
   @Override
@@ -62,26 +68,26 @@ public abstract class HT16K33Driver extends I2CDevice {
 
   public abstract byte[] encode(String val);
 
-  public void turnOn() {
+  public void turnOn() throws IOException {
     writeCommand((byte) 0x21); // Turn on
     writeCommand((byte) 0x81); // Turn on display
     logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "turnOn()");
     isOn = true;
   }
 
-  public void turnOff() {
+  public void turnOff() throws IOException {
     writeCommand((byte) 0x20); // Turn off
     logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "turnOff()");
     isOn = false;
   }
 
-  public void setBlinkRate(BlinkRate rate) {
+  public void setBlinkRate(BlinkRate rate) throws IOException {
     writeCommand((byte) (BLINK_COMMAND | BLINK_DISPLAYON | (rate.getRate() << 1)));
     logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "setBlinkRate("+rate.name()+")");
     this.rate = rate;
   }
 
-  public void setBrightness(byte brightness) {
+  public void setBrightness(byte brightness) throws IOException {
     this.brightness = (byte) (brightness & 0xf);
     logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "setBlinkRate("+brightness+")");
 
@@ -89,7 +95,7 @@ public abstract class HT16K33Driver extends I2CDevice {
   }
 
 
-  public void writeRaw(String val) {
+  public void writeRaw(String val) throws IOException {
     byte[] data = Base64.getDecoder().decode(val);
     if(logger.isDebugEnabled()){
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "writeRaw("+val+")");
@@ -97,7 +103,7 @@ public abstract class HT16K33Driver extends I2CDevice {
     write(0, data);
   }
 
-  public void write(String val) {
+  public void write(String val) throws IOException {
     current = val;
     if(logger.isDebugEnabled()){
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "write("+val+")");
@@ -105,7 +111,7 @@ public abstract class HT16K33Driver extends I2CDevice {
     write(0, encode(val));
   }
 
-  private void writeCommand(byte command) {
+  private void writeCommand(byte command) throws IOException {
     write(new byte[]{command});
   }
 

@@ -68,15 +68,15 @@ public class BNO055Sensor extends I2CDevice {
     version = computeVersion();
   }
 
-  public void setConfigMode() {
+  public void setConfigMode() throws IOException {
     setMode(BNO055Constants.OPERATION_MODE_CONFIG);
   }
 
-  public void setOperationalMode() {
+  public void setOperationalMode() throws IOException {
     setMode(BNO055Constants.OPERATION_MODE_NDOF);
   }
 
-  private void setMode(byte mode) {
+  private void setMode(byte mode) throws IOException {
     write(BNO055Constants.BNO055_OPR_MODE_ADDR, mode);
     delay(30);
   }
@@ -163,7 +163,7 @@ public class BNO055Sensor extends I2CDevice {
     return ret;
   }
 
-  public SystemStatus getStatus(boolean selfTest) {
+  public SystemStatus getStatus(boolean selfTest) throws IOException {
     int results = 0x0f;
     if (selfTest) {
       setConfigMode();

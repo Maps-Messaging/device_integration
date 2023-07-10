@@ -94,7 +94,7 @@ public class AS3935Controller extends I2CDeviceController {
   }
 
   @Override
-  public void setPayload(byte[] payload) {
+  public void setPayload(byte[] payload) throws IOException {
     JSONObject jsonConfig = new JSONObject(new String(payload));
     Registers registers = sensor.getRegisters();
 

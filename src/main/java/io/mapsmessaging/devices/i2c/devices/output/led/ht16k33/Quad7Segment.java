@@ -18,11 +18,13 @@ package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
 import com.pi4j.io.i2c.I2C;
 
+import java.io.IOException;
+
 public class Quad7Segment extends HT16K33Driver {
 
   private final byte[] buf = new byte[10];
 
-  public Quad7Segment(I2C device) {
+  public Quad7Segment(I2C device) throws IOException {
     super(device);
     write("     ");
   }

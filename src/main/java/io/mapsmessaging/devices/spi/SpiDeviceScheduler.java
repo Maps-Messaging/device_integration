@@ -3,6 +3,7 @@ package io.mapsmessaging.devices.spi;
 import com.pi4j.context.Context;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
@@ -27,7 +28,7 @@ public class SpiDeviceScheduler extends SpiDeviceController {
   }
 
   @Override
-  public byte[] getStaticPayload() {
+  public byte[] getStaticPayload() throws IOException {
     try {
       SPI_BUS_SEMAPHORE.acquireUninterruptibly();
       return deviceController.getStaticPayload();
@@ -37,7 +38,7 @@ public class SpiDeviceScheduler extends SpiDeviceController {
   }
 
   @Override
-  public byte[] getUpdatePayload() {
+  public byte[] getUpdatePayload() throws IOException {
     try {
       SPI_BUS_SEMAPHORE.acquireUninterruptibly();
       return deviceController.getUpdatePayload();
@@ -47,7 +48,7 @@ public class SpiDeviceScheduler extends SpiDeviceController {
   }
 
   @Override
-  public void setPayload(byte[] val) {
+  public void setPayload(byte[] val) throws IOException {
     try {
       SPI_BUS_SEMAPHORE.acquireUninterruptibly();
       deviceController.setPayload(val);

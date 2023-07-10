@@ -46,7 +46,7 @@ public class AM2315Sensor extends I2CDevice {
   private long lastRead;
 
 
-  public AM2315Sensor(I2C device) {
+  public AM2315Sensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(AM2315Sensor.class));
     lastRead = 0;
     loadValues();
@@ -68,7 +68,7 @@ public class AM2315Sensor extends I2CDevice {
     return "Encased Temperature and Humidity sensor";
   }
 
-  public long getId() {
+  public long getId() throws IOException {
     byte[] ret = retryReads(ID_24_31, (byte) 0x4);
     long res = 0;
     for (int x = 0; x < 4; x++) {
@@ -80,7 +80,7 @@ public class AM2315Sensor extends I2CDevice {
     return res;
   }
 
-  public float getTemperature() {
+  public float getTemperature() throws IOException {
     loadValues();
     if (logger.isDebugEnabled()) {
       logger.log(I2C_BUS_DEVICE_READ_REQUEST, getName(), "getTemperature()", temperature);
@@ -88,7 +88,7 @@ public class AM2315Sensor extends I2CDevice {
     return temperature;
   }
 
-  public float getHumidity() {
+  public float getHumidity() throws IOException {
     loadValues();
     if (logger.isDebugEnabled()) {
       logger.log(I2C_BUS_DEVICE_READ_REQUEST, getName(), "getHumidity()", humidity);
@@ -96,7 +96,7 @@ public class AM2315Sensor extends I2CDevice {
     return humidity;
   }
 
-  public int getModel() {
+  public int getModel() throws IOException {
     byte[] ret = retryReads(MODEL_HIGH, (byte) 0x2);
     int val = (ret[0] & 0xff) << 8 | (ret[1] & 0xff);
     if (logger.isDebugEnabled()) {
@@ -105,7 +105,7 @@ public class AM2315Sensor extends I2CDevice {
     return val;
   }
 
-  public int getVersion() {
+  public int getVersion() throws IOException {
     byte[] ret = retryReads(VERSION, (byte) 0x1);
     int val = (ret[0] & 0xff);
     if (logger.isDebugEnabled()) {
@@ -114,7 +114,7 @@ public class AM2315Sensor extends I2CDevice {
     return val;
   }
 
-  public int getStatus() {
+  public int getStatus() throws IOException {
     byte[] ret = retryReads(STATUS, (byte) 0x1);
     int val = (ret[0] & 0xff);
     if (logger.isDebugEnabled()) {
@@ -123,7 +123,7 @@ public class AM2315Sensor extends I2CDevice {
     return val;
   }
 
-  private void loadValues() {
+  private void loadValues() throws IOException {
     if (lastRead < System.currentTimeMillis()) {
       byte[] sensorReadings = retryReads(HIGH_RH, RETENTION_1);
       temperature = ((sensorReadings[2] & 0xff) << 8 | (sensorReadings[3] & 0xff) + 10) / 10.0f;
@@ -132,9 +132,9 @@ public class AM2315Sensor extends I2CDevice {
     }
   }
 
-  private byte[] retryReads(byte start, byte end) {
+  private byte[] retryReads(byte start, byte end) throws IOException {
     int count = 0;
-    while (count < 100) {
+    while (count < 10) {
       try {
         return readRegisters(start, end);
       } catch (Throwable th) {
@@ -142,7 +142,7 @@ public class AM2315Sensor extends I2CDevice {
         delay(10);
       }
     }
-    return new byte[0];
+    throw new IOException("Failed to read from device");
   }
 
   private byte[] readRegisters(byte startReg, byte endReg) throws IOException {

@@ -21,6 +21,8 @@ import io.mapsmessaging.devices.Device;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.Logger;
 
+import java.io.IOException;
+
 import static io.mapsmessaging.devices.logging.DeviceLogMessage.*;
 
 public abstract class I2CDevice implements Device, AutoCloseable {
@@ -41,38 +43,45 @@ public abstract class I2CDevice implements Device, AutoCloseable {
 
   public abstract boolean isConnected();
 
-  protected void write(int val) {
+  protected void write(int val) throws IOException {
     if (logger.isDebugEnabled()) {
       log(I2C_BUS_DEVICE_WRITE, 0, String.format("%02X", val));
     }
-    device.write(val);
+    if(device.write(val) != 1) throw new IOException("Failed to write to device");
   }
 
-  protected void write(byte[] buffer) {
+  protected void write(byte[] buffer) throws IOException {
     write(buffer, 0, buffer.length);
   }
 
-  protected void write(byte[] buffer, int off, int len) {
-    device.write(buffer, off, len);
+  protected void write(byte[] buffer, int off, int len) throws IOException {
+    if(device.write(buffer, off, len) != (len -off)){
+      throw new IOException("Failed to write buffer to device");
+    }
     if (logger.isDebugEnabled()) {
       String bufferString = dump(buffer, buffer.length);
       log(I2C_BUS_DEVICE_WRITE, 0, bufferString);
     }
   }
 
-  public void write(int register, byte data) {
+  public void write(int register, byte data) throws IOException {
+    if(device.writeRegister(register, data) != 1){
+      throw new IOException("Failed to write to device");
+    }
     if (logger.isDebugEnabled()) {
       log(I2C_BUS_DEVICE_WRITE, register, String.format("%02X", data));
     }
-    device.writeRegister(register, data);
   }
 
-  public void write(int register, byte[] data) {
+  public void write(int register, byte[] data) throws IOException {
+    if(device.writeRegister(register, data) != data.length){
+      throw new IOException("Failed to write buffer to device");
+    }
+
     if (logger.isDebugEnabled()) {
       String bufferString = dump(data, data.length);
       log(I2C_BUS_DEVICE_WRITE, register, bufferString);
     }
-    device.writeRegister(register, data);
   }
 
   protected int read(byte[] buffer) {

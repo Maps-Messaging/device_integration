@@ -26,6 +26,8 @@ import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import org.everit.json.schema.*;
 import org.json.JSONObject;
 
+import java.io.IOException;
+
 public abstract class HT16K33Controller extends I2CDeviceController {
 
   protected final HT16K33Driver display;
@@ -62,20 +64,20 @@ public abstract class HT16K33Controller extends I2CDeviceController {
     return jsonObject.toString(2).getBytes();
   }
 
-  public void rawWrite(String value) {
+  public void rawWrite(String value) throws IOException {
     if (display != null) {
       display.writeRaw(value);
     }
   }
 
-  public void write(String value) {
+  public void write(String value) throws IOException {
     if (display != null) {
       display.write(value);
     }
   }
 
   @Override
-  public void setPayload(byte[] val) {
+  public void setPayload(byte[] val) throws IOException {
     if (display == null) return;
     JSONObject jsonObject = new JSONObject(new String(val));
     if (jsonObject.has("brightness")) {

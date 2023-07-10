@@ -21,6 +21,7 @@ import org.everit.json.schema.ObjectSchema;
 import org.everit.json.schema.internal.JSONPrinter;
 import org.json.JSONWriter;
 
+import java.io.IOException;
 import java.io.StringWriter;
 
 public interface DeviceController {
@@ -29,12 +30,14 @@ public interface DeviceController {
 
   SchemaConfig getSchema();
 
-  byte[] getStaticPayload();
+  byte[] getStaticPayload() throws IOException;
 
-  byte[] getUpdatePayload();
+  byte[] getUpdatePayload() throws IOException;
 
-  default void setPayload(byte[] val) {
+  default void setPayload(byte[] val) throws IOException {
   }
+
+  default void close(){}
 
   default String schemaToString(ObjectSchema schema) {
     StringWriter stringWriter = new StringWriter();

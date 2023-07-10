@@ -5,9 +5,11 @@ import org.everit.json.schema.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
+
 public class JsonHelper {
 
-  public static void unpackJson(JSONObject jsonObject, Lps35Sensor sensor) {
+  public static void unpackJson(JSONObject jsonObject, Lps35Sensor sensor) throws IOException {
     // Interrupt Config Register
     if (jsonObject.has("interruptConfig")) {
       JSONObject interruptConfigObj = jsonObject.getJSONObject("interruptConfig");

@@ -22,6 +22,7 @@ import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -38,7 +39,7 @@ public class TLS2561Sensor extends I2CDevice {
   @Getter
   private IntegrationTime integrationTime;
 
-  public TLS2561Sensor(I2C device) {
+  public TLS2561Sensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(TLS2561Sensor.class));
     highGain = 0;
     initialise();
@@ -50,7 +51,7 @@ public class TLS2561Sensor extends I2CDevice {
     return true;
   }
 
-  public synchronized void setIntegrationTime(IntegrationTime times, boolean highGain) {
+  public synchronized void setIntegrationTime(IntegrationTime times, boolean highGain) throws IOException {
     if (highGain) {
       this.highGain = 0x10;
     } else {
@@ -65,7 +66,7 @@ public class TLS2561Sensor extends I2CDevice {
     delay(500);
   }
 
-  public void powerOn() {
+  public void powerOn() throws IOException {
     if(logger.isDebugEnabled()){
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "powerOn()");
     }
@@ -73,14 +74,14 @@ public class TLS2561Sensor extends I2CDevice {
     delay(500);
   }
 
-  public void powerOff() {
+  public void powerOff() throws IOException {
     if(logger.isDebugEnabled()){
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "powerOff()");
     }
     write(0x80, (byte) 0x0);
   }
 
-  public synchronized boolean initialise() {
+  public synchronized boolean initialise() throws IOException {
     powerOn();
     setIntegrationTime(IntegrationTime.MS_402, false);
     return true;

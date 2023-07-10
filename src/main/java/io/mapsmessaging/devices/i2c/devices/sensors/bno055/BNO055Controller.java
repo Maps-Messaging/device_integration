@@ -63,7 +63,7 @@ public class BNO055Controller extends I2CDeviceController {
     return jsonObject.toString(2).getBytes();
   }
 
-  public byte[] getStaticPayload() {
+  public byte[] getStaticPayload() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
       CalibrationStatus status = sensor.getCalibrationStatus();

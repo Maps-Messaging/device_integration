@@ -25,6 +25,8 @@ import io.mapsmessaging.devices.i2c.devices.sensors.gravity.module.SensorType;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
+import java.io.IOException;
+
 import static java.lang.Math.log;
 
 public class GasSensor extends I2CDevice {
@@ -36,12 +38,12 @@ public class GasSensor extends I2CDevice {
   @Getter
   private float concentration;
 
-  public GasSensor(I2C device) {
+  public GasSensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(GasSensor.class));
     sensorType = detectType();
   }
 
-  public float getCurrentConcentration() {
+  public float getCurrentConcentration() throws IOException {
     byte[] data = new byte[9];
     request(Command.GET_GAS_CONCENTRATION, data);
     concentration = (data[2] << 8 | (data[3] & 0xff));
@@ -56,21 +58,21 @@ public class GasSensor extends I2CDevice {
     return 0;
   }
 
-  public boolean setI2CAddress(byte group) {
+  public boolean setI2CAddress(byte group) throws IOException {
     byte[] data = new byte[9];
     byte[] request = new byte[6];
     request[1] = group;
     return (request(Command.CHANGE_I2C_ADDR, request, data) && data[2] == 1);
   }
 
-  public boolean changeAcquireMode(AcquireMode acquireMode) {
+  public boolean changeAcquireMode(AcquireMode acquireMode) throws IOException {
     byte[] data = new byte[9];
     byte[] buf = new byte[6];
     buf[1] = acquireMode.getValue();
     return (request(Command.CHANGE_GET_METHOD, buf, data) && data[2] == 1);
   }
 
-  public boolean setThresholdAlarm(int threshold, AlarmType alarmType) {
+  public boolean setThresholdAlarm(int threshold, AlarmType alarmType) throws IOException {
     if (threshold == 0) {
       threshold = sensorType.getThreshold();
     }
@@ -83,7 +85,7 @@ public class GasSensor extends I2CDevice {
     return (request(Command.SET_THRESHOLD_ALARMS, buf, data) && data[2] == 1);
   }
 
-  public boolean clearThresholdAlarm(AlarmType alarmType) {
+  public boolean clearThresholdAlarm(AlarmType alarmType) throws IOException {
     byte[] data = new byte[9];
     byte[] buf = new byte[6];
     buf[1] = 0x0; // disable
@@ -93,7 +95,7 @@ public class GasSensor extends I2CDevice {
     return (request(Command.SET_THRESHOLD_ALARMS, buf, data) && data[2] == 1);
   }
 
-  public float readTempC() {
+  public float readTempC() throws IOException {
     byte[] data = new byte[9];
     if (request(Command.GET_TEMP, data)) {
       int raw = data[2] << 8 | (data[3] & 0xff);
@@ -103,7 +105,7 @@ public class GasSensor extends I2CDevice {
     return Float.NaN;
   }
 
-  public float readVoltageData() {
+  public float readVoltageData() throws IOException {
     byte[] recvbuf = new byte[9];
     if (request(Command.SENSOR_VOLTAGE, recvbuf)) {
       return ((recvbuf[2] << 8 | recvbuf[3] & 0xff) * 3.0f) / 1024.0f * 2f;
@@ -111,7 +113,7 @@ public class GasSensor extends I2CDevice {
     return Float.NaN;
   }
 
-  public void updateAllFields() {
+  public void updateAllFields() throws IOException {
     byte[] data = new byte[9];
     if (request(Command.GET_ALL_DATA, data)) {
       concentration = (data[2] << 8 | (data[3] & 0xff));
@@ -153,12 +155,12 @@ public class GasSensor extends I2CDevice {
 
 
   // Send the command, wait 100ms for the result and then read the result
-  private boolean request(Command command, byte[] result) {
+  private boolean request(Command command, byte[] result) throws IOException {
     byte[] buf = new byte[6];
     return request(command, buf, result);
   }
 
-  private boolean request(Command command, byte[] buf, byte[] result) {
+  private boolean request(Command command, byte[] buf, byte[] result) throws IOException {
     buf[0] = command.getCommandValue();
     write(pack(buf));
     delay(100);
@@ -188,7 +190,7 @@ public class GasSensor extends I2CDevice {
     return (byte) checksum;
   }
 
-  private SensorType detectType() {
+  private SensorType detectType() throws IOException {
     byte[] data = new byte[9];
     if (request(Command.GET_GAS_CONCENTRATION, data)) {
       return SensorType.getByType(data[4]);

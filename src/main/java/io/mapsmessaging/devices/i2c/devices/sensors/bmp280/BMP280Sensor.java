@@ -21,6 +21,8 @@ import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.LoggerFactory;
 
+import java.io.IOException;
+
 import static io.mapsmessaging.devices.logging.DeviceLogMessage.I2C_BUS_DEVICE_READ_REQUEST;
 
 public class BMP280Sensor extends I2CDevice {
@@ -60,7 +62,7 @@ public class BMP280Sensor extends I2CDevice {
 
   private long lastRead;
 
-  public BMP280Sensor(I2C device) {
+  public BMP280Sensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(BMP280Sensor.class));
     prom = new int[8];
     lastRead = 0;
@@ -119,7 +121,7 @@ public class BMP280Sensor extends I2CDevice {
     }
   }
 
-  private void initialise() {
+  private void initialise() throws IOException {
     write((byte) sReset);
     delay(1000);
     byte[] readBuffer = new byte[2];

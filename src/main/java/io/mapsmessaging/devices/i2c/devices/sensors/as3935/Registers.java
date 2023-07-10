@@ -2,6 +2,8 @@ package io.mapsmessaging.devices.i2c.devices.sensors.as3935;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
 
+import java.io.IOException;
+
 public class Registers {
   // Register addresses
   private static final int AFE_GAIN_ADDR = 0x00;
@@ -45,7 +47,7 @@ public class Registers {
   }
 
   // Write register value to the sensor
-  private void writeRegister(int register, int value) {
+  private void writeRegister(int register, int value) throws IOException {
     sensor.write(register, (byte) value);
   }
 
@@ -57,7 +59,7 @@ public class Registers {
     return (value & (1 << AFE_GAIN_PD_BIT)) != 0;
   }
 
-  public void setAFE_PowerDown(boolean powerDown) {
+  public void setAFE_PowerDown(boolean powerDown) throws IOException {
     int value = readRegister(AFE_GAIN_ADDR);
     if (powerDown) {
       value |= (1 << AFE_GAIN_PD_BIT);
@@ -72,7 +74,7 @@ public class Registers {
     return (value >> AFE_GAIN_BOOST_BITS) & 0x1F;
   }
 
-  public void setAFE_GainBoost(int gainBoost) {
+  public void setAFE_GainBoost(int gainBoost) throws IOException {
     int value = readRegister(AFE_GAIN_ADDR);
     value &= ~((0x1F) << AFE_GAIN_BOOST_BITS);
     value |= (gainBoost << AFE_GAIN_BOOST_BITS) & ((0x1F) << AFE_GAIN_BOOST_BITS);
@@ -85,7 +87,7 @@ public class Registers {
     return (value >> THRESHOLD_WDTH_BITS) & 0x0F;
   }
 
-  public void setWatchdogThreshold(int threshold) {
+  public void setWatchdogThreshold(int threshold) throws IOException {
     int value = readRegister(THRESHOLD_ADDR);
     value &= ~((0x0F) << THRESHOLD_WDTH_BITS);
     value |= (threshold << THRESHOLD_WDTH_BITS) & ((0x0F) << THRESHOLD_WDTH_BITS);
@@ -97,7 +99,7 @@ public class Registers {
     return (value >> THRESHOLD_NF_LEV_BITS) & 0x07;
   }
 
-  public void setNoiseFloorLevel(int level) {
+  public void setNoiseFloorLevel(int level) throws IOException {
     int value = readRegister(THRESHOLD_ADDR);
     value &= ~((0x07) << THRESHOLD_NF_LEV_BITS);
     value |= (level << THRESHOLD_NF_LEV_BITS) & ((0x07) << THRESHOLD_NF_LEV_BITS);
@@ -110,7 +112,7 @@ public class Registers {
     return (value >> LIGHTNING_REG_SREJ_BITS) & 0x0F;
   }
 
-  public void setSpikeRejection(int rejection) {
+  public void setSpikeRejection(int rejection) throws IOException {
     int value = readRegister(LIGHTNING_REG_ADDR);
     value &= ~((0x0F) << LIGHTNING_REG_SREJ_BITS);
     value |= (rejection << LIGHTNING_REG_SREJ_BITS) & ((0x0F) << LIGHTNING_REG_SREJ_BITS);
@@ -122,7 +124,7 @@ public class Registers {
     return (value >> LIGHTNING_REG_MIN_NUM_LIGH_BITS) & 0x03;
   }
 
-  public void setMinNumLightning(int numLightning) {
+  public void setMinNumLightning(int numLightning) throws IOException {
     int value = readRegister(LIGHTNING_REG_ADDR);
     value &= ~((0x03) << LIGHTNING_REG_MIN_NUM_LIGH_BITS);
     value |= (numLightning << LIGHTNING_REG_MIN_NUM_LIGH_BITS) & ((0x03) << LIGHTNING_REG_MIN_NUM_LIGH_BITS);
@@ -134,7 +136,7 @@ public class Registers {
     return (value & (1 << LIGHTNING_REG_CL_STAT_BIT)) != 0;
   }
 
-  public void setClearStatisticsEnabled(boolean enabled) {
+  public void setClearStatisticsEnabled(boolean enabled) throws IOException {
     int value = readRegister(LIGHTNING_REG_ADDR);
     if (enabled) {
       value |= (1 << LIGHTNING_REG_CL_STAT_BIT);
@@ -156,7 +158,7 @@ public class Registers {
     return (value & (1 << ENERGY_MASK_DISTURBER_BIT)) != 0;
   }
 
-  public void setMaskDisturberEnabled(boolean enabled) {
+  public void setMaskDisturberEnabled(boolean enabled) throws IOException {
     int value = readRegister(INTERRUPT_ADDR);
     if (enabled) {
       value |= (1 << ENERGY_MASK_DISTURBER_BIT);
@@ -171,7 +173,7 @@ public class Registers {
     return (value >> ENERGY_DIV_RATIO_BITS) & 0x03;
   }
 
-  public void setEnergyDivRatio(int divRatio) {
+  public void setEnergyDivRatio(int divRatio) throws IOException {
     int value = readRegister(INTERRUPT_ADDR);
     value &= ~((0x03) << ENERGY_DIV_RATIO_BITS);
     value |= (divRatio << ENERGY_DIV_RATIO_BITS) & ((0x03) << ENERGY_DIV_RATIO_BITS);
@@ -194,7 +196,7 @@ public class Registers {
     return value & 0x0F;
   }
 
-  public void setTuningCap(int cap) {
+  public void setTuningCap(int cap) throws IOException {
     int value = readRegister(TUN_CAP_ADDR);
     value &= ~((0x0F) << TUN_CAP_CAP_BITS);
     value |= cap & ((0x0F) << TUN_CAP_CAP_BITS);
@@ -206,7 +208,7 @@ public class Registers {
     return (value & (1 << TUN_CAP_DISP_TRCO_BIT)) != 0;
   }
 
-  public void setDispTRCOEnabled(boolean enabled) {
+  public void setDispTRCOEnabled(boolean enabled) throws IOException {
     int value = readRegister(TUN_CAP_ADDR);
     if (enabled) {
       value |= (1 << TUN_CAP_DISP_TRCO_BIT);
@@ -221,7 +223,7 @@ public class Registers {
     return (value & (1 << TUN_CAP_DISP_SRCO_BIT)) != 0;
   }
 
-  public void setDispSRCOEnabled(boolean enabled) {
+  public void setDispSRCOEnabled(boolean enabled) throws IOException {
     int value = readRegister(TUN_CAP_ADDR);
     if (enabled) {
       value |= (1 << TUN_CAP_DISP_SRCO_BIT);

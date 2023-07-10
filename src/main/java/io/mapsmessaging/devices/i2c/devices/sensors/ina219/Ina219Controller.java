@@ -28,6 +28,8 @@ import org.everit.json.schema.NumberSchema;
 import org.everit.json.schema.ObjectSchema;
 import org.json.JSONObject;
 
+import java.io.IOException;
+
 import static io.mapsmessaging.devices.i2c.devices.sensors.ina219.Constants.INA219_ADDRESS;
 
 public class Ina219Controller extends I2CDeviceController {
@@ -43,7 +45,7 @@ public class Ina219Controller extends I2CDeviceController {
     sensor = null;
   }
 
-  public Ina219Controller(I2C device) {
+  public Ina219Controller(I2C device) throws IOException {
     super(device);
     sensor = new Ina219Sensor(device);
   }
@@ -53,7 +55,7 @@ public class Ina219Controller extends I2CDeviceController {
     return sensor != null && sensor.isConnected();
   }
 
-  public I2CDeviceController mount(I2C device) {
+  public I2CDeviceController mount(I2C device) throws IOException {
     return new Ina219Controller(device);
   }
 
@@ -70,7 +72,7 @@ public class Ina219Controller extends I2CDeviceController {
   }
 
   @Override
-  public void setPayload(byte[] payload) {
+  public void setPayload(byte[] payload) throws IOException {
     if (sensor == null) return;
     JSONObject jsonObject = new JSONObject(new String(payload));
     if (jsonObject.has("adcResolution")) {

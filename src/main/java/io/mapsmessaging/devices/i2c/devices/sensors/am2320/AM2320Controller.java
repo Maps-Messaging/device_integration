@@ -26,6 +26,8 @@ import org.everit.json.schema.NumberSchema;
 import org.everit.json.schema.ObjectSchema;
 import org.json.JSONObject;
 
+import java.io.IOException;
+
 public class AM2320Controller extends I2CDeviceController {
 
   private final int i2cAddr = 0x5C;
@@ -38,13 +40,13 @@ public class AM2320Controller extends I2CDeviceController {
     sensor = null;
   }
 
-  protected AM2320Controller(I2C device) {
+  protected AM2320Controller(I2C device) throws IOException {
     super(device);
     sensor = new AM2320Sensor(device);
   }
 
 
-  public I2CDeviceController mount(I2C device) {
+  public I2CDeviceController mount(I2C device) throws IOException {
     return new AM2320Controller(device);
   }
 
@@ -53,7 +55,7 @@ public class AM2320Controller extends I2CDeviceController {
   }
 
 
-  public byte[] getUpdatePayload() {
+  public byte[] getUpdatePayload() throws IOException {
     JSONObject jsonObject = new JSONObject();
     jsonObject.put("humidity", sensor.getHumidity());
     jsonObject.put("temperature", sensor.getTemperature());

@@ -40,7 +40,7 @@ public class I2CDeviceScheduler extends I2CDeviceController {
   }
 
   @Override
-  public byte[] getStaticPayload() {
+  public byte[] getStaticPayload() throws IOException {
     synchronized (deviceController) {
       synchronized (I2C_BUS_LOCK) {
         return deviceController.getStaticPayload();
@@ -49,7 +49,7 @@ public class I2CDeviceScheduler extends I2CDeviceController {
   }
 
   @Override
-  public byte[] getUpdatePayload() {
+  public byte[] getUpdatePayload() throws IOException {
     synchronized (deviceController) {
       synchronized (I2C_BUS_LOCK) {
         return deviceController.getUpdatePayload();
@@ -58,7 +58,7 @@ public class I2CDeviceScheduler extends I2CDeviceController {
   }
 
   @Override
-  public void setPayload(byte[] val) {
+  public void setPayload(byte[] val) throws IOException {
     synchronized (deviceController) {
       synchronized (I2C_BUS_LOCK) {
         deviceController.setPayload(val);

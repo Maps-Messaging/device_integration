@@ -10,6 +10,8 @@ import lombok.Getter;
 import org.everit.json.schema.ObjectSchema;
 import org.json.JSONObject;
 
+import java.io.IOException;
+
 public class Lps35Controller extends I2CDeviceController {
 
   private final Lps35Sensor sensor;
@@ -21,7 +23,7 @@ public class Lps35Controller extends I2CDeviceController {
     sensor = null;
   }
 
-  public Lps35Controller(I2C device) {
+  public Lps35Controller(I2C device) throws IOException {
     super(device);
     sensor = new Lps35Sensor(device);
     sensor.setDataRate(DataRate.RATE_1_HZ);
@@ -32,13 +34,13 @@ public class Lps35Controller extends I2CDeviceController {
     return sensor != null && sensor.isConnected();
   }
 
-  public I2CDeviceController mount(I2C device) {
+  public I2CDeviceController mount(I2C device) throws IOException {
     return new Lps35Controller(device);
   }
 
 
   @Override
-  public void setPayload(byte[] val) {
+  public void setPayload(byte[] val) throws IOException {
     if (sensor != null) {
       JsonHelper.unpackJson(new JSONObject(new String(val)), sensor);
     }

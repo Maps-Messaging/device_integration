@@ -48,7 +48,7 @@ public class SimpleWebAccess {
 
   private void startServer() {
 
-    Javalin app = Javalin.create().start(7000);
+    Javalin app = Javalin.create().start(7001);
     app.get("/device/list", ctx -> {
       JSONObject jsonObject = new JSONObject();
       jsonObject.put("i2c", packList(deviceBusManager.getI2cBusManager().getActive()));
@@ -56,29 +56,71 @@ public class SimpleWebAccess {
       jsonObject.put("spi", packList(deviceBusManager.getSpiBusManager().getActive()));
       ctx.json(jsonObject.toString(2));
     });
+
+    //<editor-fold desc="I2C handler">
+    // Add the I2C bus
     app.get("/device/i2c/{id}", ctx -> {
       String id = ctx.pathParam("id");
       I2CDeviceController device = deviceBusManager.getI2cBusManager().get(id);
       if (device != null) {
-        handleDeviceGet(ctx, device);
+        try {
+          handleDeviceGet(ctx, device);
+        } catch (IOException e) {
+          deviceBusManager.getI2cBusManager().close(device);
+        }
       } else {
         ctx.status(404).result("Device not found");
       }
     });
-    app.get("/device/spi/{id}", ctx -> {
-      String id = ctx.pathParam("id");
-      SpiDeviceController device = deviceBusManager.getSpiBusManager().get(id);
-      if (device != null) {
-        handleDeviceGet(ctx, device);
-      } else {
-        ctx.status(404).result("Device not found");
-      }
-    });
+    // I2C get Schema
     app.get("/device/i2c/{id}/schema", ctx -> {
       String id = ctx.pathParam("id");
       I2CDeviceController device = deviceBusManager.getI2cBusManager().get(id);
       if (device != null) {
         handleGetSchema(ctx, device);
+      } else {
+        ctx.status(404).result("Device not found");
+      }
+    });
+    // I2C get static
+    app.get("/device/i2c/{id}/static", ctx -> {
+      String id = ctx.pathParam("id");
+      I2CDeviceController device = deviceBusManager.getI2cBusManager().get(id);
+      if (device != null) {
+        try {
+          handleGetStatic(ctx, device);
+        }
+        catch (IOException ex) {
+          deviceBusManager.getI2cBusManager().close(device);
+        }
+      } else {
+        ctx.status(404).result("Device not found");
+      }
+    });
+    // I2C post request handler
+    app.post("/device/i2c/{id}", ctx -> {
+      String id = ctx.pathParam("id");
+      I2CDeviceController device = deviceBusManager.getI2cBusManager().get(id);
+      if (device != null) {
+        try {
+          device.setPayload(ctx.body().getBytes());
+        } catch (IOException e) {
+          deviceBusManager.getI2cBusManager().close(device);
+        }
+        ctx.status(200).result("Data written successfully");
+      } else {
+        ctx.status(404).result("Device not found");
+      }
+    });
+    //</editor-fold>
+
+    //<editor-fold desc="SPI handler">
+    // Add the SPI Bus
+    app.get("/device/spi/{id}", ctx -> {
+      String id = ctx.pathParam("id");
+      SpiDeviceController device = deviceBusManager.getSpiBusManager().get(id);
+      if (device != null) {
+        handleDeviceGet(ctx, device);
       } else {
         ctx.status(404).result("Device not found");
       }
@@ -92,15 +134,6 @@ public class SimpleWebAccess {
         ctx.status(404).result("Device not found");
       }
     });
-    app.get("/device/i2c/{id}/static", ctx -> {
-      String id = ctx.pathParam("id");
-      I2CDeviceController device = deviceBusManager.getI2cBusManager().get(id);
-      if (device != null) {
-        handleGetStatic(ctx, device);
-      } else {
-        ctx.status(404).result("Device not found");
-      }
-    });
     app.get("/device/spi/{id}/static", ctx -> {
       String id = ctx.pathParam("id");
       SpiDeviceController device = deviceBusManager.getSpiBusManager().get(id);
@@ -110,6 +143,19 @@ public class SimpleWebAccess {
         ctx.status(404).result("Device not found");
       }
     });
+    app.post("/device/spi/{id}", ctx -> {
+      String id = ctx.pathParam("id");
+      SpiDeviceController device = deviceBusManager.getSpiBusManager().get(id);
+      if (device != null) {
+        device.setPayload(ctx.body().getBytes());
+        ctx.status(200).result("Data written successfully");
+      } else {
+        ctx.status(404).result("Device not found");
+      }
+    });
+    //</editor-fold>
+
+    // 1-Wire handler
     app.get("/device/1wire/{id}", ctx -> {
       String id = ctx.pathParam("id");
       OneWireDeviceController device = deviceBusManager.getOneWireBusManager().get(id);
@@ -124,17 +170,6 @@ public class SimpleWebAccess {
       OneWireDeviceController device = deviceBusManager.getOneWireBusManager().get(id);
       if (device != null) {
         handleGetSchema(ctx, device);
-      } else {
-        ctx.status(404).result("Device not found");
-      }
-    });
-
-    app.post("/device/i2c/{id}", ctx -> {
-      String id = ctx.pathParam("id");
-      I2CDeviceController device = deviceBusManager.getI2cBusManager().get(id);
-      if (device != null) {
-        device.setPayload(ctx.body().getBytes());
-        ctx.status(200).result("Data written successfully");
       } else {
         ctx.status(404).result("Device not found");
       }
@@ -158,7 +193,7 @@ public class SimpleWebAccess {
     ctx.json(new String(deviceController.getStaticPayload()));
   }
 
-  private void handleDeviceGet(Context ctx, DeviceController deviceController) {
+  private void handleDeviceGet(Context ctx, DeviceController deviceController) throws IOException {
     ctx.json(new String(deviceController.getUpdatePayload()));
   }
 

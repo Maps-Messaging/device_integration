@@ -23,6 +23,8 @@ import io.mapsmessaging.schemas.config.SchemaConfig;
 import lombok.Getter;
 import org.everit.json.schema.ObjectSchema;
 
+import java.io.IOException;
+
 public class Quad7SegmentController extends HT16K33Controller {
 
   private final int[] i2cAddr = {0x72};
@@ -33,11 +35,11 @@ public class Quad7SegmentController extends HT16K33Controller {
   public Quad7SegmentController() {
   }
 
-  public Quad7SegmentController(I2C device) {
+  public Quad7SegmentController(I2C device) throws IOException {
     super(new Quad7Segment(device), device);
   }
 
-  public I2CDeviceController mount(I2C device) {
+  public I2CDeviceController mount(I2C device) throws IOException {
     return new Quad7SegmentController(device);
   }
 

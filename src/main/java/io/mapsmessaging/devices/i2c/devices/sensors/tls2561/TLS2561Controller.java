@@ -28,6 +28,8 @@ import org.everit.json.schema.ObjectSchema;
 import org.everit.json.schema.StringSchema;
 import org.json.JSONObject;
 
+import java.io.IOException;
+
 public class TLS2561Controller extends I2CDeviceController {
 
   private final TLS2561Sensor sensor;
@@ -39,7 +41,7 @@ public class TLS2561Controller extends I2CDeviceController {
     sensor = null;
   }
 
-  public TLS2561Controller(I2C device) {
+  public TLS2561Controller(I2C device) throws IOException {
     super(device);
     sensor = new TLS2561Sensor(device);
   }
@@ -49,7 +51,7 @@ public class TLS2561Controller extends I2CDeviceController {
     return sensor != null && sensor.isConnected();
   }
 
-  public I2CDeviceController mount(I2C device) {
+  public I2CDeviceController mount(I2C device) throws IOException {
     return new TLS2561Controller(device);
   }
 

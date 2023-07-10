@@ -3,6 +3,7 @@ package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks;
 import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.HT16K33Controller;
 import io.mapsmessaging.devices.util.Delay;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -26,27 +27,31 @@ public class Clock implements Task {
   @Override
   public void run() {
     boolean hasColon = false;
-    while (runFlag.get()) {
-      StringBuilder val = new StringBuilder();
-      LocalDateTime dateTime = LocalDateTime.now();
-      int hour = dateTime.getHour();
-      int min = dateTime.getMinute();
-      if (hour < 10) {
-        val.append("0");
+    try {
+      while (runFlag.get()) {
+        StringBuilder val = new StringBuilder();
+        LocalDateTime dateTime = LocalDateTime.now();
+        int hour = dateTime.getHour();
+        int min = dateTime.getMinute();
+        if (hour < 10) {
+          val.append("0");
+        }
+        val.append(hour);
+        if (hasColon) {
+          val.append(" ");
+        } else {
+          val.append(":");
+        }
+        hasColon = !hasColon;
+        if (min < 10) {
+          val.append("0");
+        }
+        val.append(min);
+        controller.write(val.toString());
+        Delay.pause(450);
       }
-      val.append(hour);
-      if (hasColon) {
-        val.append(" ");
-      } else {
-        val.append(":");
-      }
-      hasColon = !hasColon;
-      if (min < 10) {
-        val.append("0");
-      }
-      val.append(min);
-      controller.write(val.toString());
-      Delay.pause(450);
+    } catch (IOException e) {
+      // ignore since we may have lost the device
     }
   }
 }

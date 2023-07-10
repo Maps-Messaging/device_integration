@@ -39,7 +39,6 @@ public abstract class I2CDeviceController implements DeviceController {
     }
   }
 
-
   public abstract I2CDeviceController mount(I2C device) throws IOException;
 
   public abstract int[] getAddressRange();

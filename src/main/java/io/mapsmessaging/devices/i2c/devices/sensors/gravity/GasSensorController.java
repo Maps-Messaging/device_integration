@@ -25,6 +25,8 @@ import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import org.json.JSONObject;
 
+import java.io.IOException;
+
 public class GasSensorController extends I2CDeviceController {
 
   private final int i2cAddr = 0x74;
@@ -34,7 +36,7 @@ public class GasSensorController extends I2CDeviceController {
     sensor = null;
   }
 
-  public GasSensorController(I2C device) {
+  public GasSensorController(I2C device) throws IOException {
     super(device);
     sensor = new GasSensor(device);
   }
@@ -44,7 +46,7 @@ public class GasSensorController extends I2CDeviceController {
     return sensor != null && sensor.isConnected();
   }
 
-  public I2CDeviceController mount(I2C device) {
+  public I2CDeviceController mount(I2C device) throws IOException {
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       return new GasSensorController(device);
     }
@@ -66,7 +68,7 @@ public class GasSensorController extends I2CDeviceController {
   }
 
   @Override
-  public void setPayload(byte[] payload) {
+  public void setPayload(byte[] payload) throws IOException {
     if (sensor == null) return;
     JSONObject json = new JSONObject(new String(payload));
     if (json.has("functionName") && json.has("parameters")) {
@@ -112,7 +114,7 @@ public class GasSensorController extends I2CDeviceController {
     return sensor.getName();
   }
 
-  public byte[] getUpdatePayload() {
+  public byte[] getUpdatePayload() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
       sensor.updateAllFields();

@@ -20,6 +20,8 @@ import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.logging.LoggerFactory;
 
+import java.io.IOException;
+
 import static io.mapsmessaging.devices.logging.DeviceLogMessage.I2C_BUS_DEVICE_READ_REQUEST;
 
 public class AM2320Sensor extends I2CDevice {
@@ -33,7 +35,7 @@ public class AM2320Sensor extends I2CDevice {
   private float humidity;
   private long lastRead;
 
-  public AM2320Sensor(I2C device) {
+  public AM2320Sensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(AM2320Sensor.class));
     lastRead = 0;
     loadValues();
@@ -44,7 +46,7 @@ public class AM2320Sensor extends I2CDevice {
     return false;
   }
 
-  public float getTemperature() {
+  public float getTemperature() throws IOException {
     loadValues();
     if (logger.isDebugEnabled()) {
       logger.log(I2C_BUS_DEVICE_READ_REQUEST, getName(), "getTemperature()", temperature);
@@ -52,7 +54,7 @@ public class AM2320Sensor extends I2CDevice {
     return temperature;
   }
 
-  public float getHumidity() {
+  public float getHumidity() throws IOException {
     loadValues();
     if (logger.isDebugEnabled()) {
       logger.log(I2C_BUS_DEVICE_READ_REQUEST, getName(), "getHumidity()", humidity);
@@ -60,7 +62,7 @@ public class AM2320Sensor extends I2CDevice {
     return humidity;
   }
 
-  public void loadValues() {
+  public void loadValues() throws IOException {
     if (lastRead < System.currentTimeMillis()) {
       byte[] response = new byte[8];
       try {
