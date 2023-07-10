@@ -52,20 +52,24 @@ public class TestTask implements Task {
           for (int x = 0; x < 4; x++) {
             panel.setDisplay(x, SevenSegmentLed.TOP_LEFT.getMask() | SevenSegmentLed.BOTTOM_LEFT.getMask());
             controller.rawWrite(panel.pack());
+            if(!runFlag.get())return;
             Delay.pause(200);
             panel.clear();
             panel.setDisplay(x, SevenSegmentLed.TOP_RIGHT.getMask() | SevenSegmentLed.BOTTOM_RIGHT.getMask());
             controller.rawWrite(panel.pack());
+            if(!runFlag.get())return;
             Delay.pause(200);
             panel.clear();
           }
           for (int x = 3; x >= 0; x--) {
             panel.setDisplay(x, SevenSegmentLed.TOP_RIGHT.getMask() | SevenSegmentLed.BOTTOM_RIGHT.getMask());
             controller.rawWrite(panel.pack());
+            if(!runFlag.get())return;
             Delay.pause(200);
             panel.clear();
             panel.setDisplay(x, SevenSegmentLed.TOP_LEFT.getMask() | SevenSegmentLed.BOTTOM_LEFT.getMask());
             controller.rawWrite(panel.pack());
+            if(!runFlag.get())return;
             Delay.pause(200);
             panel.clear();
           }
@@ -75,11 +79,13 @@ public class TestTask implements Task {
             panel.setDisplay(x, SevenSegmentLed.TOP_LEFT.getMask());
             panel.setDisplay(3 - x, SevenSegmentLed.BOTTOM_RIGHT.getMask());
             controller.rawWrite(panel.pack());
+            if(!runFlag.get())return;
             Delay.pause(200);
             panel.clear();
             panel.setDisplay(x, SevenSegmentLed.TOP_RIGHT.getMask());
             panel.setDisplay(3 - x, SevenSegmentLed.BOTTOM_LEFT.getMask());
             controller.rawWrite(panel.pack());
+            if(!runFlag.get())return;
             Delay.pause(200);
             panel.clear();
           }
@@ -87,6 +93,7 @@ public class TestTask implements Task {
         for (int x = 0; x < 4; x++) {
           panel.setDisplay(x, SevenSegmentLed.DECIMAL.getMask());
           controller.rawWrite(panel.pack());
+          if(!runFlag.get())return;
           Delay.pause(200);
           panel.clear();
         }
@@ -94,12 +101,13 @@ public class TestTask implements Task {
         for (int x = 0; x < 4; x++) {
           panel.enableColon(true);
           controller.rawWrite(panel.pack());
+          if(!runFlag.get())return;
           Delay.pause(200);
           panel.enableColon(false);
           controller.rawWrite(panel.pack());
+          if(!runFlag.get())return;
           Delay.pause(200);
         }
-
       }
     } catch (IOException e) {
       // ignore since we have exited now

@@ -45,6 +45,11 @@ public abstract class HT16K33Controller extends I2CDeviceController {
   }
 
   @Override
+  public void close(){
+    cancelCurrentTask();
+  }
+
+  @Override
   public boolean detect() {
     return display != null && display.isConnected();
   }
@@ -102,39 +107,24 @@ public abstract class HT16K33Controller extends I2CDeviceController {
       }
     }
     if (jsonObject.has("display")) {
-      synchronized (this) {
-        if (currentTask != null) {
-          currentTask.stop();
-          currentTask = null;
-        }
-      }
+      cancelCurrentTask();
       String text = jsonObject.getString("display");
       if (text.length() <= 5) {
         display.write(text);
       }
     } else if (jsonObject.has("raw")) {
-      synchronized (this) {
-        if (currentTask != null) {
-          currentTask.stop();
-          currentTask = null;
-        }
-      }
+      cancelCurrentTask();
       String text = jsonObject.getString("raw");
       display.writeRaw(text);
     } else if (jsonObject.has("task")) {
-      synchronized (this) {
-        if (currentTask != null) {
-          currentTask.stop();
-          currentTask = null;
-          display.write("    ");
-        }
-        String task = jsonObject.getString("task");
-        if (task.equalsIgnoreCase("clock")) {
-          currentTask = new Clock(this);
-        }
-        if (task.equalsIgnoreCase("test")) {
-          currentTask = new TestTask(this);
-        }
+      cancelCurrentTask();
+      display.write("    ");
+      String task = jsonObject.getString("task");
+      if (task.equalsIgnoreCase("clock")) {
+        setTask(new Clock(this));
+      }
+      if (task.equalsIgnoreCase("test")) {
+        setTask( new TestTask(this));
       }
     }
   }
@@ -147,7 +137,6 @@ public abstract class HT16K33Controller extends I2CDeviceController {
     config.setInterfaceDescription("Controls the LED segments");
     return config;
   }
-
 
   protected abstract String buildSchema();
 
@@ -215,5 +204,17 @@ public abstract class HT16K33Controller extends I2CDeviceController {
                 .build());
 
     return updateSchema.build();
+  }
+
+  private synchronized void setTask(Task task){
+    cancelCurrentTask();
+    currentTask = task;
+  }
+
+  private synchronized void cancelCurrentTask(){
+    if(currentTask != null){
+      currentTask.stop();
+      currentTask = null;
+    }
   }
 }
