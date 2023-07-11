@@ -52,7 +52,7 @@ public class Pmsa003iController extends I2CDeviceController {
     return new Pmsa003iController(device);
   }
 
-  public byte[] getStaticPayload() {
+  public byte[] getStaticPayload() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
       jsonObject.put("version", sensor.getRegisters().getVersion());
@@ -62,7 +62,6 @@ public class Pmsa003iController extends I2CDeviceController {
 
   public byte[] getUpdatePayload() throws IOException {
     if (sensor != null) {
-      sensor.readDevice();
       return sensor.getRegisters().pack().toString(2).getBytes();
     }
     JSONObject jsonObject = new JSONObject();

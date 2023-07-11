@@ -19,23 +19,22 @@ package io.mapsmessaging.devices.i2c.devices.sensors.pmsa003i;
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.logging.LoggerFactory;
-import lombok.Getter;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class Pmsa003iSensor extends I2CDevice {
 
-  private final ByteBuffer buffer;
-  private final byte[] raw;
-  @Getter
   private final Registers registers;
+  private long lastRead;
+
 
   public Pmsa003iSensor(I2C device) {
     super(device, LoggerFactory.getLogger(Pmsa003iSensor.class));
-    raw = new byte[0x1f];
-    buffer = ByteBuffer.wrap(raw);
+    byte[] raw = new byte[0x1f];
+    ByteBuffer buffer = ByteBuffer.wrap(raw);
     registers = new Registers(buffer);
+    lastRead = 0;
   }
 
   @Override
@@ -43,7 +42,16 @@ public class Pmsa003iSensor extends I2CDevice {
     return true;
   }
 
+  public Registers getRegisters() throws IOException {
+    if (lastRead < System.currentTimeMillis()) {
+      readDevice();
+      lastRead = System.currentTimeMillis() + 1000;
+    }
+    return registers;
+  }
+
   protected void readDevice() throws IOException {
+    byte[] raw = registers.getByteBuffer().array();
     readRegister(0, raw, 0, raw.length);
   }
 

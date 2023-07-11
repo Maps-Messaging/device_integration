@@ -16,12 +16,14 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.pmsa003i;
 
+import lombok.Getter;
 import org.json.JSONObject;
 
 import java.nio.ByteBuffer;
 
 public class Registers {
 
+  @Getter
   private final ByteBuffer byteBuffer;
 
   public Registers(ByteBuffer byteBuffer) {
