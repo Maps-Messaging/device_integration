@@ -28,6 +28,11 @@ io.mapsmessaging.devices.i2c.devices.sensors.tls2561.TLS2561Controller
 #Gravity Gas Sensors, support for all known sensors
 io.mapsmessaging.devices.i2c.devices.sensors.gravity.GasSensorController
 
+#
+# Storage
+#
+io.mapsmessaging.devices.i2c.devices.storage.at24c.AT24CnnController
+
 # Real Time Clocks
 #
 io.mapsmessaging.devices.i2c.devices.rtc.ds3231.Ds3231Controller
