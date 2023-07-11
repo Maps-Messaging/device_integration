@@ -54,7 +54,7 @@ public class AT24CnnController  extends I2CDeviceController {
       byte[] data = sensor.readBytes(0, 32*1024/8);
       jsonObject.put("data", sensor.dump(data, data.length));
       for(int x=0;x<data.length;x++){
-        data[x] = (byte) ((x));
+        data[x] = (byte) (~data[x]);
       }
       sensor.writeBytes(0, data);
     }

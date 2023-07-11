@@ -34,7 +34,23 @@ public class AT24CnnDevice extends I2CDevice {
       int len = Math.min(32, (data.length - offset));
       writeBlock(address + offset, data, offset, len);
       offset += len;
-      if (offset < data.length) delay(10);
+      if (offset < data.length) {
+        waitForReady();
+      }
+    }
+  }
+
+  private void waitForReady() {
+    int count = 0;
+    boolean cont = true;
+    while (cont & count < 10) {
+      try {
+        cont = device.read() < 0;
+      } catch (Exception e) {
+        //ignore till we get the device to respond once more
+      }
+      delay(1);
+      count++;
     }
   }
 
