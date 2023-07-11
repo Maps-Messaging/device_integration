@@ -29,20 +29,45 @@ public class AT24CnnDevice extends I2CDevice {
 
   // Write a byte array at the given address
   public void writeBytes(int address, byte[] data) throws IOException {
-    byte[] buffer = new byte[data.length + 2];
-    buffer[0] = (byte) (address >> 8);
-    buffer[1] = (byte) (address & 0xFF);
-    System.arraycopy(data, 0, buffer, 2, data.length);
-    write(buffer, 0, buffer.length);
+    int offset = 0;
+    while (offset < data.length) {
+      int len = Math.min(32, (data.length - offset));
+      writeBlock(address + offset, data, offset, len);
+      offset += len;
+      if (offset < data.length) delay(10);
+    }
   }
 
   // Read a byte array at the given address
   public byte[] readBytes(int address, int length) throws IOException {
-    byte[] writeBuffer = new byte[] { (byte) (address >> 8), (byte) (address & 0xFF) };
-    byte[] readBuffer = new byte[length];
+    byte[] buffer = new byte[length];
+    int offset = 0;
+    while (offset < length) {
+      int len = Math.min(32, (length - offset));
+      int read = readBlock(address + offset, buffer, offset, len);
+      if (read > 0) {
+        offset += len;
+      } else {
+        throw new IOException("Failed to write device");
+      }
+    }
+    return buffer;
+  }
+
+  // Read a byte array at the given address
+  private int readBlock(int address, byte[] buffer, int offset, int len) throws IOException {
+    byte[] writeBuffer = new byte[]{(byte) (address >> 8), (byte) (address & 0xFF)};
     write(writeBuffer, 0, writeBuffer.length);
-    read(readBuffer, 0, readBuffer.length);
-    return readBuffer;
+    return read(buffer, offset, len);
+  }
+
+  // Write a byte array at the given address
+  public void writeBlock(int address, byte[] data, int offset, int len) throws IOException {
+    byte[] buffer = new byte[len + 2];
+    buffer[0] = (byte) (address >> 8);
+    buffer[1] = (byte) (address & 0xFF);
+    System.arraycopy(data, offset, buffer, 2, len);
+    write(buffer, 0, buffer.length);
   }
 
   @Override
