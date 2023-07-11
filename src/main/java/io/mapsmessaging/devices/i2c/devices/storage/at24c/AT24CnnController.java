@@ -43,7 +43,7 @@ public class AT24CnnController  extends I2CDeviceController {
   public byte[] getStaticPayload() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
-
+      jsonObject.put("size", sensor.getMemorySize());
     }
     return jsonObject.toString(2).getBytes();
   }
@@ -51,7 +51,7 @@ public class AT24CnnController  extends I2CDeviceController {
   public byte[] getUpdatePayload() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
-      byte[] data = sensor.readBytes(0, 32*1024/8);
+      byte[] data = sensor.readBytes(0, 4096); // 32K / 1024 = 4096 bytes.
       jsonObject.put("data", sensor.dump(data, data.length));
       for(int x=0;x<data.length;x++){
         data[x] = (byte) (~data[x]);
@@ -67,7 +67,7 @@ public class AT24CnnController  extends I2CDeviceController {
     config.setSource("I2C bus address : 0x57");
     config.setVersion("1.0");
     config.setResourceType("sensor");
-    config.setInterfaceDescription("temperature, humidity");
+    config.setInterfaceDescription("Serial EEPROM");
     return config;
   }
 

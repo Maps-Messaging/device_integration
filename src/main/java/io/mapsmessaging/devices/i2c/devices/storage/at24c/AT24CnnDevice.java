@@ -3,21 +3,36 @@ package io.mapsmessaging.devices.i2c.devices.storage.at24c;
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.logging.LoggerFactory;
+import lombok.Getter;
 
 import java.io.IOException;
 
 public class AT24CnnDevice extends I2CDevice {
 
+  @Getter
+  private final int memorySize;
+
   protected AT24CnnDevice(I2C device) {
     super(device, LoggerFactory.getLogger(AT24CnnDevice.class));
+    int size = 8192;
+    try {
+      int val = readByte(8191);
+      if (val < 0) {
+        size = 4096;
+      }
+    } catch (IOException e) {
+      size = 4096;
+    }
+    memorySize = size;
   }
 
   // Read a single byte at the given address
   public byte readByte(int address) throws IOException {
-    byte[] writeBuffer = new byte[] { (byte) (address >> 8), (byte) (address & 0xFF) };
+    byte[] writeBuffer = new byte[]{(byte) (address >> 8), (byte) (address & 0xFF)};
     byte[] readBuffer = new byte[1];
     write(writeBuffer, 0, writeBuffer.length);
-    read(readBuffer, 0, readBuffer.length);
+    int val = read(readBuffer, 0, readBuffer.length);
+    if (val < 0) return (byte) -1;
     return readBuffer[0];
   }
 
@@ -88,12 +103,18 @@ public class AT24CnnDevice extends I2CDevice {
 
   @Override
   public String getName() {
-    return "AT24C32/64";
+    if (memorySize == 8192) {
+      return "AT24C64";
+    }
+    return "AT24C32";
   }
 
   @Override
   public String getDescription() {
-    return "32Kb or 64Kb eeprom";
+    if (memorySize == 8192) {
+      return "64Kb eeprom";
+    }
+    return "32Kb eeprom";
   }
 
   @Override
