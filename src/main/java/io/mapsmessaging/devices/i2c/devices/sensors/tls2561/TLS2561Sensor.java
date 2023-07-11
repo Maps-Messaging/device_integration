@@ -18,6 +18,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.tls2561;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
@@ -42,7 +43,9 @@ public class TLS2561Sensor extends I2CDevice {
   public TLS2561Sensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(TLS2561Sensor.class));
     highGain = 0;
-    initialise();
+    synchronized (I2CDeviceScheduler.getI2cBusLock()) {
+      initialise();
+    }
     lastRead = 0;
   }
 
@@ -51,7 +54,7 @@ public class TLS2561Sensor extends I2CDevice {
     return true;
   }
 
-  public synchronized void setIntegrationTime(IntegrationTime times, boolean highGain) throws IOException {
+  public void setIntegrationTime(IntegrationTime times, boolean highGain) throws IOException {
     if (highGain) {
       this.highGain = 0x10;
     } else {
@@ -81,13 +84,13 @@ public class TLS2561Sensor extends I2CDevice {
     write(0x80, (byte) 0x0);
   }
 
-  public synchronized boolean initialise() throws IOException {
+  public boolean initialise() throws IOException {
     powerOn();
     setIntegrationTime(IntegrationTime.MS_402, false);
     return true;
   }
 
-  private synchronized void scanForChange() throws IOException {
+  private void scanForChange() throws IOException {
     if (lastRead < System.currentTimeMillis()) {
       lastRead = System.currentTimeMillis() + integrationTime.getTime();
       // Read 4 bytes of data
