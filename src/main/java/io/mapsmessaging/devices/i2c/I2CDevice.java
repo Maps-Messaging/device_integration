@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c;
 
+import com.pi4j.exception.Pi4JException;
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.Device;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
@@ -47,7 +48,11 @@ public abstract class I2CDevice implements Device, AutoCloseable {
     if (logger.isDebugEnabled()) {
       log(I2C_BUS_DEVICE_WRITE, 0, String.format("%02X", val));
     }
-    if (device.write(val) != 1) throw new IOException("Failed to write to device");
+    try {
+      if (device.write(val) < 1) throw new IOException("Failed to write to device");
+    } catch (Pi4JException e) {
+      throw new IOException(e);
+    }
   }
 
   protected void write(byte[] buffer) throws IOException {
@@ -55,8 +60,12 @@ public abstract class I2CDevice implements Device, AutoCloseable {
   }
 
   protected void write(byte[] buffer, int off, int len) throws IOException {
-    if (device.write(buffer, off, len) != (len - off)) {
-      throw new IOException("Failed to write buffer to device");
+    try {
+      if (device.write(buffer, off, len) < 0) {
+        throw new IOException("Failed to write buffer to device");
+      }
+    } catch (Pi4JException e) {
+      throw new IOException(e);
     }
     if (logger.isDebugEnabled()) {
       String bufferString = dump(buffer, buffer.length);
@@ -73,22 +82,34 @@ public abstract class I2CDevice implements Device, AutoCloseable {
   }
 
   public void write(int register, byte[] data) throws IOException {
-    if (device.writeRegister(register, data) != data.length) {
-      throw new IOException("Failed to write buffer to device");
+    try {
+      int val = device.writeRegister(register, data);
+      if ( val < 0 ) {
+        throw new IOException("Failed to write buffer to device");
+      }
+    } catch (Pi4JException e) {
+      throw new IOException(e);
     }
-
     if (logger.isDebugEnabled()) {
       String bufferString = dump(data, data.length);
       log(I2C_BUS_DEVICE_WRITE, register, bufferString);
     }
   }
 
-  protected int read(byte[] buffer) {
+  protected int read(byte[] buffer) throws IOException {
     return read(buffer, 0, buffer.length);
   }
 
-  protected int read(byte[] buffer, int offset, int length) {
-    int read = device.read(buffer, offset, length);
+  protected int read(byte[] buffer, int offset, int length) throws IOException {
+    int read = 0;
+    try {
+      read = device.read(buffer, offset, length);
+    } catch (Pi4JException e) {
+      throw new IOException(e);
+    }
+    if(read < 0){
+      throw new IOException("Failed to read from device");
+    }
     if (logger.isDebugEnabled()) {
       String bufferString = dump(buffer, read);
       log(I2C_BUS_DEVICE_READ, 0, bufferString);
@@ -96,20 +117,36 @@ public abstract class I2CDevice implements Device, AutoCloseable {
     return read;
   }
 
-  public int readRegister(int register) {
-    int val = device.readRegister(register);
+  public int readRegister(int register) throws IOException{
+    int val = 0;
+    try {
+      val = device.readRegister(register);
+    } catch (Pi4JException e) {
+      throw new IOException(e);
+    }
+    if(val < 0){
+      throw new IOException("Failed to read from device");
+    }
     if (logger.isDebugEnabled()) {
       log(I2C_BUS_DEVICE_READ, register, String.format("%02X", val));
     }
     return val;
   }
 
-  public int readRegister(int register, byte[] output) {
+  public int readRegister(int register, byte[] output) throws IOException {
     return readRegister(register, output, 0, output.length);
   }
 
-  public int readRegister(int register, byte[] output, int offset, int length) {
-    int read = device.readRegister(register, output, offset, length);
+  public int readRegister(int register, byte[] output, int offset, int length) throws IOException {
+    int read = 0;
+    try {
+      read = device.readRegister(register, output, offset, length);
+    } catch (Pi4JException e) {
+      throw new IOException(e);
+    }
+    if(read < 0){
+      throw new IOException("Failed to read from the required registers");
+    }
     if (logger.isDebugEnabled()) {
       String bufferString = dump(output, read);
       log(I2C_BUS_DEVICE_READ, register, bufferString);

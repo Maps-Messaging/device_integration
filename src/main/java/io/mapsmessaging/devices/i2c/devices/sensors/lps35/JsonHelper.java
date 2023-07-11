@@ -133,7 +133,7 @@ public class JsonHelper {
     }
   }
 
-  public static JSONObject pack(Lps35Sensor sensor) {
+  public static JSONObject pack(Lps35Sensor sensor) throws IOException {
     JSONObject jsonObject = new JSONObject();
     // Interrupt Config Register
     JSONObject interruptConfigObj = new JSONObject();

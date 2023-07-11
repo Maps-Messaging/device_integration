@@ -1,5 +1,6 @@
 package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks;
 
+import io.mapsmessaging.devices.DeviceBusManager;
 import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.HT16K33Controller;
 import io.mapsmessaging.devices.util.Delay;
 
@@ -51,6 +52,8 @@ public class Clock implements Task {
         Delay.pause(450);
       }
     } catch (IOException e) {
+      System.err.println(e.getClass().toString());
+      DeviceBusManager.getInstance().getI2cBusManager().close(controller);
       // ignore since we may have lost the device
     }
   }

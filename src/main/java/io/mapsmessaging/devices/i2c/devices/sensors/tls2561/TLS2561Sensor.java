@@ -87,7 +87,7 @@ public class TLS2561Sensor extends I2CDevice {
     return true;
   }
 
-  private synchronized void scanForChange() {
+  private synchronized void scanForChange() throws IOException {
     if (lastRead < System.currentTimeMillis()) {
       lastRead = System.currentTimeMillis() + integrationTime.getTime();
       // Read 4 bytes of data
@@ -103,7 +103,7 @@ public class TLS2561Sensor extends I2CDevice {
     }
   }
 
-  public int getIr() {
+  public int getIr() throws IOException {
     scanForChange();
     if (logger.isDebugEnabled()) {
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), ir + " = getIr()");
@@ -111,7 +111,7 @@ public class TLS2561Sensor extends I2CDevice {
     return ir;
   }
 
-  public int getFull() {
+  public int getFull() throws IOException {
     scanForChange();
     if (logger.isDebugEnabled()) {
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), full + " = getFull()");
@@ -119,7 +119,7 @@ public class TLS2561Sensor extends I2CDevice {
     return full;
   }
 
-  public double calculateLux() {
+  public double calculateLux() throws IOException {
     scanForChange();
     double channelRatio = ir / (double) full;
     double lux;

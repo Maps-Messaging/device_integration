@@ -52,7 +52,7 @@ public class BNO055Controller extends I2CDeviceController {
     return new BNO055Controller(device);
   }
 
-  public byte[] getUpdatePayload() {
+  public byte[] getUpdatePayload() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
       double[] orientation = sensor.getOrientation();

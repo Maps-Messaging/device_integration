@@ -34,7 +34,7 @@ public class Ds3231Rtc extends I2CDevice {
 
   private final Registers registers;
 
-  public Ds3231Rtc(I2C device) {
+  public Ds3231Rtc(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(Ds3231Rtc.class));
     registers = new Registers(this);
     read();
@@ -45,7 +45,7 @@ public class Ds3231Rtc extends I2CDevice {
     return true;
   }
 
-  protected void read() {
+  protected void read() throws IOException {
     byte[] registerRead = new byte[19];
     for (int x = 0; x < registerRead.length; x++) {
       registerRead[x] = (byte) (readRegister(x) & 0xff);

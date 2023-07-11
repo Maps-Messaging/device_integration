@@ -107,7 +107,7 @@ public class Ina219Controller extends I2CDeviceController {
     sensor.setCalibration();
   }
 
-  public byte[] getUpdatePayload() {
+  public byte[] getUpdatePayload() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
       jsonObject.put("current", sensor.getCurrent());

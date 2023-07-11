@@ -43,7 +43,7 @@ public class Registers {
   }
 
   // Read register value from the sensor
-  private int readRegister(int register) {
+  private int readRegister(int register) throws IOException {
     return sensor.readRegister(register);
   }
 
@@ -55,7 +55,7 @@ public class Registers {
   // Methods to get specific register values
 
   // AFE_GAIN Register : 0
-  public boolean isAFE_PowerDown() {
+  public boolean isAFE_PowerDown() throws IOException {
     int value = readRegister(AFE_GAIN_ADDR);
     return (value & (1 << AFE_GAIN_PD_BIT)) != 0;
   }
@@ -70,7 +70,7 @@ public class Registers {
     writeRegister(AFE_GAIN_ADDR, value);
   }
 
-  public int getAFE_GainBoost() {
+  public int getAFE_GainBoost() throws IOException {
     int value = readRegister(AFE_GAIN_ADDR);
     return (value >> AFE_GAIN_BOOST_BITS) & 0x1F;
   }
@@ -83,7 +83,7 @@ public class Registers {
   }
 
   // THRESHOLD Register : 1
-  public int getWatchdogThreshold() {
+  public int getWatchdogThreshold() throws IOException {
     int value = readRegister(THRESHOLD_ADDR);
     return (value >> THRESHOLD_WDTH_BITS) & 0x0F;
   }
@@ -95,7 +95,7 @@ public class Registers {
     writeRegister(THRESHOLD_ADDR, value);
   }
 
-  public int getNoiseFloorLevel() {
+  public int getNoiseFloorLevel() throws IOException {
     int value = readRegister(THRESHOLD_ADDR);
     return (value >> THRESHOLD_NF_LEV_BITS) & 0x07;
   }
@@ -108,7 +108,7 @@ public class Registers {
   }
 
   // LIGHTNING_REG Register : 2
-  public int getSpikeRejection() {
+  public int getSpikeRejection() throws IOException {
     int value = readRegister(LIGHTNING_REG_ADDR);
     return (value >> LIGHTNING_REG_SREJ_BITS) & 0x0F;
   }
@@ -120,7 +120,7 @@ public class Registers {
     writeRegister(LIGHTNING_REG_ADDR, value);
   }
 
-  public int getMinNumLightning() {
+  public int getMinNumLightning() throws IOException {
     int value = readRegister(LIGHTNING_REG_ADDR);
     return (value >> LIGHTNING_REG_MIN_NUM_LIGH_BITS) & 0x03;
   }
@@ -132,7 +132,7 @@ public class Registers {
     writeRegister(LIGHTNING_REG_ADDR, value);
   }
 
-  public boolean isClearStatisticsEnabled() {
+  public boolean isClearStatisticsEnabled() throws IOException {
     int value = readRegister(LIGHTNING_REG_ADDR);
     return (value & (1 << LIGHTNING_REG_CL_STAT_BIT)) != 0;
   }
@@ -149,12 +149,12 @@ public class Registers {
 
   // Interrupt Register
 
-  public int getInterruptReason() {
+  public int getInterruptReason() throws IOException {
     return readRegister(INTERRUPT_ADDR) & 0xf;
   }
 
 
-  public boolean isMaskDisturberEnabled() {
+  public boolean isMaskDisturberEnabled() throws IOException {
     int value = readRegister(INTERRUPT_ADDR);
     return (value & (1 << ENERGY_MASK_DISTURBER_BIT)) != 0;
   }
@@ -169,7 +169,7 @@ public class Registers {
     writeRegister(INTERRUPT_ADDR, value);
   }
 
-  public int getEnergyDivRatio() {
+  public int getEnergyDivRatio() throws IOException {
     int value = readRegister(INTERRUPT_ADDR);
     return (value >> ENERGY_DIV_RATIO_BITS) & 0x03;
   }
@@ -182,7 +182,7 @@ public class Registers {
   }
 
   // DISTANCE Register
-  public int getDistanceEstimation() {
+  public int getDistanceEstimation() throws IOException {
     int value = readRegister(DISTANCE_ADDR);
     value = value & 0x3F;
     if (value == 63) {
@@ -192,7 +192,7 @@ public class Registers {
   }
 
   // TUN_CAP Register
-  public int getTuningCap() {
+  public int getTuningCap() throws IOException {
     int value = readRegister(TUN_CAP_ADDR);
     return value & 0x0F;
   }
@@ -204,7 +204,7 @@ public class Registers {
     writeRegister(TUN_CAP_ADDR, value);
   }
 
-  public boolean isDispTRCOEnabled() {
+  public boolean isDispTRCOEnabled() throws IOException {
     int value = readRegister(TUN_CAP_ADDR);
     return (value & (1 << TUN_CAP_DISP_TRCO_BIT)) != 0;
   }
@@ -219,7 +219,7 @@ public class Registers {
     writeRegister(TUN_CAP_ADDR, value);
   }
 
-  public boolean isDispSRCOEnabled() {
+  public boolean isDispSRCOEnabled() throws IOException {
     int value = readRegister(TUN_CAP_ADDR);
     return (value & (1 << TUN_CAP_DISP_SRCO_BIT)) != 0;
   }
@@ -235,19 +235,19 @@ public class Registers {
   }
 
   // CALIB_SRCO_TRCO Register
-  public boolean isTRCOCalibrationSuccessful() {
+  public boolean isTRCOCalibrationSuccessful() throws IOException {
     int value = readRegister(CALIB_SRCO_TRCO_ADDR);
     return (value & (1 << CALIB_SRCO_TRCO_CALIB_TRCO_DONE_BIT)) != 0;
   }
 
   // CALIB_SCRO_SRCO Register
-  public boolean isSRCOCalibrationSuccessful() {
+  public boolean isSRCOCalibrationSuccessful() throws IOException {
     int value = readRegister(CALIB_SCRO_SRCO_ADDR);
     return (value & (1 << CALIB_SCRO_SRCO_CALIB_SRCO_DONE_BIT)) != 0;
   }
 
   // LIGHTNING_STRIKE Register
-  public int getEnergy() {
+  public int getEnergy() throws IOException {
     int msb = readRegister(LIGHTNING_STRIKE_MSB_ADDR);
     int lsb = readRegister(LIGHTNING_STRIKE_LSB_ADDR);
     int bits0to4 = readRegister(LIGHTNING_STRIKE_BITS_0_TO_4_ADDR);
@@ -256,15 +256,20 @@ public class Registers {
 
   @Override
   public String toString() {
-    String sb = "AS3935 Sensor Registers:\n" +
-        "AFE_GAIN: Power-Down = " + isAFE_PowerDown() + ", Gain Boost = " + getAFE_GainBoost() + "\n" +
-        "THRESHOLD: Watchdog Threshold = " + getWatchdogThreshold() + ", Noise Floor Level = " + getNoiseFloorLevel() + "\n" +
-        "LIGHTNING_REG: Spike Rejection = " + getSpikeRejection() + ", Min Num Lightning = " + getMinNumLightning() + ", Clear Statistics = " + isClearStatisticsEnabled() + "\n" +
-        "ENERGY: Energy = " + getEnergy() + ", Mask Disturber = " + isMaskDisturberEnabled() + ", Energy Div Ratio = " + getEnergyDivRatio() + "\n" +
-        "DISTANCE: Distance Estimation = " + getDistanceEstimation() + "\n" +
-        "TUN_CAP: Tuning Cap = " + getTuningCap() + ", Disp TRCO = " + isDispTRCOEnabled() + ", Disp SRCO = " + isDispSRCOEnabled() + "\n" +
-        "CALIB_SRCO_TRCO: TRCO Calibration Successful = " + isTRCOCalibrationSuccessful() + "\n" +
-        "CALIB_SCRO_SRCO: SRCO Calibration Successful = " + isSRCOCalibrationSuccessful() + "\n";
+    String sb = null;
+    try {
+      sb = "AS3935 Sensor Registers:\n" +
+          "AFE_GAIN: Power-Down = " + isAFE_PowerDown() + ", Gain Boost = " + getAFE_GainBoost() + "\n" +
+          "THRESHOLD: Watchdog Threshold = " + getWatchdogThreshold() + ", Noise Floor Level = " + getNoiseFloorLevel() + "\n" +
+          "LIGHTNING_REG: Spike Rejection = " + getSpikeRejection() + ", Min Num Lightning = " + getMinNumLightning() + ", Clear Statistics = " + isClearStatisticsEnabled() + "\n" +
+          "ENERGY: Energy = " + getEnergy() + ", Mask Disturber = " + isMaskDisturberEnabled() + ", Energy Div Ratio = " + getEnergyDivRatio() + "\n" +
+          "DISTANCE: Distance Estimation = " + getDistanceEstimation() + "\n" +
+          "TUN_CAP: Tuning Cap = " + getTuningCap() + ", Disp TRCO = " + isDispTRCOEnabled() + ", Disp SRCO = " + isDispSRCOEnabled() + "\n" +
+          "CALIB_SRCO_TRCO: TRCO Calibration Successful = " + isTRCOCalibrationSuccessful() + "\n" +
+          "CALIB_SCRO_SRCO: SRCO Calibration Successful = " + isSRCOCalibrationSuccessful() + "\n";
+    } catch (IOException e) {
+      return "Error!!!";
+    }
     return sb;
   }
 }

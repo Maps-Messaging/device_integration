@@ -101,7 +101,7 @@ public class BMP280Sensor extends I2CDevice {
     return pressure;
   }
 
-  protected void read(byte command, int length, byte[] values) {
+  protected void read(byte command, int length, byte[] values) throws IOException {
     readRegister(command, values, 0, length);
   }
 

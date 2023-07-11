@@ -68,7 +68,7 @@ public class DeviceBusManager {
   }
 
   private static String getProvider() {
-    String provider = System.getProperty("i2C-PROVIDER", PROVIDERS[0]).toLowerCase();
+    String provider = System.getProperty("i2C-PROVIDER", PROVIDERS[1]).toLowerCase();
     boolean isValid = false;
     for (String providers : PROVIDERS) {
       if (providers.equals(provider)) {

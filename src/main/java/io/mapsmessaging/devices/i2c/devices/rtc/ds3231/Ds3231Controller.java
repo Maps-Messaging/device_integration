@@ -44,7 +44,7 @@ public class Ds3231Controller extends I2CDeviceController {
     unpacker = null;
   }
 
-  public Ds3231Controller(I2C device) {
+  public Ds3231Controller(I2C device) throws IOException {
     rtc = new Ds3231Rtc(device);
     packer = new JsonPacker(rtc);
     unpacker = new JsonUnpacker(rtc);
@@ -55,7 +55,7 @@ public class Ds3231Controller extends I2CDeviceController {
     return rtc != null && rtc.isConnected();
   }
 
-  public I2CDeviceController mount(I2C device) {
+  public I2CDeviceController mount(I2C device) throws IOException {
     return new Ds3231Controller(device);
   }
 
@@ -69,7 +69,7 @@ public class Ds3231Controller extends I2CDeviceController {
   }
 
   @Override
-  public byte[] getUpdatePayload() {
+  public byte[] getUpdatePayload() throws IOException {
     if (packer != null && rtc != null) {
       rtc.read();
       return packer.pack();

@@ -23,6 +23,8 @@ import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
 import org.json.JSONObject;
 
+import java.io.IOException;
+
 public class Pmsa003iController extends I2CDeviceController {
 
   private final int i2cAddr = 0x12;
@@ -58,7 +60,7 @@ public class Pmsa003iController extends I2CDeviceController {
     return jsonObject.toString(2).getBytes();
   }
 
-  public byte[] getUpdatePayload() {
+  public byte[] getUpdatePayload() throws IOException {
     if (sensor != null) {
       sensor.readDevice();
       return sensor.getRegisters().pack().toString(2).getBytes();

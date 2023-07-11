@@ -64,7 +64,7 @@ public class TLS2561Controller extends I2CDeviceController {
     return jsonObject.toString(2).getBytes();
   }
 
-  public byte[] getUpdatePayload() {
+  public byte[] getUpdatePayload() throws IOException {
     JSONObject jsonObject = new JSONObject();
     jsonObject.put("ch0", sensor.getFull());
     jsonObject.put("ch1", sensor.getIr());

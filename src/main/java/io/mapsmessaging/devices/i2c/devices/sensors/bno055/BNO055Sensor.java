@@ -81,11 +81,11 @@ public class BNO055Sensor extends I2CDevice {
     delay(30);
   }
 
-  public CalibrationStatus getCalibrationStatus() {
+  public CalibrationStatus getCalibrationStatus() throws IOException {
     return new CalibrationStatus(readRegister(BNO055Constants.BNO055_CALIB_STAT_ADDR));
   }
 
-  public float[] readEuler() {
+  public float[] readEuler() throws IOException {
     if (lastRead < System.currentTimeMillis()) {
       int[] res = readVector(BNO055Constants.BNO055_EULER_H_LSB_ADDR, 3);
       for (int x = 0; x < res.length; x++) {
@@ -96,7 +96,7 @@ public class BNO055Sensor extends I2CDevice {
     return myEuler;
   }
 
-  public float[] readMagnetometer() {
+  public float[] readMagnetometer() throws IOException {
     int[] res = readVector(BNO055Constants.BNO055_MAG_DATA_X_LSB_ADDR, 3);
     float[] ret = new float[res.length];
     for (int x = 0; x < res.length; x++) {
@@ -105,7 +105,7 @@ public class BNO055Sensor extends I2CDevice {
     return ret;
   }
 
-  public float[] readGyroscope() {
+  public float[] readGyroscope() throws IOException {
     int[] res = readVector(BNO055Constants.BNO055_GYRO_DATA_X_LSB_ADDR, 3);
     float[] ret = new float[res.length];
     for (int x = 0; x < res.length; x++) {
@@ -114,7 +114,7 @@ public class BNO055Sensor extends I2CDevice {
     return ret;
   }
 
-  public float[] readAccelerometer() {
+  public float[] readAccelerometer() throws IOException {
     int[] res = readVector(BNO055Constants.BNO055_ACCEL_DATA_X_LSB_ADDR, 3);
     float[] ret = new float[res.length];
     for (int x = 0; x < res.length; x++) {
@@ -123,7 +123,7 @@ public class BNO055Sensor extends I2CDevice {
     return ret;
   }
 
-  public float[] readLinearAcceleration() {
+  public float[] readLinearAcceleration() throws IOException {
     int[] res = readVector(BNO055Constants.BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR, 3);
     float[] ret = new float[res.length];
     for (int x = 0; x < res.length; x++) {
@@ -132,7 +132,7 @@ public class BNO055Sensor extends I2CDevice {
     return ret;
   }
 
-  public float[] readGravity() {
+  public float[] readGravity() throws IOException {
     int[] res = readVector(BNO055Constants.BNO055_GRAVITY_DATA_X_LSB_ADDR, 3);
     float[] ret = new float[res.length];
     for (int x = 0; x < res.length; x++) {
@@ -141,7 +141,7 @@ public class BNO055Sensor extends I2CDevice {
     return ret;
   }
 
-  public float[] readQuaternion() {
+  public float[] readQuaternion() throws IOException {
     int[] res = readVector(BNO055Constants.BNO055_QUATERNION_DATA_W_LSB_ADDR, 4);
     float[] ret = new float[res.length];
     float scale = 1.0f / (1 << 14);
@@ -152,7 +152,7 @@ public class BNO055Sensor extends I2CDevice {
   }
 
 
-  private int[] readVector(byte address, int size) {
+  private int[] readVector(byte address, int size) throws IOException {
     byte[] buffer = new byte[size * 2];
     readRegister(address, buffer, 0, buffer.length);
     int[] ret = new int[size];
@@ -178,7 +178,7 @@ public class BNO055Sensor extends I2CDevice {
     return new SystemStatus(status, results, error);
   }
 
-  public String computeVersion() {
+  public String computeVersion() throws IOException {
     int accel = readRegister(BNO055Constants.BNO055_ACCEL_REV_ID_ADDR);
     int mag = readRegister(BNO055Constants.BNO055_MAG_REV_ID_ADDR);
     int gyro = readRegister(BNO055Constants.BNO055_GYRO_REV_ID_ADDR);
@@ -194,7 +194,7 @@ public class BNO055Sensor extends I2CDevice {
     return versionObject.toString(2);
   }
 
-  public double[] getOrientation() {
+  public double[] getOrientation() throws IOException {
     byte[] buffer = new byte[6];
     readRegister(BNO055Constants.BNO055_EULER_H_LSB_ADDR, buffer, 0, 6);
     double heading = convert(buffer[0], buffer[1]) / 16.0;

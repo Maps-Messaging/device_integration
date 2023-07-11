@@ -47,7 +47,7 @@ public class Lps35Controller extends I2CDeviceController {
   }
 
 
-  public byte[] getStaticPayload() {
+  public byte[] getStaticPayload() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
       return JsonHelper.pack(sensor).toString(2).getBytes();
@@ -55,7 +55,7 @@ public class Lps35Controller extends I2CDeviceController {
     return jsonObject.toString(2).getBytes();
   }
 
-  public byte[] getUpdatePayload() {
+  public byte[] getUpdatePayload() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
       jsonObject.put("temperature", sensor.getTemperature());

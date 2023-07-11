@@ -66,35 +66,35 @@ public class Ina219Sensor extends I2CDevice {
     writeDevice(Registers.CALIBRATION, buildMask());
   }
 
-  public int getBusVoltage() {
+  public int getBusVoltage() throws IOException {
     int value = readDevice(Registers.BUS_VOLTAGE);
     value = ((value >> 3));
     return value;
   }
 
-  public int getCurrent() {
+  public int getCurrent() throws IOException {
     return readDevice(Registers.CURRENT);
   }
 
-  public int getPower() {
+  public int getPower() throws IOException {
     return readDevice(Registers.POWER);
   }
 
-  public int getShuntVoltageRaw() {
+  public int getShuntVoltageRaw() throws IOException {
     return readDevice(Registers.SHUNT_VOLTAGE);
   }
 
-  public double getShuntVoltage() {
+  public double getShuntVoltage() throws IOException {
     int rawValue = getShuntVoltageRaw();
     return rawValue * 0.01;
   }
 
-  public float getCurrent_mA() {
+  public float getCurrent_mA() throws IOException {
     float valueDec = getCurrent();
     return valueDec;
   }
 
-  private int readDevice(Registers register) {
+  private int readDevice(Registers register) throws IOException {
     byte[] buf = new byte[2];
     readRegister(register.getAddress(), buf, 0, 2);
     return (buf[0] & 0xff) << 8 | (buf[1] & 0xff);

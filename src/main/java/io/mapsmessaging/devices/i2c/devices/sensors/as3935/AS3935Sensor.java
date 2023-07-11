@@ -62,7 +62,7 @@ public class AS3935Sensor extends I2CDevice {
     return register;
   }
 
-  private void readData() {
+  private void readData() throws IOException {
     read(registers, 0, 128);
   }
 

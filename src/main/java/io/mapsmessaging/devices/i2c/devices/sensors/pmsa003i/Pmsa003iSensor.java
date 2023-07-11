@@ -21,6 +21,7 @@ import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class Pmsa003iSensor extends I2CDevice {
@@ -42,7 +43,7 @@ public class Pmsa003iSensor extends I2CDevice {
     return true;
   }
 
-  protected void readDevice() {
+  protected void readDevice() throws IOException {
     readRegister(0, raw, 0, raw.length);
   }
 

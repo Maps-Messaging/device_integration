@@ -58,7 +58,7 @@ public class Lps35Sensor extends I2CDevice {
     setControlRegister(INTERRUPT_CFG, 0b01111111, value);
   }
 
-  public boolean isAutoRifpEnabled() {
+  public boolean isAutoRifpEnabled() throws IOException {
     return (readRegister(INTERRUPT_CFG) & 0b01000000) != 0;
   }
 
@@ -71,7 +71,7 @@ public class Lps35Sensor extends I2CDevice {
     setControlRegister(INTERRUPT_CFG, 0b11011111, value);
   }
 
-  public boolean isAutoZeroEnabled() {
+  public boolean isAutoZeroEnabled() throws IOException {
     return (readRegister(INTERRUPT_CFG) & 0b00100000) != 0;
   }
 
@@ -84,7 +84,7 @@ public class Lps35Sensor extends I2CDevice {
     setControlRegister(INTERRUPT_CFG, 0b11110111, value);
   }
 
-  public boolean isInterruptEnabled() {
+  public boolean isInterruptEnabled() throws IOException {
     return (readRegister(INTERRUPT_CFG) & 0b00001000) != 0;
   }
 
@@ -93,7 +93,7 @@ public class Lps35Sensor extends I2CDevice {
     setControlRegister(INTERRUPT_CFG, 0b11111011, value);
   }
 
-  public boolean isLatchInterruptToSource() {
+  public boolean isLatchInterruptToSource() throws IOException {
     return (readRegister(INTERRUPT_CFG) & 0b100) != 0;
   }
 
@@ -102,7 +102,7 @@ public class Lps35Sensor extends I2CDevice {
     setControlRegister(INTERRUPT_CFG, 0b11111101, value);
   }
 
-  public boolean isLatchInterruptToPressureLow() {
+  public boolean isLatchInterruptToPressureLow() throws IOException {
     return (readRegister(INTERRUPT_CFG) & 0b10) != 0;
   }
 
@@ -111,12 +111,12 @@ public class Lps35Sensor extends I2CDevice {
     setControlRegister(INTERRUPT_CFG, 0b11111110, value);
   }
 
-  public boolean isLatchInterruptToPressureHigh() {
+  public boolean isLatchInterruptToPressureHigh() throws IOException {
     return (readRegister(INTERRUPT_CFG) & 0b1) != 0;
   }
   //endregion
 
-  public float getThresholdPressure() {
+  public float getThresholdPressure() throws IOException {
     byte[] b = new byte[2];
     readRegister(THS_P_L, b, 0, 2);
     return ((b[0] * 0xff) | ((b[1] << 8) & 0xff)) / 16f;
@@ -131,12 +131,12 @@ public class Lps35Sensor extends I2CDevice {
   //endregion
 
   //region Who Am I register
-  public int whoAmI() {
+  public int whoAmI() throws IOException {
     return readRegister(WHO_AM_I) & 0xff;
   }
   //endregion
 
-  public DataRate getDataRate() {
+  public DataRate getDataRate() throws IOException {
     int ctl1 = (readRegister(CTRL_REG1) & 0xff >> 4);
     for (DataRate rate : DataRate.values()) {
       if (rate.getMask() == ctl1) {
@@ -156,7 +156,7 @@ public class Lps35Sensor extends I2CDevice {
     setControlRegister(CTRL_REG1, 0b11110111, value);
   }
 
-  public boolean isLowPassFilterSet() {
+  public boolean isLowPassFilterSet() throws IOException {
     return (readRegister(CTRL_REG1) & 0b1000) != 0;
   }
 
@@ -165,7 +165,7 @@ public class Lps35Sensor extends I2CDevice {
     setControlRegister(CTRL_REG1, 0b11111011, value);
   }
 
-  public boolean isLowPassFilterConfigSet() {
+  public boolean isLowPassFilterConfigSet() throws IOException {
     return (readRegister(CTRL_REG1) & 0b100) != 0;
   }
 
@@ -174,7 +174,7 @@ public class Lps35Sensor extends I2CDevice {
     setControlRegister(CTRL_REG1, 0b11111101, value);
   }
 
-  public boolean isBlockUpdateSet() {
+  public boolean isBlockUpdateSet() throws IOException {
     return (readRegister(CTRL_REG1) & 0b10) != 0;
   }
   //endregion
@@ -190,7 +190,7 @@ public class Lps35Sensor extends I2CDevice {
     setControlRegister(CTRL_REG2, 0b10111111, value);
   }
 
-  public boolean isFiFoEnabled() {
+  public boolean isFiFoEnabled() throws IOException {
     return (readRegister(CTRL_REG2) & 0b01000000) != 0;
   }
 
@@ -199,7 +199,7 @@ public class Lps35Sensor extends I2CDevice {
     setControlRegister(CTRL_REG2, 0b11011111, value);
   }
 
-  public boolean isStopFiFoOnThresholdEnabled() {
+  public boolean isStopFiFoOnThresholdEnabled() throws IOException {
     return (readRegister(CTRL_REG2) & 0b00100000) != 0;
   }
 
@@ -213,18 +213,18 @@ public class Lps35Sensor extends I2CDevice {
     setControlRegister(CTRL_REG2, 0b11111110, value);
   }
 
-  public boolean isOneShotEnabled() {
+  public boolean isOneShotEnabled() throws IOException {
     return (readRegister(CTRL_REG2) & 0b1) != 0;
   }
   //endregion
 
   //region Control Register 3
 
-  public boolean isInterruptActive() {
+  public boolean isInterruptActive() throws IOException {
     return (readRegister(CTRL_REG3) & 0b10000000) != 0;
   }
 
-  public boolean isPushPullDrainActive() {
+  public boolean isPushPullDrainActive() throws IOException {
     return (readRegister(CTRL_REG3) & 0b01000000) != 0;
   }
 
@@ -233,7 +233,7 @@ public class Lps35Sensor extends I2CDevice {
     setControlRegister(CTRL_REG3, 0b11011111, value);
   }
 
-  public boolean isFiFoDrainInterruptEnabled() {
+  public boolean isFiFoDrainInterruptEnabled() throws IOException {
     return (readRegister(CTRL_REG3) & 0b00100000) != 0;
   }
 
@@ -242,7 +242,7 @@ public class Lps35Sensor extends I2CDevice {
     setControlRegister(CTRL_REG3, 0b11101111, value);
   }
 
-  public boolean isFiFoWatermarkInterruptEnabled() {
+  public boolean isFiFoWatermarkInterruptEnabled() throws IOException {
     return (readRegister(CTRL_REG3) & 0b0010000) != 0;
   }
 
@@ -251,7 +251,7 @@ public class Lps35Sensor extends I2CDevice {
     setControlRegister(CTRL_REG3, 0b11110111, value);
   }
 
-  public boolean isFiFoOverrunInterruptEnabled() {
+  public boolean isFiFoOverrunInterruptEnabled() throws IOException {
     return (readRegister(CTRL_REG3) & 0b001000) != 0;
   }
 
@@ -260,7 +260,7 @@ public class Lps35Sensor extends I2CDevice {
     setControlRegister(CTRL_REG3, 0b11111100, value);
   }
 
-  public DataReadyInterrupt isSignalOnInterrupr() {
+  public DataReadyInterrupt isSignalOnInterrupr() throws IOException {
     int mask = (readRegister(CTRL_REG3) & 0b11);
     for (DataReadyInterrupt dataReadyInterrupt : DataReadyInterrupt.values()) {
       if (mask == dataReadyInterrupt.getMask()) {
@@ -273,7 +273,7 @@ public class Lps35Sensor extends I2CDevice {
 
   //region FiFo Control Register
 
-  public FiFoMode getFifoMode() {
+  public FiFoMode getFifoMode() throws IOException {
     int mask = readRegister(FIFO_CTRL) >> 5;
     for (FiFoMode mode : FiFoMode.values()) {
       if (mode.getMask() == mask) {
@@ -287,7 +287,7 @@ public class Lps35Sensor extends I2CDevice {
     setControlRegister(FIFO_CTRL, 0b11111, mode.getMask());
   }
 
-  public int getFiFoWaterMark() {
+  public int getFiFoWaterMark() throws IOException {
     return (readRegister(FIFO_CTRL) & 0b11111);
   }
 
@@ -296,7 +296,7 @@ public class Lps35Sensor extends I2CDevice {
   }
   //endregion
 
-  public int getReferencePressure() {
+  public int getReferencePressure() throws IOException {
     byte[] data = new byte[3];
     readRegister(REF_P_XL, data);
     return (data[2] << 16 | ((data[1] & 0xff) << 8) | (data[0] & 0xff));
@@ -318,13 +318,13 @@ public class Lps35Sensor extends I2CDevice {
     setControlRegister(RES_CONF, 0b0, value);
   }
 
-  public boolean isLowPowerModeEnabled() {
+  public boolean isLowPowerModeEnabled() throws IOException {
     return (readRegister(RES_CONF) & 0b1) != 0;
   }
   //endregion
 
   //region Interrupt Source Register
-  public InterruptSource[] getInterruptSource() {
+  public InterruptSource[] getInterruptSource() throws IOException {
     int val = readRegister(INT_SOURCE);
     List<InterruptSource> sourceList = new ArrayList<>();
     if ((val & 0b100000000) != 0) {
@@ -345,14 +345,14 @@ public class Lps35Sensor extends I2CDevice {
   //endregion
 
   //region FiFo Status Register
-  public FiFoStatus getFiFoStatus() {
+  public FiFoStatus getFiFoStatus() throws IOException {
     int val = readRegister(FIFO_STATUS);
     return new FiFoStatus((val & 0b10000000) != 0, ((val & 0b1000000) != 0), val & 0b11111);
   }
   //endregion
 
   //region Device Status Register
-  public Status[] getStatus() {
+  public Status[] getStatus() throws IOException {
     int val = readRegister(STATUS);
     List<Status> sourceList = new ArrayList<>();
     if ((val & 0b100000) != 0) {
@@ -372,7 +372,7 @@ public class Lps35Sensor extends I2CDevice {
   //endregion
 
   //region Pressure Out Registers
-  public float getPressure() {
+  public float getPressure() throws IOException {
     byte[] pressureBuffer = new byte[3];
     readRegister(PRESS_OUT_XL, pressureBuffer, 0, pressureBuffer.length);
     int rawPressure = (pressureBuffer[2] << 16 | ((pressureBuffer[1] & 0xff) << 8) | (pressureBuffer[0] & 0xff));
@@ -384,7 +384,7 @@ public class Lps35Sensor extends I2CDevice {
   //endregion
 
   //region Temperature Out Registers
-  public float getTemperature() {
+  public float getTemperature() throws IOException {
     byte[] temperatureBuffer = new byte[2];
     readRegister(TEMP_OUT_L, temperatureBuffer, 0, temperatureBuffer.length);
     int rawTemperature = ((temperatureBuffer[1] & 0xff) << 8) | (temperatureBuffer[0] & 0xff);
