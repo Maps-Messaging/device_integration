@@ -74,9 +74,15 @@ public class AT24CnnController  extends I2CDeviceController {
     }
     if (sensor != null && address != -1) {
       if (data != null) {
-        sensor.writeBytes(address, data);
-        response.put("status", "wrote " + data.length + " bytes");
+        if(data.length + address > sensor.getMemorySize()){
+          response.put("status", "Exceeds memory size " + sensor.getMemorySize() + " bytes");
+        }
+        else {
+          sensor.writeBytes(address, data);
+          response.put("status", "wrote " + data.length + " bytes");
+        }
       } else if (size > 0) {
+        size = Math.min(size, sensor.getMemorySize());
         byte[] buff = sensor.readBytes(address, size);
         response.put("data", Base64.getEncoder().encodeToString(buff));
         response.put("status", "read " + buff.length + " bytes");
