@@ -35,6 +35,8 @@ public class BMP280Controller extends I2CDeviceController {
 
   @Getter
   private final String name = "BMP280";
+  @Getter
+  private final String description = "Pressure and Temperature Module";
 
   public BMP280Controller() {
     sensor = null;

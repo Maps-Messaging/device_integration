@@ -33,6 +33,8 @@ public class Pmsa003iController extends I2CDeviceController {
   @Getter
   private final String name = "PMSA003I";
 
+  @Getter
+  private final String description = "Air Quality sensor";
 
   public Pmsa003iController() {
     sensor = null;

@@ -34,7 +34,8 @@ public class AM2320Controller extends I2CDeviceController {
   private final AM2320Sensor sensor;
   @Getter
   private final String name = "AM2320";
-
+  @Getter
+  private final String description = "AM2320 Pressure and Temperature Sensor";
   // Used during ServiceLoading
   public AM2320Controller() {
     sensor = null;

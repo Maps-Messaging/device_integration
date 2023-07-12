@@ -36,7 +36,8 @@ public class Ds3231Controller extends I2CDeviceController {
 
   @Getter
   private final String name = "DS3231";
-
+  @Getter
+  private final String description = "Real Time Clock with temperature calibration";
 
   public Ds3231Controller() {
     rtc = null;

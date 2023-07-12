@@ -32,6 +32,8 @@ public class QuadAlphaNumericController extends HT16K33Controller {
   @Getter
   private final String name = "Quad AlphaNumeric LED";
 
+  @Getter
+  private final String description = "Quad AlphaNumeric LED";
 
   public QuadAlphaNumericController() {
   }

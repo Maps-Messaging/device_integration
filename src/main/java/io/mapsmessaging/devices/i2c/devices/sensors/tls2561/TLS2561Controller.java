@@ -36,6 +36,8 @@ public class TLS2561Controller extends I2CDeviceController {
 
   @Getter
   private final String name = "TLS2561";
+  @Getter
+  private final String description = "Light sensor, returns light and IR light levels and computed lux level";
 
   public TLS2561Controller() {
     sensor = null;

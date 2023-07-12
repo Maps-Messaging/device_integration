@@ -36,6 +36,8 @@ public class AS3935Controller extends I2CDeviceController {
 
   @Getter
   private final String name = "AS3935";
+  @Getter
+  private final String description = "Lightning Detector";
 
   // Used during ServiceLoading
   public AS3935Controller() {

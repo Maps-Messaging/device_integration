@@ -204,6 +204,7 @@ public class SimpleWebAccess {
       JSONObject entry = new JSONObject();
       entry.put("id", deviceEntryEntry.getKey());
       entry.put("name", deviceEntryEntry.getValue().getName());
+      entry.put("description", deviceEntryEntry.getValue().getDescription());
       list.put(entry);
     }
     return list;

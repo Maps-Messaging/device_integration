@@ -21,6 +21,8 @@ public class AT24CnnController  extends I2CDeviceController {
 
   @Getter
   private final String name = "AT24C32/64";
+  @Getter
+  private final String description = "AT24C32/64 eeprom";
 
   // Used during ServiceLoading
   public AT24CnnController() {

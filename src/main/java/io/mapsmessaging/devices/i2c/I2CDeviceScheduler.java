@@ -34,6 +34,12 @@ public class I2CDeviceScheduler extends I2CDeviceController {
     return deviceController.getName();
   }
 
+
+  @Override
+  public String getDescription() {
+    return deviceController.getDescription();
+  }
+
   @Override
   public SchemaConfig getSchema() {
     return deviceController.getSchema();

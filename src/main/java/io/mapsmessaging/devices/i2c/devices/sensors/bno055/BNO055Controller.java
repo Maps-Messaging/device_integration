@@ -32,6 +32,8 @@ public class BNO055Controller extends I2CDeviceController {
   private final BNO055Sensor sensor;
   @Getter
   private final String name = "BNO055";
+  @Getter
+  private final String description = "BNO055 orientation sensor";
 
   public BNO055Controller() {
     sensor = null;

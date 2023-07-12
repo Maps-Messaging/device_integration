@@ -28,6 +28,8 @@ public interface DeviceController {
 
   String getName();
 
+  String getDescription();
+
   SchemaConfig getSchema();
 
   byte[] getStaticPayload() throws IOException;

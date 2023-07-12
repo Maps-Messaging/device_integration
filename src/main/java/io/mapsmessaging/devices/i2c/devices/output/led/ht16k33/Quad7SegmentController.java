@@ -31,6 +31,8 @@ public class Quad7SegmentController extends HT16K33Controller {
 
   @Getter
   private final String name = "Quad 7-Segment LED";
+  @Getter
+  private final String description = "Quad 7-Segment LED";
 
   public Quad7SegmentController() {
   }

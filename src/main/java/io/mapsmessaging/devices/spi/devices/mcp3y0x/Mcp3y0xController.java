@@ -63,6 +63,12 @@ public class Mcp3y0xController extends SpiDeviceController {
     return device.getName();
   }
 
+  @Override
+  public String getDescription() {
+    if (device == null) return "Mcp3y0x";
+    return device.getDescription();
+  }
+
   public byte[] getStaticPayload() {
     JSONObject jsonObject = new JSONObject();
     if (device != null) {

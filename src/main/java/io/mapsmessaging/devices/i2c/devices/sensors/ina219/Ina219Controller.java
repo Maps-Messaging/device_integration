@@ -40,6 +40,8 @@ public class Ina219Controller extends I2CDeviceController {
   @Getter
   private final String name = "INA219";
 
+  @Getter
+  private final String description = "High Side DC Current Sensor";
 
   public Ina219Controller() {
     sensor = null;

@@ -37,6 +37,9 @@ public class PCA9685Controller extends I2CDeviceController {
   @Getter
   private final String name = "PCA9685";
 
+  @Getter
+  private final String description = "i2c device PCA9685 supports 16 PWM devices like servos or LEDs";
+
   public PCA9685Controller() {
     device = null;
   }

@@ -122,6 +122,15 @@ public class GasSensorController extends I2CDeviceController {
     return sensor.getName();
   }
 
+
+  public String getDescription(){
+    if(sensor == null){
+      return "Generic Gas Sensor";
+    }
+    return sensor.getDescription();
+  }
+
+
   public byte[] getUpdatePayload() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {

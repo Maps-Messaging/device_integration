@@ -33,6 +33,8 @@ public class DS18B20Controller implements OneWireDeviceController {
 
   @Getter
   private final String name = "DS18B20";
+  @Getter
+  private final String description = "Temperature sensor";
 
   public DS18B20Controller() {
     sensor = null;
