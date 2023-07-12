@@ -103,11 +103,12 @@ public class SimpleWebAccess {
       I2CDeviceController device = deviceBusManager.getI2cBusManager().get(id);
       if (device != null) {
         try {
-          device.setPayload(ctx.body().getBytes());
+          ctx.status(200);
+          ctx.json(new String( device.setPayload(ctx.body().getBytes())));
         } catch (IOException e) {
           deviceBusManager.getI2cBusManager().close(device);
+          ctx.status(400).result("Internal Error:"+e.getMessage());
         }
-        ctx.status(200).result("Data written successfully");
       } else {
         ctx.status(404).result("Device not found");
       }
@@ -147,8 +148,8 @@ public class SimpleWebAccess {
       String id = ctx.pathParam("id");
       SpiDeviceController device = deviceBusManager.getSpiBusManager().get(id);
       if (device != null) {
-        device.setPayload(ctx.body().getBytes());
-        ctx.status(200).result("Data written successfully");
+        ctx.status(200);
+        ctx.json(new String( device.setPayload(ctx.body().getBytes())));
       } else {
         ctx.status(404).result("Device not found");
       }

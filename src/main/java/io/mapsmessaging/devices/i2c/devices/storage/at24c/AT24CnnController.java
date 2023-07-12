@@ -62,13 +62,18 @@ public class AT24CnnController  extends I2CDeviceController {
     JSONObject jsonObject = new JSONObject(new String(val));
     int address = -1;
     int size = 0;
-    if (jsonObject.has("address") && jsonObject.has("size")) {
+    byte[] data = null;
+    if (jsonObject.has("address")){
       address = jsonObject.getInt("address");
+    }
+    if(jsonObject.has("size")) {
       size = jsonObject.getInt("size");
     }
+    if(jsonObject.has("data")){
+      data = Base64.getDecoder().decode(jsonObject.getString("data"));
+    }
     if (sensor != null && address != -1) {
-      if (jsonObject.has("data")) {
-        byte[] data = Base64.getDecoder().decode(jsonObject.getString("data"));
+      if (data != null) {
         sensor.writeBytes(address, data);
         response.put("status", "wrote " + data.length + " bytes");
       } else if (size > 0) {
