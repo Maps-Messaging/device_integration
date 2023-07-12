@@ -63,8 +63,8 @@ public class PCA9685Controller extends I2CDeviceController {
   }
 
   @Override
-  public void setPayload(byte[] val) {
-
+  public byte[] setPayload(byte[] val) {
+    return "{}".getBytes();
   }
 
   @Override

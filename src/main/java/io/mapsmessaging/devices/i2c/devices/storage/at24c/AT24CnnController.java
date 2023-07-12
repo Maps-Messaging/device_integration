@@ -13,6 +13,7 @@ import org.everit.json.schema.StringSchema;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Base64;
 
 public class AT24CnnController  extends I2CDeviceController {
 
@@ -51,22 +52,43 @@ public class AT24CnnController  extends I2CDeviceController {
   public byte[] getUpdatePayload() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
-      byte[] data = sensor.readBytes(0, 4096); // 32K / 1024 = 4096 bytes.
-      jsonObject.put("data", sensor.dump(data, data.length));
-      for(int x=0;x<data.length;x++){
-        data[x] = (byte) (~data[x]);
-      }
-      sensor.writeBytes(0, data);
+      jsonObject.put("size", sensor.getMemorySize());
     }
     return jsonObject.toString(2).getBytes();
   }
+
+  public byte[] setPayload(byte[] val) throws IOException {
+    JSONObject response = new JSONObject();
+    JSONObject jsonObject = new JSONObject(new String(val));
+    int address = -1;
+    int size = 0;
+    if (jsonObject.has("address") && jsonObject.has("size")) {
+      address = jsonObject.getInt("address");
+      size = jsonObject.getInt("size");
+    }
+    if (sensor != null && address != -1) {
+      if (jsonObject.has("data")) {
+        byte[] data = Base64.getDecoder().decode(jsonObject.getString("data"));
+        sensor.writeBytes(address, data);
+        response.put("status", "wrote " + data.length + " bytes");
+      } else if (size > 0) {
+        byte[] buff = sensor.readBytes(address, size);
+        response.put("data", Base64.getEncoder().encodeToString(buff));
+        response.put("status", "read " + buff.length + " bytes");
+      }
+    } else {
+      response.put("status", "Invalid arguments, require address, data or size");
+    }
+    return response.toString(2).getBytes();
+  }
+
 
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setComments("i2c device AT24C32/64 eeprom");
     config.setSource("I2C bus address : 0x57");
     config.setVersion("1.0");
-    config.setResourceType("sensor");
+    config.setResourceType("storage");
     config.setInterfaceDescription("Serial EEPROM");
     return config;
   }

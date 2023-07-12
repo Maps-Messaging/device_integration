@@ -72,39 +72,47 @@ public class Ina219Controller extends I2CDeviceController {
   }
 
   @Override
-  public void setPayload(byte[] payload) throws IOException {
-    if (sensor == null) return;
+  public byte[] setPayload(byte[] payload) throws IOException {
     JSONObject jsonObject = new JSONObject(new String(payload));
+    JSONObject response = new JSONObject();
+    if (sensor == null) return response.toString(2).getBytes();
     if (jsonObject.has("adcResolution")) {
       String adcResolutionStr = jsonObject.getString("adcResolution");
       ADCResolution adcResolution = ADCResolution.valueOf(adcResolutionStr);
       sensor.setAdcResolution(adcResolution);
+      response.put("adcResolution", adcResolution.name());
     }
 
     if (jsonObject.has("shuntAdcResolution")) {
       String shuntAdcResolutionStr = jsonObject.getString("shuntAdcResolution");
       ShuntADCResolution shuntAdcResolution = ShuntADCResolution.valueOf(shuntAdcResolutionStr);
       sensor.setShuntADCResolution(shuntAdcResolution);
+      response.put("shuntAdcResolution", shuntAdcResolution.name());
     }
 
     if (jsonObject.has("busVoltageRange")) {
       String busVoltageRangeStr = jsonObject.getString("busVoltageRange");
       BusVoltageRange busVoltageRange = BusVoltageRange.valueOf(busVoltageRangeStr);
       sensor.setBusVoltageRange(busVoltageRange);
+      response.put("busVoltageRange", busVoltageRange.name());
     }
 
     if (jsonObject.has("gainMask")) {
       String gainMaskStr = jsonObject.getString("gainMask");
       GainMask gainMask = GainMask.valueOf(gainMaskStr);
       sensor.setGainMask(gainMask);
+      response.put("gainMask", gainMask.name());
     }
 
     if (jsonObject.has("operatingMode")) {
       String operatingModeStr = jsonObject.getString("operatingMode");
       OperatingMode operatingMode = OperatingMode.valueOf(operatingModeStr);
       sensor.setOperatingMode(operatingMode);
+      response.put("operatingMode", operatingMode.name());
     }
     sensor.setCalibration();
+    response.put("Status", "success");
+    return response.toString(2).getBytes();
   }
 
   public byte[] getUpdatePayload() throws IOException {

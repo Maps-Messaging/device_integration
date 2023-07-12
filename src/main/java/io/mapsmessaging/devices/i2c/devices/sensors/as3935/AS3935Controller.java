@@ -94,53 +94,67 @@ public class AS3935Controller extends I2CDeviceController {
   }
 
   @Override
-  public void setPayload(byte[] payload) throws IOException {
+  public byte[] setPayload(byte[] payload) throws IOException {
     JSONObject jsonConfig = new JSONObject(new String(payload));
+    JSONObject response = new JSONObject();
     Registers registers = sensor.getRegisters();
 
     // AFE_GAIN Register
     if (jsonConfig.has("AFE_PowerDown")) {
       registers.setAFE_PowerDown(jsonConfig.getBoolean("AFE_PowerDown"));
+      response.put("AFE_PowerDown", jsonConfig.getBoolean("AFE_PowerDown"));
     }
     if (jsonConfig.has("AFE_GainBoost")) {
       registers.setAFE_GainBoost(jsonConfig.getInt("AFE_GainBoost"));
+      response.put("AFE_GainBoost", jsonConfig.getBoolean("AFE_GainBoost"));
     }
 
     // THRESHOLD Register
     if (jsonConfig.has("WatchdogThreshold")) {
       registers.setWatchdogThreshold(jsonConfig.getInt("WatchdogThreshold"));
+      response.put("WatchdogThreshold", jsonConfig.getBoolean("WatchdogThreshold"));
     }
     if (jsonConfig.has("NoiseFloorLevel")) {
       registers.setNoiseFloorLevel(jsonConfig.getInt("NoiseFloorLevel"));
+      response.put("NoiseFloorLevel", jsonConfig.getBoolean("NoiseFloorLevel"));
     }
 
     // LIGHTNING_REG Register
     if (jsonConfig.has("SpikeRejection")) {
       registers.setSpikeRejection(jsonConfig.getInt("SpikeRejection"));
+      response.put("SpikeRejection", jsonConfig.getBoolean("SpikeRejection"));
     }
     if (jsonConfig.has("MinNumLightning")) {
       registers.setMinNumLightning(jsonConfig.getInt("MinNumLightning"));
+      response.put("MinNumLightning", jsonConfig.getBoolean("MinNumLightning"));
     }
     if (jsonConfig.has("ClearStatisticsEnabled")) {
       registers.setClearStatisticsEnabled(jsonConfig.getBoolean("ClearStatisticsEnabled"));
+      response.put("ClearStatisticsEnabled", jsonConfig.getBoolean("ClearStatisticsEnabled"));
     }
     // INTERRUPT Register
     if (jsonConfig.has("MaskDisturberEnabled")) {
       registers.setMaskDisturberEnabled(jsonConfig.getBoolean("MaskDisturberEnabled"));
+      response.put("MaskDisturberEnabled", jsonConfig.getBoolean("MaskDisturberEnabled"));
     }
     if (jsonConfig.has("EnergyDivRatio")) {
       registers.setEnergyDivRatio(jsonConfig.getInt("EnergyDivRatio"));
+      response.put("EnergyDivRatio", jsonConfig.getBoolean("EnergyDivRatio"));
     }
     // TUN_CAP Register
     if (jsonConfig.has("TuningCap")) {
       registers.setTuningCap(jsonConfig.getInt("TuningCap"));
+      response.put("TuningCap", jsonConfig.getBoolean("TuningCap"));
     }
     if (jsonConfig.has("DispTRCOEnabled")) {
       registers.setDispTRCOEnabled(jsonConfig.getBoolean("DispTRCOEnabled"));
+      response.put("DispTRCOEnabled", jsonConfig.getBoolean("DispTRCOEnabled"));
     }
     if (jsonConfig.has("DispSRCOEnabled")) {
       registers.setDispSRCOEnabled(jsonConfig.getBoolean("DispSRCOEnabled"));
+      response.put("DispSRCOEnabled", jsonConfig.getBoolean("DispSRCOEnabled"));
     }
+    return response.toString(2).getBytes();
   }
 
   public SchemaConfig getSchema() {

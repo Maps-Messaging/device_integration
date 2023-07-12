@@ -58,10 +58,10 @@ public class I2CDeviceScheduler extends I2CDeviceController {
   }
 
   @Override
-  public void setPayload(byte[] val) throws IOException {
+  public byte[] setPayload(byte[] val) throws IOException {
     synchronized (deviceController) {
       synchronized (I2C_BUS_LOCK) {
-        deviceController.setPayload(val);
+        return deviceController.setPayload(val);
       }
     }
   }

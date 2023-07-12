@@ -40,10 +40,11 @@ public class Lps35Controller extends I2CDeviceController {
 
 
   @Override
-  public void setPayload(byte[] val) throws IOException {
+  public byte[] setPayload(byte[] val) throws IOException {
     if (sensor != null) {
-      JsonHelper.unpackJson(new JSONObject(new String(val)), sensor);
+      return JsonHelper.unpackJson(new JSONObject(new String(val)), sensor);
     }
+    return ("{}").getBytes();
   }
 
 

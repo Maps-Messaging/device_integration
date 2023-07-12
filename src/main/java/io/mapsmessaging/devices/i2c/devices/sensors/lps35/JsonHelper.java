@@ -9,33 +9,42 @@ import java.io.IOException;
 
 public class JsonHelper {
 
-  public static void unpackJson(JSONObject jsonObject, Lps35Sensor sensor) throws IOException {
+  public static byte[] unpackJson(JSONObject jsonObject, Lps35Sensor sensor) throws IOException {
     // Interrupt Config Register
+    JSONObject response = new JSONObject();
     if (jsonObject.has("interruptConfig")) {
+      JSONObject interrupt = new JSONObject();
+      response.put("interruptConfig", interrupt);
       JSONObject interruptConfigObj = jsonObject.getJSONObject("interruptConfig");
       if (interruptConfigObj.has("autoRifpEnabled")) {
         boolean autoRifpEnabled = interruptConfigObj.getBoolean("autoRifpEnabled");
         sensor.enableAutoRifp(autoRifpEnabled);
+        interrupt.put("autoRifpEnabled", autoRifpEnabled);
       }
       if (interruptConfigObj.has("autoZeroEnabled")) {
         boolean autoZeroEnabled = interruptConfigObj.getBoolean("autoZeroEnabled");
         sensor.enableAutoZero(autoZeroEnabled);
+        interrupt.put("autoZeroEnabled", autoZeroEnabled);
       }
       if (interruptConfigObj.has("interruptEnabled")) {
         boolean interruptEnabled = interruptConfigObj.getBoolean("interruptEnabled");
         sensor.enableInterrupt(interruptEnabled);
+        interrupt.put("interruptEnabled", interruptEnabled);
       }
       if (interruptConfigObj.has("latchInterruptToSource")) {
         boolean latchInterruptToSource = interruptConfigObj.getBoolean("latchInterruptToSource");
         sensor.latchInterruptToSource(latchInterruptToSource);
+        interrupt.put("latchInterruptToSource", latchInterruptToSource);
       }
       if (interruptConfigObj.has("latchInterruptToPressureLow")) {
         boolean latchInterruptToPressureLow = interruptConfigObj.getBoolean("latchInterruptToPressureLow");
         sensor.latchInterruptToPressureLow(latchInterruptToPressureLow);
+        interrupt.put("latchInterruptToPressureLow", latchInterruptToPressureLow);
       }
       if (interruptConfigObj.has("latchInterruptToPressureHigh")) {
         boolean latchInterruptToPressureHigh = interruptConfigObj.getBoolean("latchInterruptToPressureHigh");
         sensor.latchInterruptToPressureHigh(latchInterruptToPressureHigh);
+        interrupt.put("latchInterruptToPressureHigh", latchInterruptToPressureHigh);
       }
     }
 
@@ -43,94 +52,125 @@ public class JsonHelper {
     if (jsonObject.has("pressureThreshold")) {
       float thresholdPressure = (float) jsonObject.getDouble("pressureThreshold");
       sensor.setThresholdPressure(thresholdPressure);
+      response.put("pressureThreshold", thresholdPressure);
     }
 
     if (jsonObject.has("controlReg1")) {
       JSONObject controlReg1 = jsonObject.getJSONObject("controlReg1");
+      JSONObject register1 = new JSONObject();
+      response.put("controlReg1", register1);
       // Control Register 1
       if (controlReg1.has("dataRate")) {
         String rate = jsonObject.getString("dataRate");
         DataRate dataRate = DataRate.valueOf(rate);
         sensor.setDataRate(dataRate);
+        register1.put("dataRate", dataRate.name());
       }
       if (controlReg1.has("lowPassFilter")) {
         boolean lowPassFilter = jsonObject.getBoolean("lowPassFilter");
         sensor.setLowPassFilter(lowPassFilter);
+        register1.put("lowPassFilter", lowPassFilter);
       }
       if (controlReg1.has("lowPassFilterConfig")) {
         boolean lowPassFilterConfig = jsonObject.getBoolean("lowPassFilterConfig");
         sensor.setLowPassFilterConfig(lowPassFilterConfig);
+        register1.put("lowPassFilterConfig", lowPassFilterConfig);
       }
       if (controlReg1.has("blockUpdate")) {
         boolean blockUpdate = jsonObject.getBoolean("blockUpdate");
         sensor.setBlockUpdate(blockUpdate);
+        register1.put("blockUpdate", blockUpdate);
       }
     }
 
     // Control Register 2
     if (jsonObject.has("controlReg2")) {
       JSONObject controlReg2 = jsonObject.getJSONObject("controlReg2");
+      JSONObject register2 = new JSONObject();
+      response.put("controlReg2", register2);
+
       if (controlReg2.has("boot")) {
         sensor.boot();
+        register2.put("boot", true);
       }
       if (controlReg2.has("enableFiFo")) {
         boolean fifoEnabled = controlReg2.getBoolean("enableFiFo");
         sensor.enableFiFo(fifoEnabled);
+        register2.put("fifoEnabled", fifoEnabled);
       }
       if (controlReg2.has("stopFiFoOnThresholdEnabled")) {
         boolean stopFiFoOnThresholdEnabled = controlReg2.getBoolean("stopFiFoOnThresholdEnabled");
         sensor.enableStopFiFoOnThreshold(stopFiFoOnThresholdEnabled);
+        register2.put("stopFiFoOnThresholdEnabled", stopFiFoOnThresholdEnabled);
+
       }
       if (controlReg2.has("reset")) {
         sensor.reset();
+        register2.put("reset", true);
       }
       if (controlReg2.has("enableOneShot")) {
         boolean oneShotEnabled = controlReg2.getBoolean("enableOneShot");
         sensor.enableOneShot(oneShotEnabled);
+        register2.put("enableOneShot", oneShotEnabled);
       }
     }
     if (jsonObject.has("controlReg3")) {
       JSONObject controlReg3 = jsonObject.getJSONObject("controlReg3");
+      JSONObject register3 = new JSONObject();
+      response.put("controlReg3", register3);
+
       if (controlReg3.has("fifoDrainInterruptEnabled")) {
         boolean fifoDrainInterruptEnabled = controlReg3.getBoolean("fifoDrainInterruptEnabled");
         sensor.enableFiFoDrainInterrupt(fifoDrainInterruptEnabled);
+        register3.put("fifoDrainInterruptEnabled", fifoDrainInterruptEnabled);
       }
       if (controlReg3.has("fiFoWatermarkInterrupt")) {
         boolean fifoWatermarkInterruptEnabled = controlReg3.getBoolean("fiFoWatermarkInterrupt");
         sensor.enableFiFoWatermarkInterrupt(fifoWatermarkInterruptEnabled);
+        register3.put("fiFoWatermarkInterrupt", fifoWatermarkInterruptEnabled);
       }
       if (controlReg3.has("fiFoOverrunInterrupt")) {
         boolean fifoOverrunInterruptEnabled = controlReg3.getBoolean("fiFoOverrunInterrupt");
         sensor.enableFiFoOverrunInterrupt(fifoOverrunInterruptEnabled);
+        register3.put("fiFoOverrunInterrupt", fifoOverrunInterruptEnabled);
       }
       if (controlReg3.has("signalOnInterrupt")) {
         DataReadyInterrupt dataReadyInterrupt = DataReadyInterrupt.valueOf(controlReg3.getString("signalOnInterrupt"));
         sensor.setSignalOnInterrupt(dataReadyInterrupt);
+        register3.put("signalOnInterrupt", dataReadyInterrupt);
       }
     }
     // FiFo Control Register
     if (jsonObject.has("fifoCtrl")) {
       JSONObject fifoControl = jsonObject.getJSONObject("fifoCtrl");
+      JSONObject fifo = new JSONObject();
+      response.put("fifoCtrl", fifo);
+
       if (fifoControl.has("fifoMode")) {
         FiFoMode mode = FiFoMode.valueOf(fifoControl.getString("fifoMode"));
         sensor.setFifoMode(mode);
+        fifo.put("fifoMode", mode.name());
       }
       if (fifoControl.has("fifoWaterMark")) {
         int fifoWatermark = fifoControl.getInt("fifoWaterMark");
         sensor.setFiFoWaterMark(fifoWatermark);
+        fifo.put("fifoWaterMark", fifoWatermark);
       }
     }
     // Reference Pressure Registers
     if (jsonObject.has("referencePressure")) {
       int referencePressure = jsonObject.getInt("referencePressure");
       sensor.setReferencePressure(referencePressure);
+      response.put("referencePressure", referencePressure);
     }
 
     // Low Power Mode Registers
     if (jsonObject.has("lowPowerModeEnabled")) {
       boolean lowPowerModeEnabled = jsonObject.getBoolean("lowPowerModeEnabled");
       sensor.setLowPowerMode(lowPowerModeEnabled);
+      response.put("lowPowerModeEnabled", lowPowerModeEnabled);
     }
+    return response.toString(2).getBytes();
   }
 
   public static JSONObject pack(Lps35Sensor sensor) throws IOException {

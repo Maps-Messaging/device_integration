@@ -48,10 +48,10 @@ public class SpiDeviceScheduler extends SpiDeviceController {
   }
 
   @Override
-  public void setPayload(byte[] val) throws IOException {
+  public byte[] setPayload(byte[] val) throws IOException {
     try {
       SPI_BUS_SEMAPHORE.acquireUninterruptibly();
-      deviceController.setPayload(val);
+      return deviceController.setPayload(val);
     } finally {
       SPI_BUS_SEMAPHORE.release();
     }

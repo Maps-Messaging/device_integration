@@ -82,26 +82,33 @@ public abstract class HT16K33Controller extends I2CDeviceController {
   }
 
   @Override
-  public void setPayload(byte[] val) throws IOException {
-    if (display == null) return;
+  public byte[] setPayload(byte[] val) throws IOException {
     JSONObject jsonObject = new JSONObject(new String(val));
+    JSONObject response = new JSONObject();
+
+    if (display == null) return response.toString(2).getBytes();
     if (jsonObject.has("brightness")) {
       int brightness = jsonObject.getInt("brightness");
       if (brightness != display.getBrightness()) {
         display.setBrightness((byte) (brightness & 0xf));
+        response.put("brightness", brightness);
       }
     }
     if (jsonObject.has("blink")) {
       String blink = jsonObject.optString("blink", "OFF");
       BlinkRate rate = BlinkRate.valueOf(blink);
       display.setBlinkRate(rate);
+      response.put("blink", rate.name());
+
     }
     if (jsonObject.has("enabled")) {
       boolean isOn = jsonObject.optBoolean("enabled", display.isOn());
       if (isOn != display.isOn()) {
         if (isOn) {
+          response.put("enabled", isOn);
           display.turnOn();
         } else {
+          response.put("enabled", isOn);
           display.turnOff();
         }
       }
@@ -111,22 +118,27 @@ public abstract class HT16K33Controller extends I2CDeviceController {
       String text = jsonObject.getString("display");
       if (text.length() <= 5) {
         display.write(text);
+        response.put("display", text);
       }
     } else if (jsonObject.has("raw")) {
       cancelCurrentTask();
       String text = jsonObject.getString("raw");
       display.writeRaw(text);
+      response.put("raw", text);
     } else if (jsonObject.has("task")) {
       cancelCurrentTask();
       display.write("    ");
       String task = jsonObject.getString("task");
       if (task.equalsIgnoreCase("clock")) {
         setTask(new Clock(this));
+        response.put("task", "clock");
       }
       if (task.equalsIgnoreCase("test")) {
         setTask(new TestTask(this));
+        response.put("task", "test");
       }
     }
+    return response.toString(2).getBytes();
   }
 
   public SchemaConfig getSchema() {

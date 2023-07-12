@@ -32,32 +32,42 @@ public class JsonUnpacker {
     this.rtc = rtc;
   }
 
-  public void unpack(JSONObject jsonObject) throws IOException {
+  public byte[] unpack(JSONObject jsonObject) throws IOException {
+    JSONObject response = new JSONObject();
     if (jsonObject.has("date")) {
-      rtc.setDate(LocalDate.parse(jsonObject.getString("date")));
+      LocalDate date = LocalDate.parse(jsonObject.getString("date"));
+      rtc.setDate(date);
+      response.put("date", date.toString());
     }
     if (jsonObject.has("time")) {
-      rtc.setTime(LocalTime.parse(jsonObject.getString("time")));
+      LocalTime time = LocalTime.parse(jsonObject.getString("time"));
+      rtc.setTime(time);
+      response.put("time", time.toString());
     }
     if (jsonObject.has("alarm1")) {
       JSONObject alarm1Json = jsonObject.getJSONObject("alarm1");
-      unpackAlarm(alarm1Json, rtc.getAlarm1());
+      response.put("alarm1", unpackAlarm(alarm1Json, rtc.getAlarm1()));
     }
     if (jsonObject.has("alarm2")) {
       JSONObject alarm2Json = jsonObject.getJSONObject("alarm2");
-      unpackAlarm(alarm2Json, rtc.getAlarm2());
+      response.put("alarm2", unpackAlarm(alarm2Json, rtc.getAlarm2()));
     }
     if (jsonObject.has("control")) {
       JSONObject controlJson = jsonObject.getJSONObject("control");
-      unpackControl(controlJson, rtc.getControlRegister());
+      response.put("control", unpackControl(controlJson, rtc.getControlRegister()));
     }
+    return response.toString(2).getBytes();
   }
 
-  private void unpackAlarm(JSONObject alarmJson, AlarmRegister alarmRegister) throws IOException {
+  private JSONObject unpackAlarm(JSONObject alarmJson, AlarmRegister alarmRegister) throws IOException {
     String time = alarmJson.getString("time");
     String rate = alarmJson.getString("rate");
     int dayOfWeek = alarmJson.optInt("dayOfWeek", -1);
     int dayOfMonth = alarmJson.optInt("dayOfMonth", -1);
+
+    JSONObject response = new JSONObject();
+    response.put("time", time);
+    response.put("rate", rate);
 
     AlarmRegister.RATE alarmRate = AlarmRegister.RATE.valueOf(rate);
 
@@ -67,14 +77,17 @@ public class JsonUnpacker {
     if (alarmRate.getMask() == 0) {
       if (alarmRate.isDayOfWeek()) {
         alarmRegister.setDayOrDate(dayOfWeek);
+        response.put("datOfWeek", dayOfWeek);
       } else {
         alarmRegister.setDayOrDate(dayOfMonth);
+        response.put("dayOfMonth", dayOfMonth);
       }
     }
+    return response;
   }
 
 
-  private void unpackControl(JSONObject controlJson, ControlRegister controlRegister) throws IOException {
+  private JSONObject unpackControl(JSONObject controlJson, ControlRegister controlRegister) throws IOException {
     boolean covertTemperatureEnabled = controlJson.getBoolean("covertTemperatureEnabled");
     boolean oscillatorEnabled = controlJson.getBoolean("oscillatorEnabled");
     boolean squareWaveEnabled = controlJson.getBoolean("squareWaveEnabled");
@@ -83,6 +96,7 @@ public class JsonUnpacker {
     boolean alarm1InterruptEnabled = controlJson.getBoolean("alarm1InterruptEnabled");
     boolean alarm2InterruptEnabled = controlJson.getBoolean("alarm2InterruptEnabled");
 
+
     controlRegister.setAlarm1InterruptEnabled(alarm1InterruptEnabled);
     controlRegister.setAlarm2InterruptEnabled(alarm2InterruptEnabled);
     controlRegister.setConvertTemperature(covertTemperatureEnabled);
@@ -90,6 +104,7 @@ public class JsonUnpacker {
     controlRegister.setSquareWaveEnabled(squareWaveEnabled);
     controlRegister.setSquareWaveFrequency(squareWaveFrequency);
     controlRegister.setSquareWaveInterruptEnabled(squareWaveInterruptEnabled);
+    return controlJson;
   }
 
 }

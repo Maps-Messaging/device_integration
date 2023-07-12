@@ -34,7 +34,8 @@ public interface DeviceController {
 
   byte[] getUpdatePayload() throws IOException;
 
-  default void setPayload(byte[] val) throws IOException {
+  default byte[] setPayload(byte[] val) throws IOException {
+    return new byte[0];
   }
 
   default void close() {

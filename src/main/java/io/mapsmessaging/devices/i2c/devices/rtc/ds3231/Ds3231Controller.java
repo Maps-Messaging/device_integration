@@ -78,11 +78,12 @@ public class Ds3231Controller extends I2CDeviceController {
   }
 
   @Override
-  public void setPayload(byte[] val) throws IOException {
+  public byte[] setPayload(byte[] val) throws IOException {
     if (unpacker != null) {
       JSONObject jsonObject = new JSONObject(new String(val));
-      unpacker.unpack(jsonObject);
+      return unpacker.unpack(jsonObject);
     }
+    return "{}".getBytes();
   }
 
   public SchemaConfig getSchema() {

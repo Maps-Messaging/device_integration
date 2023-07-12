@@ -68,9 +68,10 @@ public class GasSensorController extends I2CDeviceController {
   }
 
   @Override
-  public void setPayload(byte[] payload) throws IOException {
-    if (sensor == null) return;
+  public byte[] setPayload(byte[] payload) throws IOException {
     JSONObject json = new JSONObject(new String(payload));
+    JSONObject response = new JSONObject();
+    if (sensor == null) return response.toString(2).getBytes();
     if (json.has("functionName") && json.has("parameters")) {
       String functionName = json.getString("functionName");
       JSONObject parameters = json.getJSONObject("parameters");
@@ -82,29 +83,36 @@ public class GasSensorController extends I2CDeviceController {
           alarmTypeName = parameters.getString("alarmType");
           alarmType = AlarmType.valueOf(alarmTypeName);
           sensor.setThresholdAlarm(threshold, alarmType);
+          response.put("setThresholdAlarm", alarmType.name());
           break;
 
         case "clearThresholdAlarm":
           alarmTypeName = parameters.getString("alarmType");
           alarmType = AlarmType.valueOf(alarmTypeName);
           sensor.clearThresholdAlarm(alarmType);
+          response.put("clearThresholdAlarm", alarmType.name());
           break;
 
         case "setI2CAddress":
           byte group = (byte) parameters.getInt("group");
           sensor.setI2CAddress(group);
+          response.put("setI2CAddress", group);
+
           break;
 
         case "changeAcquireMode":
           String acquireMode = parameters.getString("acquireMode");
           AcquireMode mode = AcquireMode.valueOf(acquireMode);
           sensor.changeAcquireMode(mode);
+          response.put("changeAcquireMode", mode.name());
+
           break;
 
         default:
           break;
       }
     }
+    return response.toString(2).getBytes();
   }
 
   public String getName() {
