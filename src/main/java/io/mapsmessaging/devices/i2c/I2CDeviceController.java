@@ -39,10 +39,14 @@ public abstract class I2CDeviceController implements DeviceController {
     }
   }
 
+  public boolean canDetect(){
+    return false;
+  }
+
   public abstract I2CDeviceController mount(I2C device) throws IOException;
 
   public abstract int[] getAddressRange();
 
-  public abstract boolean detect();
+  public abstract boolean detect(I2C i2cDevice);
 
 }

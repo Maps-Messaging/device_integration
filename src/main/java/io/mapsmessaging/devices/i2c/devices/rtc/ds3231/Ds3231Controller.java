@@ -51,7 +51,7 @@ public class Ds3231Controller extends I2CDeviceController {
   }
 
   @Override
-  public boolean detect() {
+  public boolean detect(I2C i2cDevice) {
     return rtc != null && rtc.isConnected();
   }
 

@@ -77,7 +77,7 @@ public class I2CDeviceScheduler extends I2CDeviceController {
   }
 
   @Override
-  public boolean detect() {
+  public boolean detect(I2C i2cDevice) {
     return true; // This is indeed a physical device
   }
 }

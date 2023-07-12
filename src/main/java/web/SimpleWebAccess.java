@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -27,7 +28,7 @@ public class SimpleWebAccess {
     ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     executor.scheduleAtFixedRate(deviceBusManager.getI2cBusManager()::scanForDevices, 0, 1, TimeUnit.MINUTES);
 
-/*
+
     Map<String, Object> deviceConfig = new LinkedHashMap<>();
     deviceConfig.put("spiBus", "0");
     deviceConfig.put("spiMode", "0");
@@ -38,7 +39,6 @@ public class SimpleWebAccess {
     Map<String, Object> map = new LinkedHashMap<>();
     map.put("Mcp3y0x", deviceConfig);
     deviceBusManager.getSpiBusManager().configureDevices(map);
-*/
   }
 
   public static void main(String[] args) {

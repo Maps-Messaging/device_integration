@@ -83,10 +83,8 @@ public class I2CBusManager {
   }
 
   public void close(I2CDeviceController deviceController) {
-    System.err.println("Closing "+deviceController.getName());
     deviceController.close();
     String key = Integer.toHexString(deviceController.getMountedAddress());
-    System.err.println("Closed "+deviceController.getName()+" removing from active devices::"+key);
     activeDevices.remove(key);
   }
 
@@ -110,11 +108,24 @@ public class I2CBusManager {
             e.printStackTrace();
           }
         } else {
-          StringBuilder sb = new StringBuilder();
-          for (I2CDeviceController controller : devices) {
-            sb.append(controller.getName()).append(" ");
+          boolean located = false;
+          for(I2CDeviceController device: devices){
+            if(device.canDetect() && device.detect(physicalDevices.get(addr))){
+              try {
+                createAndMountDevice(addr, device);
+                located = true;
+              } catch (IOException e) {
+                e.printStackTrace();
+              }
+            }
           }
-          logger.log(I2C_BUS_SCAN_MULTIPLE_DEVICES, sb.toString());
+          if(!located) {
+            StringBuilder sb = new StringBuilder();
+            for (I2CDeviceController controller : devices) {
+              sb.append(controller.getName()).append(" ");
+            }
+            logger.log(I2C_BUS_SCAN_MULTIPLE_DEVICES, sb.toString());
+          }
         }
       }
     }

@@ -68,7 +68,7 @@ public class PCA9685Controller extends I2CDeviceController {
   }
 
   @Override
-  public boolean detect() {
+  public boolean detect(I2C i2cDevice) {
     return device != null && device.isConnected();
   }
 

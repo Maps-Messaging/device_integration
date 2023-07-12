@@ -1,43 +1,40 @@
-package io.mapsmessaging.devices.i2c.devices.sensors.lps35;
+package io.mapsmessaging.devices.i2c.devices.sensors.lps25;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.sensors.lps35.registers.*;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers.*;
 import io.mapsmessaging.logging.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Original CPP source <a href="https://github.com/adafruit/Adafruit_LPS35HW/blob/master/Adafruit_LPS35HW.cpp">...</a>
- */
+public class Lps25Sensor extends I2CDevice {
 
-public class Lps35Sensor extends I2CDevice {
-
-  public static final byte INTERRUPT_CFG = 0x0B;
-  public static final byte THS_P_L = 0x0C;
-  public static final byte THS_P_H = 0x0D;
+  public static final byte REF_P_XL = 0x08;
   public static final byte WHO_AM_I = 0x0F;
-  public static final byte CTRL_REG1 = 0x10;
-  public static final byte CTRL_REG2 = 0x11;
-  public static final byte CTRL_REG3 = 0x12;
-  public static final byte FIFO_CTRL = 0x14;
-  public static final byte REF_P_XL = 0x15;
+  public static final byte RES_CONF = 0x10;
 
-  public static final byte RES_CONF = 0x1A;
+  public static final byte CTRL_REG1 = 0x20;
+  public static final byte CTRL_REG2 = 0x21;
+  public static final byte CTRL_REG3 = 0x22;
+  public static final byte CTRL_REG4 = 0x23;
+  public static final byte INTERRUPT_CFG = 0x24;
   public static final byte INT_SOURCE = 0x25;
-  public static final byte FIFO_STATUS = 0x26;
   public static final byte STATUS = 0x27;
   public static final byte PRESS_OUT_XL = 0x28;
   public static final byte TEMP_OUT_L = 0x2B;
+  public static final byte FIFO_CTRL = 0x2E;
+  public static final byte FIFO_STATUS = 0x2F;
+  public static final byte THS_P_L = 0x30;
+  public static final byte THS_P_H = 0x31;
 
   public static int getId(I2C device) throws IOException {
     return device.readRegister(WHO_AM_I);
   }
 
-  public Lps35Sensor(I2C device) {
-    super(device, LoggerFactory.getLogger(Lps35Sensor.class));
+  public Lps25Sensor(I2C device) {
+    super(device, LoggerFactory.getLogger(Lps25Sensor.class));
   }
 
   @Override
@@ -47,7 +44,7 @@ public class Lps35Sensor extends I2CDevice {
 
   @Override
   public String getName() {
-    return "LPS35";
+    return "LPS25";
   }
 
   @Override
@@ -55,43 +52,7 @@ public class Lps35Sensor extends I2CDevice {
     return "Pressure sensor: 260-1260 hPa";
   }
 
-
-  //region Interrupt Config Register
-  public void enableAutoRifp(boolean flag) throws IOException {
-    int value = flag ? 0b10000000 : 0;
-    setControlRegister(INTERRUPT_CFG, 0b01111111, value);
-  }
-
-  public boolean isAutoRifpEnabled() throws IOException {
-    return (readRegister(INTERRUPT_CFG) & 0b01000000) != 0;
-  }
-
-  public void resetAutoRifp() throws IOException {
-    setControlRegister(INTERRUPT_CFG, 0b10111111, 0b01000000);
-  }
-
-  public void enableAutoZero(boolean flag) throws IOException {
-    int value = flag ? 0b00100000 : 0;
-    setControlRegister(INTERRUPT_CFG, 0b11011111, value);
-  }
-
-  public boolean isAutoZeroEnabled() throws IOException {
-    return (readRegister(INTERRUPT_CFG) & 0b00100000) != 0;
-  }
-
-  public void resetAutoZero() throws IOException {
-    setControlRegister(INTERRUPT_CFG, 0b11101111, 0b00010000);
-  }
-
-  public void enableInterrupt(boolean flag) throws IOException {
-    int value = flag ? 0b1000 : 0;
-    setControlRegister(INTERRUPT_CFG, 0b11110111, value);
-  }
-
-  public boolean isInterruptEnabled() throws IOException {
-    return (readRegister(INTERRUPT_CFG) & 0b00001000) != 0;
-  }
-
+  //region Interrupt controlregister
   public void latchInterruptToSource(boolean flag) throws IOException {
     int value = flag ? 0b100 : 0;
     setControlRegister(INTERRUPT_CFG, 0b11111011, value);
@@ -151,35 +112,35 @@ public class Lps35Sensor extends I2CDevice {
   }
 
   //region Control Register 1
+  public void powerDown() throws IOException {
+    setControlRegister(CTRL_REG1, (byte)0b01111111, (byte)0b10000000);
+  }
+
   public void setDataRate(DataRate rate) throws IOException {
     setControlRegister(CTRL_REG1, 0b0001111, (rate.getMask() << 4));
   }
 
-  public void setLowPassFilter(boolean flag) throws IOException {
+  public void setInterruptGeneration(boolean flag) throws IOException {
     int value = flag ? 0b1000 : 0;
     setControlRegister(CTRL_REG1, 0b11110111, value);
   }
 
-  public boolean isLowPassFilterSet() throws IOException {
+  public boolean isInterruptGenerationEnabled() throws IOException {
     return (readRegister(CTRL_REG1) & 0b1000) != 0;
   }
 
-  public void setLowPassFilterConfig(boolean flag) throws IOException {
+  public void setBlockUpdate(boolean flag) throws IOException {
     int value = flag ? 0b100 : 0;
     setControlRegister(CTRL_REG1, 0b11111011, value);
   }
 
-  public boolean isLowPassFilterConfigSet() throws IOException {
+  public boolean isBlockUpdateSet() throws IOException {
     return (readRegister(CTRL_REG1) & 0b100) != 0;
   }
 
-  public void setBlockUpdate(boolean flag) throws IOException {
+  public void resetAutoZero(boolean flag) throws IOException {
     int value = flag ? 0b10 : 0;
     setControlRegister(CTRL_REG1, 0b11111101, value);
-  }
-
-  public boolean isBlockUpdateSet() throws IOException {
-    return (readRegister(CTRL_REG1) & 0b10) != 0;
   }
   //endregion
 
@@ -232,39 +193,12 @@ public class Lps35Sensor extends I2CDevice {
     return (readRegister(CTRL_REG3) & 0b01000000) != 0;
   }
 
-  public void enableFiFoDrainInterrupt(boolean flag) throws IOException {
-    int value = flag ? 0b00100000 : 0;
-    setControlRegister(CTRL_REG3, 0b11011111, value);
-  }
-
-  public boolean isFiFoDrainInterruptEnabled() throws IOException {
-    return (readRegister(CTRL_REG3) & 0b00100000) != 0;
-  }
-
-  public void enableFiFoWatermarkInterrupt(boolean flag) throws IOException {
-    int value = flag ? 0b0010000 : 0;
-    setControlRegister(CTRL_REG3, 0b11101111, value);
-  }
-
-  public boolean isFiFoWatermarkInterruptEnabled() throws IOException {
-    return (readRegister(CTRL_REG3) & 0b0010000) != 0;
-  }
-
-  public void enableFiFoOverrunInterrupt(boolean flag) throws IOException {
-    int value = flag ? 0b001000 : 0;
-    setControlRegister(CTRL_REG3, 0b11110111, value);
-  }
-
-  public boolean isFiFoOverrunInterruptEnabled() throws IOException {
-    return (readRegister(CTRL_REG3) & 0b001000) != 0;
-  }
-
   public void setSignalOnInterrupt(DataReadyInterrupt flag) throws IOException {
     int value = flag.getMask();
     setControlRegister(CTRL_REG3, 0b11111100, value);
   }
 
-  public DataReadyInterrupt isSignalOnInterrupr() throws IOException {
+  public DataReadyInterrupt isSignalOnInterrupt() throws IOException {
     int mask = (readRegister(CTRL_REG3) & 0b11);
     for (DataReadyInterrupt dataReadyInterrupt : DataReadyInterrupt.values()) {
       if (mask == dataReadyInterrupt.getMask()) {
@@ -274,6 +208,46 @@ public class Lps35Sensor extends I2CDevice {
     return DataReadyInterrupt.ORDER_OF_PRIORITY;
   }
   //endregion
+
+  //region Control Register 4
+
+  public void enabledFiFoEmptyInterrupt(boolean flag) throws IOException {
+    int value = flag ? 0b001000 : 0;
+    setControlRegister(CTRL_REG4, 0b11110111, value);
+  }
+
+  public boolean isFiFoEmptyEnabled() throws IOException {
+    return (readRegister(CTRL_REG4) & 0b001000) != 0;
+  }
+
+  public void enableFiFoWatermarkInterrupt(boolean flag) throws IOException {
+    int value = flag ? 0b00100 : 0;
+    setControlRegister(CTRL_REG4, 0b11111011, value);
+  }
+
+  public boolean isFiFoWatermarkInterruptEnabled() throws IOException {
+    return (readRegister(CTRL_REG4) & 0b00100) != 0;
+  }
+
+  public void enableFiFoOverrunInterrupt(boolean flag) throws IOException {
+    int value = flag ? 0b0010 : 0;
+    setControlRegister(CTRL_REG4, 0b11111101, value);
+  }
+
+  public boolean isFiFoOverrunInterruptEnabled() throws IOException {
+    return (readRegister(CTRL_REG4) & 0b0010) != 0;
+  }
+
+  public void setDataReadyInterrupt(boolean flag) throws IOException {
+    int value = flag ? 0b001 : 0;
+    setControlRegister(CTRL_REG4, 0b11111110, value);
+  }
+  public boolean isDataReadyInterrupt() throws IOException {
+    return (readRegister(CTRL_REG4) & 0b001) != 0;
+
+  }
+  //endregion
+
 
   //region FiFo Control Register
 

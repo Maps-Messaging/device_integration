@@ -33,7 +33,7 @@ public class AT24CnnController  extends I2CDeviceController {
   }
 
   @Override
-  public boolean detect() {
+  public boolean detect(I2C i2cDevice) {
     return sensor != null && sensor.isConnected();
   }
 

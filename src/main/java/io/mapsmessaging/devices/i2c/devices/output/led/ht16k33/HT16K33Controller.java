@@ -50,7 +50,7 @@ public abstract class HT16K33Controller extends I2CDeviceController {
   }
 
   @Override
-  public boolean detect() {
+  public boolean detect(I2C i2cDevice) {
     return display != null && display.isConnected();
   }
 

@@ -1,9 +1,9 @@
-package io.mapsmessaging.devices.i2c.devices.sensors.lps35;
+package io.mapsmessaging.devices.i2c.devices.sensors.lps25;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
-import io.mapsmessaging.devices.i2c.devices.sensors.lps35.registers.DataRate;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers.DataRate;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -12,20 +12,20 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class Lps35Controller extends I2CDeviceController {
+public class Lps25Controller extends I2CDeviceController {
 
-  private final Lps35Sensor sensor;
+  private final Lps25Sensor sensor;
 
   @Getter
-  private final String name = "LPS35";
+  private final String name = "LPS25";
 
-  public Lps35Controller() {
+  public Lps25Controller() {
     sensor = null;
   }
 
-  public Lps35Controller(I2C device) throws IOException {
+  public Lps25Controller(I2C device) throws IOException {
     super(device);
-    sensor = new Lps35Sensor(device);
+    sensor = new Lps25Sensor(device);
     sensor.setDataRate(DataRate.RATE_1_HZ);
   }
 
@@ -37,14 +37,14 @@ public class Lps35Controller extends I2CDeviceController {
   @Override
   public boolean detect(I2C i2cDevice) {
     try {
-      return (Lps35Sensor.getId(i2cDevice) == 0b10110001);
+      return (Lps25Sensor.getId(i2cDevice) == 0b10111101);
     } catch (IOException e) {
       return false;
     }
   }
 
   public I2CDeviceController mount(I2C device) throws IOException {
-    return new Lps35Controller(device);
+    return new Lps25Controller(device);
   }
 
 
@@ -76,7 +76,7 @@ public class Lps35Controller extends I2CDeviceController {
 
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
-    config.setComments("i2c device LPS35 pressure sensor: 260-1260 hPa");
+    config.setComments("i2c device LPS25 pressure sensor: 260-1260 hPa");
     config.setSource("I2C bus address : 0x5d");
     config.setVersion("1.0");
     config.setResourceType("sensor");
@@ -97,7 +97,7 @@ public class Lps35Controller extends I2CDeviceController {
         // .addPropertySchema("updatePayloadSchema", updatePayloadSchema.build())
         .addPropertySchema(NamingConstants.DEVICE_WRITE_SCHEMA, JsonHelper.generateSchema().build())
         .description("Pressure and Temperature sensor")
-        .id("LPD35HW");
+        .id("LPS25");
 
     return schemaToString(schemaBuilder.build());
   }

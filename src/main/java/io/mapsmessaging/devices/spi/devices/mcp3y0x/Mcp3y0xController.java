@@ -46,7 +46,7 @@ public class Mcp3y0xController extends SpiDeviceController {
   public SpiDeviceController mount(Context pi4j, Map<String, String> map) {
     int spiBus = Integer.parseInt(map.get("spiBus"));
     int chipSelectInt = Integer.parseInt(map.get("spiChipSelect"));
-    int spiModeInt = Integer.parseInt("spiMode");
+    int spiModeInt = Integer.parseInt(map.get("spiMode"));
 
     int resolution = Integer.parseInt(map.get("resolution"));
     int channels = Integer.parseInt(map.get("channels"));
