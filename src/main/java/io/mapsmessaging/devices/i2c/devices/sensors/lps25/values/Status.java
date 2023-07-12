@@ -1,4 +1,4 @@
-package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
+package io.mapsmessaging.devices.i2c.devices.sensors.lps25.values;
 
 public enum Status {
   TEMPERATURE_OVERRUN,

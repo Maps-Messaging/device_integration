@@ -3,6 +3,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.lps25;
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers.*;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.*;
 import io.mapsmessaging.logging.LoggerFactory;
 
 import java.io.IOException;
@@ -15,17 +16,19 @@ public class Lps25Sensor extends I2CDevice {
   public static final byte WHO_AM_I = 0x0F;
   public static final byte RES_CONF = 0x10;
 
-  public static final byte CTRL_REG1 = 0x20;
-  public static final byte CTRL_REG2 = 0x21;
-  public static final byte CTRL_REG3 = 0x22;
-  public static final byte CTRL_REG4 = 0x23;
   public static final byte INTERRUPT_CFG = 0x24;
   public static final byte INT_SOURCE = 0x25;
   public static final byte STATUS = 0x27;
+
   public static final byte PRESS_OUT_XL = 0x28;
+  public static final byte PRESS_OUT_L = 0x29;
+  public static final byte PRESS_OUT_H = 0x2A;
+
   public static final byte TEMP_OUT_L = 0x2B;
-  public static final byte FIFO_CTRL = 0x2E;
+  public static final byte TEMP_OUT_H = 0x2C;
+
   public static final byte FIFO_STATUS = 0x2F;
+
   public static final byte THS_P_L = 0x30;
   public static final byte THS_P_H = 0x31;
 
@@ -33,8 +36,19 @@ public class Lps25Sensor extends I2CDevice {
     return device.readRegister(WHO_AM_I);
   }
 
-  public Lps25Sensor(I2C device) {
+  private final Control1 control1;
+  private final Control2 control2;
+  private final Control3 control3;
+  private final Control4 control4;
+  private final FiFoControl fiFoControl;
+
+  public Lps25Sensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(Lps25Sensor.class));
+    control1 = new Control1(this);
+    control2 = new Control2(this);
+    control3 = new Control3(this);
+    control4 = new Control4(this);
+    fiFoControl = new FiFoControl(this);
   }
 
   @Override
@@ -101,176 +115,142 @@ public class Lps25Sensor extends I2CDevice {
   }
   //endregion
 
+  //region Control Register 1
   public DataRate getDataRate() throws IOException {
-    int ctl1 = (readRegister(CTRL_REG1) & 0xff >> 4);
-    for (DataRate rate : DataRate.values()) {
-      if (rate.getMask() == ctl1) {
-        return rate;
-      }
-    }
-    return DataRate.RATE_ONE_SHOT;
+    return control1.getDataRate();
   }
 
-  //region Control Register 1
   public void powerDown() throws IOException {
-    setControlRegister(CTRL_REG1, (byte)0b01111111, (byte)0b10000000);
+    control1.powerDown();
   }
 
   public void setDataRate(DataRate rate) throws IOException {
-    setControlRegister(CTRL_REG1, 0b0001111, (rate.getMask() << 4));
+    control1.setDataRate(rate);
   }
 
   public void setInterruptGeneration(boolean flag) throws IOException {
-    int value = flag ? 0b1000 : 0;
-    setControlRegister(CTRL_REG1, 0b11110111, value);
+    control1.setInterruptGeneration(flag);
   }
 
   public boolean isInterruptGenerationEnabled() throws IOException {
-    return (readRegister(CTRL_REG1) & 0b1000) != 0;
+    return control1.isInterruptGenerationEnabled();
   }
 
   public void setBlockUpdate(boolean flag) throws IOException {
-    int value = flag ? 0b100 : 0;
-    setControlRegister(CTRL_REG1, 0b11111011, value);
+    control1.setBlockUpdate(flag);
   }
 
   public boolean isBlockUpdateSet() throws IOException {
-    return (readRegister(CTRL_REG1) & 0b100) != 0;
+    return control1.isBlockUpdateSet();
   }
 
   public void resetAutoZero(boolean flag) throws IOException {
-    int value = flag ? 0b10 : 0;
-    setControlRegister(CTRL_REG1, 0b11111101, value);
+    control1.resetAutoZero(flag);
   }
   //endregion
 
   //region Control Register 2
   public void boot() throws IOException {
-    setControlRegister(CTRL_REG2, 0b01111111, 0b10000000);
-    delay(50);
+    control2.boot();
   }
 
   public void enableFiFo(boolean flag) throws IOException {
-    int value = flag ? 0b01000000 : 0;
-    setControlRegister(CTRL_REG2, 0b10111111, value);
+    control2.enableFiFo(flag);
   }
 
   public boolean isFiFoEnabled() throws IOException {
-    return (readRegister(CTRL_REG2) & 0b01000000) != 0;
+    return control2.isFiFoEnabled();
   }
 
   public void enableStopFiFoOnThreshold(boolean flag) throws IOException {
-    int value = flag ? 0b00100000 : 0;
-    setControlRegister(CTRL_REG2, 0b11011111, value);
+    control2.enableStopFiFoOnThreshold(flag);
   }
 
   public boolean isStopFiFoOnThresholdEnabled() throws IOException {
-    return (readRegister(CTRL_REG2) & 0b00100000) != 0;
+    return control2.isStopFiFoOnThresholdEnabled();
   }
 
   public void reset() throws IOException {
-    setControlRegister(CTRL_REG2, 0b11111011, 0b100);
-    delay(50);
+    control2.reset();
   }
 
   public void enableOneShot(boolean flag) throws IOException {
-    int value = flag ? 0b1 : 0;
-    setControlRegister(CTRL_REG2, 0b11111110, value);
+    control2.enableOneShot(flag);
   }
 
   public boolean isOneShotEnabled() throws IOException {
-    return (readRegister(CTRL_REG2) & 0b1) != 0;
+    return control2.isOneShotEnabled();
   }
   //endregion
 
   //region Control Register 3
-
   public boolean isInterruptActive() throws IOException {
-    return (readRegister(CTRL_REG3) & 0b10000000) != 0;
+    return control3.isInterruptActive();
   }
 
   public boolean isPushPullDrainActive() throws IOException {
-    return (readRegister(CTRL_REG3) & 0b01000000) != 0;
+    return control3.isPushPullDrainActive();
   }
 
   public void setSignalOnInterrupt(DataReadyInterrupt flag) throws IOException {
-    int value = flag.getMask();
-    setControlRegister(CTRL_REG3, 0b11111100, value);
+    control3.setSignalOnInterrupt(flag);
   }
 
   public DataReadyInterrupt isSignalOnInterrupt() throws IOException {
-    int mask = (readRegister(CTRL_REG3) & 0b11);
-    for (DataReadyInterrupt dataReadyInterrupt : DataReadyInterrupt.values()) {
-      if (mask == dataReadyInterrupt.getMask()) {
-        return dataReadyInterrupt;
-      }
-    }
-    return DataReadyInterrupt.ORDER_OF_PRIORITY;
+    return control3.isSignalOnInterrupt();
   }
   //endregion
 
   //region Control Register 4
-
   public void enabledFiFoEmptyInterrupt(boolean flag) throws IOException {
-    int value = flag ? 0b001000 : 0;
-    setControlRegister(CTRL_REG4, 0b11110111, value);
+    control4.enabledFiFoEmptyInterrupt(flag);
   }
 
   public boolean isFiFoEmptyEnabled() throws IOException {
-    return (readRegister(CTRL_REG4) & 0b001000) != 0;
+    return control4.isFiFoEmptyEnabled();
   }
 
   public void enableFiFoWatermarkInterrupt(boolean flag) throws IOException {
-    int value = flag ? 0b00100 : 0;
-    setControlRegister(CTRL_REG4, 0b11111011, value);
+    control4.enableFiFoWatermarkInterrupt(flag);
   }
 
   public boolean isFiFoWatermarkInterruptEnabled() throws IOException {
-    return (readRegister(CTRL_REG4) & 0b00100) != 0;
+    return control4.isFiFoWatermarkInterruptEnabled();
   }
 
   public void enableFiFoOverrunInterrupt(boolean flag) throws IOException {
-    int value = flag ? 0b0010 : 0;
-    setControlRegister(CTRL_REG4, 0b11111101, value);
+    control4.enableFiFoOverrunInterrupt(flag);
   }
 
   public boolean isFiFoOverrunInterruptEnabled() throws IOException {
-    return (readRegister(CTRL_REG4) & 0b0010) != 0;
+    return control4.isFiFoOverrunInterruptEnabled();
   }
 
   public void setDataReadyInterrupt(boolean flag) throws IOException {
-    int value = flag ? 0b001 : 0;
-    setControlRegister(CTRL_REG4, 0b11111110, value);
+    control4.setDataReadyInterrupt(flag);
   }
-  public boolean isDataReadyInterrupt() throws IOException {
-    return (readRegister(CTRL_REG4) & 0b001) != 0;
 
+  public boolean isDataReadyInterrupt() throws IOException {
+    return control4.isDataReadyInterrupt();
   }
   //endregion
 
 
   //region FiFo Control Register
-
   public FiFoMode getFifoMode() throws IOException {
-    int mask = readRegister(FIFO_CTRL) >> 5;
-    for (FiFoMode mode : FiFoMode.values()) {
-      if (mode.getMask() == mask) {
-        return mode;
-      }
-    }
-    return FiFoMode.BYPASS;
+    return fiFoControl.getFifoMode();
   }
 
   public void setFifoMode(FiFoMode mode) throws IOException {
-    setControlRegister(FIFO_CTRL, 0b11111, mode.getMask());
+    fiFoControl.setFifoMode(mode);
   }
 
   public int getFiFoWaterMark() throws IOException {
-    return (readRegister(FIFO_CTRL) & 0b11111);
+    return fiFoControl.getFiFoWaterMark();
   }
 
   public void setFiFoWaterMark(int waterMark) throws IOException {
-    setControlRegister(FIFO_CTRL, 0b11100000, (waterMark & 0b11111));
+    fiFoControl.setFiFoWaterMark(waterMark);
   }
   //endregion
 
@@ -286,7 +266,9 @@ public class Lps25Sensor extends I2CDevice {
     data[0] = (byte) (value & 0xff);
     data[1] = (byte) (value >> 8 & 0xff);
     data[2] = (byte) (value >> 16 & 0xff);
-    write(REF_P_XL, data);
+    write(REF_P_XL, data[0]);
+    write(REF_P_XL + 1, data[1]);
+    write(REF_P_XL + 2, data[2]);
   }
   //endregion
 
@@ -352,7 +334,9 @@ public class Lps25Sensor extends I2CDevice {
   //region Pressure Out Registers
   public float getPressure() throws IOException {
     byte[] pressureBuffer = new byte[3];
-    readRegister(PRESS_OUT_XL, pressureBuffer, 0, pressureBuffer.length);
+    pressureBuffer[0] = (byte) (readRegister(PRESS_OUT_XL) & 0xff);
+    pressureBuffer[1] = (byte) (readRegister(PRESS_OUT_L) & 0xff);
+    pressureBuffer[2] = (byte) (readRegister(PRESS_OUT_H) & 0xff);
     int rawPressure = (pressureBuffer[2] << 16 | ((pressureBuffer[1] & 0xff) << 8) | (pressureBuffer[0] & 0xff));
     if ((rawPressure & 0x800000) != 0) {
       rawPressure = (0xff000000) | rawPressure; // It's now negative
@@ -364,16 +348,17 @@ public class Lps25Sensor extends I2CDevice {
   //region Temperature Out Registers
   public float getTemperature() throws IOException {
     byte[] temperatureBuffer = new byte[2];
-    readRegister(TEMP_OUT_L, temperatureBuffer, 0, temperatureBuffer.length);
+    temperatureBuffer[0] = (byte) (readRegister(TEMP_OUT_L) & 0xff);
+    temperatureBuffer[1] = (byte) (readRegister(TEMP_OUT_H) & 0xff);
     int rawTemperature = ((temperatureBuffer[1] & 0xff) << 8) | (temperatureBuffer[0] & 0xff);
     return rawTemperature / 100.0f;
   }
   //endregion
-
 
   private void setControlRegister(int register, int mask, int value) throws IOException {
     int ctl1 = readRegister(register) & 0xff;
     ctl1 = (ctl1 & mask) | value;
     write(register, (byte) ctl1);
   }
+
 }

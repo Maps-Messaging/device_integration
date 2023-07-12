@@ -3,7 +3,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.lps25;
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
-import io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers.DataRate;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.DataRate;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -29,6 +29,7 @@ public class Lps25Controller extends I2CDeviceController {
   public Lps25Controller(I2C device) throws IOException {
     super(device);
     sensor = new Lps25Sensor(device);
+    sensor.reset();
     sensor.setDataRate(DataRate.RATE_1_HZ);
   }
 
