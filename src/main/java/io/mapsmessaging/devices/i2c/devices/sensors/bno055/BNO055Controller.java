@@ -44,10 +44,14 @@ public class BNO055Controller extends I2CDeviceController {
     sensor = new BNO055Sensor(device);
   }
 
+  @Override
+  public boolean canDetect() {
+    return true;
+  }
 
   @Override
   public boolean detect(I2C i2cDevice) {
-    return sensor != null && sensor.isConnected();
+    return (BNO055Sensor.getId(i2cDevice) == BNO055Constants.BNO055_CHIP_ID_ADDR);
   }
 
   public I2CDeviceController mount(I2C device) throws IOException {

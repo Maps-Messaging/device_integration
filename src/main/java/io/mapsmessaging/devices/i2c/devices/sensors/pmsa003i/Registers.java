@@ -30,27 +30,27 @@ public class Registers {
     this.byteBuffer = byteBuffer;
   }
 
-  public int getPmw1_0Standard() {
+  public int getPm1_0Standard() {
     return byteBuffer.getShort(4);
   }
 
-  public int getPmw2_5Standard() {
+  public int getPm2_5Standard() {
     return byteBuffer.getShort(6);
   }
 
-  public int getPmw10Standard() {
+  public int getPm10Standard() {
     return byteBuffer.getShort(8);
   }
 
-  public int getPmw1_0Atmospheric() {
+  public int getPm1_0Atmospheric() {
     return byteBuffer.getShort(0xa);
   }
 
-  public int getPmw2_5Atmospheric() {
+  public int getPm2_5Atmospheric() {
     return byteBuffer.getShort(0xc);
   }
 
-  public int getPmw10Atmospheric() {
+  public int getPm10Atmospheric() {
     return byteBuffer.getShort(0xe);
   }
 
@@ -88,12 +88,12 @@ public class Registers {
 
   public JSONObject pack() {
     JSONObject jsonObject = new JSONObject();
-    jsonObject.put("pmw1_0_standard", getPmw1_0Standard());
-    jsonObject.put("pmw2_5_standard", getPmw2_5Standard());
-    jsonObject.put("pmw10_standard", getPmw10Standard());
-    jsonObject.put("pmw1_0_atmospheric", getPmw1_0Atmospheric());
-    jsonObject.put("pmw2_5_atmospheric", getPmw2_5Atmospheric());
-    jsonObject.put("pmw10_atmospheric", getPmw10Atmospheric());
+    jsonObject.put("Pm1_0_standard", getPm1_0Standard());
+    jsonObject.put("Pm2_5_standard", getPm2_5Standard());
+    jsonObject.put("Pm10_standard", getPm10Standard());
+    jsonObject.put("Pm1_0_atmospheric", getPm1_0Atmospheric());
+    jsonObject.put("Pm2_5_atmospheric", getPm2_5Atmospheric());
+    jsonObject.put("Pm10_atmospheric", getPm10Atmospheric());
     jsonObject.put("particles_larger_than_0.3", getParticlesLargerThan3());
     jsonObject.put("particles_larger_than_0.5", getParticlesLargerThan5());
     jsonObject.put("particles_larger_than_1.0", getParticlesLargerThan10());
