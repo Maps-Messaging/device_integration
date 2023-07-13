@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.ina219;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.*;
 import io.mapsmessaging.logging.LoggerFactory;
@@ -25,7 +26,7 @@ import lombok.Setter;
 
 import java.io.IOException;
 
-public class Ina219Sensor extends I2CDevice {
+public class Ina219Sensor extends I2CDevice implements Sensor {
 
   @Getter
   @Setter

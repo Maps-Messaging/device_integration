@@ -17,10 +17,11 @@
 package io.mapsmessaging.devices.spi.devices.mcp3y0x;
 
 import com.pi4j.io.spi.Spi;
+import io.mapsmessaging.devices.Sensor;
 import io.mapsmessaging.devices.spi.SpiDevice;
 import lombok.Getter;
 
-public class Mcp3y0xDevice extends SpiDevice {
+public class Mcp3y0xDevice extends SpiDevice implements Sensor {
 
   // SPI device
   @Getter

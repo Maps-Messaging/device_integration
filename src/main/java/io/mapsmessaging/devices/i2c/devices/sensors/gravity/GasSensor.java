@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.gravity;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.AcquireMode;
 import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.AlarmType;
@@ -29,7 +30,7 @@ import java.io.IOException;
 
 import static java.lang.Math.log;
 
-public class GasSensor extends I2CDevice {
+public class GasSensor extends I2CDevice implements Sensor {
 
   @Getter
   private final SensorType sensorType;

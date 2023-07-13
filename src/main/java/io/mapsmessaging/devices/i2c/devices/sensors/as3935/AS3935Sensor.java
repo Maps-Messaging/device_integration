@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.PowerManagement;
 import io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers.*;
@@ -24,7 +25,7 @@ import io.mapsmessaging.logging.LoggerFactory;
 
 import java.io.IOException;
 
-public class AS3935Sensor extends I2CDevice implements PowerManagement {
+public class AS3935Sensor extends I2CDevice implements PowerManagement, Sensor {
 
   private final AfeRegister afeRegister;
   private final ThresholdRegister thresholdRegister;

@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.Clock;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.AlarmRegister;
 import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.ControlRegister;
@@ -30,7 +31,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-public class Ds3231Rtc extends I2CDevice {
+public class Ds3231Rtc extends I2CDevice implements Clock {
 
   private final Registers registers;
 

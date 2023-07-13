@@ -16,13 +16,14 @@
 
 package io.mapsmessaging.devices.onewire.devices.ds18b20;
 
+import io.mapsmessaging.devices.Sensor;
 import io.mapsmessaging.devices.onewire.OneWireDevice;
 import lombok.Getter;
 
 import java.io.File;
 import java.util.List;
 
-public class DS18B20Device extends OneWireDevice {
+public class DS18B20Device extends OneWireDevice implements Sensor {
 
   @Getter
   private float myCurrent;

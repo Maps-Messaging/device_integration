@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.drivers.pca9685;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.Output;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos.AngleResponse;
 import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos.PwmDevice;
@@ -27,7 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.BitSet;
 
-public class PCA9685Device extends I2CDevice {
+public class PCA9685Device extends I2CDevice implements Output {
 
   private static final int __LED0_ON_L = 0x06;
   private static final int __LED0_ON_H = 0x07;

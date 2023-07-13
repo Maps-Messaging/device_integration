@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.Output;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.LoggerFactory;
@@ -25,7 +26,7 @@ import lombok.Getter;
 import java.io.IOException;
 import java.util.Base64;
 
-public abstract class HT16K33Driver extends I2CDevice {
+public abstract class HT16K33Driver extends I2CDevice implements Output {
 
   private static final byte BRIGHTNESS_COMMAND = (byte) 0xE0;
 

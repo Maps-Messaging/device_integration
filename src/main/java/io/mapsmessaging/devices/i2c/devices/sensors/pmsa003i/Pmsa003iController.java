@@ -57,16 +57,34 @@ public class Pmsa003iController extends I2CDeviceController {
   public byte[] getStaticPayload() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
-      jsonObject.put("version", sensor.getRegisters().getVersion());
+      jsonObject.put("version", sensor.getVersion());
     }
     return jsonObject.toString(2).getBytes();
   }
 
-  public byte[] getUpdatePayload() throws IOException {
-    if (sensor != null) {
-      return sensor.getRegisters().pack().toString(2).getBytes();
-    }
+  public JSONObject pack() {
     JSONObject jsonObject = new JSONObject();
+
+    return jsonObject;
+  }
+
+  public byte[] getUpdatePayload() throws IOException {
+    JSONObject jsonObject = new JSONObject();
+    if (sensor != null) {
+      jsonObject.put("Pm1_0_standard", sensor.getPm1_0Standard());
+      jsonObject.put("Pm2_5_standard", sensor.getPm2_5Standard());
+      jsonObject.put("Pm10_standard", sensor.getPm10Standard());
+      jsonObject.put("Pm1_0_atmospheric", sensor.getPm1_0Atmospheric());
+      jsonObject.put("Pm2_5_atmospheric", sensor.getPm2_5Atmospheric());
+      jsonObject.put("Pm10_atmospheric", sensor.getPm10Atmospheric());
+      jsonObject.put("particles_larger_than_0.3", sensor.getParticlesLargerThan3());
+      jsonObject.put("particles_larger_than_0.5", sensor.getParticlesLargerThan5());
+      jsonObject.put("particles_larger_than_1.0", sensor.getParticlesLargerThan10());
+      jsonObject.put("particles_larger_than_2.5", sensor.getParticlesLargerThan25());
+      jsonObject.put("particles_larger_than_5.0", sensor.getParticlesLargerThan50());
+      jsonObject.put("particles_larger_than_10.0", sensor.getParticlesLargerThan100());
+      jsonObject.put("error_code", sensor.getErrorCode());
+    }
     return jsonObject.toString(2).getBytes();
   }
 

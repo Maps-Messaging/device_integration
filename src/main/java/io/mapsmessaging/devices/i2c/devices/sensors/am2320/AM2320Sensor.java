@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.am2320;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.logging.LoggerFactory;
 
@@ -24,7 +25,7 @@ import java.io.IOException;
 
 import static io.mapsmessaging.devices.logging.DeviceLogMessage.I2C_BUS_DEVICE_READ_REQUEST;
 
-public class AM2320Sensor extends I2CDevice {
+public class AM2320Sensor extends I2CDevice implements Sensor {
 
   private static final int AM2320_SENSOR_VERSION = 1; ///< the sensor version
   private static final int AM2320_CMD_READREG = 0x03; ///< read register command

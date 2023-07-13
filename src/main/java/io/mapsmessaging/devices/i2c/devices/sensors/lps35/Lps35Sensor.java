@@ -1,6 +1,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps35;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps35.registers.*;
 import io.mapsmessaging.logging.LoggerFactory;
@@ -13,7 +14,7 @@ import java.util.List;
  * Original CPP source <a href="https://github.com/adafruit/Adafruit_LPS35HW/blob/master/Adafruit_LPS35HW.cpp">...</a>
  */
 
-public class Lps35Sensor extends I2CDevice {
+public class Lps35Sensor extends I2CDevice implements Sensor {
 
   public static final byte INTERRUPT_CFG = 0x0B;
   public static final byte THS_P_L = 0x0C;

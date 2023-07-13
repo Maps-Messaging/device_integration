@@ -17,7 +17,6 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.pmsa003i;
 
 import lombok.Getter;
-import org.json.JSONObject;
 
 import java.nio.ByteBuffer;
 
@@ -84,23 +83,5 @@ public class Registers {
 
   public int getErrorCode() {
     return byteBuffer.get(0x1d);
-  }
-
-  public JSONObject pack() {
-    JSONObject jsonObject = new JSONObject();
-    jsonObject.put("Pm1_0_standard", getPm1_0Standard());
-    jsonObject.put("Pm2_5_standard", getPm2_5Standard());
-    jsonObject.put("Pm10_standard", getPm10Standard());
-    jsonObject.put("Pm1_0_atmospheric", getPm1_0Atmospheric());
-    jsonObject.put("Pm2_5_atmospheric", getPm2_5Atmospheric());
-    jsonObject.put("Pm10_atmospheric", getPm10Atmospheric());
-    jsonObject.put("particles_larger_than_0.3", getParticlesLargerThan3());
-    jsonObject.put("particles_larger_than_0.5", getParticlesLargerThan5());
-    jsonObject.put("particles_larger_than_1.0", getParticlesLargerThan10());
-    jsonObject.put("particles_larger_than_2.5", getParticlesLargerThan25());
-    jsonObject.put("particles_larger_than_5.0", getParticlesLargerThan50());
-    jsonObject.put("particles_larger_than_10.0", getParticlesLargerThan100());
-    jsonObject.put("error_code", getErrorCode());
-    return jsonObject;
   }
 }

@@ -1,6 +1,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers.*;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.*;
@@ -8,7 +9,7 @@ import io.mapsmessaging.logging.LoggerFactory;
 
 import java.io.IOException;
 
-public class Lps25Sensor extends I2CDevice {
+public class Lps25Sensor extends I2CDevice implements Sensor {
 
   public static final byte REF_P_XL = 0x08;
   public static final byte REF_P_L = 0x09;
