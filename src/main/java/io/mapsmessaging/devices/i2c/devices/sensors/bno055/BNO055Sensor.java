@@ -31,13 +31,13 @@ public class BNO055Sensor extends I2CDevice {
   @Getter
   private String version;
 
-  public static int getId(I2C device) {
-    return device.readRegister(BNO055Constants.BNO055_CHIP_ID_ADDR);
-  }
-
   public BNO055Sensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(BNO055Sensor.class));
     initialise();
+  }
+
+  public static int getId(I2C device) {
+    return device.readRegister(BNO055Constants.BNO055_CHIP_ID_ADDR);
   }
 
   public void initialise() throws IOException {

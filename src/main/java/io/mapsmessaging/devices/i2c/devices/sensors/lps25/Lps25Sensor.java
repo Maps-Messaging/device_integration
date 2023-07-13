@@ -31,6 +31,7 @@ public class Lps25Sensor extends I2CDevice {
   private final InterruptSourceRegister interruptSource;
   private final FiFoControl fiFoControl;
   private final StatusRegister statusRegister;
+
   public Lps25Sensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(Lps25Sensor.class));
     control1 = new Control1(this);
