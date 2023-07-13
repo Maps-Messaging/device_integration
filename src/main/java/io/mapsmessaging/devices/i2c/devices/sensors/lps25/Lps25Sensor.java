@@ -7,8 +7,6 @@ import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.*;
 import io.mapsmessaging.logging.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Lps25Sensor extends I2CDevice {
 
@@ -16,16 +14,10 @@ public class Lps25Sensor extends I2CDevice {
   public static final byte REF_P_L = 0x09;
   public static final byte REF_P_H = 0x0A;
   public static final byte WHO_AM_I = 0x0F;
-  public static final byte RES_CONF = 0x10;
-
-  public static final byte STATUS = 0x27;
 
   public static final byte PRESS_OUT_XL = 0x28;
-  public static final byte PRESS_OUT_L = 0x29;
-  public static final byte PRESS_OUT_H = 0x2A;
 
   public static final byte TEMP_OUT_L = 0x2B;
-  public static final byte TEMP_OUT_H = 0x2C;
 
   public static final byte FIFO_STATUS = 0x2F;
 
@@ -43,6 +35,7 @@ public class Lps25Sensor extends I2CDevice {
   private final InterruptControl interruptControl;
   private final InterruptSourceRegister interruptSource;
   private final FiFoControl fiFoControl;
+  private final StatusRegister statusRegister;
 
   public Lps25Sensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(Lps25Sensor.class));
@@ -53,6 +46,18 @@ public class Lps25Sensor extends I2CDevice {
     interruptSource = new InterruptSourceRegister(this);
     interruptControl = new InterruptControl(this);
     fiFoControl = new FiFoControl(this);
+    statusRegister = new StatusRegister(this);
+  }
+
+  public String toString(){
+    return "Control1:"+control1.toString()
+            +" Control2:"+control2.toString()
+            +" Control3:"+control3.toString()
+            +" Control4:"+control4.toString()
+            +" fifo:"+fiFoControl.toString()
+            +" status:"+statusRegister.toString()
+            +" int Ctl:"+interruptControl.toString()
+            +" int src:"+interruptSource.toString();
   }
 
   @Override
@@ -121,8 +126,12 @@ public class Lps25Sensor extends I2CDevice {
     return control1.getDataRate();
   }
 
-  public void powerDown() throws IOException {
-    control1.powerDown();
+  public void setPowerDownMode(boolean flag) throws IOException {
+    control1.setPowerDownMode(flag);
+  }
+
+  public boolean getPowerDownMode(){
+    return control1.getPowerDownMode();
   }
 
   public void setDataRate(DataRate rate) throws IOException {
@@ -275,17 +284,6 @@ public class Lps25Sensor extends I2CDevice {
   }
   //endregion
 
-  //region Low Power Mode Registers
-  public void setLowPowerMode(boolean flag) throws IOException {
-    int value = flag ? 0b1 : 0;
-    setControlRegister(RES_CONF, 0b0, value);
-  }
-
-  public boolean isLowPowerModeEnabled() throws IOException {
-    return (readRegister(RES_CONF) & 0b1) != 0;
-  }
-  //endregion
-
   //region Interrupt Source Register
   public InterruptSource[] getInterruptSource() throws IOException {
     return interruptSource.getInterruptSource();
@@ -295,36 +293,23 @@ public class Lps25Sensor extends I2CDevice {
   //region FiFo Status Register
   public FiFoStatus getFiFoStatus() throws IOException {
     int val = readRegister(FIFO_STATUS);
-    return new FiFoStatus((val & 0b10000000) != 0, ((val & 0b1000000) != 0), val & 0b11111);
+    return new FiFoStatus(
+            (val & 0b10000000) != 0,
+            (val & 0b1000000) != 0,
+            val & 0b11111);
   }
   //endregion
 
   //region Device Status Register
   public Status[] getStatus() throws IOException {
-    int val = readRegister(STATUS);
-    List<Status> sourceList = new ArrayList<>();
-    if ((val & 0b100000) != 0) {
-      sourceList.add(Status.TEMPERATURE_OVERRUN);
-    }
-    if ((val & 0b10000) != 0) {
-      sourceList.add(Status.PRESSURE_OVERRUN);
-    }
-    if ((val & 0b10) != 0) {
-      sourceList.add(Status.TEMPERATURE_DATA_AVAILABLE);
-    }
-    if ((val & 0b1) != 0) {
-      sourceList.add(Status.PRESSURE_DATA_AVAILABLE);
-    }
-    return sourceList.toArray(new Status[]{});
+    return statusRegister.getStatus();
   }
   //endregion
 
   //region Pressure Out Registers
   public float getPressure() throws IOException {
     byte[] pressureBuffer = new byte[3];
-    pressureBuffer[0] = (byte) (readRegister(PRESS_OUT_XL) & 0xff);
-    pressureBuffer[1] = (byte) (readRegister(PRESS_OUT_L) & 0xff);
-    pressureBuffer[2] = (byte) (readRegister(PRESS_OUT_H) & 0xff);
+    readRegister(PRESS_OUT_XL | 0x80, pressureBuffer);
     int rawPressure = (pressureBuffer[2] << 16 | ((pressureBuffer[1] & 0xff) << 8) | (pressureBuffer[0] & 0xff));
     if ((rawPressure & 0x800000) != 0) {
       rawPressure = rawPressure - 0xFFFFFF;
@@ -336,8 +321,7 @@ public class Lps25Sensor extends I2CDevice {
   //region Temperature Out Registers
   public float getTemperature() throws IOException {
     byte[] temperatureBuffer = new byte[2];
-    temperatureBuffer[0] = (byte) (readRegister(TEMP_OUT_L) & 0xff);
-    temperatureBuffer[1] = (byte) (readRegister(TEMP_OUT_H) & 0xff);
+    readRegister(TEMP_OUT_L | 0x80, temperatureBuffer);
     int rawTemperature = ((temperatureBuffer[1] & 0xff) << 8) | (temperatureBuffer[0] & 0xff);
     if ((rawTemperature & 0x8000) != 0) {
       rawTemperature = rawTemperature - 0xFFFF;

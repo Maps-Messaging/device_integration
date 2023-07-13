@@ -55,4 +55,12 @@ public class Register {
       count++;
     }
   }
+  public String toString(){
+    try {
+      reload();
+    } catch (IOException e) {
+
+    }
+    return "Address::"+address+" :: "+Integer.toBinaryString(registerValue & 0xff);
+  }
 }

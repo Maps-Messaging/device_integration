@@ -5,7 +5,6 @@ import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.DataRate;
-import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.FiFoMode;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -33,8 +32,7 @@ public class Lps25Controller extends I2CDeviceController {
     sensor = new Lps25Sensor(device);
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       sensor.reset();
-      sensor.setLowPowerMode(false);
-      sensor.setFifoMode(FiFoMode.BYPASS);
+      sensor.setPowerDownMode(true);
       sensor.setDataRate(DataRate.RATE_1_HZ);
     }
   }

@@ -37,9 +37,13 @@ public class Control1 extends Register {
     registerValue = (byte)(registerValue & 0b01111111); // disable the power down flag
   }
 
-  public void powerDown() throws IOException {
-    setControlRegister((byte) ~POWER_DOWN, POWER_DOWN);
-    registerValue = (byte)(registerValue & 0b01111111); // disable the power down flag
+  public void setPowerDownMode(boolean flag) throws IOException {
+    int value = flag ? POWER_DOWN : 0;
+    setControlRegister((byte) ~POWER_DOWN, value);
+  }
+
+  public boolean getPowerDownMode(){
+    return (registerValue & POWER_DOWN) != 0;
   }
 
   public DataRate getDataRate() throws IOException {

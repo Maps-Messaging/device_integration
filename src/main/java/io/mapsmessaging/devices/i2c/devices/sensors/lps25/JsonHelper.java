@@ -53,10 +53,8 @@ public class JsonHelper {
       }
       if (controlReg1.has("powerDown")) {
         boolean powerDown = controlReg1.getBoolean("powerDown");
-        if(powerDown){
-          sensor.powerDown();
-          register1.put("powerDown", true);
-        }
+        sensor.setPowerDownMode(powerDown);
+        register1.put("powerDown", powerDown);
       }
       if (controlReg1.has("interruptGeneration")) {
         boolean lowPassFilterConfig = controlReg1.getBoolean("interruptGeneration");
@@ -152,13 +150,6 @@ public class JsonHelper {
       sensor.setReferencePressure(referencePressure);
       response.put("referencePressure", referencePressure);
     }
-
-    // Low Power Mode Registers
-    if (jsonObject.has("lowPowerModeEnabled")) {
-      boolean lowPowerModeEnabled = jsonObject.getBoolean("lowPowerModeEnabled");
-      sensor.setLowPowerMode(lowPowerModeEnabled);
-      response.put("lowPowerModeEnabled", lowPowerModeEnabled);
-    }
     return response.toString(2).getBytes();
   }
 
@@ -184,6 +175,7 @@ public class JsonHelper {
     JSONObject controlReg1Obj = new JSONObject();
     controlReg1Obj.put("dataRate", sensor.getDataRate().toString());
     controlReg1Obj.put("blockUpdate", sensor.isBlockUpdateSet());
+    controlReg1Obj.put("powerDownMode", sensor.getPowerDownMode());
     jsonObject.put("controlReg1", controlReg1Obj);
 
     // Control Register 2
@@ -217,7 +209,6 @@ public class JsonHelper {
 
     // Reference Pressure Registers
     jsonObject.put("referencePressure", sensor.getReferencePressure());
-    jsonObject.put("lowPowerMode", sensor.isLowPowerModeEnabled());
 
     // Interrupt Source Register
     JSONObject interruptSourceObj = new JSONObject();
