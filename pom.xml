@@ -17,17 +17,17 @@
   -->
 
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.mapsmessaging</groupId>
-  <artifactId>i2cBus</artifactId>
+  <artifactId>deviceLibrary</artifactId>
   <version>0.0.1</version>
   <packaging>jar</packaging>
 
-  <name>I2C Device Integration</name>
-  <description>Provides a plugable I2C Device integration and access</description>
+  <name>Device Integration</name>
+  <description>Provides a plugable Device integration and access</description>
   <url>http://www.mapsmessaging.io</url>
 
   <developers>
@@ -57,7 +57,7 @@
   </licenses>
 
   <scm>
-    <url>https://github.com/Maps-Messaging/i2cBus</url>
+    <url>https://github.com/Maps-Messaging/device_integration</url>
   </scm>
 
   <properties>
@@ -83,7 +83,7 @@
 
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <sonar.organization>maps-messaging</sonar.organization>
-    <sonar.projectKey>i2cBus</sonar.projectKey>
+    <sonar.projectKey>deviceLibrary</sonar.projectKey>
 
     <sonar.sources>src/main</sonar.sources>
     <pi4j.version>2.3.0</pi4j.version>
