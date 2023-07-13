@@ -14,7 +14,7 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
+package io.mapsmessaging.devices.i2c.devices;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
 
@@ -26,7 +26,7 @@ public class Register {
   protected final int address;
   protected byte registerValue;
 
-  protected Register(I2CDevice sensor, int address) {
+  public Register(I2CDevice sensor, int address) {
     this.address = address;
     this.sensor = sensor;
   }

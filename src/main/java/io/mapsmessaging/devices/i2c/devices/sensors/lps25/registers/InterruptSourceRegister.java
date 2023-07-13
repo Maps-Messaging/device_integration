@@ -1,6 +1,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.Register;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.InterruptSource;
 
 import java.io.IOException;
