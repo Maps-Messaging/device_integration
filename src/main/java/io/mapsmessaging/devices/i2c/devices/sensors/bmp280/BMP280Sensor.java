@@ -18,6 +18,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.bmp280;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.PowerManagement;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.LoggerFactory;
 
@@ -25,7 +26,7 @@ import java.io.IOException;
 
 import static io.mapsmessaging.devices.logging.DeviceLogMessage.I2C_BUS_DEVICE_READ_REQUEST;
 
-public class BMP280Sensor extends I2CDevice {
+public class BMP280Sensor extends I2CDevice implements PowerManagement {
 
   public static final byte CONVERT_D1_OSR_256 = (byte) 0x40;
   public static final byte CONVERT_D1_OSR_512 = (byte) 0x42;
@@ -83,6 +84,16 @@ public class BMP280Sensor extends I2CDevice {
   @Override
   public boolean isConnected() {
     return true;
+  }
+
+  @Override
+  public void powerOn() throws IOException {
+
+  }
+
+  @Override
+  public void powerOff() throws IOException {
+
   }
 
   public float getTemperature() {

@@ -19,6 +19,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.tls2561;
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
+import io.mapsmessaging.devices.i2c.PowerManagement;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
@@ -27,7 +28,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class TLS2561Sensor extends I2CDevice {
+public class TLS2561Sensor extends I2CDevice implements PowerManagement {
 
   private int full;
   private int ir;

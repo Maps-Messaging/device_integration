@@ -57,7 +57,6 @@ public class AM2315Sensor extends I2CDevice {
     return false;
   }
 
-
   @Override
   public String getName() {
     return "AM2315";

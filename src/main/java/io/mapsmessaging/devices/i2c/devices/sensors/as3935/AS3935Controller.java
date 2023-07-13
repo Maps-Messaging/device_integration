@@ -100,7 +100,12 @@ public class AS3935Controller extends I2CDeviceController {
 
     // AFE_GAIN Register
     if (jsonConfig.has("AFE_PowerDown")) {
-      sensor.setAFE_PowerDown(jsonConfig.getBoolean("AFE_PowerDown"));
+      boolean flag = jsonConfig.getBoolean("AFE_PowerDown");
+      if (flag) {
+        sensor.powerOff();
+      } else {
+        sensor.powerOn();
+      }
       response.put("AFE_PowerDown", jsonConfig.getBoolean("AFE_PowerDown"));
     }
     if (jsonConfig.has("AFE_GainBoost")) {

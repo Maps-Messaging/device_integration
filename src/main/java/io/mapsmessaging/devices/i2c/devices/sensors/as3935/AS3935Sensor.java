@@ -18,12 +18,13 @@ package io.mapsmessaging.devices.i2c.devices.sensors.as3935;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.PowerManagement;
 import io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers.*;
 import io.mapsmessaging.logging.LoggerFactory;
 
 import java.io.IOException;
 
-public class AS3935Sensor extends I2CDevice {
+public class AS3935Sensor extends I2CDevice implements PowerManagement {
 
   private final AfeRegister afeRegister;
   private final ThresholdRegister thresholdRegister;
@@ -100,8 +101,15 @@ public class AS3935Sensor extends I2CDevice {
     return afeRegister.isAFE_PowerDown();
   }
 
-  public void setAFE_PowerDown(boolean powerDown) throws IOException {
-    afeRegister.setAFE_PowerDown(powerDown);
+  public void powerOn() throws IOException {
+    afeRegister.setAFE_PowerDown(false);
+    tunCapRegister.setDispTRCOEnabled(true);
+    delay(2);
+    tunCapRegister.setDispTRCOEnabled(false);
+  }
+
+  public void powerOff() throws IOException {
+    afeRegister.setAFE_PowerDown(true);
   }
 
   public int getAFE_GainBoost() throws IOException {

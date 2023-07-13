@@ -13,6 +13,7 @@ public class Lps25Sensor extends I2CDevice {
   public static final byte REF_P_XL = 0x08;
   public static final byte REF_P_L = 0x09;
   public static final byte REF_P_H = 0x0A;
+
   public static final byte WHO_AM_I = 0x0F;
 
   public static final byte PRESS_OUT_XL = 0x28;
@@ -23,6 +24,7 @@ public class Lps25Sensor extends I2CDevice {
 
   public static final byte THS_P_L = 0x30;
   public static final byte THS_P_H = 0x31;
+
   private final Control1 control1;
   private final Control2 control2;
   private final Control3 control3;
