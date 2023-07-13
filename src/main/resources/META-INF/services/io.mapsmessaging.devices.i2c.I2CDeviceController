@@ -24,6 +24,7 @@ io.mapsmessaging.devices.i2c.devices.sensors.bno055.BNO055Controller
 io.mapsmessaging.devices.i2c.devices.sensors.ina219.Ina219Controller
 io.mapsmessaging.devices.i2c.devices.sensors.lps25.Lps25Controller
 io.mapsmessaging.devices.i2c.devices.sensors.lps35.Lps35Controller
+io.mapsmessaging.devices.i2c.devices.sensors.msa311.Msa311Controller
 io.mapsmessaging.devices.i2c.devices.sensors.pmsa003i.Pmsa003iController
 io.mapsmessaging.devices.i2c.devices.sensors.tls2561.TLS2561Controller
 
