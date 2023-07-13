@@ -74,7 +74,8 @@ public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor {
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "powerOn()");
     }
     write(POWER_UP);
-    delay(500);
+
+    delay(10);
   }
 
   public void reset() throws IOException {
@@ -82,7 +83,7 @@ public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor {
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "reset()");
     }
     write(RESET);
-    delay(500);
+    delay(10);
   }
 
   public void powerOff() throws IOException {
