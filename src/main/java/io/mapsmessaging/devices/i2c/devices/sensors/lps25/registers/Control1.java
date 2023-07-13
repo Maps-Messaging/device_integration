@@ -25,7 +25,7 @@ public class Control1 extends Register {
 
   private static final byte CONTROL_REGISTER1 = 0x20;
 
-  private static final byte POWER_DOWN = (byte)(0b10000000);
+  private static final byte POWER_DOWN = (byte) (0b10000000);
   private static final byte POWER_RATE = 0b01110000; // Do not keep the power down bit
   private static final byte INTERRUPT_ENABLE = 0b00001000;
   private static final byte BLOCK_DATA_UPDATE = 0b00000100;
@@ -34,7 +34,11 @@ public class Control1 extends Register {
   public Control1(I2CDevice sensor) throws IOException {
     super(sensor, CONTROL_REGISTER1);
     reload();
-    registerValue = (byte)(registerValue & 0b01111111); // disable the power down flag
+    registerValue = (byte) (registerValue & 0b01111111); // disable the power down flag
+  }
+
+  public boolean getPowerDownMode() {
+    return (registerValue & POWER_DOWN) != 0;
   }
 
   public void setPowerDownMode(boolean flag) throws IOException {
@@ -42,12 +46,8 @@ public class Control1 extends Register {
     setControlRegister((byte) ~POWER_DOWN, value);
   }
 
-  public boolean getPowerDownMode(){
-    return (registerValue & POWER_DOWN) != 0;
-  }
-
   public DataRate getDataRate() throws IOException {
-    int rateVal = ((registerValue & POWER_RATE)>> 4);
+    int rateVal = ((registerValue & POWER_RATE) >> 4);
     for (DataRate rate : DataRate.values()) {
       if (rate.getMask() == rateVal) {
         return rate;

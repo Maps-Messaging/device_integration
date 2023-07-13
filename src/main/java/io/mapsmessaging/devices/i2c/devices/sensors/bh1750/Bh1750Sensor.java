@@ -100,7 +100,7 @@ public class Bh1750Sensor extends I2CDevice {
       lastRead = System.currentTimeMillis() + 120;
       byte[] data = new byte[2];
       read(data);
-      lux = (data[0]  & 0xff) << 8 | (data[1] & 0xff);
+      lux = (data[0] & 0xff) << 8 | (data[1] & 0xff);
     }
   }
 

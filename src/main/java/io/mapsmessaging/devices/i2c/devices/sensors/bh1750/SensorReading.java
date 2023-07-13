@@ -4,12 +4,13 @@ import lombok.Getter;
 
 public enum SensorReading {
 
-    CONTINUOUS ( 0b00010000),
-    ONE_TIME( 0b00100000);
+  CONTINUOUS(0b00010000),
+  ONE_TIME(0b00100000);
 
-    @Getter
-    private final int mask;
-    SensorReading(int mask){
-        this.mask = mask;
-    }
+  @Getter
+  private final int mask;
+
+  SensorReading(int mask) {
+    this.mask = mask;
+  }
 }

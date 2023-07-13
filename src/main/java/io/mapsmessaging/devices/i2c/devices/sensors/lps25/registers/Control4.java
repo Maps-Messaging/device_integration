@@ -24,10 +24,10 @@ public class Control4 extends Register {
 
   private static final byte CONTROL_REGISTER4 = 0x23;
 
-  private static final byte FIFO_EMPTY     = 0b00001000;
+  private static final byte FIFO_EMPTY = 0b00001000;
   private static final byte FIFO_THRESHOLD = 0b00000100;
-  private static final byte FIFO_OVERFLOW  = 0b00000010;
-  private static final byte DATA_READY     = 0b00000001;
+  private static final byte FIFO_OVERFLOW = 0b00000010;
+  private static final byte DATA_READY = 0b00000001;
 
   public Control4(I2CDevice sensor) throws IOException {
     super(sensor, CONTROL_REGISTER4);
@@ -61,12 +61,12 @@ public class Control4 extends Register {
     return (registerValue & FIFO_OVERFLOW) != 0;
   }
 
+  public boolean isDataReadyInterrupt() throws IOException {
+    return (registerValue & DATA_READY) != 0;
+  }
+
   public void setDataReadyInterrupt(boolean flag) throws IOException {
     int value = flag ? DATA_READY : 0;
     setControlRegister(~DATA_READY, value);
-  }
-
-  public boolean isDataReadyInterrupt() throws IOException {
-    return (registerValue & DATA_READY) != 0;
   }
 }

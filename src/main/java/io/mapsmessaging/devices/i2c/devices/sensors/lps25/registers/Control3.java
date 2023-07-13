@@ -37,6 +37,7 @@ public class Control3 extends Register {
   public boolean isInterruptActive() throws IOException {
     return (registerValue & INTERRUPT_ACTIVE) != 0;
   }
+
   public void enableInterrupts(boolean flag) throws IOException {
     int value = flag ? INTERRUPT_ACTIVE : 0;
     setControlRegister(~INTERRUPT_ACTIVE, value);
@@ -52,7 +53,7 @@ public class Control3 extends Register {
   }
 
   public void setSignalOnInterrupt(DataReadyInterrupt flag) throws IOException {
-    setControlRegister(~INTERRUPT_SIGNAL,  flag.getMask());
+    setControlRegister(~INTERRUPT_SIGNAL, flag.getMask());
   }
 
   public DataReadyInterrupt isSignalOnInterrupt() throws IOException {

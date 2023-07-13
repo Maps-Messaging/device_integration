@@ -38,7 +38,7 @@ public class AT24CnnDevice extends I2CDevice {
 
   // Write a single byte at the given address
   public void writeByte(int address, byte data) throws IOException {
-    byte[] buffer = new byte[] { (byte) (address >> 8), (byte) (address & 0xFF), data };
+    byte[] buffer = new byte[]{(byte) (address >> 8), (byte) (address & 0xFF), data};
     write(buffer, 0, buffer.length);
   }
 

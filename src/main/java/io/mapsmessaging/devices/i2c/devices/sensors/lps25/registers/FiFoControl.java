@@ -24,8 +24,8 @@ import java.io.IOException;
 public class FiFoControl extends Register {
 
   private static final byte FIFO_CONTROL = 0x2E;
-  private static final byte FIFO_MODE = (byte)0b11100000;
-  private static final byte FIFO_THRESHOLD  = 0b00011111;
+  private static final byte FIFO_MODE = (byte) 0b11100000;
+  private static final byte FIFO_THRESHOLD = 0b00011111;
 
   public FiFoControl(I2CDevice sensor) throws IOException {
     super(sensor, FIFO_CONTROL);
@@ -43,7 +43,7 @@ public class FiFoControl extends Register {
   }
 
   public void setFifoMode(FiFoMode mode) throws IOException {
-    setControlRegister(~FIFO_MODE, mode.getMask()<<5);
+    setControlRegister(~FIFO_MODE, mode.getMask() << 5);
   }
 
   public int getFiFoWaterMark() throws IOException {

@@ -15,7 +15,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.Base64;
 
-public class AT24CnnController  extends I2CDeviceController {
+public class AT24CnnController extends I2CDeviceController {
 
   private final AT24CnnDevice sensor;
 
@@ -65,21 +65,20 @@ public class AT24CnnController  extends I2CDeviceController {
     int address = -1;
     int size = 0;
     byte[] data = null;
-    if (jsonObject.has("address")){
+    if (jsonObject.has("address")) {
       address = jsonObject.getInt("address");
     }
-    if(jsonObject.has("size")) {
+    if (jsonObject.has("size")) {
       size = jsonObject.getInt("size");
     }
-    if(jsonObject.has("data")){
+    if (jsonObject.has("data")) {
       data = Base64.getDecoder().decode(jsonObject.getString("data"));
     }
     if (sensor != null && address != -1) {
       if (data != null) {
-        if(data.length + address > sensor.getMemorySize()){
+        if (data.length + address > sensor.getMemorySize()) {
           response.put("status", "Exceeds memory size " + sensor.getMemorySize() + " bytes");
-        }
-        else {
+        } else {
           sensor.writeBytes(address, data);
           response.put("status", "wrote " + data.length + " bytes");
         }

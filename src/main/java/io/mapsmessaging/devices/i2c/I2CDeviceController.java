@@ -39,7 +39,7 @@ public abstract class I2CDeviceController implements DeviceController {
     }
   }
 
-  public boolean canDetect(){
+  public boolean canDetect() {
     return false;
   }
 

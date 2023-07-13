@@ -33,7 +33,7 @@ public class Lps35Controller extends I2CDeviceController {
   }
 
   @Override
-  public boolean canDetect(){
+  public boolean canDetect() {
     return true;
   }
 

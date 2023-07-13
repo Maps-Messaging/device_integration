@@ -123,8 +123,8 @@ public class GasSensorController extends I2CDeviceController {
   }
 
 
-  public String getDescription(){
-    if(sensor == null){
+  public String getDescription() {
+    if (sensor == null) {
       return "Generic Gas Sensor";
     }
     return sensor.getDescription();

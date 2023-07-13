@@ -24,13 +24,13 @@ public class Control2 extends Register {
 
   private static final byte CONTROL_REGISTER2 = 0x21;
 
-  private static final byte BOOT   = (byte)0b10000000;
+  private static final byte BOOT = (byte) 0b10000000;
   private static final byte FIFO_ENABLED = 0b01000000;
   private static final byte STOP_ON_FIFO_THRESHOLD = 0b00100000;
 
   private static final byte RESET = 0b00000100;
   private static final byte ENABLE_AUTO_ZERO = 0b00000010;
-  private static final byte ENABLE_ONE_SHOT  = 0b00000001;
+  private static final byte ENABLE_ONE_SHOT = 0b00000001;
 
 
   public Control2(I2CDevice sensor) throws IOException {

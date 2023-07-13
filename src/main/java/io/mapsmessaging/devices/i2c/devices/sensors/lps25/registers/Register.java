@@ -40,7 +40,7 @@ public class Register {
     sensor.write(address, registerValue);
   }
 
-  protected void waitForDevice(){
+  protected void waitForDevice() {
     int count = 0;
     boolean wait = true;
     while (wait & count < 10) {
@@ -55,12 +55,13 @@ public class Register {
       count++;
     }
   }
-  public String toString(){
+
+  public String toString() {
     try {
       reload();
     } catch (IOException e) {
 
     }
-    return "Address::"+address+" :: "+Integer.toBinaryString(registerValue & 0xff);
+    return "Address::" + address + " :: " + Integer.toBinaryString(registerValue & 0xff);
   }
 }

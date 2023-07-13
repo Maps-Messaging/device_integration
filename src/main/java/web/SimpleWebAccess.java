@@ -89,8 +89,7 @@ public class SimpleWebAccess {
       if (device != null) {
         try {
           handleGetStatic(ctx, device);
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
           deviceBusManager.getI2cBusManager().close(device);
         }
       } else {
@@ -104,10 +103,10 @@ public class SimpleWebAccess {
       if (device != null) {
         try {
           ctx.status(200);
-          ctx.json(new String( device.setPayload(ctx.body().getBytes())));
+          ctx.json(new String(device.setPayload(ctx.body().getBytes())));
         } catch (IOException e) {
           deviceBusManager.getI2cBusManager().close(device);
-          ctx.status(400).result("Internal Error:"+e.getMessage());
+          ctx.status(400).result("Internal Error:" + e.getMessage());
         }
       } else {
         ctx.status(404).result("Device not found");
@@ -149,7 +148,7 @@ public class SimpleWebAccess {
       SpiDeviceController device = deviceBusManager.getSpiBusManager().get(id);
       if (device != null) {
         ctx.status(200);
-        ctx.json(new String( device.setPayload(ctx.body().getBytes())));
+        ctx.json(new String(device.setPayload(ctx.body().getBytes())));
       } else {
         ctx.status(404).result("Device not found");
       }

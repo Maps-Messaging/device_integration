@@ -21,6 +21,7 @@ public class SpiDeviceScheduler extends SpiDeviceController {
   public String getName() {
     return deviceController.getName();
   }
+
   @Override
   public String getDescription() {
     return deviceController.getDescription();

@@ -84,7 +84,7 @@ public abstract class I2CDevice implements Device, AutoCloseable {
   public void write(int register, byte[] data) throws IOException {
     try {
       int val = device.writeRegister(register, data);
-      if ( val < 0 ) {
+      if (val < 0) {
         throw new IOException("Failed to write buffer to device");
       }
     } catch (Pi4JException e) {
@@ -107,7 +107,7 @@ public abstract class I2CDevice implements Device, AutoCloseable {
     } catch (Pi4JException e) {
       throw new IOException(e);
     }
-    if(read < 0){
+    if (read < 0) {
       throw new IOException("Failed to read from device");
     }
     if (logger.isDebugEnabled()) {
@@ -117,14 +117,14 @@ public abstract class I2CDevice implements Device, AutoCloseable {
     return read;
   }
 
-  public int readRegister(int register) throws IOException{
+  public int readRegister(int register) throws IOException {
     int val = 0;
     try {
       val = device.readRegister(register);
     } catch (Pi4JException e) {
       throw new IOException(e);
     }
-    if(val < 0){
+    if (val < 0) {
       throw new IOException("Failed to read from device");
     }
     if (logger.isDebugEnabled()) {
@@ -144,7 +144,7 @@ public abstract class I2CDevice implements Device, AutoCloseable {
     } catch (Pi4JException e) {
       throw new IOException(e);
     }
-    if(read < 0){
+    if (read < 0) {
       throw new IOException("Failed to read from the required registers");
     }
     if (logger.isDebugEnabled()) {

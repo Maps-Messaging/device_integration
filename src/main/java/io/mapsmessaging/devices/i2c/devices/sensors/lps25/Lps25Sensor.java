@@ -23,11 +23,6 @@ public class Lps25Sensor extends I2CDevice {
 
   public static final byte THS_P_L = 0x30;
   public static final byte THS_P_H = 0x31;
-
-  public static int getId(I2C device) {
-    return device.readRegister(WHO_AM_I);
-  }
-
   private final Control1 control1;
   private final Control2 control2;
   private final Control3 control3;
@@ -36,7 +31,6 @@ public class Lps25Sensor extends I2CDevice {
   private final InterruptSourceRegister interruptSource;
   private final FiFoControl fiFoControl;
   private final StatusRegister statusRegister;
-
   public Lps25Sensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(Lps25Sensor.class));
     control1 = new Control1(this);
@@ -49,15 +43,19 @@ public class Lps25Sensor extends I2CDevice {
     statusRegister = new StatusRegister(this);
   }
 
-  public String toString(){
-    return "Control1:"+control1.toString()
-            +" Control2:"+control2.toString()
-            +" Control3:"+control3.toString()
-            +" Control4:"+control4.toString()
-            +" fifo:"+fiFoControl.toString()
-            +" status:"+statusRegister.toString()
-            +" int Ctl:"+interruptControl.toString()
-            +" int src:"+interruptSource.toString();
+  public static int getId(I2C device) {
+    return device.readRegister(WHO_AM_I);
+  }
+
+  public String toString() {
+    return "Control1:" + control1.toString()
+        + " Control2:" + control2.toString()
+        + " Control3:" + control3.toString()
+        + " Control4:" + control4.toString()
+        + " fifo:" + fiFoControl.toString()
+        + " status:" + statusRegister.toString()
+        + " int Ctl:" + interruptControl.toString()
+        + " int src:" + interruptSource.toString();
   }
 
   @Override
@@ -126,16 +124,16 @@ public class Lps25Sensor extends I2CDevice {
     return control1.getDataRate();
   }
 
-  public void setPowerDownMode(boolean flag) throws IOException {
-    control1.setPowerDownMode(flag);
+  public void setDataRate(DataRate rate) throws IOException {
+    control1.setDataRate(rate);
   }
 
-  public boolean getPowerDownMode(){
+  public boolean getPowerDownMode() {
     return control1.getPowerDownMode();
   }
 
-  public void setDataRate(DataRate rate) throws IOException {
-    control1.setDataRate(rate);
+  public void setPowerDownMode(boolean flag) throws IOException {
+    control1.setPowerDownMode(flag);
   }
 
   public void setInterruptGeneration(boolean flag) throws IOException {
@@ -236,15 +234,14 @@ public class Lps25Sensor extends I2CDevice {
     return control4.isFiFoOverrunInterruptEnabled();
   }
 
-  public void setDataReadyInterrupt(boolean flag) throws IOException {
-    control4.setDataReadyInterrupt(flag);
-  }
-
   public boolean isDataReadyInterrupt() throws IOException {
     return control4.isDataReadyInterrupt();
   }
-  //endregion
 
+  public void setDataReadyInterrupt(boolean flag) throws IOException {
+    control4.setDataReadyInterrupt(flag);
+  }
+  //endregion
 
   //region FiFo Control Register
   public FiFoMode getFifoMode() throws IOException {
@@ -266,9 +263,9 @@ public class Lps25Sensor extends I2CDevice {
 
   public int getReferencePressure() throws IOException {
     byte[] data = new byte[3];
-    data[0] = (byte)(readRegister(REF_P_XL) & 0xff);
-    data[1] = (byte)(readRegister(REF_P_L) & 0xff);
-    data[2] = (byte)(readRegister(REF_P_H) & 0xff);
+    data[0] = (byte) (readRegister(REF_P_XL) & 0xff);
+    data[1] = (byte) (readRegister(REF_P_L) & 0xff);
+    data[2] = (byte) (readRegister(REF_P_H) & 0xff);
     return (data[2] << 16 | ((data[1] & 0xff) << 8) | (data[0] & 0xff));
   }
 
@@ -294,9 +291,9 @@ public class Lps25Sensor extends I2CDevice {
   public FiFoStatus getFiFoStatus() throws IOException {
     int val = readRegister(FIFO_STATUS);
     return new FiFoStatus(
-            (val & 0b10000000) != 0,
-            (val & 0b1000000) != 0,
-            val & 0b11111);
+        (val & 0b10000000) != 0,
+        (val & 0b1000000) != 0,
+        val & 0b11111);
   }
   //endregion
 

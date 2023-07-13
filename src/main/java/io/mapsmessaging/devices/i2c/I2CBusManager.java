@@ -109,8 +109,8 @@ public class I2CBusManager {
           }
         } else {
           boolean located = false;
-          for(I2CDeviceController device: devices){
-            if(device.canDetect() && device.detect(physicalDevices.get(addr))){
+          for (I2CDeviceController device : devices) {
+            if (device.canDetect() && device.detect(physicalDevices.get(addr))) {
               try {
                 createAndMountDevice(addr, device);
                 located = true;
@@ -119,7 +119,7 @@ public class I2CBusManager {
               }
             }
           }
-          if(!located) {
+          if (!located) {
             StringBuilder sb = new StringBuilder();
             for (I2CDeviceController controller : devices) {
               sb.append(controller.getName()).append(" ");
