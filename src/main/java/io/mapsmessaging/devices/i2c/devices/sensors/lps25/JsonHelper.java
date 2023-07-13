@@ -18,7 +18,7 @@ public class JsonHelper {
       JSONObject interruptConfigObj = jsonObject.getJSONObject("interruptConfig");
       if (interruptConfigObj.has("latchInterruptToSource")) {
         boolean latchInterruptToSource = interruptConfigObj.getBoolean("latchInterruptToSource");
-        sensor.latchInterruptToSource(latchInterruptToSource);
+        sensor.enableLatchInterrupt(latchInterruptToSource);
         interrupt.put("latchInterruptToSource", latchInterruptToSource);
       }
       if (interruptConfigObj.has("latchInterruptToPressureLow")) {
@@ -46,25 +46,25 @@ public class JsonHelper {
       response.put("controlReg1", register1);
       // Control Register 1
       if (controlReg1.has("dataRate")) {
-        String rate = jsonObject.getString("dataRate");
+        String rate = controlReg1.getString("dataRate");
         DataRate dataRate = DataRate.valueOf(rate);
         sensor.setDataRate(dataRate);
         register1.put("dataRate", dataRate.name());
       }
       if (controlReg1.has("powerDown")) {
-        boolean powerDown = jsonObject.getBoolean("powerDown");
+        boolean powerDown = controlReg1.getBoolean("powerDown");
         if(powerDown){
           sensor.powerDown();
           register1.put("powerDown", true);
         }
       }
       if (controlReg1.has("interruptGeneration")) {
-        boolean lowPassFilterConfig = jsonObject.getBoolean("interruptGeneration");
+        boolean lowPassFilterConfig = controlReg1.getBoolean("interruptGeneration");
         sensor.setInterruptGeneration(lowPassFilterConfig);
         register1.put("interruptGeneration", lowPassFilterConfig);
       }
       if (controlReg1.has("blockUpdate")) {
-        boolean blockUpdate = jsonObject.getBoolean("blockUpdate");
+        boolean blockUpdate = controlReg1.getBoolean("blockUpdate");
         sensor.setBlockUpdate(blockUpdate);
         register1.put("blockUpdate", blockUpdate);
       }
@@ -169,7 +169,7 @@ public class JsonHelper {
     interruptConfigObj.put("resetAutoRifp", false); // Placeholder value
     interruptConfigObj.put("resetAutoZero", false); // Placeholder value
     interruptConfigObj.put("enableInterrupt", sensor.isInterruptActive());
-    interruptConfigObj.put("latchInterruptToSource", sensor.isLatchInterruptToSource());
+    interruptConfigObj.put("latchInterruptToSource", sensor.isLatchInterruptEnabled());
     interruptConfigObj.put("latchInterruptToPressureLow", sensor.isLatchInterruptToPressureLow());
     interruptConfigObj.put("latchInterruptToPressureHigh", sensor.isLatchInterruptToPressureHigh());
     jsonObject.put("interruptConfig", interruptConfigObj);

@@ -16,22 +16,24 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
-import io.mapsmessaging.devices.i2c.devices.sensors.lps25.Lps25Sensor;
+import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.FiFoMode;
 
 import java.io.IOException;
 
 public class FiFoControl extends Register {
 
-  private static final int FIFO_CONTROL = 0x2E;
+  private static final byte FIFO_CONTROL = 0x2E;
+  private static final byte FIFO_MODE = (byte)0b11100000;
+  private static final byte FIFO_THRESHOLD  = 0b00011111;
 
-  public FiFoControl(Lps25Sensor sensor) throws IOException {
+  public FiFoControl(I2CDevice sensor) throws IOException {
     super(sensor, FIFO_CONTROL);
     reload();
   }
 
   public FiFoMode getFifoMode() throws IOException {
-    int mask = registerValue >> 5;
+    int mask = (registerValue & 0xff) >> 5;
     for (FiFoMode mode : FiFoMode.values()) {
       if (mode.getMask() == mask) {
         return mode;
@@ -41,15 +43,15 @@ public class FiFoControl extends Register {
   }
 
   public void setFifoMode(FiFoMode mode) throws IOException {
-    setControlRegister(0b11111, mode.getMask());
+    setControlRegister(~FIFO_MODE, mode.getMask()<<5);
   }
 
   public int getFiFoWaterMark() throws IOException {
-    return (registerValue & 0b11111);
+    return (registerValue & FIFO_THRESHOLD);
   }
 
   public void setFiFoWaterMark(int waterMark) throws IOException {
-    setControlRegister(0b11100000, (waterMark & 0b11111));
+    setControlRegister(~FIFO_THRESHOLD, (waterMark & FIFO_THRESHOLD));
   }
 
 }

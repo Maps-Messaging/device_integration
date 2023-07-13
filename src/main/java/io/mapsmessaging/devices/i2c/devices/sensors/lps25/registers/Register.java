@@ -16,17 +16,17 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
-import io.mapsmessaging.devices.i2c.devices.sensors.lps25.Lps25Sensor;
+import io.mapsmessaging.devices.i2c.I2CDevice;
 
 import java.io.IOException;
 
 public class Register {
 
-  protected final Lps25Sensor sensor;
+  protected final I2CDevice sensor;
   protected final int address;
   protected byte registerValue;
 
-  protected Register(Lps25Sensor sensor, int address) {
+  protected Register(I2CDevice sensor, int address) {
     this.address = address;
     this.sensor = sensor;
   }
@@ -38,5 +38,21 @@ public class Register {
   protected void setControlRegister(int mask, int value) throws IOException {
     registerValue = (byte) ((registerValue & mask) | value);
     sensor.write(address, registerValue);
+  }
+
+  protected void waitForDevice(){
+    int count = 0;
+    boolean wait = true;
+    while (wait & count < 10) {
+      try {
+        wait = sensor.readRegister(address) > -1;
+      } catch (IOException e) {
+        // ignore
+      }
+      if (wait) {
+        sensor.delay(1);
+      }
+      count++;
+    }
   }
 }

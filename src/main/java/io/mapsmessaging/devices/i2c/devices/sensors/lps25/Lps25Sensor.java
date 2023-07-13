@@ -13,11 +13,11 @@ import java.util.List;
 public class Lps25Sensor extends I2CDevice {
 
   public static final byte REF_P_XL = 0x08;
+  public static final byte REF_P_L = 0x09;
+  public static final byte REF_P_H = 0x0A;
   public static final byte WHO_AM_I = 0x0F;
   public static final byte RES_CONF = 0x10;
 
-  public static final byte INTERRUPT_CFG = 0x24;
-  public static final byte INT_SOURCE = 0x25;
   public static final byte STATUS = 0x27;
 
   public static final byte PRESS_OUT_XL = 0x28;
@@ -32,7 +32,7 @@ public class Lps25Sensor extends I2CDevice {
   public static final byte THS_P_L = 0x30;
   public static final byte THS_P_H = 0x31;
 
-  public static int getId(I2C device) throws IOException {
+  public static int getId(I2C device) {
     return device.readRegister(WHO_AM_I);
   }
 
@@ -40,6 +40,8 @@ public class Lps25Sensor extends I2CDevice {
   private final Control2 control2;
   private final Control3 control3;
   private final Control4 control4;
+  private final InterruptControl interruptControl;
+  private final InterruptSourceRegister interruptSource;
   private final FiFoControl fiFoControl;
 
   public Lps25Sensor(I2C device) throws IOException {
@@ -48,6 +50,8 @@ public class Lps25Sensor extends I2CDevice {
     control2 = new Control2(this);
     control3 = new Control3(this);
     control4 = new Control4(this);
+    interruptSource = new InterruptSourceRegister(this);
+    interruptControl = new InterruptControl(this);
     fiFoControl = new FiFoControl(this);
   }
 
@@ -67,31 +71,28 @@ public class Lps25Sensor extends I2CDevice {
   }
 
   //region Interrupt controlregister
-  public void latchInterruptToSource(boolean flag) throws IOException {
-    int value = flag ? 0b100 : 0;
-    setControlRegister(INTERRUPT_CFG, 0b11111011, value);
+  public void enableLatchInterrupt(boolean flag) throws IOException {
+    interruptControl.setLatchInterruptEnable(flag);
   }
 
-  public boolean isLatchInterruptToSource() throws IOException {
-    return (readRegister(INTERRUPT_CFG) & 0b100) != 0;
+  public boolean isLatchInterruptEnabled() throws IOException {
+    return interruptControl.isLatchInterruptEnabled();
   }
 
   public void latchInterruptToPressureLow(boolean flag) throws IOException {
-    int value = flag ? 0b10 : 0;
-    setControlRegister(INTERRUPT_CFG, 0b11111101, value);
+    interruptControl.setInterruptOnLow(flag);
   }
 
   public boolean isLatchInterruptToPressureLow() throws IOException {
-    return (readRegister(INTERRUPT_CFG) & 0b10) != 0;
+    return interruptControl.isInterruptOnLowEnabled();
   }
 
   public void latchInterruptToPressureHigh(boolean flag) throws IOException {
-    int value = flag ? 0b1 : 0;
-    setControlRegister(INTERRUPT_CFG, 0b11111110, value);
+    interruptControl.setInterruptOnHigh(flag);
   }
 
   public boolean isLatchInterruptToPressureHigh() throws IOException {
-    return (readRegister(INTERRUPT_CFG) & 0b1) != 0;
+    return interruptControl.isInterruptOnHighEnabled();
   }
   //endregion
 
@@ -129,7 +130,7 @@ public class Lps25Sensor extends I2CDevice {
   }
 
   public void setInterruptGeneration(boolean flag) throws IOException {
-    control1.setInterruptGeneration(flag);
+    control1.setInterruptGenerationEnabled(flag);
   }
 
   public boolean isInterruptGenerationEnabled() throws IOException {
@@ -189,7 +190,7 @@ public class Lps25Sensor extends I2CDevice {
   }
 
   public boolean isPushPullDrainActive() throws IOException {
-    return control3.isPushPullDrainActive();
+    return control3.isPushPullDrainInterruptActive();
   }
 
   public void setSignalOnInterrupt(DataReadyInterrupt flag) throws IOException {
@@ -256,7 +257,9 @@ public class Lps25Sensor extends I2CDevice {
 
   public int getReferencePressure() throws IOException {
     byte[] data = new byte[3];
-    readRegister(REF_P_XL, data);
+    data[0] = (byte)(readRegister(REF_P_XL) & 0xff);
+    data[1] = (byte)(readRegister(REF_P_L) & 0xff);
+    data[2] = (byte)(readRegister(REF_P_H) & 0xff);
     return (data[2] << 16 | ((data[1] & 0xff) << 8) | (data[0] & 0xff));
   }
 
@@ -285,22 +288,7 @@ public class Lps25Sensor extends I2CDevice {
 
   //region Interrupt Source Register
   public InterruptSource[] getInterruptSource() throws IOException {
-    int val = readRegister(INT_SOURCE);
-    List<InterruptSource> sourceList = new ArrayList<>();
-    if ((val & 0b100000000) != 0) {
-      sourceList.add(InterruptSource.BOOT);
-    }
-    if ((val & 0b1) != 0) {
-      sourceList.add(InterruptSource.PRESSURE_HIGH);
-    }
-    if ((val & 0b10) != 0) {
-      sourceList.add(InterruptSource.PRESSURE_LOW);
-    }
-    if ((val & 0b100) != 0) {
-      sourceList.add(InterruptSource.INTERRUPT_ACTIVE);
-    }
-
-    return sourceList.toArray(new InterruptSource[]{});
+    return interruptSource.getInterruptSource();
   }
   //endregion
 
@@ -339,7 +327,7 @@ public class Lps25Sensor extends I2CDevice {
     pressureBuffer[2] = (byte) (readRegister(PRESS_OUT_H) & 0xff);
     int rawPressure = (pressureBuffer[2] << 16 | ((pressureBuffer[1] & 0xff) << 8) | (pressureBuffer[0] & 0xff));
     if ((rawPressure & 0x800000) != 0) {
-      rawPressure = (0xff000000) | rawPressure; // It's now negative
+      rawPressure = rawPressure - 0xFFFFFF;
     }
     return rawPressure / 4096.0f;
   }
@@ -351,7 +339,11 @@ public class Lps25Sensor extends I2CDevice {
     temperatureBuffer[0] = (byte) (readRegister(TEMP_OUT_L) & 0xff);
     temperatureBuffer[1] = (byte) (readRegister(TEMP_OUT_H) & 0xff);
     int rawTemperature = ((temperatureBuffer[1] & 0xff) << 8) | (temperatureBuffer[0] & 0xff);
-    return rawTemperature / 100.0f;
+    if ((rawTemperature & 0x8000) != 0) {
+      rawTemperature = rawTemperature - 0xFFFF;
+    }
+
+    return rawTemperature / 480.0f + 42.5f;
   }
   //endregion
 

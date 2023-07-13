@@ -16,67 +16,72 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
-import io.mapsmessaging.devices.i2c.devices.sensors.lps25.Lps25Sensor;
+import io.mapsmessaging.devices.i2c.I2CDevice;
 
 import java.io.IOException;
-import java.util.concurrent.locks.LockSupport;
 
 public class Control2 extends Register {
 
   private static final byte CONTROL_REGISTER2 = 0x21;
 
-  public Control2(Lps25Sensor sensor) throws IOException {
+  private static final byte BOOT   = (byte)0b10000000;
+  private static final byte FIFO_ENABLED = 0b01000000;
+  private static final byte STOP_ON_FIFO_THRESHOLD = 0b00100000;
+
+  private static final byte RESET = 0b00000100;
+  private static final byte ENABLE_AUTO_ZERO = 0b00000010;
+  private static final byte ENABLE_ONE_SHOT  = 0b00000001;
+
+
+  public Control2(I2CDevice sensor) throws IOException {
     super(sensor, CONTROL_REGISTER2);
     reload();
   }
 
   public void boot() throws IOException {
-    setControlRegister(0b01111111, 0b10000000);
-    sensor.delay(50);
+    setControlRegister(~BOOT, BOOT);
+    waitForDevice();
   }
 
   public void enableFiFo(boolean flag) throws IOException {
-    int value = flag ? 0b01000000 : 0;
-    setControlRegister(0b10111111, value);
+    int value = flag ? FIFO_ENABLED : 0;
+    setControlRegister(~FIFO_ENABLED, value);
   }
 
   public boolean isFiFoEnabled() throws IOException {
-    return (registerValue & 0b01000000) != 0;
+    return (registerValue & FIFO_ENABLED) != 0;
   }
 
   public void enableStopFiFoOnThreshold(boolean flag) throws IOException {
-    int value = flag ? 0b00100000 : 0;
-    setControlRegister(0b11011111, value);
+    int value = flag ? STOP_ON_FIFO_THRESHOLD : 0;
+    setControlRegister(~STOP_ON_FIFO_THRESHOLD, value);
   }
 
   public boolean isStopFiFoOnThresholdEnabled() throws IOException {
-    return (registerValue & 0b00100000) != 0;
+    return (registerValue & STOP_ON_FIFO_THRESHOLD) != 0;
   }
 
   public void reset() throws IOException {
-    setControlRegister(0b11111011, 0b100);
-    int count = 0;
-    boolean wait = true;
-    while (wait & count < 100000) {
-      try {
-        wait = sensor.readRegister(super.address) > -1;
-      } catch (IOException e) {
-        // ignore
-      }
-      if (wait) {
-        LockSupport.parkNanos(1000);
-      }
-      count++;
-    }
+    setControlRegister(~RESET, RESET);
+    waitForDevice();
+  }
+
+  public void enableAutoZero(boolean flag) throws IOException {
+    int value = flag ? ENABLE_AUTO_ZERO : 0;
+    setControlRegister(~ENABLE_AUTO_ZERO, value);
+  }
+
+  public boolean isAutoZeroEnabled() {
+    return (registerValue & ENABLE_AUTO_ZERO) != 0;
   }
 
   public void enableOneShot(boolean flag) throws IOException {
-    int value = flag ? 0b1 : 0;
-    setControlRegister(0b11111110, value);
+    int value = flag ? ENABLE_ONE_SHOT : 0;
+    setControlRegister(~ENABLE_ONE_SHOT, value);
   }
 
   public boolean isOneShotEnabled() {
-    return (registerValue & 0b1) != 0;
+    return (registerValue & ENABLE_ONE_SHOT) != 0;
   }
 
 }

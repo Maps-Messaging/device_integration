@@ -16,7 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
-import io.mapsmessaging.devices.i2c.devices.sensors.lps25.Lps25Sensor;
+import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.DataRate;
 
 import java.io.IOException;
@@ -25,17 +25,25 @@ public class Control1 extends Register {
 
   private static final byte CONTROL_REGISTER1 = 0x20;
 
-  public Control1(Lps25Sensor sensor) throws IOException {
+  private static final byte POWER_DOWN = (byte)(0b10000000);
+  private static final byte POWER_RATE = 0b01110000; // Do not keep the power down bit
+  private static final byte INTERRUPT_ENABLE = 0b00001000;
+  private static final byte BLOCK_DATA_UPDATE = 0b00000100;
+  private static final byte RESET_AUTO_ZERO = 0b00000010;
+
+  public Control1(I2CDevice sensor) throws IOException {
     super(sensor, CONTROL_REGISTER1);
     reload();
+    registerValue = (byte)(registerValue & 0b01111111); // disable the power down flag
   }
 
   public void powerDown() throws IOException {
-    setControlRegister((byte) 0b01111111, (byte) 0b10000000);
+    setControlRegister((byte) ~POWER_DOWN, POWER_DOWN);
+    registerValue = (byte)(registerValue & 0b01111111); // disable the power down flag
   }
 
   public DataRate getDataRate() throws IOException {
-    int rateVal = (registerValue >> 4);
+    int rateVal = ((registerValue & POWER_RATE)>> 4);
     for (DataRate rate : DataRate.values()) {
       if (rate.getMask() == rateVal) {
         return rate;
@@ -45,29 +53,29 @@ public class Control1 extends Register {
   }
 
   public void setDataRate(DataRate rate) throws IOException {
-    setControlRegister(0b0001111, (rate.getMask() << 4));
+    setControlRegister(~POWER_RATE, (rate.getMask() << 4));
   }
 
   public boolean isInterruptGenerationEnabled() throws IOException {
-    return (registerValue & 0b1000) != 0;
+    return (registerValue & INTERRUPT_ENABLE) != 0;
   }
 
-  public void setInterruptGeneration(boolean flag) throws IOException {
-    int value = flag ? 0b1000 : 0;
-    setControlRegister(0b11110111, value);
+  public void setInterruptGenerationEnabled(boolean flag) throws IOException {
+    int value = flag ? INTERRUPT_ENABLE : 0;
+    setControlRegister(~INTERRUPT_ENABLE, value);
   }
 
   public boolean isBlockUpdateSet() throws IOException {
-    return (registerValue & 0b100) != 0;
+    return (registerValue & BLOCK_DATA_UPDATE) != 0;
   }
 
   public void setBlockUpdate(boolean flag) throws IOException {
-    int value = flag ? 0b100 : 0;
-    setControlRegister(0b11111011, value);
+    int value = flag ? BLOCK_DATA_UPDATE : 0;
+    setControlRegister(~BLOCK_DATA_UPDATE, value);
   }
 
   public void resetAutoZero(boolean flag) throws IOException {
-    int value = flag ? 0b10 : 0;
-    setControlRegister(0b11111101, value);
+    int value = flag ? RESET_AUTO_ZERO : 0;
+    setControlRegister(~RESET_AUTO_ZERO, value);
   }
 }

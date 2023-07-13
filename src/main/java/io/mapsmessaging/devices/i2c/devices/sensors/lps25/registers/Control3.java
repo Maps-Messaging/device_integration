@@ -16,7 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
-import io.mapsmessaging.devices.i2c.devices.sensors.lps25.Lps25Sensor;
+import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.DataReadyInterrupt;
 
 import java.io.IOException;
@@ -25,26 +25,38 @@ public class Control3 extends Register {
 
   private static final byte CONTROL_REGISTER3 = 0x22;
 
-  public Control3(Lps25Sensor sensor) throws IOException {
+  private static final byte INTERRUPT_ACTIVE = (byte) 0b10000000;
+  private static final byte PUSH_PULL_DRAIN = 0b01000000;
+  private static final byte INTERRUPT_SIGNAL = 0b00000011;
+
+  public Control3(I2CDevice sensor) throws IOException {
     super(sensor, CONTROL_REGISTER3);
     reload();
   }
 
   public boolean isInterruptActive() throws IOException {
-    return (registerValue & 0b10000000) != 0;
+    return (registerValue & INTERRUPT_ACTIVE) != 0;
+  }
+  public void enableInterrupts(boolean flag) throws IOException {
+    int value = flag ? INTERRUPT_ACTIVE : 0;
+    setControlRegister(~INTERRUPT_ACTIVE, value);
   }
 
-  public boolean isPushPullDrainActive() throws IOException {
-    return (registerValue & 0b01000000) != 0;
+  public boolean isPushPullDrainInterruptActive() throws IOException {
+    return (registerValue & PUSH_PULL_DRAIN) != 0;
+  }
+
+  public void enablePushPullDrainInterrupt(boolean flag) throws IOException {
+    int value = flag ? PUSH_PULL_DRAIN : 0;
+    setControlRegister(~PUSH_PULL_DRAIN, value);
   }
 
   public void setSignalOnInterrupt(DataReadyInterrupt flag) throws IOException {
-    int value = flag.getMask();
-    setControlRegister(0b11111100, value);
+    setControlRegister(~INTERRUPT_SIGNAL,  flag.getMask());
   }
 
   public DataReadyInterrupt isSignalOnInterrupt() throws IOException {
-    int mask = (registerValue & 0b11);
+    int mask = (registerValue & INTERRUPT_SIGNAL);
     for (DataReadyInterrupt dataReadyInterrupt : DataReadyInterrupt.values()) {
       if (mask == dataReadyInterrupt.getMask()) {
         return dataReadyInterrupt;
