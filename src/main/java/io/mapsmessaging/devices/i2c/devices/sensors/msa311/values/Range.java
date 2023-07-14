@@ -16,20 +16,22 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.values;
 
-public enum Range {
-  RANGE_2G(62.5),
-  RANGE_4G(125),
-  RANGE_8G(250),
-  RANGE_16G(500);
+import lombok.Getter;
 
+public enum Range {
+  RANGE_2G(62.5, 4096f),
+  RANGE_4G(125, 2048f),
+  RANGE_8G(250, 1024f),
+  RANGE_16G(500, 512f);
+
+  @Getter
   private final double lsbMultiplier;
 
-  Range(double lsbMultiplier) {
-    this.lsbMultiplier = lsbMultiplier;
-  }
+  @Getter
+  private final float scale;
 
-  public double getLsbMultiplier() {
-    return lsbMultiplier;
+  Range(double lsbMultiplier, float scale) {
+    this.lsbMultiplier = lsbMultiplier;
+    this.scale = scale;
   }
 }
-

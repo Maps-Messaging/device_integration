@@ -18,9 +18,11 @@ package io.mapsmessaging.devices.i2c.devices.sensors.msa311;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.TapActiveStatus;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -40,7 +42,7 @@ public class Msa311Controller extends I2CDeviceController {
     sensor = null;
   }
 
-  public Msa311Controller(I2C device) {
+  public Msa311Controller(I2C device) throws IOException {
     super(device);
     sensor = new Msa311Sensor(device);
   }
@@ -50,7 +52,7 @@ public class Msa311Controller extends I2CDeviceController {
     return sensor != null && sensor.isConnected();
   }
 
-  public I2CDeviceController mount(I2C device) {
+  public I2CDeviceController mount(I2C device) throws IOException {
     return new Msa311Controller(device);
   }
 
@@ -61,15 +63,22 @@ public class Msa311Controller extends I2CDeviceController {
     return jsonObject.toString(2).getBytes();
   }
 
-  public JSONObject pack() {
-    JSONObject jsonObject = new JSONObject();
-
-    return jsonObject;
-  }
 
   public byte[] getUpdatePayload() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
+      jsonObject.put("x-axis", sensor.getX());
+      jsonObject.put("y-axis", sensor.getY());
+      jsonObject.put("z-axis", sensor.getZ());
+      jsonObject.put("range", sensor.getRange().name());
+      jsonObject.put("orientation", sensor.getOrientation().name());
+      JSONArray tapActivityList = new JSONArray();
+      for (TapActiveStatus tapActiveStatus : sensor.getTapActivity()) {
+        tapActivityList.put(tapActiveStatus.name());
+      }
+      if (!tapActivityList.isEmpty()) {
+        jsonObject.put("tapActivity", tapActivityList);
+      }
     }
     return jsonObject.toString(2).getBytes();
   }

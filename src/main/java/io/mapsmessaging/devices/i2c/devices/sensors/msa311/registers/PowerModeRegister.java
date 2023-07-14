@@ -12,6 +12,7 @@ public class PowerModeRegister extends Register {
   public PowerModeRegister(I2CDevice sensor) {
     super(sensor, 0x11);
   }
+
   public LowPowerBandwidth getLowPowerBandwidth() throws IOException {
     reload();
     int val = registerValue & 0b1111;
@@ -23,15 +24,19 @@ public class PowerModeRegister extends Register {
     return LowPowerBandwidth.HERTZ_1_95; // Default
   }
 
-  public void setLowPowerBandwidth(LowPowerBandwidth bandwidth) throws IOException{
+  public void setLowPowerBandwidth(LowPowerBandwidth bandwidth) throws IOException {
     registerValue = (byte) ((registerValue & 0b11000000) | bandwidth.getStart());
     sensor.write(address, registerValue);
   }
 
-  public PowerMode getPowerMode() throws IOException{
-    int val = registerValue >>6;
-    for(PowerMode mode: PowerMode.values()){
-      if(mode.ordinal() == val){
+  public void setPowerMode(PowerMode mode) throws IOException {
+    super.setControlRegister(0b11000000, mode.ordinal() << 6);
+  }
+
+  public PowerMode getPowerMode() throws IOException {
+    int val = registerValue >> 6;
+    for (PowerMode mode : PowerMode.values()) {
+      if (mode.ordinal() == val) {
         return mode;
       }
     }

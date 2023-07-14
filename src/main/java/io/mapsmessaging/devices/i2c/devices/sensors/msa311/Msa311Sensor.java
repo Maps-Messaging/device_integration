@@ -22,9 +22,11 @@ import io.mapsmessaging.devices.Resetable;
 import io.mapsmessaging.devices.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers.*;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.*;
 import io.mapsmessaging.logging.LoggerFactory;
 
 import java.io.IOException;
+import java.util.List;
 
 public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, Resetable {
 
@@ -60,7 +62,7 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
   private final OffsetCompensationRegister yOffsetCompensation;
   private final OffsetCompensationRegister zOffsetCompensation;
 
-  public Msa311Sensor(I2C device) {
+  public Msa311Sensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(Msa311Sensor.class));
     resetRegister = new ResetRegister(this);
     partIdRegister = new PartIdRegister(this);
@@ -93,6 +95,24 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
     xOffsetCompensation = new OffsetCompensationRegister(this, 0x38);
     yOffsetCompensation = new OffsetCompensationRegister(this, 0x39);
     zOffsetCompensation = new OffsetCompensationRegister(this, 0x3A);
+
+    powerModeRegister.setPowerMode(PowerMode.NORMAL);
+    odrRegister.setOdr(Odr.HERTZ_250);
+    rangeRegister.setRange(Range.RANGE_2G);
+
+        /*
+      enableAxes(true, true, true);
+  // normal mode
+  setPowerMode(MSA301_NORMALMODE);
+  // 500Hz rate
+  setDataRate(MSA301_DATARATE_500_HZ);
+  // 250Hz bw
+  setBandwidth(MSA301_BANDWIDTH_250_HZ);
+  setRange(MSA301_RANGE_4_G);
+  setResolution(MSA301_RESOLUTION_14);
+
+
+     */
   }
 
 
@@ -112,6 +132,35 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
     return "Digital Tri-axial Accelerometer";
   }
 
+  public Range getRange() {
+    return rangeRegister.getRange();
+  }
+
+  public float getX() throws IOException {
+    float raw = xAxisRegister.getValue();
+    float scale = getRange().getScale();
+    return raw / scale;
+  }
+
+  public float getY() throws IOException {
+    float raw = yAxisRegister.getValue();
+    float scale = getRange().getScale();
+    return raw / scale;
+  }
+
+  public float getZ() throws IOException {
+    float raw = zAxisRegister.getValue();
+    float scale = getRange().getScale();
+    return raw / scale;
+  }
+
+  public List<TapActiveStatus> getTapActivity() throws IOException {
+    return tapActiveStatusRegister.getTapActiveStatus();
+  }
+
+  public OrientationStatus getOrientation() throws IOException {
+    return orientationRegister.getOrientation();
+  }
 
   @Override
   public void powerOn() throws IOException {
