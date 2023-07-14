@@ -17,14 +17,15 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.PowerManagement;
+import io.mapsmessaging.devices.Resetable;
 import io.mapsmessaging.devices.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.PowerManagement;
 import io.mapsmessaging.logging.LoggerFactory;
 
 import java.io.IOException;
 
-public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement {
+public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, Resetable {
 
   public Msa311Sensor(I2C device) {
     super(device, LoggerFactory.getLogger(Msa311Sensor.class));
@@ -54,6 +55,16 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement {
 
   @Override
   public void powerOff() throws IOException {
+
+  }
+
+  @Override
+  public void reset()  throws IOException{
+
+  }
+
+  @Override
+  public void softReset()  throws IOException{
 
   }
 }

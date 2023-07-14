@@ -14,7 +14,7 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c;
+package io.mapsmessaging.devices;
 
 import java.io.IOException;
 

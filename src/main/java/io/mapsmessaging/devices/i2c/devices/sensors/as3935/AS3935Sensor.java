@@ -17,9 +17,9 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.PowerManagement;
 import io.mapsmessaging.devices.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.PowerManagement;
 import io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers.*;
 import io.mapsmessaging.logging.LoggerFactory;
 

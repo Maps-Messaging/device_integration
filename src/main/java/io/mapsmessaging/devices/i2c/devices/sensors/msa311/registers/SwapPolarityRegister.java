@@ -1,0 +1,56 @@
+package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
+
+import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.Register;
+
+import java.io.IOException;
+
+public class SwapPolarityRegister extends Register {
+
+  private static final byte X_POLARITY = (byte)0b1000;
+  private static final byte Y_POLARITY = (byte)0b0100;
+  private static final byte Z_POLARITY = (byte)0b0010;
+  private static final byte X_Y_SWAP = (byte)0b0001;
+
+  public SwapPolarityRegister(I2CDevice sensor) {
+    super(sensor, 0x12);
+  }
+
+
+  public void swapXPolarity(boolean flag) throws IOException {
+    int value = flag ? X_POLARITY : 0;
+    setControlRegister(~X_POLARITY, value);
+  }
+
+  public boolean isXPolaritySwapped() {
+    return (registerValue & X_POLARITY) != 0;
+  }
+
+  public void swapYPolarity(boolean flag) throws IOException {
+    int value = flag ? Y_POLARITY : 0;
+    setControlRegister(~Y_POLARITY, value);
+  }
+
+  public boolean isYPolaritySwapped() {
+    return (registerValue & Y_POLARITY) != 0;
+  }
+
+  public void swapZPolarity(boolean flag) throws IOException {
+    int value = flag ? Z_POLARITY : 0;
+    setControlRegister(~Z_POLARITY, value);
+  }
+
+  public boolean isZPolaritySwapped() {
+    return (registerValue & Z_POLARITY) != 0;
+  }
+
+  public void swapX_Y(boolean flag) throws IOException {
+    int value = flag ? X_Y_SWAP : 0;
+    setControlRegister(~X_Y_SWAP, value);
+  }
+
+  public boolean isX_YSwapped() {
+    return (registerValue & X_Y_SWAP) != 0;
+  }
+
+}

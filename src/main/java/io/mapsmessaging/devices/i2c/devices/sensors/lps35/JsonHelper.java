@@ -105,7 +105,7 @@ public class JsonHelper {
 
       }
       if (controlReg2.has("reset")) {
-        sensor.reset();
+        sensor.softReset();
         register2.put("reset", true);
       }
       if (controlReg2.has("enableOneShot")) {

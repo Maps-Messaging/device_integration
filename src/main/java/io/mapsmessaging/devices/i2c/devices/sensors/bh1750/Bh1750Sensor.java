@@ -17,17 +17,18 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.bh1750;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.PowerManagement;
+import io.mapsmessaging.devices.Resetable;
 import io.mapsmessaging.devices.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
-import io.mapsmessaging.devices.i2c.PowerManagement;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
 import java.io.IOException;
 
-public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor {
+public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor, Resetable {
 
   private static final byte POWER_DOWN = 0b00000000;
   private static final byte POWER_UP = 0b00000001;
@@ -84,6 +85,11 @@ public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor {
     }
     write(RESET);
     delay(10);
+  }
+
+  @Override
+  public void softReset() throws IOException {
+    reset();
   }
 
   public void powerOff() throws IOException {
