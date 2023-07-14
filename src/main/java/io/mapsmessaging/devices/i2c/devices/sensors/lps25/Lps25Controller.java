@@ -32,8 +32,8 @@ public class Lps25Controller extends I2CDeviceController {
     sensor = new Lps25Sensor(device);
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       sensor.reset();
-      sensor.setPowerDownMode(true);
-      sensor.setDataRate(DataRate.RATE_1_HZ);
+      sensor.setPowerDownMode(false);
+      sensor.setDataRate(DataRate.RATE_25_HZ);
     }
   }
 
