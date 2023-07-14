@@ -21,15 +21,80 @@ import io.mapsmessaging.devices.PowerManagement;
 import io.mapsmessaging.devices.Resetable;
 import io.mapsmessaging.devices.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers.*;
 import io.mapsmessaging.logging.LoggerFactory;
 
 import java.io.IOException;
 
 public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, Resetable {
 
+  private final ResetRegister resetRegister;
+  private final PartIdRegister partIdRegister;
+  private final AxisRegister xAxisRegister;
+  private final AxisRegister yAxisRegister;
+  private final AxisRegister zAxisRegister;
+  private final MotionInterruptRegister motionInterruptRegister;
+  private final DataReadyRegister dataReadyRegister;
+  private final TapActiveStatusRegister tapActiveStatusRegister;
+  private final OrientationRegister orientationRegister;
+  private final RangeRegister rangeRegister;
+  private final OdrRegister odrRegister;
+  private final PowerModeRegister powerModeRegister;
+  private final SwapPolarityRegister swapPolarityRegister;
+  private final InterruptSetRegister interruptSetRegister;
+  private final InterruptSet1Register interruptSet1Register;
+  private final InterruptMap0Register interruptMap0Register;
+  private final InterruptMap1Register interruptMap1Register;
+  private final IntConfigRegister intConfigRegister;
+  private final IntLatchRegister intLatchRegister;
+  private final FreefallDurRegister freefallDurRegister;
+  private final FreefallThRegister freefallThRegister;
+  private final FreefallHyRegister freefallHyRegister;
+  private final ActiveDurRegister activeDurRegister;
+  private final ActiveThRegister activeThRegister;
+  private final TapDurRegister tapDurRegister;
+  private final TapThresholdRegister tapThresholdRegister;
+  private final OrientHyRegister orientHyRegister;
+  private final ZBlockRegister zBlockRegister;
+  private final OffsetCompensationRegister xOffsetCompensation;
+  private final OffsetCompensationRegister yOffsetCompensation;
+  private final OffsetCompensationRegister zOffsetCompensation;
+
   public Msa311Sensor(I2C device) {
     super(device, LoggerFactory.getLogger(Msa311Sensor.class));
+    resetRegister = new ResetRegister(this);
+    partIdRegister = new PartIdRegister(this);
+    xAxisRegister = new AxisRegister(this, 0x2);
+    yAxisRegister = new AxisRegister(this, 0x4);
+    zAxisRegister = new AxisRegister(this, 0x6);
+    motionInterruptRegister = new MotionInterruptRegister(this);
+    dataReadyRegister = new DataReadyRegister(this);
+    tapActiveStatusRegister = new TapActiveStatusRegister(this);
+    orientationRegister = new OrientationRegister(this);
+    rangeRegister = new RangeRegister(this);
+    odrRegister = new OdrRegister(this);
+    powerModeRegister = new PowerModeRegister(this);
+    swapPolarityRegister = new SwapPolarityRegister(this);
+    interruptSetRegister = new InterruptSetRegister(this);
+    interruptSet1Register = new InterruptSet1Register(this);
+    interruptMap0Register = new InterruptMap0Register(this);
+    interruptMap1Register = new InterruptMap1Register(this);
+    intConfigRegister = new IntConfigRegister(this);
+    intLatchRegister = new IntLatchRegister(this);
+    freefallDurRegister = new FreefallDurRegister(this);
+    freefallThRegister = new FreefallThRegister(this);
+    freefallHyRegister = new FreefallHyRegister(this);
+    activeDurRegister = new ActiveDurRegister(this);
+    activeThRegister = new ActiveThRegister(this);
+    tapDurRegister = new TapDurRegister(this);
+    tapThresholdRegister = new TapThresholdRegister(this);
+    orientHyRegister = new OrientHyRegister(this);
+    zBlockRegister = new ZBlockRegister(this);
+    xOffsetCompensation = new OffsetCompensationRegister(this, 0x38);
+    yOffsetCompensation = new OffsetCompensationRegister(this, 0x39);
+    zOffsetCompensation = new OffsetCompensationRegister(this, 0x3A);
   }
+
 
   @Override
   public boolean isConnected() {
