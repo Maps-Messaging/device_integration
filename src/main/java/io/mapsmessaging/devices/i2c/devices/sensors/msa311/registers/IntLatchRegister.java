@@ -17,12 +17,12 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.Register;
+import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.Latch;
 
 import java.io.IOException;
 
-public class IntLatchRegister extends Register {
+public class IntLatchRegister extends SingleByteRegister {
 
   private static final byte LATCH_MASK = (byte) 0b00001111;
   private static final byte RESET_FLAG = (byte) 0b10000000;

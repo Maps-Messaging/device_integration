@@ -1,11 +1,11 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.Register;
+import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
 
-public class InterruptControl extends Register {
+public class InterruptControl extends SingleByteRegister {
 
   private static final byte INTERRUPT_CONTROL = 0x24;
   private static final byte LATCH_INTERRUPT_ENABLE = 0b00000100;

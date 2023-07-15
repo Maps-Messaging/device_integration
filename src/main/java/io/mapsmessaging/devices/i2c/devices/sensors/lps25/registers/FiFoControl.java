@@ -17,12 +17,12 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.Register;
+import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.FiFoMode;
 
 import java.io.IOException;
 
-public class FiFoControl extends Register {
+public class FiFoControl extends SingleByteRegister {
 
   private static final byte FIFO_CONTROL = 0x2E;
   private static final byte FIFO_MODE = (byte) 0b11100000;

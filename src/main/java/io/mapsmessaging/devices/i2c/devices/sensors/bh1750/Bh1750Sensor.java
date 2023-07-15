@@ -22,6 +22,8 @@ import io.mapsmessaging.devices.Resetable;
 import io.mapsmessaging.devices.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
+import io.mapsmessaging.devices.i2c.devices.sensors.bh1750.values.ResolutionMode;
+import io.mapsmessaging.devices.i2c.devices.sensors.bh1750.values.SensorReading;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
@@ -58,12 +60,10 @@ public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor, 
     write(resolutionMode.getMask() | sensorReading.getMask());
   }
 
-
   public void setSensorReading(SensorReading sensor) throws IOException {
     sensorReading = sensor;
     write(resolutionMode.getMask() | sensorReading.getMask());
   }
-
 
   @Override
   public boolean isConnected() {
@@ -104,15 +104,6 @@ public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor, 
     write(resolutionMode.getMask() | sensorReading.getMask());
   }
 
-  private void scanForChange() throws IOException {
-    if (lastRead < System.currentTimeMillis()) {
-      lastRead = System.currentTimeMillis() + 120;
-      byte[] data = new byte[2];
-      read(data);
-      lux = (data[0] & 0xff) << 8 | (data[1] & 0xff);
-    }
-  }
-
   public float getLux() throws IOException {
     scanForChange();
     if (logger.isDebugEnabled()) {
@@ -120,7 +111,6 @@ public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor, 
     }
     return (lux / 1.2f) / resolutionMode.getAdjustment();
   }
-
 
   @Override
   public String getName() {
@@ -131,4 +121,15 @@ public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor, 
   public String getDescription() {
     return "Light sensor and Lux computation";
   }
+
+
+  private void scanForChange() throws IOException {
+    if (lastRead < System.currentTimeMillis()) {
+      lastRead = System.currentTimeMillis() + resolutionMode.getDelay();
+      byte[] data = new byte[2];
+      read(data);
+      lux = (data[0] & 0xff) << 8 | (data[1] & 0xff);
+    }
+  }
+
 }

@@ -1,14 +1,14 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.Register;
+import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.InterruptSource;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InterruptSourceRegister extends Register {
+public class InterruptSourceRegister extends SingleByteRegister {
 
   private static final byte INTERRUPT_SOURCE = 0x25;
 

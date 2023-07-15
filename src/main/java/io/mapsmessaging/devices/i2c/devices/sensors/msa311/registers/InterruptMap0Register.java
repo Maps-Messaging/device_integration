@@ -17,11 +17,11 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.Register;
+import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
 
-public class InterruptMap0Register extends Register {
+public class InterruptMap0Register extends SingleByteRegister {
 
   private static final byte INT1_ORIENT = (byte) 0b01000000;
   private static final byte INT1_S_TAP = (byte) 0b00100000;

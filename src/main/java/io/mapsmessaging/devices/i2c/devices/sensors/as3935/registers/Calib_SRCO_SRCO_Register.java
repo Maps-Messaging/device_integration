@@ -17,11 +17,11 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.Register;
+import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
 
-public class Calib_SRCO_SRCO_Register extends Register {
+public class Calib_SRCO_SRCO_Register extends SingleByteRegister {
 
   private static final int CALIB_SCRO_SRCO_CALIB_SRCO_DONE_BIT = 7;
 

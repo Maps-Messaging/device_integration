@@ -17,12 +17,12 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.Register;
+import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.TapDuration;
 
 import java.io.IOException;
 
-public class TapDurRegister extends Register {
+public class TapDurRegister extends SingleByteRegister {
   private static final byte TAP_QUIET_MASK = (byte) 0b10000000;
   private static final byte TAP_SHOCK_MASK = (byte) 0b01000000;
   private static final byte TAP_DUR_MASK = (byte) 0b00000111;

@@ -17,12 +17,12 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.Register;
+import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.DataRate;
 
 import java.io.IOException;
 
-public class Control1 extends Register {
+public class Control1 extends SingleByteRegister {
 
   private static final byte CONTROL_REGISTER1 = 0x20;
 

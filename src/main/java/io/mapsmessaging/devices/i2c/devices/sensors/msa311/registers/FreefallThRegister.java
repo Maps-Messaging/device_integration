@@ -17,11 +17,11 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.Register;
+import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
 
-public class FreefallThRegister extends Register {
+public class FreefallThRegister extends SingleByteRegister {
 
   public FreefallThRegister(I2CDevice sensor) {
     super(sensor, 0x23);

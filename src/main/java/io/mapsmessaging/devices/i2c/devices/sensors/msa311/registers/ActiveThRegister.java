@@ -17,12 +17,12 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.Register;
+import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.Sensitivity;
 
 import java.io.IOException;
 
-public class ActiveThRegister extends Register {
+public class ActiveThRegister extends SingleByteRegister {
 
   public ActiveThRegister(I2CDevice sensor) {
     super(sensor, 0x28);

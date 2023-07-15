@@ -17,11 +17,11 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.Register;
+import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
 
-public class InterruptRegister extends Register {
+public class InterruptRegister extends SingleByteRegister {
 
   private static final int ENERGY_MASK_DISTURBER_BIT = 5;
   private static final int ENERGY_DIV_RATIO_BITS = 6;

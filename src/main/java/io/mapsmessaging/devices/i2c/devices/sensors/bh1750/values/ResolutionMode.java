@@ -14,23 +14,28 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
+package io.mapsmessaging.devices.i2c.devices.sensors.bh1750.values;
 
-import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import lombok.Getter;
 
-import java.io.IOException;
+public enum ResolutionMode {
 
-public class DistanceRegister extends SingleByteRegister {
+  H_RESOLUTION_MODE(0b00000000, 1f, 120),
+  H_RESOLUTION_MODE_2(0B00000001, 2f, 16),
+  L_RESOLUTION_MODE(0b00000011, 1f, 120);
 
-  private static final int DISTANCE_EST_BITS = 0;
+  @Getter
+  private final int mask;
 
-  public DistanceRegister(I2CDevice sensor) {
-    super(sensor, 0x07);
-  }
+  @Getter
+  private final float adjustment;
 
-  public int getDistanceEstimation() throws IOException {
-    reload();
-    return registerValue & 0x3F;
+  @Getter
+  private final int delay;
+
+  ResolutionMode(int mask, float adjustment, int delay) {
+    this.mask = mask;
+    this.adjustment = adjustment;
+    this.delay = delay;
   }
 }

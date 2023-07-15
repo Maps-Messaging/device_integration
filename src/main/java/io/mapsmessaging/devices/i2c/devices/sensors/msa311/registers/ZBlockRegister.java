@@ -17,11 +17,11 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.Register;
+import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
 
-public class ZBlockRegister extends Register {
+public class ZBlockRegister extends SingleByteRegister {
 
   private static final byte Z_BLOCKING_MASK = (byte) 0b00001111;
   private static final float Z_BLOCKING_LSB = 0.0625f; // 1LSB is 0.0625g

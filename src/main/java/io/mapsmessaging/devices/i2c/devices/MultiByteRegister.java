@@ -14,27 +14,47 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
+package io.mapsmessaging.devices.i2c.devices;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import lombok.Getter;
 
 import java.io.IOException;
 
-public class OffsetCompensationRegister extends SingleByteRegister {
+public class MultiByteRegister extends Register {
 
-  public OffsetCompensationRegister(I2CDevice sensor, int address) {
+  @Getter
+  private final byte[] buffer;
+
+  public MultiByteRegister(I2CDevice sensor, int address, int size) {
     super(sensor, address);
+    buffer = new byte[size];
   }
 
-  public int getOffset() throws IOException {
-    reload();
-    return registerValue & 0xFF;
+  @Override
+  protected void reload() throws IOException {
+    sensor.readRegister(address, buffer);
   }
 
-  public void setOffset(int offset) throws IOException {
-    registerValue = (byte) ((registerValue & 0xFF00) | (offset & 0xFF));
-    sensor.write(address, registerValue);
+  @Override
+  protected void setControlRegister(int mask, int value) throws IOException {
+    throw new IOException("Function not supported");
+  }
+
+  public int asInt() {
+    return (int) asLong();
+  }
+
+  public long asLong() {
+    long val = 0;
+    boolean first = true;
+    for (byte b : buffer) {
+      val |= b & 0xff;
+      if (!first) {
+        val = val << 8;
+      }
+      first = false;
+    }
+    return val;
   }
 }
-

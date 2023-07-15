@@ -22,8 +22,6 @@ public class BNO055Constants {
   public static final byte BNO055_ADDRESS_B = 0x29;
   public static final int BNO055_ID = 0xA0;
 
-  //Page id register definition
-  public static final byte BNO055_PAGE_ID_ADDR = 0X07;
 
   //PAGE0 REGISTER DEFINITION START
   public static final byte BNO055_CHIP_ID_ADDR = 0x00;
@@ -33,6 +31,8 @@ public class BNO055Constants {
   public static final byte BNO055_SW_REV_ID_LSB_ADDR = 0x04;
   public static final byte BNO055_SW_REV_ID_MSB_ADDR = 0x05;
   public static final byte BNO055_BL_REV_ID_ADDR = 0X06;
+  //Page id register definition
+  public static final byte BNO055_PAGE_ID_ADDR = 0X07;
 
   //    # Accel data register
   public static final byte BNO055_ACCEL_DATA_X_LSB_ADDR = 0X08;

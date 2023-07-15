@@ -14,23 +14,7 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
+package io.mapsmessaging.devices.i2c.devices.sensors.bno055;
 
-import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
-
-import java.io.IOException;
-
-public class DistanceRegister extends SingleByteRegister {
-
-  private static final int DISTANCE_EST_BITS = 0;
-
-  public DistanceRegister(I2CDevice sensor) {
-    super(sensor, 0x07);
-  }
-
-  public int getDistanceEstimation() throws IOException {
-    reload();
-    return registerValue & 0x3F;
-  }
+public class values {
 }

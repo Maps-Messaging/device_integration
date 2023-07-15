@@ -17,13 +17,13 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.Register;
+import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.OrientBlocking;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.OrientMode;
 
 import java.io.IOException;
 
-public class OrientHyRegister extends Register {
+public class OrientHyRegister extends SingleByteRegister {
   private static final byte ORIENT_BLOCKING_MASK = (byte) 0b00001100;
   private static final byte ORIENT_MODE_MASK = (byte) 0b00000011;
   private static final byte ORIENT_HYST_MASK = (byte) 0b01110000;

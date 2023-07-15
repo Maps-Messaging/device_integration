@@ -17,11 +17,11 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.Register;
+import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
 
-public class LightningRegister extends Register {
+public class LightningRegister extends SingleByteRegister {
 
   private static final int LIGHTNING_REG_SREJ_BITS = 0;
   private static final int LIGHTNING_REG_MIN_NUM_LIGH_BITS = 4;

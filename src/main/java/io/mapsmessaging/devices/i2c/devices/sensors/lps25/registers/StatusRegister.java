@@ -1,14 +1,14 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.Register;
+import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.Status;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StatusRegister extends Register {
+public class StatusRegister extends SingleByteRegister {
 
   private static final byte STATUS_REGISTER = 0x27;
 

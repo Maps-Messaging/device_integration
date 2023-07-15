@@ -20,25 +20,19 @@ import io.mapsmessaging.devices.i2c.I2CDevice;
 
 import java.io.IOException;
 
-public class Register {
+public abstract class Register {
 
   protected final I2CDevice sensor;
   protected final int address;
-  protected byte registerValue;
 
-  public Register(I2CDevice sensor, int address) {
+  protected Register(I2CDevice sensor, int address) {
     this.address = address;
     this.sensor = sensor;
   }
 
-  protected void reload() throws IOException {
-    registerValue = (byte) (sensor.readRegister(address) & 0Xff);
-  }
+  protected abstract void reload() throws IOException;
 
-  protected void setControlRegister(int mask, int value) throws IOException {
-    registerValue = (byte) ((registerValue & mask) | value);
-    sensor.write(address, registerValue);
-  }
+  protected abstract void setControlRegister(int mask, int value) throws IOException;
 
   protected void waitForDevice() {
     int count = 0;
@@ -54,14 +48,5 @@ public class Register {
       }
       count++;
     }
-  }
-
-  public String toString() {
-    try {
-      reload();
-    } catch (IOException e) {
-
-    }
-    return "Address::" + address + " :: " + Integer.toBinaryString(registerValue & 0xff);
   }
 }

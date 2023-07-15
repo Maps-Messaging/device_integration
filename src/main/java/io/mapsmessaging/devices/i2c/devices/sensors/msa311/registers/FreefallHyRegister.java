@@ -17,11 +17,11 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.Register;
+import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
 
-public class FreefallHyRegister extends Register {
+public class FreefallHyRegister extends SingleByteRegister {
 
   private static final byte FREEFALL_MODE = (byte) 0b00000100;
   private static final byte HYSTERESIS_MASK = 0b00000011;

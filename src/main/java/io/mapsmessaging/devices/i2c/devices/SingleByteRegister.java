@@ -14,23 +14,37 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
+package io.mapsmessaging.devices.i2c.devices;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
 
-public class DistanceRegister extends SingleByteRegister {
+public class SingleByteRegister extends Register {
 
-  private static final int DISTANCE_EST_BITS = 0;
+  protected byte registerValue;
 
-  public DistanceRegister(I2CDevice sensor) {
-    super(sensor, 0x07);
+  public SingleByteRegister(I2CDevice sensor, int address) {
+    super(sensor, address);
   }
 
-  public int getDistanceEstimation() throws IOException {
-    reload();
-    return registerValue & 0x3F;
+  @Override
+  protected void reload() throws IOException {
+    registerValue = (byte) (sensor.readRegister(address) & 0Xff);
+  }
+
+  @Override
+  protected void setControlRegister(int mask, int value) throws IOException {
+    registerValue = (byte) ((registerValue & mask) | value);
+    sensor.write(address, registerValue);
+  }
+
+  public String toString() {
+    try {
+      reload();
+    } catch (IOException e) {
+
+    }
+    return "Address::" + address + " :: " + Integer.toBinaryString(registerValue & 0xff);
   }
 }

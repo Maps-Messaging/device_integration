@@ -17,11 +17,11 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.Register;
+import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
 
-public class AfeRegister extends Register {
+public class AfeRegister extends SingleByteRegister {
   private static final int AFE_GAIN_ADDR = 0x00;
   private static final byte AFE_GAIN_PD_BIT = 0;
   private static final byte AFE_GAIN_BOOST_BITS = 1;
