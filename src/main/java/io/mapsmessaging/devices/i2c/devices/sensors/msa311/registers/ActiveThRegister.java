@@ -24,7 +24,7 @@ import java.io.IOException;
 
 public class ActiveThRegister extends SingleByteRegister {
 
-  public ActiveThRegister(I2CDevice sensor) {
+  public ActiveThRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0x28);
   }
 

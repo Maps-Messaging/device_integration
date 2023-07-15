@@ -27,7 +27,7 @@ public class IntLatchRegister extends SingleByteRegister {
   private static final byte LATCH_MASK = (byte) 0b00001111;
   private static final byte RESET_FLAG = (byte) 0b10000000;
 
-  public IntLatchRegister(I2CDevice sensor) {
+  public IntLatchRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0x21);
   }
 

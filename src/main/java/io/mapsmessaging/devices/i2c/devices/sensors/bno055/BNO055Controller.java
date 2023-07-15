@@ -18,6 +18,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.bno055;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
+import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -41,7 +42,9 @@ public class BNO055Controller extends I2CDeviceController {
 
   protected BNO055Controller(I2C device) throws IOException {
     super(device);
-    sensor = new BNO055Sensor(device);
+    synchronized (I2CDeviceScheduler.getI2cBusLock()) {
+      sensor = new BNO055Sensor(device);
+    }
   }
 
   @Override

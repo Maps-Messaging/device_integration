@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class AxisRegister extends SingleByteRegister {
 
-  public AxisRegister(I2CDevice sensor, int startAddress) {
+  public AxisRegister(I2CDevice sensor, int startAddress) throws IOException {
     super(sensor, startAddress);
   }
 

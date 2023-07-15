@@ -26,7 +26,7 @@ public class FreefallHyRegister extends SingleByteRegister {
   private static final byte FREEFALL_MODE = (byte) 0b00000100;
   private static final byte HYSTERESIS_MASK = 0b00000011;
 
-  public FreefallHyRegister(I2CDevice sensor) {
+  public FreefallHyRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0x24);
   }
 

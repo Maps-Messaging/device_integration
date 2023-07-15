@@ -75,7 +75,6 @@ public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor, 
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "powerOn()");
     }
     write(POWER_UP);
-
     delay(10);
   }
 

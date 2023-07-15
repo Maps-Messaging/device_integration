@@ -14,24 +14,21 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
+package io.mapsmessaging.devices.i2c.devices.sensors.bmp280.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
 
 import java.io.IOException;
 
-public class Calib_SRCO_SRCO_Register extends SingleByteRegister {
+public class TemperatureRegister extends MultiByteRegister {
 
-  private static final int CALIB_SCRO_SRCO_CALIB_SRCO_DONE_BIT = 7;
-
-
-  public Calib_SRCO_SRCO_Register(I2CDevice sensor) throws IOException {
-    super(sensor, 0x3B);
+  public TemperatureRegister(I2CDevice sensor) {
+    super(sensor, 0xFA, 3);
   }
 
-  public boolean isSRCOCalibrationSuccessful() throws IOException {
+  public double getRawTemperature() throws IOException {
     reload();
-    return (registerValue & (1 << CALIB_SCRO_SRCO_CALIB_SRCO_DONE_BIT)) != 0;
+    return asLong();
   }
 }

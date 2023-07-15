@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public class RangeRegister extends SingleByteRegister {
 
-  public RangeRegister(I2CDevice sensor) {
+  public RangeRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0xF);
   }
 

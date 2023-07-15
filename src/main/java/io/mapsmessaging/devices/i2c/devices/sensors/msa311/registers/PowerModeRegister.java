@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class PowerModeRegister extends SingleByteRegister {
 
-  public PowerModeRegister(I2CDevice sensor) {
+  public PowerModeRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0x11);
   }
 

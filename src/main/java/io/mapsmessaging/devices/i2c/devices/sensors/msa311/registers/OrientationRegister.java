@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public class OrientationRegister extends SingleByteRegister {
 
-  public OrientationRegister(I2CDevice sensor) {
+  public OrientationRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0xC);
   }
 

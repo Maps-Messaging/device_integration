@@ -23,7 +23,7 @@ import java.io.IOException;
 
 public class FreefallDurRegister extends SingleByteRegister {
 
-  public FreefallDurRegister(I2CDevice sensor) {
+  public FreefallDurRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0x22);
   }
 

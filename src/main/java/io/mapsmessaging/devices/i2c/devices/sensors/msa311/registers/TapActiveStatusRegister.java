@@ -10,7 +10,7 @@ import java.util.List;
 
 public class TapActiveStatusRegister extends SingleByteRegister {
 
-  public TapActiveStatusRegister(I2CDevice sensor) {
+  public TapActiveStatusRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0xb);
   }
 

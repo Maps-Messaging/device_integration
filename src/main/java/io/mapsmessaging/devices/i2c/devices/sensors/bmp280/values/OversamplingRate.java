@@ -14,24 +14,27 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
+package io.mapsmessaging.devices.i2c.devices.sensors.bmp280.values;
 
-import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import lombok.Getter;
 
-import java.io.IOException;
+public enum OversamplingRate {
 
-public class Calib_SRCO_SRCO_Register extends SingleByteRegister {
+  D1_OSR_256((byte) 0x40),
+  D1_OSR_512((byte) 0x42),
+  D1_OSR_1024((byte) 0x44),
+  D1_OSR_2048((byte) 0x46),
+  D1_OSR_4096((byte) 0x48),
+  D2_OSR_256((byte) 0x50),
+  D2_OSR_512((byte) 0x52),
+  D2_OSR_1024((byte) 0x54),
+  D2_OSR_2048((byte) 0x56),
+  D2_OSR_4096((byte) 0x58);
 
-  private static final int CALIB_SCRO_SRCO_CALIB_SRCO_DONE_BIT = 7;
+  @Getter
+  private final byte value;
 
-
-  public Calib_SRCO_SRCO_Register(I2CDevice sensor) throws IOException {
-    super(sensor, 0x3B);
-  }
-
-  public boolean isSRCOCalibrationSuccessful() throws IOException {
-    reload();
-    return (registerValue & (1 << CALIB_SCRO_SRCO_CALIB_SRCO_DONE_BIT)) != 0;
+  OversamplingRate(byte value) {
+    this.value = value;
   }
 }

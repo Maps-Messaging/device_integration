@@ -27,7 +27,7 @@ public class Tun_Cap_Register extends SingleByteRegister {
   private static final int TUN_CAP_DISP_TRCO_BIT = 6;
   private static final int TUN_CAP_DISP_SRCO_BIT = 7;
 
-  public Tun_Cap_Register(I2CDevice sensor) {
+  public Tun_Cap_Register(I2CDevice sensor) throws IOException {
     super(sensor, 0x08);
   }
 

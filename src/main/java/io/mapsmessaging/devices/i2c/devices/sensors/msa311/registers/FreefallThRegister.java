@@ -23,7 +23,7 @@ import java.io.IOException;
 
 public class FreefallThRegister extends SingleByteRegister {
 
-  public FreefallThRegister(I2CDevice sensor) {
+  public FreefallThRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0x23);
   }
 

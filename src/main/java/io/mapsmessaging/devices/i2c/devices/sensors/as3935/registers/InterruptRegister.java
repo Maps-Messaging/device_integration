@@ -26,7 +26,7 @@ public class InterruptRegister extends SingleByteRegister {
   private static final int ENERGY_MASK_DISTURBER_BIT = 5;
   private static final int ENERGY_DIV_RATIO_BITS = 6;
 
-  public InterruptRegister(I2CDevice sensor) {
+  public InterruptRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0x03);
   }
 

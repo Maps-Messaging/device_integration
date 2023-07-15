@@ -20,6 +20,7 @@ import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.PowerManagement;
 import io.mapsmessaging.devices.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.sensors.bmp280.values.OversamplingRate;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.LoggerFactory;
 
@@ -28,17 +29,6 @@ import java.io.IOException;
 import static io.mapsmessaging.devices.logging.DeviceLogMessage.I2C_BUS_DEVICE_READ_REQUEST;
 
 public class BMP280Sensor extends I2CDevice implements PowerManagement, Sensor {
-
-  public static final byte CONVERT_D1_OSR_256 = (byte) 0x40;
-  public static final byte CONVERT_D1_OSR_512 = (byte) 0x42;
-  public static final byte CONVERT_D1_OSR_1024 = (byte) 0x44;
-  public static final byte CONVERT_D1_OSR_2048 = (byte) 0x46;
-  public static final byte CONVERT_D1_OSR_4096 = (byte) 0x48;
-  public static final byte CONVERT_D2_OSR_256 = (byte) 0x50;
-  public static final byte CONVERT_D2_OSR_512 = (byte) 0x52;
-  public static final byte CONVERT_D2_OSR_1024 = (byte) 0x54;
-  public static final byte CONVERT_D2_OSR_2048 = (byte) 0x56;
-  public static final byte CONVERT_D2_OSR_4096 = (byte) 0x58;
 
   public static final byte PROM_READ_SEQUENCE = (byte) 0xA0;
 
@@ -97,7 +87,7 @@ public class BMP280Sensor extends I2CDevice implements PowerManagement, Sensor {
 
   }
 
-  public float getTemperature() {
+  public float getTemperature() throws IOException {
     loadValues();
     if (logger.isDebugEnabled()) {
       logger.log(I2C_BUS_DEVICE_READ_REQUEST, getName(), "getTemperature()", temperature);
@@ -105,7 +95,7 @@ public class BMP280Sensor extends I2CDevice implements PowerManagement, Sensor {
     return temperature;
   }
 
-  public float getPressure() {
+  public float getPressure() throws IOException {
     loadValues();
     if (logger.isDebugEnabled()) {
       logger.log(I2C_BUS_DEVICE_READ_REQUEST, getName(), "getPressure()", pressure);
@@ -117,20 +107,18 @@ public class BMP280Sensor extends I2CDevice implements PowerManagement, Sensor {
     readRegister(command, values, 0, length);
   }
 
-  private void conversion() {
-    try {
-      byte[] readBuffer = new byte[3];
-      write(CONVERT_D2_OSR_4096);
-      delay(10);
-      read(ADC_READ, 3, readBuffer);
-      D2 = ((readBuffer[0] & 0xFF) << 16) | ((readBuffer[1] & 0xFF) << 8) | ((readBuffer[2] & 0xFF));
-      write(CONVERT_D1_OSR_4096);
-      delay(10);
-      read(ADC_READ, 3, readBuffer);
-      D1 = ((readBuffer[0] & 0xFF) << 16) | ((readBuffer[1] & 0xFF) << 8) | ((readBuffer[2] & 0xFF));
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+  private void conversion() throws IOException {
+    byte[] readBuffer = new byte[3];
+    write(OversamplingRate.D2_OSR_4096.getValue());
+    delay(10);
+    read(ADC_READ, 3, readBuffer);
+    D2 = ((readBuffer[0] & 0xFF) << 16) | ((readBuffer[1] & 0xFF) << 8) | ((readBuffer[2] & 0xFF));
+
+
+    write(OversamplingRate.D1_OSR_4096.getValue());
+    delay(10);
+    read(ADC_READ, 3, readBuffer);
+    D1 = ((readBuffer[0] & 0xFF) << 16) | ((readBuffer[1] & 0xFF) << 8) | ((readBuffer[2] & 0xFF));
   }
 
   private void initialise() throws IOException {
@@ -159,7 +147,7 @@ public class BMP280Sensor extends I2CDevice implements PowerManagement, Sensor {
     TCO = C4 / (1 << 7)  /* 2^7 */;
   }
 
-  private void loadValues() {
+  private void loadValues() throws IOException {
     if (lastRead < System.currentTimeMillis()) {
       conversion();
       long dT = D2 - (C5 << 8);

@@ -11,21 +11,12 @@ import io.mapsmessaging.logging.LoggerFactory;
 import java.io.IOException;
 
 public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
+  private static final int WHO_AM_I = 0xf;
 
-  public static final byte REF_P_XL = 0x08;
-  public static final byte REF_P_L = 0x09;
-  public static final byte REF_P_H = 0x0A;
+  public static int getId(I2C device) {
+    return device.readRegister(WHO_AM_I);
+  }
 
-  public static final byte WHO_AM_I = 0x0F;
-
-  public static final byte PRESS_OUT_XL = 0x28;
-
-  public static final byte TEMP_OUT_L = 0x2B;
-
-  public static final byte FIFO_STATUS = 0x2F;
-
-  public static final byte THS_P_L = 0x30;
-  public static final byte THS_P_H = 0x31;
 
   private final Control1 control1;
   private final Control2 control2;
@@ -35,6 +26,12 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
   private final InterruptSourceRegister interruptSource;
   private final FiFoControl fiFoControl;
   private final StatusRegister statusRegister;
+  private final TemperatureRegister temperatureRegister;
+  private final PressureRegister pressureRegister;
+  private final ReferencePressureRegister referencePressureRegister;
+  private final FiFoStatusRegister fiFoStatusRegister;
+  private final ThresholdPressureRegister thresholdPressureRegister;
+  private final WhoAmIRegister whoAmIRegister;
 
   public Lps25Sensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(Lps25Sensor.class));
@@ -46,10 +43,12 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
     interruptControl = new InterruptControl(this);
     fiFoControl = new FiFoControl(this);
     statusRegister = new StatusRegister(this);
-  }
-
-  public static int getId(I2C device) {
-    return device.readRegister(WHO_AM_I);
+    temperatureRegister = new TemperatureRegister(this);
+    pressureRegister = new PressureRegister(this);
+    referencePressureRegister = new ReferencePressureRegister(this);
+    fiFoStatusRegister = new FiFoStatusRegister(this);
+    thresholdPressureRegister = new ThresholdPressureRegister(this);
+    whoAmIRegister = new WhoAmIRegister(this);
   }
 
   public String toString() {
@@ -60,7 +59,11 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
         + " fifo:" + fiFoControl.toString()
         + " status:" + statusRegister.toString()
         + " int Ctl:" + interruptControl.toString()
-        + " int src:" + interruptSource.toString();
+        + " int src:" + interruptSource.toString()
+        + " FiFo Status: " + fiFoStatusRegister.toString()
+        + " pressure:" + pressureRegister.toString()
+        + " temperature:" + temperatureRegister.toString()
+        + " pressure Ref: " + referencePressureRegister.toString();
   }
 
   @Override
@@ -104,28 +107,24 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
   }
   //endregion
 
-  public float getThresholdPressure() throws IOException {
-    byte[] b = new byte[2];
-    readRegister(THS_P_L, b, 0, 2);
-    return ((b[0] * 0xff) | ((b[1] << 8) & 0xff)) / 16f;
+  public float getThresholdPressure() {
+    return thresholdPressureRegister.getThreshold();
   }
 
   //region Pressure Threshold register
   public void setThresholdPressure(float thresholdPressure) throws IOException {
-    int val = Math.round(thresholdPressure * 16);
-    write(THS_P_L, (byte) (val & 0xff));
-    write(THS_P_H, (byte) ((val >> 8) & 0xff));
+    thresholdPressureRegister.setThreshold(thresholdPressure);
   }
   //endregion
 
   //region Who Am I register
-  public int whoAmI() throws IOException {
-    return readRegister(WHO_AM_I) & 0xff;
+  public int whoAmI() {
+    return whoAmIRegister.getWhoAmI();
   }
   //endregion
 
   //region Control Register 1
-  public DataRate getDataRate() throws IOException {
+  public DataRate getDataRate() {
     return control1.getDataRate();
   }
 
@@ -145,7 +144,7 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
     control1.setInterruptGenerationEnabled(flag);
   }
 
-  public boolean isInterruptGenerationEnabled() throws IOException {
+  public boolean isInterruptGenerationEnabled() {
     return control1.isInterruptGenerationEnabled();
   }
 
@@ -153,7 +152,7 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
     control1.setBlockUpdate(flag);
   }
 
-  public boolean isBlockUpdateSet() throws IOException {
+  public boolean isBlockUpdateSet() {
     return control1.isBlockUpdateSet();
   }
 
@@ -196,7 +195,7 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
     control2.enableOneShot(flag);
   }
 
-  public boolean isOneShotEnabled() throws IOException {
+  public boolean isOneShotEnabled() {
     return control2.isOneShotEnabled();
   }
   //endregion
@@ -271,23 +270,13 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
   }
   //endregion
 
-  public int getReferencePressure() throws IOException {
-    byte[] data = new byte[3];
-    data[0] = (byte) (readRegister(REF_P_XL) & 0xff);
-    data[1] = (byte) (readRegister(REF_P_L) & 0xff);
-    data[2] = (byte) (readRegister(REF_P_H) & 0xff);
-    return (data[2] << 16 | ((data[1] & 0xff) << 8) | (data[0] & 0xff));
+  public int getReferencePressure() {
+    return referencePressureRegister.getReference();
   }
 
   //region Reference Pressure Registers
   public void setReferencePressure(int value) throws IOException {
-    byte[] data = new byte[3];
-    data[0] = (byte) (value & 0xff);
-    data[1] = (byte) (value >> 8 & 0xff);
-    data[2] = (byte) (value >> 16 & 0xff);
-    write(REF_P_XL, data[0]);
-    write(REF_P_XL + 1, data[1]);
-    write(REF_P_XL + 2, data[2]);
+    referencePressureRegister.setReference(value);
   }
   //endregion
 
@@ -299,11 +288,7 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
 
   //region FiFo Status Register
   public FiFoStatus getFiFoStatus() throws IOException {
-    int val = readRegister(FIFO_STATUS);
-    return new FiFoStatus(
-        (val & 0b10000000) != 0,
-        (val & 0b1000000) != 0,
-        val & 0b11111);
+    return fiFoStatusRegister.getFiFoStatus();
   }
   //endregion
 
@@ -315,33 +300,14 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
 
   //region Pressure Out Registers
   public float getPressure() throws IOException {
-    byte[] pressureBuffer = new byte[3];
-    readRegister(PRESS_OUT_XL | 0x80, pressureBuffer);
-    int rawPressure = (pressureBuffer[2] << 16 | ((pressureBuffer[1] & 0xff) << 8) | (pressureBuffer[0] & 0xff));
-    if ((rawPressure & 0x800000) != 0) {
-      rawPressure = rawPressure - 0xFFFFFF;
-    }
-    return rawPressure / 4096.0f;
+    return pressureRegister.getPressure();
   }
   //endregion
 
   //region Temperature Out Registers
   public float getTemperature() throws IOException {
-    byte[] temperatureBuffer = new byte[2];
-    readRegister(TEMP_OUT_L | 0x80, temperatureBuffer);
-    int rawTemperature = ((temperatureBuffer[1] & 0xff) << 8) | (temperatureBuffer[0] & 0xff);
-    if ((rawTemperature & 0x8000) != 0) {
-      rawTemperature = rawTemperature - 0xFFFF;
-    }
-
-    return rawTemperature / 480.0f + 42.5f;
+    return temperatureRegister.getTemperature();
   }
   //endregion
-
-  private void setControlRegister(int register, int mask, int value) throws IOException {
-    int ctl1 = readRegister(register) & 0xff;
-    ctl1 = (ctl1 & mask) | value;
-    write(register, (byte) ctl1);
-  }
 
 }

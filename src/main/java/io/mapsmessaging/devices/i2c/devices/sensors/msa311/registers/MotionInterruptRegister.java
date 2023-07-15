@@ -10,7 +10,7 @@ import java.util.List;
 
 public class MotionInterruptRegister extends SingleByteRegister {
 
-  public MotionInterruptRegister(I2CDevice sensor) {
+  public MotionInterruptRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0x9);
   }
 

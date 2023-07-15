@@ -23,7 +23,7 @@ import java.io.IOException;
 
 public class OffsetCompensationRegister extends SingleByteRegister {
 
-  public OffsetCompensationRegister(I2CDevice sensor, int address) {
+  public OffsetCompensationRegister(I2CDevice sensor, int address) throws IOException {
     super(sensor, address);
   }
 

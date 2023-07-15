@@ -14,24 +14,30 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
+package io.mapsmessaging.devices.i2c.devices;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
 
-public class Calib_SRCO_SRCO_Register extends SingleByteRegister {
+public class BufferedRegister extends Register {
 
-  private static final int CALIB_SCRO_SRCO_CALIB_SRCO_DONE_BIT = 7;
+  private final byte[] data;
 
-
-  public Calib_SRCO_SRCO_Register(I2CDevice sensor) throws IOException {
-    super(sensor, 0x3B);
+  protected BufferedRegister(I2CDevice sensor, int address, byte[] data) {
+    super(sensor, address);
+    this.data = data;
   }
 
-  public boolean isSRCOCalibrationSuccessful() throws IOException {
-    reload();
-    return (registerValue & (1 << CALIB_SCRO_SRCO_CALIB_SRCO_DONE_BIT)) != 0;
+  @Override
+  protected void reload() throws IOException {
+    // No Op, since it requires the entire buffer to be updated
   }
+
+  @Override
+  protected void setControlRegister(int mask, int value) throws IOException {
+    data[address] = (byte) ((data[address] & mask) | value);
+    sensor.write(address, data[address]);
+  }
+
 }

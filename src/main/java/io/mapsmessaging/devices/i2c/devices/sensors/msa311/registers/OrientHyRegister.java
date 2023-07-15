@@ -38,7 +38,7 @@ public class OrientHyRegister extends SingleByteRegister {
   }
 
 
-  public OrientHyRegister(I2CDevice sensor) {
+  public OrientHyRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0x2C);
   }
 

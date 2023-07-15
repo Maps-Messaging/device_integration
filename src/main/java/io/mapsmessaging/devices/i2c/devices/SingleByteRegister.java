@@ -24,8 +24,9 @@ public class SingleByteRegister extends Register {
 
   protected byte registerValue;
 
-  public SingleByteRegister(I2CDevice sensor, int address) {
+  public SingleByteRegister(I2CDevice sensor, int address) throws IOException {
     super(sensor, address);
+    reload();
   }
 
   @Override

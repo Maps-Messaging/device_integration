@@ -12,7 +12,7 @@ public class OdrRegister extends SingleByteRegister {
   private static final byte DISABLE_Y_AXIS = 0b01000000;
   private static final byte DISABLE_Z_AXIS = 0b00100000;
 
-  public OdrRegister(I2CDevice sensor) {
+  public OdrRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0x10);
   }
 

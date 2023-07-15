@@ -14,24 +14,24 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
+package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
 
 import java.io.IOException;
 
-public class Calib_SRCO_SRCO_Register extends SingleByteRegister {
-
-  private static final int CALIB_SCRO_SRCO_CALIB_SRCO_DONE_BIT = 7;
-
-
-  public Calib_SRCO_SRCO_Register(I2CDevice sensor) throws IOException {
-    super(sensor, 0x3B);
+public class PressureRegister extends MultiByteRegister {
+  public PressureRegister(I2CDevice sensor) {
+    super(sensor, 0x28 | 0x80, 3);
   }
 
-  public boolean isSRCOCalibrationSuccessful() throws IOException {
+  public float getPressure() throws IOException {
     reload();
-    return (registerValue & (1 << CALIB_SCRO_SRCO_CALIB_SRCO_DONE_BIT)) != 0;
+    int raw = asInt();
+    if ((raw & 0x800000) != 0) {
+      raw = raw - 0xFFFFFF;
+    }
+    return raw / 4096.0f;
   }
 }

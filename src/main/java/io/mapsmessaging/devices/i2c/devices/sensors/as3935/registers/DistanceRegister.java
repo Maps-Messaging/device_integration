@@ -25,7 +25,7 @@ public class DistanceRegister extends SingleByteRegister {
 
   private static final int DISTANCE_EST_BITS = 0;
 
-  public DistanceRegister(I2CDevice sensor) {
+  public DistanceRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0x07);
   }
 

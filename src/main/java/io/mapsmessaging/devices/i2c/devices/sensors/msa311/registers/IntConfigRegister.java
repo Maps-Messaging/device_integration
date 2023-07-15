@@ -26,7 +26,7 @@ public class IntConfigRegister extends SingleByteRegister {
   private static final byte INT1_OD = (byte) 0b00000001;
   private static final byte INT1_LVL = (byte) 0b00000010;
 
-  public IntConfigRegister(I2CDevice sensor) {
+  public IntConfigRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0x20);
   }
 

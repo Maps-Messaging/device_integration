@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class ResetRegister extends SingleByteRegister {
 
-  public ResetRegister(I2CDevice sensor) {
+  public ResetRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0x0);
   }
 

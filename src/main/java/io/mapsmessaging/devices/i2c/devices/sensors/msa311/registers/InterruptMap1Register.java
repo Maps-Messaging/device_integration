@@ -25,7 +25,7 @@ public class InterruptMap1Register extends SingleByteRegister {
 
   private static final byte INT1_NEW_DATA = (byte) 0b00000001;
 
-  public InterruptMap1Register(I2CDevice sensor) {
+  public InterruptMap1Register(I2CDevice sensor) throws IOException {
     super(sensor, 0x1A);
   }
 

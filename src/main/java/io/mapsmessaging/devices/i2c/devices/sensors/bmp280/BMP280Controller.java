@@ -61,7 +61,7 @@ public class BMP280Controller extends I2CDeviceController {
   }
 
 
-  public byte[] getUpdatePayload() {
+  public byte[] getUpdatePayload() throws IOException {
     JSONObject jsonObject = new JSONObject();
     jsonObject.put("pressure", sensor.getPressure());
     jsonObject.put("temperature", sensor.getTemperature());

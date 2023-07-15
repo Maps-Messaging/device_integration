@@ -144,6 +144,6 @@ public class Bh1750Controller extends I2CDeviceController {
         .title(name);
 
     ObjectSchema schema = schemaBuilder.build();
-    return schema.toString();
+    return schemaToString(schema);
   }
 }

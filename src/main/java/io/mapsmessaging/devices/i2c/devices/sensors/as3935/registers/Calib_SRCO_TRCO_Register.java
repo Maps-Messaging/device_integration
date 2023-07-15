@@ -26,7 +26,7 @@ public class Calib_SRCO_TRCO_Register extends SingleByteRegister {
   private static final int CALIB_SRCO_TRCO_CALIB_TRCO_BIT = 6;
   private static final int CALIB_SRCO_TRCO_CALIB_TRCO_DONE_BIT = 7;
 
-  public Calib_SRCO_TRCO_Register(I2CDevice sensor) {
+  public Calib_SRCO_TRCO_Register(I2CDevice sensor) throws IOException {
     super(sensor, 0x3A);
   }
 

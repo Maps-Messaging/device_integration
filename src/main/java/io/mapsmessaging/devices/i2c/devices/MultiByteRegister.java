@@ -41,19 +41,32 @@ public class MultiByteRegister extends Register {
     throw new IOException("Function not supported");
   }
 
-  public int asInt() {
+  protected void write(int val) throws IOException {
+    for (int x = buffer.length - 1; x >= 0; x--) {
+      buffer[x] = (byte) (val & 0xff);
+      val = val >> 8;
+    }
+    sensor.write(address, buffer);
+  }
+
+  protected void write(long val) throws IOException {
+    for (int x = buffer.length - 1; x >= 0; x--) {
+      buffer[x] = (byte) (val & 0xff);
+      val = val >> 8;
+    }
+    sensor.write(address, buffer);
+  }
+
+
+  protected int asInt() {
     return (int) asLong();
   }
 
-  public long asLong() {
+  protected long asLong() {
     long val = 0;
-    boolean first = true;
-    for (byte b : buffer) {
-      val |= b & 0xff;
-      if (!first) {
-        val = val << 8;
-      }
-      first = false;
+    for (int x = buffer.length - 1; x >= 0; x--) {
+      val = val << 8;
+      val |= buffer[x] & 0xff;
     }
     return val;
   }

@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class DataReadyRegister extends SingleByteRegister {
 
-  public DataReadyRegister(I2CDevice sensor) {
+  public DataReadyRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0xA);
   }
 

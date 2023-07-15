@@ -30,7 +30,7 @@ public class InterruptSetRegister extends SingleByteRegister {
   private static final byte ACTIVE_INT_EN_Y = (byte) 0b00000010;
   private static final byte ACTIVE_INT_EN_X = (byte) 0b00000001;
 
-  public InterruptSetRegister(I2CDevice sensor) {
+  public InterruptSetRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0x16);
   }
 

@@ -34,8 +34,6 @@ public class Control1 extends SingleByteRegister {
 
   public Control1(I2CDevice sensor) throws IOException {
     super(sensor, CONTROL_REGISTER1);
-    reload();
-    registerValue = (byte) (registerValue & 0b01111111); // disable the power down flag
   }
 
   public boolean getPowerDownMode() {
@@ -47,7 +45,7 @@ public class Control1 extends SingleByteRegister {
     setControlRegister((byte) ~POWER_DOWN, value);
   }
 
-  public DataRate getDataRate() throws IOException {
+  public DataRate getDataRate() {
     int rateVal = ((registerValue & POWER_RATE) >> 4);
     for (DataRate rate : DataRate.values()) {
       if (rate.getMask() == rateVal) {
@@ -61,7 +59,7 @@ public class Control1 extends SingleByteRegister {
     setControlRegister(~POWER_RATE, (rate.getMask() << 4));
   }
 
-  public boolean isInterruptGenerationEnabled() throws IOException {
+  public boolean isInterruptGenerationEnabled() {
     return (registerValue & INTERRUPT_ENABLE) != 0;
   }
 
@@ -70,7 +68,7 @@ public class Control1 extends SingleByteRegister {
     setControlRegister(~INTERRUPT_ENABLE, value);
   }
 
-  public boolean isBlockUpdateSet() throws IOException {
+  public boolean isBlockUpdateSet() {
     return (registerValue & BLOCK_DATA_UPDATE) != 0;
   }
 

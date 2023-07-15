@@ -27,7 +27,7 @@ public class LightningRegister extends SingleByteRegister {
   private static final int LIGHTNING_REG_MIN_NUM_LIGH_BITS = 4;
   private static final int LIGHTNING_REG_CL_STAT_BIT = 6;
 
-  public LightningRegister(I2CDevice sensor) {
+  public LightningRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0x02);
   }
 

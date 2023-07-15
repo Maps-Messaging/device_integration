@@ -26,7 +26,7 @@ public class InterruptSet1Register extends SingleByteRegister {
   private static final byte NEW_DATA_INT_EN = (byte) 0b10000;
   private static final byte FREEFALL_INT_EN = (byte) 0b01000;
 
-  public InterruptSet1Register(I2CDevice sensor) {
+  public InterruptSet1Register(I2CDevice sensor) throws IOException {
     super(sensor, 0x17);
   }
 

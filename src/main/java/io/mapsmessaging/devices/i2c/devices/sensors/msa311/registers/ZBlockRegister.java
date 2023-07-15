@@ -26,7 +26,7 @@ public class ZBlockRegister extends SingleByteRegister {
   private static final byte Z_BLOCKING_MASK = (byte) 0b00001111;
   private static final float Z_BLOCKING_LSB = 0.0625f; // 1LSB is 0.0625g
 
-  public ZBlockRegister(I2CDevice sensor) {
+  public ZBlockRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0x2D);
   }
 
