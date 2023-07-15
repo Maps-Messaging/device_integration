@@ -19,22 +19,37 @@ package io.mapsmessaging.devices.i2c.devices.sensors.bno055;
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.sensors.bno055.registers.CalibrationStatusRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.bno055.registers.ErrorStatusRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.bno055.registers.SystemStatusRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.bno055.values.CalibrationStatus;
+import io.mapsmessaging.devices.i2c.devices.sensors.bno055.values.SystemErrorStatus;
+import io.mapsmessaging.devices.i2c.devices.sensors.bno055.values.SystemStatus;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.List;
 
 public class BNO055Sensor extends I2CDevice implements Sensor {
 
   private final float[] myEuler = new float[3];
   private long lastRead;
+
+  private final CalibrationStatusRegister calibrationStatusRegister;
+  private final SystemStatusRegister systemStatusRegister;
+  private final ErrorStatusRegister errorStatusRegister;
+
   @Getter
   private String version;
 
   public BNO055Sensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(BNO055Sensor.class));
     initialise();
+    calibrationStatusRegister = new CalibrationStatusRegister(this);
+    systemStatusRegister = new SystemStatusRegister(this);
+    errorStatusRegister = new ErrorStatusRegister(this);
   }
 
   public static int getId(I2C device) {
@@ -85,8 +100,25 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
     delay(30);
   }
 
-  public CalibrationStatus getCalibrationStatus() throws IOException {
-    return new CalibrationStatus(readRegister(BNO055Constants.BNO055_CALIB_STAT_ADDR));
+
+  public boolean isSystemCalibration() throws IOException {
+    return calibrationStatusRegister.isCalibrated();
+  }
+
+  public CalibrationStatus getSystemCalibration() throws IOException {
+    return calibrationStatusRegister.getSystem();
+  }
+
+  public CalibrationStatus getGryoscopeCalibration() throws IOException {
+    return calibrationStatusRegister.getGryoscope();
+  }
+
+  public CalibrationStatus getAccelerometerCalibration() throws IOException {
+    return calibrationStatusRegister.getAccelerometer();
+  }
+
+  public CalibrationStatus getMagnetometerCalibration() throws IOException {
+    return calibrationStatusRegister.getMagnetometer();
   }
 
   public float[] readEuler() throws IOException {
@@ -167,7 +199,11 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
     return ret;
   }
 
-  public SystemStatus getStatus(boolean selfTest) throws IOException {
+  public SystemErrorStatus getErrorStatus() throws IOException {
+    return errorStatusRegister.getErrorStatus();
+  }
+
+  public List<SystemStatus> getStatus(boolean selfTest) throws IOException {
     int results = 0x0f;
     if (selfTest) {
       setConfigMode();
@@ -177,9 +213,10 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
       results = readRegister(BNO055Constants.BNO055_SELFTEST_RESULT_ADDR);
       setOperationalMode();
     }
-    int status = readRegister(BNO055Constants.BNO055_SYS_STAT_ADDR);
-    int error = readRegister(BNO055Constants.BNO055_SYS_ERR_ADDR);
-    return new SystemStatus(status, results, error);
+    return systemStatusRegister.getStatus();
+//    int status = readRegister(BNO055Constants.BNO055_SYS_STAT_ADDR);
+//    int error = readRegister(BNO055Constants.BNO055_SYS_ERR_ADDR);
+//    return new SystemStatusError(status, results, error);
   }
 
   public String computeVersion() throws IOException {
@@ -191,10 +228,10 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
     int swMsb = readRegister(BNO055Constants.BNO055_SW_REV_ID_MSB_ADDR);
     JSONObject versionObject = new JSONObject();
     versionObject.put("software", Float.parseFloat(swMsb + "." + swLsb));
-    versionObject.put("bootLoader", bl);
-    versionObject.put("accelerometer", accel);
-    versionObject.put("magnetometer", mag);
-    versionObject.put("gyroscope", gyro);
+    versionObject.put("bootLoader", Integer.toHexString(bl));
+    versionObject.put("accelerometer", Integer.toHexString(accel));
+    versionObject.put("magnetometer", Integer.toHexString(mag));
+    versionObject.put("gyroscope", Integer.toHexString(gyro));
     return versionObject.toString(2);
   }
 

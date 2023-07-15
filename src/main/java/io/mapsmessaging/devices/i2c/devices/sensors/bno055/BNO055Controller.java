@@ -19,9 +19,11 @@ package io.mapsmessaging.devices.i2c.devices.sensors.bno055;
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
+import io.mapsmessaging.devices.i2c.devices.sensors.bno055.values.SystemStatus;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -75,24 +77,20 @@ public class BNO055Controller extends I2CDeviceController {
   public byte[] getStaticPayload() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
-      CalibrationStatus status = sensor.getCalibrationStatus();
       JSONObject callibrationStatus = new JSONObject();
-      callibrationStatus.put("accelerometer", status.getAccelerometer());
-      callibrationStatus.put("magnetometer", status.getMagnetometer());
-      callibrationStatus.put("system", status.getSystem());
-      callibrationStatus.put("gyroscope", status.getGryoscope());
-      SystemStatus system = sensor.getStatus(false);
-      JSONObject systemStatus = new JSONObject();
-      systemStatus.put("error", system.getErrorString());
-      systemStatus.put("state", system.getStateString());
-      systemStatus.put("selfTestGyroscope", system.selfTestGyroscope());
-      systemStatus.put("selfTestMagnetometer", system.selfTestMagnetometer());
-      systemStatus.put("selfTestAccelerometer", system.selfTestAccelerometer());
-      systemStatus.put("selfTestMCU", system.selfTestMCU());
-      jsonObject.put("isCalibrated", status.isCalibrated());
+      callibrationStatus.put("isCalibrated", sensor.isSystemCalibration());
+      callibrationStatus.put("accelerometer", sensor.getAccelerometerCalibration().name());
+      callibrationStatus.put("magnetometer", sensor.getMagnetometerCalibration().name());
+      callibrationStatus.put("system", sensor.getSystemCalibration().name());
+      callibrationStatus.put("gyroscope", sensor.getGryoscopeCalibration().name());
+      JSONArray statusArray = new JSONArray();
+      for (SystemStatus status : sensor.getStatus(false)) {
+        statusArray.put(status.getDescription());
+      }
+      jsonObject.put("systemStatus", statusArray);
+      jsonObject.put("errorStatus", sensor.getErrorStatus().getDescription());
       jsonObject.put("version", new JSONObject(sensor.getVersion()));
       jsonObject.put("calibrationStatus", callibrationStatus);
-      jsonObject.put("systemStatus", systemStatus);
     }
     return jsonObject.toString(2).getBytes();
   }

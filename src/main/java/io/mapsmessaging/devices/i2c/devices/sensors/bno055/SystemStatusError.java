@@ -16,7 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.bno055;
 
-public class SystemStatus {
+public class SystemStatusError {
 
   private final String[] StateString = {
       "Idle",
@@ -47,7 +47,7 @@ public class SystemStatus {
   private final int selftest;
   private final int error;
 
-  protected SystemStatus(int system, int selfTest, int error) {
+  protected SystemStatusError(int system, int selfTest, int error) {
     this.system = system;
     selftest = selfTest;
     this.error = error;
