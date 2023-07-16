@@ -62,6 +62,10 @@ public abstract class Register {
     }
   }
 
+  protected String displayRegister(int add, int val) {
+    return getName() + "\t" + "0x" + Integer.toHexString(add) + " :: " + toBinary(val & 0xff);
+  }
+
   protected String toBinary(int value) {
     return String.format("%8s", Integer.toBinaryString(value & 0xFF)).replace(' ', '0');
   }

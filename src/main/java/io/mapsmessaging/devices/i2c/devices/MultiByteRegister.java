@@ -82,9 +82,10 @@ public class MultiByteRegister extends Register {
     StringBuilder stringBuilder = new StringBuilder();
     int c = 0;
     for (byte b : buffer) {
-      stringBuilder.append("0x" + Integer.toHexString(address + c)).append(":");
-      stringBuilder.append((toBinary(b & 0xff))).append(", ");
+      if (c != 0) stringBuilder.append("\t");
+      stringBuilder.append(displayRegister(address + c, b));
       c++;
+      if (c < buffer.length) stringBuilder.append("\n");
     }
     return stringBuilder.toString();
   }

@@ -47,6 +47,6 @@ public class BufferedRegister extends Register {
     } catch (IOException e) {
 
     }
-    return "0x" + Integer.toHexString(address) + " :: " + toBinary(data[address] & 0xff);
+    return displayRegister(address, data[address]);
   }
 }

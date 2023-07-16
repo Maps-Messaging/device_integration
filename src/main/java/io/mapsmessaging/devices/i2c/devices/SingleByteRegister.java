@@ -46,6 +46,6 @@ public class SingleByteRegister extends Register {
     } catch (IOException e) {
 
     }
-    return "0x" + Integer.toHexString(address) + " :: " + toBinary(registerValue & 0xff);
+    return displayRegister(address, registerValue);
   }
 }
