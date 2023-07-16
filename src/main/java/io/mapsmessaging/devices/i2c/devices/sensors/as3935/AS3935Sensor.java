@@ -235,20 +235,6 @@ public class AS3935Sensor extends I2CDevice implements PowerManagement, Sensor {
 
   @Override
   public String toString() {
-    String sb = null;
-    try {
-      sb = "AS3935 Sensor Registers:\n" +
-          "AFE_GAIN: Power-Down = " + isAFE_PowerDown() + ", Gain Boost = " + getAFE_GainBoost() + "\n" +
-          "THRESHOLD: Watchdog Threshold = " + getWatchdogThreshold() + ", Noise Floor Level = " + getNoiseFloorLevel() + "\n" +
-          "LIGHTNING_REG: Spike Rejection = " + getSpikeRejection() + ", Min Num Lightning = " + getMinNumLightning() + ", Clear Statistics = " + isClearStatisticsEnabled() + "\n" +
-          "ENERGY: Energy = " + getEnergy() + ", Mask Disturber = " + isMaskDisturberEnabled() + ", Energy Div Ratio = " + getEnergyDivRatio() + "\n" +
-          "DISTANCE: Distance Estimation = " + getDistanceEstimation() + "\n" +
-          "TUN_CAP: Tuning Cap = " + getTuningCap() + ", Disp TRCO = " + isDispTRCOEnabled() + ", Disp SRCO = " + isDispSRCOEnabled() + "\n" +
-          "CALIB_SRCO_TRCO: TRCO Calibration Successful = " + isTRCOCalibrationSuccessful() + "\n" +
-          "CALIB_SCRO_SRCO: SRCO Calibration Successful = " + isSRCOCalibrationSuccessful() + "\n";
-    } catch (IOException e) {
-      return "Error!!!";
-    }
-    return sb;
+    return registerMap.toString();
   }
 }

@@ -53,19 +53,9 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
     whoAmIRegister = new WhoAmIRegister(this, registerMap);
   }
 
+  @Override
   public String toString() {
-    return "Control1:" + control1.toString()
-        + " Control2:" + control2.toString()
-        + " Control3:" + control3.toString()
-        + " Control4:" + control4.toString()
-        + " fifo:" + fiFoControl.toString()
-        + " status:" + statusRegister.toString()
-        + " int Ctl:" + interruptControl.toString()
-        + " int src:" + interruptSource.toString()
-        + " FiFo Status: " + fiFoStatusRegister.toString()
-        + " pressure:" + pressureRegister.toString()
-        + " temperature:" + temperatureRegister.toString()
-        + " pressure Ref: " + referencePressureRegister.toString();
+    return registerMap.toString();
   }
 
   @Override

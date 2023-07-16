@@ -175,12 +175,18 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
   }
 
   @Override
-  public void reset()  throws IOException{
+  public void reset() throws IOException {
 
   }
 
   @Override
-  public void softReset()  throws IOException{
+  public void softReset() throws IOException {
 
   }
+
+  @Override
+  public String toString() {
+    return registerMap.toString();
+  }
+
 }
