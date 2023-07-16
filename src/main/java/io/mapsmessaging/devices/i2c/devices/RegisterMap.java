@@ -30,6 +30,10 @@ public class RegisterMap {
   }
 
   public void addRegister(Register register) {
+    if (registerMap.containsKey(register.getAddress())) {
+      Register existing = registerMap.get(register.getAddress());
+      throw new RuntimeException("Register address collision for address " + register.getAddress() + " Existing:" + existing.name + " New:" + register.name);
+    }
     registerMap.put(register.getAddress(), register);
   }
 

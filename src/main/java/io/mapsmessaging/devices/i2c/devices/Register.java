@@ -31,6 +31,7 @@ public abstract class Register {
   @Getter
   protected final String name;
 
+  @Getter
   protected final RegisterMap registerMap;
 
   protected Register(I2CDevice sensor, int address, String name, RegisterMap registerMap) {
@@ -38,6 +39,7 @@ public abstract class Register {
     this.sensor = sensor;
     this.name = name;
     this.registerMap = registerMap;
+    registerMap.addRegister(this);
   }
 
   protected abstract void reload() throws IOException;
