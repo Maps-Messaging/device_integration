@@ -1,14 +1,15 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
 
 public class AxisRegister extends SingleByteRegister {
 
-  public AxisRegister(I2CDevice sensor, int startAddress) throws IOException {
-    super(sensor, startAddress);
+  public AxisRegister(I2CDevice sensor, int startAddress, RegisterMap registerMap) throws IOException {
+    super(sensor, startAddress, "Axis", registerMap);
   }
 
   public float getValue() throws IOException {

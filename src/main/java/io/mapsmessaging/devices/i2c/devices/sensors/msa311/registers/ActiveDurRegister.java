@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
@@ -25,8 +26,8 @@ public class ActiveDurRegister extends SingleByteRegister {
 
   private static final byte DURATION_MASK = 0b00000011;
 
-  public ActiveDurRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0x27);
+  public ActiveDurRegister(I2CDevice sensor, RegisterMap registerMap) throws IOException {
+    super(sensor, 0x27, "Active Duration", registerMap);
   }
 
   public int getDuration() throws IOException {

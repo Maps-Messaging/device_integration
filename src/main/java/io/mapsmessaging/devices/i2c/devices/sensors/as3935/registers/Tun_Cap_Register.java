@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
@@ -27,8 +28,8 @@ public class Tun_Cap_Register extends SingleByteRegister {
   private static final int TUN_CAP_DISP_TRCO_BIT = 6;
   private static final int TUN_CAP_DISP_SRCO_BIT = 7;
 
-  public Tun_Cap_Register(I2CDevice sensor) throws IOException {
-    super(sensor, 0x08);
+  public Tun_Cap_Register(I2CDevice sensor, RegisterMap registerMap) throws IOException {
+    super(sensor, 0x08, "Tune Capacitor", registerMap);
   }
 
   public int getTuningCap() throws IOException {

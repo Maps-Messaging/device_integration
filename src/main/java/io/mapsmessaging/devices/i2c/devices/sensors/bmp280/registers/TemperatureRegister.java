@@ -18,13 +18,14 @@ package io.mapsmessaging.devices.i2c.devices.sensors.bmp280.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
+import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 
 import java.io.IOException;
 
 public class TemperatureRegister extends MultiByteRegister {
 
-  public TemperatureRegister(I2CDevice sensor) {
-    super(sensor, 0xFA, 3);
+  public TemperatureRegister(I2CDevice sensor, RegisterMap registerMap) {
+    super(sensor, 0xFA, 3, "Temperature", registerMap);
   }
 
   public double getRawTemperature() throws IOException {

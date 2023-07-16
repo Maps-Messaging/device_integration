@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.TapDuration;
 
@@ -27,8 +28,8 @@ public class TapDurRegister extends SingleByteRegister {
   private static final byte TAP_SHOCK_MASK = (byte) 0b01000000;
   private static final byte TAP_DUR_MASK = (byte) 0b00000111;
 
-  public TapDurRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0x2A);
+  public TapDurRegister(I2CDevice sensor, RegisterMap registerMap) throws IOException {
+    super(sensor, 0x2A, "Tap Duration", registerMap);
   }
 
   public boolean getTapQuiet() throws IOException {

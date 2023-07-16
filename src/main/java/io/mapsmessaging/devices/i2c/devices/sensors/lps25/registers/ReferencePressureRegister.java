@@ -18,14 +18,15 @@ package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
+import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 
 import java.io.IOException;
 
 public class ReferencePressureRegister extends MultiByteRegister {
 
 
-  public ReferencePressureRegister(I2CDevice sensor) {
-    super(sensor, 0x08 | 0x80, 3);
+  public ReferencePressureRegister(I2CDevice sensor, RegisterMap registerMap) {
+    super(sensor, 0x08 | 0x80, 3, "Reference Pressure", registerMap);
   }
 
   public void setReference(int val) throws IOException {

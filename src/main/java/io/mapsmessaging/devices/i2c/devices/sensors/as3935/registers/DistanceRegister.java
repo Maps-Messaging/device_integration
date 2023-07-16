@@ -17,16 +17,15 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
 
 public class DistanceRegister extends SingleByteRegister {
 
-  private static final int DISTANCE_EST_BITS = 0;
-
-  public DistanceRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0x07);
+  public DistanceRegister(I2CDevice sensor, RegisterMap registerMap) throws IOException {
+    super(sensor, 0x07, "Distance", registerMap);
   }
 
   public int getDistanceEstimation() throws IOException {

@@ -1,6 +1,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.InterruptSource;
 
@@ -17,8 +18,8 @@ public class InterruptSourceRegister extends SingleByteRegister {
   private static final byte PRESSURE_HIGH = 0b00000001;
 
 
-  public InterruptSourceRegister(I2CDevice sensor) throws IOException {
-    super(sensor, INTERRUPT_SOURCE);
+  public InterruptSourceRegister(I2CDevice sensor, RegisterMap registerMap) throws IOException {
+    super(sensor, INTERRUPT_SOURCE, "Interrupt Source", registerMap);
     reload();
   }
 

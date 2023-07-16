@@ -4,6 +4,7 @@ import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.Resetable;
 import io.mapsmessaging.devices.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers.*;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.*;
 import io.mapsmessaging.logging.LoggerFactory;
@@ -17,7 +18,7 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
     return device.readRegister(WHO_AM_I);
   }
 
-
+  private final RegisterMap registerMap;
   private final Control1 control1;
   private final Control2 control2;
   private final Control3 control3;
@@ -35,20 +36,21 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
 
   public Lps25Sensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(Lps25Sensor.class));
-    control1 = new Control1(this);
-    control2 = new Control2(this);
-    control3 = new Control3(this);
-    control4 = new Control4(this);
-    interruptSource = new InterruptSourceRegister(this);
-    interruptControl = new InterruptControl(this);
-    fiFoControl = new FiFoControl(this);
-    statusRegister = new StatusRegister(this);
-    temperatureRegister = new TemperatureRegister(this);
-    pressureRegister = new PressureRegister(this);
-    referencePressureRegister = new ReferencePressureRegister(this);
-    fiFoStatusRegister = new FiFoStatusRegister(this);
-    thresholdPressureRegister = new ThresholdPressureRegister(this);
-    whoAmIRegister = new WhoAmIRegister(this);
+    registerMap = new RegisterMap();
+    control1 = new Control1(this, registerMap);
+    control2 = new Control2(this, registerMap);
+    control3 = new Control3(this, registerMap);
+    control4 = new Control4(this, registerMap);
+    interruptSource = new InterruptSourceRegister(this, registerMap);
+    interruptControl = new InterruptControl(this, registerMap);
+    fiFoControl = new FiFoControl(this, registerMap);
+    statusRegister = new StatusRegister(this, registerMap);
+    temperatureRegister = new TemperatureRegister(this, registerMap);
+    pressureRegister = new PressureRegister(this, registerMap);
+    referencePressureRegister = new ReferencePressureRegister(this, registerMap);
+    fiFoStatusRegister = new FiFoStatusRegister(this, registerMap);
+    thresholdPressureRegister = new ThresholdPressureRegister(this, registerMap);
+    whoAmIRegister = new WhoAmIRegister(this, registerMap);
   }
 
   public String toString() {

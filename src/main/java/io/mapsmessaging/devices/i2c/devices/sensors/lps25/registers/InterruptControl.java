@@ -1,6 +1,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
@@ -13,8 +14,8 @@ public class InterruptControl extends SingleByteRegister {
   private static final byte HIGH_INTERRUPT_ENABLE = 0b00000001;
 
 
-  public InterruptControl(I2CDevice sensor) throws IOException {
-    super(sensor, INTERRUPT_CONTROL);
+  public InterruptControl(I2CDevice sensor, RegisterMap registerMap) throws IOException {
+    super(sensor, INTERRUPT_CONTROL, "Interrupt Control", registerMap);
     reload();
   }
 

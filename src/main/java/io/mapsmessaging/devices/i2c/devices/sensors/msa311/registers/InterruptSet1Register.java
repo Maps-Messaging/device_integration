@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
@@ -26,8 +27,8 @@ public class InterruptSet1Register extends SingleByteRegister {
   private static final byte NEW_DATA_INT_EN = (byte) 0b10000;
   private static final byte FREEFALL_INT_EN = (byte) 0b01000;
 
-  public InterruptSet1Register(I2CDevice sensor) throws IOException {
-    super(sensor, 0x17);
+  public InterruptSet1Register(I2CDevice sensor, RegisterMap registerMap) throws IOException {
+    super(sensor, 0x17, "Interrupt Set 1", registerMap);
   }
 
   public void setNewDataInterruptEnabled(boolean enabled) throws IOException {

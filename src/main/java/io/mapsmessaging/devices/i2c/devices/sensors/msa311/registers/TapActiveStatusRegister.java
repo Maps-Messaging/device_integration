@@ -1,6 +1,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.TapActiveStatus;
 
@@ -10,8 +11,8 @@ import java.util.List;
 
 public class TapActiveStatusRegister extends SingleByteRegister {
 
-  public TapActiveStatusRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0xb);
+  public TapActiveStatusRegister(I2CDevice sensor, RegisterMap registerMap) throws IOException {
+    super(sensor, 0xb, "Tap Active Status", registerMap);
   }
 
   public List<TapActiveStatus> getTapActiveStatus() throws IOException {

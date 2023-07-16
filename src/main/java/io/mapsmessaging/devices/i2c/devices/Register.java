@@ -17,17 +17,27 @@
 package io.mapsmessaging.devices.i2c.devices;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import lombok.Getter;
 
 import java.io.IOException;
 
 public abstract class Register {
 
   protected final I2CDevice sensor;
+
+  @Getter
   protected final int address;
 
-  protected Register(I2CDevice sensor, int address) {
+  @Getter
+  protected final String name;
+
+  protected final RegisterMap registerMap;
+
+  protected Register(I2CDevice sensor, int address, String name, RegisterMap registerMap) {
     this.address = address;
     this.sensor = sensor;
+    this.name = name;
+    this.registerMap = registerMap;
   }
 
   protected abstract void reload() throws IOException;

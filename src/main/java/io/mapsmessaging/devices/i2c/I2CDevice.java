@@ -29,7 +29,7 @@ import static io.mapsmessaging.devices.logging.DeviceLogMessage.*;
 public abstract class I2CDevice implements Device, AutoCloseable {
 
   protected final Logger logger;
-  protected I2C device;
+  protected final I2C device;
 
   protected I2CDevice(I2C device, Logger logger) {
     this.device = device;

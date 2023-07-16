@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
@@ -26,8 +27,8 @@ public class Lightning_Strike_Register extends SingleByteRegister {
   private static final int LIGHTNING_STRIKE_LSB_ADDR = 0x05;
   private static final int LIGHTNING_STRIKE_BITS_0_TO_4_ADDR = 0x06;
 
-  public Lightning_Strike_Register(I2CDevice sensor) throws IOException {
-    super(sensor, 0x04);
+  public Lightning_Strike_Register(I2CDevice sensor, RegisterMap registerMap) throws IOException {
+    super(sensor, 0x04, "Lightning Strike", registerMap);
   }
 
   public int getEnergy() throws IOException {

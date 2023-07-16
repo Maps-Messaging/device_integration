@@ -18,12 +18,13 @@ package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
+import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 
 import java.io.IOException;
 
 public class TemperatureRegister extends MultiByteRegister {
-  public TemperatureRegister(I2CDevice sensor) {
-    super(sensor, 0x2B | 0x80, 2);
+  public TemperatureRegister(I2CDevice sensor, RegisterMap registerMap) {
+    super(sensor, 0x2B | 0x80, 2, "Temperature", registerMap);
   }
 
   public float getTemperature() throws IOException {

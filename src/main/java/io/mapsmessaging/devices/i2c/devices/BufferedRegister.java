@@ -24,8 +24,8 @@ public class BufferedRegister extends Register {
 
   private final byte[] data;
 
-  protected BufferedRegister(I2CDevice sensor, int address, byte[] data) {
-    super(sensor, address);
+  protected BufferedRegister(I2CDevice sensor, int address, byte[] data, String name, RegisterMap registerMap) {
+    super(sensor, address, name, registerMap);
     this.data = data;
   }
 

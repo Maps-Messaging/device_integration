@@ -26,8 +26,8 @@ public class MultiByteRegister extends Register {
   @Getter
   private final byte[] buffer;
 
-  public MultiByteRegister(I2CDevice sensor, int address, int size) {
-    super(sensor, address);
+  public MultiByteRegister(I2CDevice sensor, int address, int size, String name, RegisterMap registerMap) {
+    super(sensor, address, name, registerMap);
     buffer = new byte[size];
   }
 

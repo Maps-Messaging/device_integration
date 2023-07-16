@@ -1,6 +1,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.LowPowerBandwidth;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.PowerMode;
@@ -9,8 +10,8 @@ import java.io.IOException;
 
 public class PowerModeRegister extends SingleByteRegister {
 
-  public PowerModeRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0x11);
+  public PowerModeRegister(I2CDevice sensor, RegisterMap registerMap) throws IOException {
+    super(sensor, 0x11, "Power Mode", registerMap);
   }
 
   public LowPowerBandwidth getLowPowerBandwidth() throws IOException {

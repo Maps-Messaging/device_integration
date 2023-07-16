@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
@@ -26,8 +27,8 @@ public class AfeRegister extends SingleByteRegister {
   private static final byte AFE_GAIN_PD_BIT = 0;
   private static final byte AFE_GAIN_BOOST_BITS = 1;
 
-  public AfeRegister(I2CDevice sensor) throws IOException {
-    super(sensor, AFE_GAIN_ADDR);
+  public AfeRegister(I2CDevice sensor, RegisterMap registerMap) throws IOException {
+    super(sensor, AFE_GAIN_ADDR, "AFE Gain", registerMap);
     reload();
   }
 

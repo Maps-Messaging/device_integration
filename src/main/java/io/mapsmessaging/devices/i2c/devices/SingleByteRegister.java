@@ -24,8 +24,8 @@ public class SingleByteRegister extends Register {
 
   protected byte registerValue;
 
-  public SingleByteRegister(I2CDevice sensor, int address) throws IOException {
-    super(sensor, address);
+  public SingleByteRegister(I2CDevice sensor, int address, String name, RegisterMap registerMap) throws IOException {
+    super(sensor, address, name, registerMap);
     reload();
   }
 

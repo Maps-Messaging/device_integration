@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.Latch;
 
@@ -27,8 +28,8 @@ public class IntLatchRegister extends SingleByteRegister {
   private static final byte LATCH_MASK = (byte) 0b00001111;
   private static final byte RESET_FLAG = (byte) 0b10000000;
 
-  public IntLatchRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0x21);
+  public IntLatchRegister(I2CDevice sensor, RegisterMap registerMap) throws IOException {
+    super(sensor, 0x21, "Interrupt Latch", registerMap);
   }
 
   public Latch getLatch() throws IOException {

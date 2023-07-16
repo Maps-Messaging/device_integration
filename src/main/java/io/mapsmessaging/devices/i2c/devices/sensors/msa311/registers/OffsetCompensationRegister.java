@@ -17,14 +17,15 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
 
 public class OffsetCompensationRegister extends SingleByteRegister {
 
-  public OffsetCompensationRegister(I2CDevice sensor, int address) throws IOException {
-    super(sensor, address);
+  public OffsetCompensationRegister(I2CDevice sensor, int address, String name, RegisterMap registerMap) throws IOException {
+    super(sensor, address, name, registerMap);
   }
 
   public int getOffset() throws IOException {

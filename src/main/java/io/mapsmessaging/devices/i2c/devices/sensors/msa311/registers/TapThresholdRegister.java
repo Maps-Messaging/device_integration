@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.Range;
 import lombok.Getter;
@@ -26,8 +27,8 @@ import java.io.IOException;
 public class TapThresholdRegister extends SingleByteRegister {
   private static final byte TAP_TH_MASK = (byte) 0b00011111;
 
-  public TapThresholdRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0x2B);
+  public TapThresholdRegister(I2CDevice sensor, RegisterMap registerMap) throws IOException {
+    super(sensor, 0x2B, "Tap Threshold", registerMap);
   }
 
   public TapThreshold getTapThreshold(Range range) throws IOException {

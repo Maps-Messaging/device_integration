@@ -19,6 +19,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.bno055;
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.sensors.bno055.registers.CalibrationStatusRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.bno055.registers.ErrorStatusRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.bno055.registers.SystemStatusRegister;
@@ -37,6 +38,8 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
   private final float[] myEuler = new float[3];
   private long lastRead;
 
+  private final RegisterMap registerMap;
+
   private final CalibrationStatusRegister calibrationStatusRegister;
   private final SystemStatusRegister systemStatusRegister;
   private final ErrorStatusRegister errorStatusRegister;
@@ -46,10 +49,11 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
 
   public BNO055Sensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(BNO055Sensor.class));
+    registerMap = new RegisterMap();
+    calibrationStatusRegister = new CalibrationStatusRegister(this, registerMap);
+    systemStatusRegister = new SystemStatusRegister(this, registerMap);
+    errorStatusRegister = new ErrorStatusRegister(this, registerMap);
     initialise();
-    calibrationStatusRegister = new CalibrationStatusRegister(this);
-    systemStatusRegister = new SystemStatusRegister(this);
-    errorStatusRegister = new ErrorStatusRegister(this);
   }
 
   public static int getId(I2C device) {

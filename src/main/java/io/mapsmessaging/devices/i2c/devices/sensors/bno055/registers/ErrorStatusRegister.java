@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.bno055.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.bno055.values.SystemErrorStatus;
 
@@ -24,8 +25,8 @@ import java.io.IOException;
 
 public class ErrorStatusRegister extends SingleByteRegister {
 
-  public ErrorStatusRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0X3A);
+  public ErrorStatusRegister(I2CDevice sensor, RegisterMap registerMap) throws IOException {
+    super(sensor, 0X3A, "Error Status", registerMap);
   }
 
   public SystemErrorStatus getErrorStatus() throws IOException {
