@@ -70,4 +70,22 @@ public class MultiByteRegister extends Register {
     }
     return val;
   }
+
+
+  @Override
+  public String toString() {
+    try {
+      reload();
+    } catch (IOException e) {
+
+    }
+    StringBuilder stringBuilder = new StringBuilder();
+    int c = 0;
+    for (byte b : buffer) {
+      stringBuilder.append("0x" + Integer.toHexString(address + c)).append(":");
+      stringBuilder.append((toBinary(b & 0xff))).append(", ");
+      c++;
+    }
+    return stringBuilder.toString();
+  }
 }

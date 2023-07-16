@@ -40,4 +40,13 @@ public class BufferedRegister extends Register {
     sensor.write(address, data[address]);
   }
 
+  @Override
+  public String toString() {
+    try {
+      reload();
+    } catch (IOException e) {
+
+    }
+    return "0x" + Integer.toHexString(address) + " :: " + toBinary(data[address] & 0xff);
+  }
 }

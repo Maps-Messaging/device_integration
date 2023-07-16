@@ -55,7 +55,7 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
 
   @Override
   public String toString() {
-    return registerMap.toString();
+    return getName() + "\n" + getDescription() + "\n" + registerMap.toString();
   }
 
   @Override

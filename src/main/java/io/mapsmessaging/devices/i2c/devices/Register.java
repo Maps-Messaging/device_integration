@@ -61,4 +61,8 @@ public abstract class Register {
       count++;
     }
   }
+
+  protected String toBinary(int value) {
+    return String.format("%8s", Integer.toBinaryString(value & 0xFF)).replace(' ', '0');
+  }
 }
