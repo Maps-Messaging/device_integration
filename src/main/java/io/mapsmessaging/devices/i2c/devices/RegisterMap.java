@@ -39,7 +39,7 @@ public class RegisterMap {
     addressList.sort(Integer::compareTo);
     for (Integer address : addressList) {
       Register register = registerMap.get(address);
-      stringBuilder.append(register.getName()).append("::").append(register);
+      stringBuilder.append("\t").append(register.getName()).append("::").append(register).append("\n");
     }
     return stringBuilder.toString();
   }
