@@ -15,7 +15,7 @@ public class InterruptControl extends SingleByteRegister {
 
 
   public InterruptControl(I2CDevice sensor, RegisterMap registerMap) throws IOException {
-    super(sensor, INTERRUPT_CONTROL, "Interrupt Control", registerMap);
+    super(sensor, INTERRUPT_CONTROL, "INTERRUPT_CFG", registerMap);
     reload();
   }
 

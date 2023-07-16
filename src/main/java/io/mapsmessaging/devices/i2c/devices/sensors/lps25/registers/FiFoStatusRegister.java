@@ -26,7 +26,7 @@ import java.io.IOException;
 public class FiFoStatusRegister extends SingleByteRegister {
 
   public FiFoStatusRegister(I2CDevice sensor, RegisterMap registerMap) throws IOException {
-    super(sensor, 0x2F, "FiFo Status", registerMap);
+    super(sensor, 0x2F, "FIFO_STATUS", registerMap);
   }
 
   public FiFoStatus getFiFoStatus() throws IOException {

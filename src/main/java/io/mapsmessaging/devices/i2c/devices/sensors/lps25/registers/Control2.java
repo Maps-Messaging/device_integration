@@ -36,7 +36,7 @@ public class Control2 extends SingleByteRegister {
 
 
   public Control2(I2CDevice sensor, RegisterMap registerMap) throws IOException {
-    super(sensor, CONTROL_REGISTER2, "Control-2", registerMap);
+    super(sensor, CONTROL_REGISTER2, "CTRL_REG2", registerMap);
     reload();
   }
 

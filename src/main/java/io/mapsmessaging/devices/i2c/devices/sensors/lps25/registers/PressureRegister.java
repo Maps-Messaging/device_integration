@@ -24,7 +24,7 @@ import java.io.IOException;
 
 public class PressureRegister extends MultiByteRegister {
   public PressureRegister(I2CDevice sensor, RegisterMap registerMap) {
-    super(sensor, 0x28 | 0x80, 3, "Pressure", registerMap);
+    super(sensor, 0x28 | 0x80, 3, "PRESS_OUT", registerMap);
   }
 
   public float getPressure() throws IOException {

@@ -22,18 +22,19 @@ import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 
 import java.io.IOException;
 
-public class ThresholdPressureRegister extends MultiByteRegister {
+public class PressureOffset extends MultiByteRegister {
 
-  public ThresholdPressureRegister(I2CDevice sensor, RegisterMap registerMap) {
-    super(sensor, 0x30 | 0x80, 2, "THS_P", registerMap);
+  public PressureOffset(I2CDevice sensor, RegisterMap registerMap) {
+    super(sensor, 0x39 | 0x80, 2, "RPDS", registerMap);
   }
 
-  public void setThreshold(float value) throws IOException {
-    int val = Math.round(value * 16);
-    write(val);
+  public int getPressureOffset() throws IOException {
+    reload();
+    return asInt();
   }
 
-  public float getThreshold() {
-    return asInt() / 16.0f;
+  public void setPressureOffset(int val) throws IOException {
+    super.write(val);
   }
+
 }

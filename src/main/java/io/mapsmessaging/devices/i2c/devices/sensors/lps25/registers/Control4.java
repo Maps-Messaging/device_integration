@@ -32,7 +32,7 @@ public class Control4 extends SingleByteRegister {
   private static final byte DATA_READY = 0b00000001;
 
   public Control4(I2CDevice sensor, RegisterMap registerMap) throws IOException {
-    super(sensor, CONTROL_REGISTER4, "Control-4", registerMap);
+    super(sensor, CONTROL_REGISTER4, "CTRL_REG4", registerMap);
     reload();
   }
 

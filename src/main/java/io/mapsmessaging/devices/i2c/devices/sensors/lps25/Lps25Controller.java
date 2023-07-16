@@ -72,6 +72,7 @@ public class Lps25Controller extends I2CDeviceController {
   public byte[] getUpdatePayload() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
+      System.err.println(sensor.toString());
       jsonObject.put("temperature", sensor.getTemperature());
       jsonObject.put("pressure", sensor.getPressure());
     }

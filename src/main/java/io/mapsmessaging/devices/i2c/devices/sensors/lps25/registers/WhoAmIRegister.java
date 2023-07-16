@@ -25,7 +25,7 @@ import java.io.IOException;
 public class WhoAmIRegister extends SingleByteRegister {
 
   public WhoAmIRegister(I2CDevice sensor, RegisterMap registerMap) throws IOException {
-    super(sensor, 0x0F, "Who Am I", registerMap);
+    super(sensor, 0x0F, "WHO_AM_I", registerMap);
   }
 
   public int getWhoAmI() {

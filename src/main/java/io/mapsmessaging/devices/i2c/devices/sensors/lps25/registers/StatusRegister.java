@@ -19,7 +19,7 @@ public class StatusRegister extends SingleByteRegister {
   private static final byte TEMPERATURE_DATA_AVAILABLE = 0b000001;
 
   public StatusRegister(I2CDevice sensor, RegisterMap registerMap) throws IOException {
-    super(sensor, STATUS_REGISTER, "Status", registerMap);
+    super(sensor, STATUS_REGISTER, "STATUS_REG", registerMap);
     reload();
   }
 

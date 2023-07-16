@@ -24,7 +24,7 @@ import java.io.IOException;
 
 public class TemperatureRegister extends MultiByteRegister {
   public TemperatureRegister(I2CDevice sensor, RegisterMap registerMap) {
-    super(sensor, 0x2B | 0x80, 2, "Temperature", registerMap);
+    super(sensor, 0x2B | 0x80, 2, "TEMP_OUT", registerMap);
   }
 
   public float getTemperature() throws IOException {

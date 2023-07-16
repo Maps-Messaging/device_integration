@@ -33,6 +33,7 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
   private final FiFoStatusRegister fiFoStatusRegister;
   private final ThresholdPressureRegister thresholdPressureRegister;
   private final WhoAmIRegister whoAmIRegister;
+  private final PressureOffset pressureOffset;
 
   public Lps25Sensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(Lps25Sensor.class));
@@ -51,6 +52,7 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
     fiFoStatusRegister = new FiFoStatusRegister(this, registerMap);
     thresholdPressureRegister = new ThresholdPressureRegister(this, registerMap);
     whoAmIRegister = new WhoAmIRegister(this, registerMap);
+    pressureOffset = new PressureOffset(this, registerMap);
   }
 
   @Override

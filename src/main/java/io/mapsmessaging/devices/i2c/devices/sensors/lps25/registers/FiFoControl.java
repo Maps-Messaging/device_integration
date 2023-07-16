@@ -30,7 +30,7 @@ public class FiFoControl extends SingleByteRegister {
   private static final byte FIFO_THRESHOLD = 0b00011111;
 
   public FiFoControl(I2CDevice sensor, RegisterMap registerMap) throws IOException {
-    super(sensor, FIFO_CONTROL, "FiFo Control", registerMap);
+    super(sensor, FIFO_CONTROL, "FIFO_CTRL", registerMap);
     reload();
   }
 

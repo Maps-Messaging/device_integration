@@ -19,7 +19,7 @@ public class InterruptSourceRegister extends SingleByteRegister {
 
 
   public InterruptSourceRegister(I2CDevice sensor, RegisterMap registerMap) throws IOException {
-    super(sensor, INTERRUPT_SOURCE, "Interrupt Source", registerMap);
+    super(sensor, INTERRUPT_SOURCE, "INT_SOURCE", registerMap);
     reload();
   }
 

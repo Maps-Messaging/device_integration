@@ -32,7 +32,7 @@ public class Control3 extends SingleByteRegister {
   private static final byte INTERRUPT_SIGNAL = 0b00000011;
 
   public Control3(I2CDevice sensor, RegisterMap registerMap) throws IOException {
-    super(sensor, CONTROL_REGISTER3, "Control-3", registerMap);
+    super(sensor, CONTROL_REGISTER3, "CTRL_REG3", registerMap);
     reload();
   }
 

@@ -34,7 +34,7 @@ public class Control1 extends SingleByteRegister {
   private static final byte RESET_AUTO_ZERO = 0b00000010;
 
   public Control1(I2CDevice sensor, RegisterMap registerMap) throws IOException {
-    super(sensor, CONTROL_REGISTER1, "Control-1", registerMap);
+    super(sensor, CONTROL_REGISTER1, "CTRL_REG1", registerMap);
   }
 
   public boolean getPowerDownMode() {

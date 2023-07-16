@@ -26,7 +26,7 @@ public class ReferencePressureRegister extends MultiByteRegister {
 
 
   public ReferencePressureRegister(I2CDevice sensor, RegisterMap registerMap) {
-    super(sensor, 0x08 | 0x80, 3, "Reference Pressure", registerMap);
+    super(sensor, 0x08 | 0x80, 3, "REF_P", registerMap);
   }
 
   public void setReference(int val) throws IOException {
