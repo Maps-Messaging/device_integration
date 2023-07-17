@@ -28,7 +28,7 @@ public class TapDurRegister extends SingleByteRegister {
   private static final byte TAP_DUR_MASK = (byte) 0b00000111;
 
   public TapDurRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0x2A, "Tap Duration");
+    super(sensor, 0x2A, "Tap_Dur");
   }
 
   public boolean getTapQuiet() throws IOException {

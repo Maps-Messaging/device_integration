@@ -21,7 +21,6 @@ import io.mapsmessaging.devices.PowerManagement;
 import io.mapsmessaging.devices.Resetable;
 import io.mapsmessaging.devices.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers.*;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.*;
 import io.mapsmessaging.logging.LoggerFactory;
@@ -30,7 +29,8 @@ import java.io.IOException;
 import java.util.List;
 
 public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, Resetable {
-  private final RegisterMap registerMap;
+  private static final float GRAVITY = 9.80665f; //m/s^2
+
   private final ResetRegister resetRegister;
   private final PartIdRegister partIdRegister;
   private final AxisRegister xAxisRegister;
@@ -44,7 +44,7 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
   private final OdrRegister odrRegister;
   private final PowerModeRegister powerModeRegister;
   private final SwapPolarityRegister swapPolarityRegister;
-  private final InterruptSetRegister interruptSetRegister;
+  private final InterruptSet0Register interruptSetRegister;
   private final InterruptSet1Register interruptSet1Register;
   private final InterruptMap0Register interruptMap0Register;
   private final InterruptMap1Register interruptMap1Register;
@@ -65,12 +65,11 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
 
   public Msa311Sensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(Msa311Sensor.class));
-    registerMap = new RegisterMap();
     resetRegister = new ResetRegister(this);
     partIdRegister = new PartIdRegister(this);
-    xAxisRegister = new AxisRegister(this, 0x2);
-    yAxisRegister = new AxisRegister(this, 0x4);
-    zAxisRegister = new AxisRegister(this, 0x6);
+    xAxisRegister = new AxisRegister(this, 0x2,"ACC_X");
+    yAxisRegister = new AxisRegister(this, 0x4, "ACC_Y");
+    zAxisRegister = new AxisRegister(this, 0x6, "ACC_Z");
     motionInterruptRegister = new MotionInterruptRegister(this);
     dataReadyRegister = new DataReadyRegister(this);
     tapActiveStatusRegister = new TapActiveStatusRegister(this);
@@ -79,7 +78,7 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
     odrRegister = new OdrRegister(this);
     powerModeRegister = new PowerModeRegister(this);
     swapPolarityRegister = new SwapPolarityRegister(this);
-    interruptSetRegister = new InterruptSetRegister(this);
+    interruptSetRegister = new InterruptSet0Register(this);
     interruptSet1Register = new InterruptSet1Register(this);
     interruptMap0Register = new InterruptMap0Register(this);
     interruptMap1Register = new InterruptMap1Register(this);
@@ -141,19 +140,19 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
   public float getX() throws IOException {
     float raw = xAxisRegister.getValue();
     float scale = getRange().getScale();
-    return raw / scale;
+    return (raw / scale) * GRAVITY;
   }
 
   public float getY() throws IOException {
     float raw = yAxisRegister.getValue();
     float scale = getRange().getScale();
-    return raw / scale;
+    return (raw / scale) * GRAVITY;
   }
 
   public float getZ() throws IOException {
     float raw = zAxisRegister.getValue();
     float scale = getRange().getScale();
-    return raw / scale;
+    return (raw / scale) * GRAVITY;
   }
 
   public List<TapActiveStatus> getTapActivity() throws IOException {

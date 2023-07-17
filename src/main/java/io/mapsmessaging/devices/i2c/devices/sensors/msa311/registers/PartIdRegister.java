@@ -8,7 +8,7 @@ import java.io.IOException;
 public class PartIdRegister extends SingleByteRegister {
 
   public PartIdRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0x1, "Part Id");
+    super(sensor, 0x1, "PartId");
   }
 
   public int getId() throws IOException {

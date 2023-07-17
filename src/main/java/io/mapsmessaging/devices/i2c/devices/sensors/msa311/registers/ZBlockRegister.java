@@ -27,7 +27,7 @@ public class ZBlockRegister extends SingleByteRegister {
   private static final float Z_BLOCKING_LSB = 0.0625f; // 1LSB is 0.0625g
 
   public ZBlockRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0x2D, "Z Blocking");
+    super(sensor, 0x2D, "Z_Block");
   }
 
   public float getZBlockingThreshold() throws IOException {

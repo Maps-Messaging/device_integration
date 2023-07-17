@@ -19,6 +19,7 @@ package io.mapsmessaging.devices.i2c;
 import com.pi4j.exception.Pi4JException;
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.Device;
+import io.mapsmessaging.devices.DeviceBusManager;
 import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.Logger;
@@ -55,7 +56,7 @@ public abstract class I2CDevice implements Device, AutoCloseable {
       log(I2C_BUS_DEVICE_WRITE, 0, String.format("%02X", val));
     }
     try {
-      if (device.write(val) < 1) throw new IOException("Failed to write to device");
+      if (device.write(val) < 1 && DeviceBusManager.getInstance().isSupportsLengthResponse()) throw new IOException("Failed to write to device");
     } catch (Pi4JException e) {
       throw new IOException(e);
     }
@@ -67,7 +68,7 @@ public abstract class I2CDevice implements Device, AutoCloseable {
 
   protected void write(byte[] buffer, int off, int len) throws IOException {
     try {
-      if (device.write(buffer, off, len) < 0) {
+      if (device.write(buffer, off, len) < 0 && DeviceBusManager.getInstance().isSupportsLengthResponse()) {
         throw new IOException("Failed to write buffer to device");
       }
     } catch (Pi4JException e) {
@@ -90,7 +91,7 @@ public abstract class I2CDevice implements Device, AutoCloseable {
   public void write(int register, byte[] data) throws IOException {
     try {
       int val = device.writeRegister(register, data);
-      if (val < 0) {
+      if (val < 0 && DeviceBusManager.getInstance().isSupportsLengthResponse()) {
         throw new IOException("Failed to write buffer to device");
       }
     } catch (Pi4JException e) {

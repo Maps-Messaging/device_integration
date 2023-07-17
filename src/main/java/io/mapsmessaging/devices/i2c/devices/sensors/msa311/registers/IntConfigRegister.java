@@ -27,7 +27,7 @@ public class IntConfigRegister extends SingleByteRegister {
   private static final byte INT1_LVL = (byte) 0b00000010;
 
   public IntConfigRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0x20, "Interrupt Config");
+    super(sensor, 0x20, "Int_Config");
   }
 
   public void setInt1OutputType(boolean openDrain) throws IOException {

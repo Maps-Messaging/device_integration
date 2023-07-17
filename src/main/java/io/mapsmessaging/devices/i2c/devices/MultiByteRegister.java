@@ -24,7 +24,7 @@ import java.io.IOException;
 public class MultiByteRegister extends Register {
 
   @Getter
-  private final byte[] buffer;
+  protected final byte[] buffer;
 
   public MultiByteRegister(I2CDevice sensor, int address, int size, String name) {
     super(sensor, address, name);
@@ -71,6 +71,21 @@ public class MultiByteRegister extends Register {
     return val;
   }
 
+  protected long asSignedLong() {
+    long val = 0;
+
+    for (int x = buffer.length - 1; x >= 0; x--) {
+      val = val << 8;
+      if(x == buffer.length - 1){
+        val |= buffer[x];
+      }
+      else {
+        val |= buffer[x] & 0xff;
+      }
+
+    }
+    return val;
+  }
 
   @Override
   public String toString(int length) {

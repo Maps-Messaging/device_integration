@@ -21,7 +21,7 @@ import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
 
-public class InterruptSetRegister extends SingleByteRegister {
+public class InterruptSet0Register extends SingleByteRegister {
 
   private static final byte ORIENT_INT_EN = (byte) 0b01000000;
   private static final byte S_TAP_INT_EN = (byte) 0b00100000;
@@ -30,8 +30,8 @@ public class InterruptSetRegister extends SingleByteRegister {
   private static final byte ACTIVE_INT_EN_Y = (byte) 0b00000010;
   private static final byte ACTIVE_INT_EN_X = (byte) 0b00000001;
 
-  public InterruptSetRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0x16, "Interrupt Set");
+  public InterruptSet0Register(I2CDevice sensor) throws IOException {
+    super(sensor, 0x16, "Int_Set_0");
   }
 
   public void setOrientInterruptEnabled(boolean enabled) throws IOException {

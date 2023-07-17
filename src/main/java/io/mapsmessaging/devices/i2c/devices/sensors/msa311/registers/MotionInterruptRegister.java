@@ -11,7 +11,7 @@ import java.util.List;
 public class MotionInterruptRegister extends SingleByteRegister {
 
   public MotionInterruptRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0x9, "Motion Interrupt");
+    super(sensor, 0x9, "Motion_Interrupt");
   }
 
   public List<MotionInterrupts> getInterrupts() throws IOException {

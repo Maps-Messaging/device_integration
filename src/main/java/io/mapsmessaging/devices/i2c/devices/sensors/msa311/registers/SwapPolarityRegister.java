@@ -13,7 +13,7 @@ public class SwapPolarityRegister extends SingleByteRegister {
   private static final byte X_Y_SWAP = (byte) 0b0001;
 
   public SwapPolarityRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0x12, "Swap Polarity");
+    super(sensor, 0x12, "Swap_Polarity");
   }
 
 

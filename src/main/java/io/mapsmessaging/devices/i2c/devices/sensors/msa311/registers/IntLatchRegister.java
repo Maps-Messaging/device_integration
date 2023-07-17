@@ -28,7 +28,7 @@ public class IntLatchRegister extends SingleByteRegister {
   private static final byte RESET_FLAG = (byte) 0b10000000;
 
   public IntLatchRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0x21, "Interrupt Latch");
+    super(sensor, 0x21, "Int_Latch");
   }
 
   public Latch getLatch() throws IOException {

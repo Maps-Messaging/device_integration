@@ -8,7 +8,7 @@ import java.io.IOException;
 public class DataReadyRegister extends SingleByteRegister {
 
   public DataReadyRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0xA, "Data Ready");
+    super(sensor, 0xA, "Data_Interrupt");
   }
 
   public boolean isDataReady() throws IOException {

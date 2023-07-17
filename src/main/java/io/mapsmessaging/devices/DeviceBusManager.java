@@ -50,10 +50,14 @@ public class DeviceBusManager {
   @Getter
   private final PinManagement pinManagement;
 
+  @Getter
+  private final boolean supportsLengthResponse;
+
   private DeviceBusManager() {
     logger.log(DeviceLogMessage.BUS_MANAGER_STARTUP);
     pi4j = Pi4J.newAutoContext();
     String provider = getProvider();
+    supportsLengthResponse = provider.equalsIgnoreCase("linuxfs-i2c");
     I2CProvider i2cProvider = pi4j.provider(provider);
     logger.log(DeviceLogMessage.BUS_MANAGER_PROVIDER, provider);
     i2cBusManager = new I2CBusManager(pi4j, i2cProvider);

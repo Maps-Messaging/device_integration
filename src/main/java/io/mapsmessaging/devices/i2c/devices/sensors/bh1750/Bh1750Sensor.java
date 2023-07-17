@@ -33,8 +33,8 @@ import java.io.IOException;
 public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor, Resetable {
 
   private static final byte POWER_DOWN = 0b00000000;
-  private static final byte POWER_UP = 0b00000001;
-  private static final byte RESET = 0b00000111;
+  private static final byte POWER_UP   = 0b00000001;
+  private static final byte RESET      = 0b00000111;
 
   @Getter
   private ResolutionMode resolutionMode;

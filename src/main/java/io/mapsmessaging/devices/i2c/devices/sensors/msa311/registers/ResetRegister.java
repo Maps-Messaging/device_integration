@@ -8,7 +8,7 @@ import java.io.IOException;
 public class ResetRegister extends SingleByteRegister {
 
   public ResetRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0x0, "Reset");
+    super(sensor, 0x0, "Soft_Reset");
   }
 
   public void reset() throws IOException {

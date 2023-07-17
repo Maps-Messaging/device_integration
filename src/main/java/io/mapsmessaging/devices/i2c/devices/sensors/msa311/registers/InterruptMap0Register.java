@@ -30,7 +30,7 @@ public class InterruptMap0Register extends SingleByteRegister {
   private static final byte INT1_FREEFALL = (byte) 0b00000001;
 
   public InterruptMap0Register(I2CDevice sensor) throws IOException {
-    super(sensor, 0x19, "Interrupt Map 0");
+    super(sensor, 0x19, "Int_Map_0");
   }
 
   public void mapOrientationInterruptToInt1(boolean enable) throws IOException {

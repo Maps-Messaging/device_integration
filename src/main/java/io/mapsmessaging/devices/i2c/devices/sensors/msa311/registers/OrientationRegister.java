@@ -9,7 +9,7 @@ import java.io.IOException;
 public class OrientationRegister extends SingleByteRegister {
 
   public OrientationRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0xC, "Orientation");
+    super(sensor, 0xC, "Orientation_Status");
   }
 
   public OrientationStatus getOrientation() throws IOException {

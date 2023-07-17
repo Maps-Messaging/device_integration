@@ -26,7 +26,7 @@ public class ActiveDurRegister extends SingleByteRegister {
   private static final byte DURATION_MASK = 0b00000011;
 
   public ActiveDurRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0x27, "Active Duration");
+    super(sensor, 0x27, "Active_Dur");
   }
 
   public int getDuration() throws IOException {

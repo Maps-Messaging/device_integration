@@ -28,6 +28,11 @@ public class OrientHyRegister extends SingleByteRegister {
   private static final byte ORIENT_MODE_MASK = (byte) 0b00000011;
   private static final byte ORIENT_HYST_MASK = (byte) 0b01110000;
 
+
+  public OrientHyRegister(I2CDevice sensor) throws IOException {
+    super(sensor, 0x2C, "Orient_Hy");
+  }
+
   public int getOrientHysteresis() throws IOException {
     reload();
     return (registerValue & ORIENT_HYST_MASK) >> 4;
@@ -37,10 +42,6 @@ public class OrientHyRegister extends SingleByteRegister {
     setControlRegister(~ORIENT_HYST_MASK, (byte) (hysteresis << 4));
   }
 
-
-  public OrientHyRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0x2C, "Orientation Mode");
-  }
 
   public OrientBlocking getOrientBlocking() throws IOException {
     reload();

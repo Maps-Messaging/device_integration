@@ -24,7 +24,7 @@ import java.io.IOException;
 public class FreefallThRegister extends SingleByteRegister {
 
   public FreefallThRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0x23, "Freefall Threshold");
+    super(sensor, 0x23, "Freefall_Th");
   }
 
   public float getFreefallThreshold() throws IOException {

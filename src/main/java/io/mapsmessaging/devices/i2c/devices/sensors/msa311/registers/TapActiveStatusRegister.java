@@ -11,7 +11,7 @@ import java.util.List;
 public class TapActiveStatusRegister extends SingleByteRegister {
 
   public TapActiveStatusRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0xb, "Tap Active Status");
+    super(sensor, 0xb, "Tap_Active_Status");
   }
 
   public List<TapActiveStatus> getTapActiveStatus() throws IOException {
