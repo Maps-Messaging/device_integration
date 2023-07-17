@@ -23,32 +23,32 @@ import java.util.Map;
 
 public class RegisterMap {
 
-  private final Map<Integer, Register> registerMap;
+  private final Map<Integer, Register> map;
 
   public RegisterMap() {
-    registerMap = new LinkedHashMap<>();
+    map = new LinkedHashMap<>();
   }
 
   public void addRegister(Register register) {
-    if (registerMap.containsKey(register.getAddress())) {
-      Register existing = registerMap.get(register.getAddress());
+    if (map.containsKey(register.getAddress())) {
+      Register existing = map.get(register.getAddress());
       throw new RuntimeException("Register address collision for address " + register.getAddress() + " Existing:" + existing.name + " New:" + register.name);
     }
-    registerMap.put(register.getAddress(), register);
+    map.put(register.getAddress(), register);
   }
 
   public String toString() {
     StringBuilder stringBuilder = new StringBuilder();
-    List<Integer> addressList = new ArrayList<>(registerMap.keySet());
+    List<Integer> addressList = new ArrayList<>(map.keySet());
     addressList.sort(Integer::compareTo);
-    int maxLength = registerMap.values().stream()
+    int maxLength = map.values().stream()
         .mapToInt(register -> register.getName().length())
         .max()
         .orElse(0);
 
 
     for (Integer address : addressList) {
-      Register register = registerMap.get(address);
+      Register register = map.get(address);
       stringBuilder.append("\t").append(register.toString(maxLength)).append("\n");
     }
     return stringBuilder.toString();

@@ -35,7 +35,7 @@ public class OrientHyRegister extends SingleByteRegister {
 
   public int getOrientHysteresis() throws IOException {
     reload();
-    return (registerValue & ORIENT_HYST_MASK) >> 4;
+    return ((registerValue & 0xff) & ORIENT_HYST_MASK) >> 4;
   }
 
   public void setOrientHysteresis(int hysteresis) throws IOException {
@@ -50,7 +50,7 @@ public class OrientHyRegister extends SingleByteRegister {
   }
 
   public void setOrientBlocking(OrientBlocking blocking) throws IOException {
-    int maskedValue = (blocking.getValue() << 2) & ORIENT_BLOCKING_MASK;
+    int maskedValue = (blocking.getValue() << 2) & (ORIENT_BLOCKING_MASK & 0xff);
     setControlRegister(~ORIENT_BLOCKING_MASK, maskedValue);
   }
 
