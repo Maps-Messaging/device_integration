@@ -14,16 +14,21 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c;
+package io.mapsmessaging.devices.i2c.devices.sensors.bno055.registers;
 
-import io.mapsmessaging.devices.DeviceBusManager;
 
-public class I2cDetect {
+import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
 
-  public static void main(String[] args) {
-    DeviceBusManager deviceBusManager = DeviceBusManager.getInstance();
-    I2CBusManager i2CBusManager = deviceBusManager.getI2cBusManager();
-    i2CBusManager.findDevicesOnBus();
-    deviceBusManager.close();
+import java.io.IOException;
+
+public class AxisRegister extends MultiByteRegister {
+  public AxisRegister(I2CDevice sensor, int address, String name) throws IOException {
+    super(sensor, address, 2, name);
+  }
+
+  public int getValue() throws IOException {
+    reload();
+    return asInt();
   }
 }

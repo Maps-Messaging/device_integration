@@ -25,7 +25,7 @@ import java.io.IOException;
 public class ErrorStatusRegister extends SingleByteRegister {
 
   public ErrorStatusRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0X3A, "Error Status");
+    super(sensor, 0X3A, "SYS_ERR");
   }
 
   public SystemErrorStatus getErrorStatus() throws IOException {

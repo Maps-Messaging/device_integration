@@ -31,7 +31,7 @@ public class Tun_Cap_Register extends SingleByteRegister {
     super(sensor, 0x08, "Tune Capacitor");
   }
 
-  public int getTuningCap() throws IOException {
+  public int getTuningCap() {
     return registerValue & 0x0F;
   }
 
@@ -41,8 +41,8 @@ public class Tun_Cap_Register extends SingleByteRegister {
     sensor.write(address, registerValue);
   }
 
-  public boolean isDispTRCOEnabled() throws IOException {
-    return (registerValue & (1 << TUN_CAP_DISP_TRCO_BIT)) != 0;
+  public boolean isDispTRCOEnabled() {
+    return ((registerValue & 0xff) & (1 << TUN_CAP_DISP_TRCO_BIT)) != 0;
   }
 
   public void setDispTRCOEnabled(boolean enabled) throws IOException {
@@ -54,8 +54,8 @@ public class Tun_Cap_Register extends SingleByteRegister {
     sensor.write(address, registerValue);
   }
 
-  public boolean isDispSRCOEnabled() throws IOException {
-    return (registerValue & (1 << TUN_CAP_DISP_SRCO_BIT)) != 0;
+  public boolean isDispSRCOEnabled() {
+    return ((registerValue & 0xff) & (1 << TUN_CAP_DISP_SRCO_BIT)) != 0;
   }
 
   public void setDispSRCOEnabled(boolean enabled) throws IOException {

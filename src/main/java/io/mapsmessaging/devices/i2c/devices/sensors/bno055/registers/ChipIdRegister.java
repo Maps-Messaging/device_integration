@@ -14,16 +14,17 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c;
+package io.mapsmessaging.devices.i2c.devices.sensors.bno055.registers;
 
-import io.mapsmessaging.devices.DeviceBusManager;
+import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
-public class I2cDetect {
+import java.io.IOException;
 
-  public static void main(String[] args) {
-    DeviceBusManager deviceBusManager = DeviceBusManager.getInstance();
-    I2CBusManager i2CBusManager = deviceBusManager.getI2cBusManager();
-    i2CBusManager.findDevicesOnBus();
-    deviceBusManager.close();
+public class ChipIdRegister extends SingleByteRegister {
+
+  public ChipIdRegister(I2CDevice sensor) throws IOException {
+    super(sensor, 0x00, "BNO055_CHIP_ID");
   }
+
 }

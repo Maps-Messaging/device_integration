@@ -24,7 +24,6 @@ import java.io.IOException;
 public class ZBlockRegister extends SingleByteRegister {
 
   private static final byte Z_BLOCKING_MASK = (byte) 0b00001111;
-  private static final float Z_BLOCKING_LSB = 0.0625f; // 1LSB is 0.0625g
 
   public ZBlockRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0x2D, "Z_Block");
@@ -33,11 +32,11 @@ public class ZBlockRegister extends SingleByteRegister {
   public float getZBlockingThreshold() throws IOException {
     reload();
     int val = registerValue & Z_BLOCKING_MASK;
-    return val * Z_BLOCKING_LSB;
+    return val * 0.0625f;
   }
 
   public void setZBlockingThreshold(float threshold) throws IOException {
-    int val = Math.round(threshold / Z_BLOCKING_LSB);
+    int val = Math.round(threshold / 0.0625f);
     registerValue = (byte) ((registerValue & ~Z_BLOCKING_MASK) | val);
     sensor.write(address, registerValue);
   }

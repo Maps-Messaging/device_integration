@@ -35,7 +35,7 @@ public class InterruptRegister extends SingleByteRegister {
   }
 
   public boolean isMaskDisturberEnabled() throws IOException {
-    return (registerValue & (1 << ENERGY_MASK_DISTURBER_BIT)) != 0;
+    return ((registerValue & 0xff) & (1 << ENERGY_MASK_DISTURBER_BIT)) != 0;
   }
 
   public void setMaskDisturberEnabled(boolean enabled) throws IOException {

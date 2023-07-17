@@ -29,7 +29,7 @@ public class SystemStatusRegister extends SingleByteRegister {
   private long lastRead;
 
   public SystemStatusRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0X39, "System Status");
+    super(sensor, 0X39, "SYS_STATUS");
     lastRead = System.currentTimeMillis();
   }
 

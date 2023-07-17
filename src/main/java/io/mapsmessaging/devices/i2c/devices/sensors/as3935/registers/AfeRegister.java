@@ -33,7 +33,7 @@ public class AfeRegister extends SingleByteRegister {
 
   // AFE_GAIN Register : 0
   public boolean isAFE_PowerDown() throws IOException {
-    return (registerValue & (1 << AFE_GAIN_PD_BIT)) != 0;
+    return ((registerValue & 0xff) & (1 << AFE_GAIN_PD_BIT)) != 0;
   }
 
   public void setAFE_PowerDown(boolean powerDown) throws IOException {

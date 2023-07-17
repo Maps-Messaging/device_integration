@@ -20,14 +20,12 @@ import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.PowerManagement;
 import io.mapsmessaging.devices.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers.*;
 import io.mapsmessaging.logging.LoggerFactory;
 
 import java.io.IOException;
 
 public class AS3935Sensor extends I2CDevice implements PowerManagement, Sensor {
-  private final RegisterMap registerMap;
   private final AfeRegister afeRegister;
   private final ThresholdRegister thresholdRegister;
   private final Calib_SRCO_TRCO_Register calibSrcoTrcoRegister;
@@ -42,7 +40,6 @@ public class AS3935Sensor extends I2CDevice implements PowerManagement, Sensor {
 
   public AS3935Sensor(I2C device, int tuning) throws IOException {
     super(device, LoggerFactory.getLogger(AS3935Sensor.class));
-    registerMap = new RegisterMap();
     afeRegister = new AfeRegister(this);
     thresholdRegister = new ThresholdRegister(this);
     calibSrcoTrcoRegister = new Calib_SRCO_TRCO_Register(this);

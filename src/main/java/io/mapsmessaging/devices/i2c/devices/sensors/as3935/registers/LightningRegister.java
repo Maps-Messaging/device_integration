@@ -52,7 +52,7 @@ public class LightningRegister extends SingleByteRegister {
   }
 
   public boolean isClearStatisticsEnabled() throws IOException {
-    return (registerValue & (1 << LIGHTNING_REG_CL_STAT_BIT)) != 0;
+    return ((registerValue & 0xff) & (1 << LIGHTNING_REG_CL_STAT_BIT)) != 0;
   }
 
   public void setClearStatisticsEnabled(boolean enabled) throws IOException {

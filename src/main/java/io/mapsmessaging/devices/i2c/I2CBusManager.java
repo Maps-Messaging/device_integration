@@ -167,9 +167,12 @@ public class I2CBusManager {
         TimeUnit.MILLISECONDS.sleep(20);
       }
       return device.read(buf, 0, 1) == 1;
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
     } catch (Exception ex) {
-      return false;
+      // Ignore
     }
+    return false;
   }
 
   private void createAndMountDevice(int i2cAddress, I2CDeviceController deviceEntry) throws IOException {

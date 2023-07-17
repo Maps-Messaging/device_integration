@@ -19,7 +19,9 @@ package io.mapsmessaging.devices.i2c.devices.sensors.bno055;
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.RegisterMap;
+import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
+import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.bno055.registers.AxisRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.bno055.registers.CalibrationStatusRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.bno055.registers.ErrorStatusRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.bno055.registers.SystemStatusRegister;
@@ -38,21 +40,96 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
   private final float[] myEuler = new float[3];
   private long lastRead;
 
-  private final RegisterMap registerMap;
-
   private final CalibrationStatusRegister calibrationStatusRegister;
   private final SystemStatusRegister systemStatusRegister;
   private final ErrorStatusRegister errorStatusRegister;
+
+  // Configuration Registers
+  private final SingleByteRegister opMode;
+  private final SingleByteRegister pwrMode;
+  private final MultiByteRegister axisMapConfig;
+  private final SingleByteRegister axisMapSign;
+
+  private final AxisRegister accelDataX;
+  private final AxisRegister accelDataY;
+  private final AxisRegister accelDataZ;
+  private final AxisRegister magDataX;
+  private final AxisRegister magDataY;
+  private final AxisRegister magDataZ;
+  private final AxisRegister gyroDataX;
+  private final AxisRegister gyroDataY;
+  private final AxisRegister gyroDataZ;
+  private final AxisRegister eulerH;
+  private final AxisRegister eulerR;
+  private final AxisRegister eulerP;
+  private final AxisRegister quaternionW;
+  private final AxisRegister quaternionX;
+  private final AxisRegister quaternionY;
+  private final AxisRegister quaternionZ;
+
+  private final SingleByteRegister chipId;
+  private final SingleByteRegister accelRevId;
+  private final SingleByteRegister magRevId;
+  private final SingleByteRegister gyroRevId;
+  private final MultiByteRegister swRevId;
+  private final SingleByteRegister blRevId;
+  private final SingleByteRegister pageId;
+  private final SingleByteRegister tempSource;
+  private final SingleByteRegister unitSel;
+  private final SingleByteRegister sysTrigger;
+
+
+  // Status Registers
+  private final SingleByteRegister sysClkStatus;
 
   @Getter
   private String version;
 
   public BNO055Sensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(BNO055Sensor.class));
-    registerMap = new RegisterMap();
     calibrationStatusRegister = new CalibrationStatusRegister(this);
     systemStatusRegister = new SystemStatusRegister(this);
     errorStatusRegister = new ErrorStatusRegister(this);
+
+    chipId = new SingleByteRegister(this, 0x00, "CHIP_ID");
+    accelRevId = new SingleByteRegister(this, 0x01, "ACCEL_REV_ID");
+    magRevId = new SingleByteRegister(this, 0x02, "MAG_REV_ID");
+    gyroRevId = new SingleByteRegister(this, 0x03, "GYRO_REV_ID");
+    swRevId = new MultiByteRegister(this, 0x04, 2, "SW_REV_ID");
+    blRevId = new SingleByteRegister(this, 0x06, "BL_REV_ID");
+    pageId = new SingleByteRegister(this, 0x07, "PAGE_ID");
+    accelDataX = new AxisRegister(this, 0x08, "ACCEL_DATA_X");
+    accelDataY = new AxisRegister(this, 0x0A, "ACCEL_DATA_Y");
+    accelDataZ = new AxisRegister(this, 0x0C, "ACCEL_DATA_Z");
+    magDataX = new AxisRegister(this, 0x0E, "MAG_DATA_X");
+    magDataY = new AxisRegister(this, 0x10, "MAG_DATA_Y");
+    magDataZ = new AxisRegister(this, 0x12, "MAG_DATA_Z");
+    gyroDataX = new AxisRegister(this, 0x14, "GYRO_DATA_X");
+    gyroDataY = new AxisRegister(this, 0x16, "GYRO_DATA_Y");
+    gyroDataZ = new AxisRegister(this, 0x18, "GYRO_DATA_Z");
+    eulerH = new AxisRegister(this, 0x1A, "EULER_H");
+    eulerR = new AxisRegister(this, 0x1C, "EULER_R");
+    eulerP = new AxisRegister(this, 0x1E, "EULER_P");
+    quaternionW = new AxisRegister(this, 0x20, "QUATERNION_W");
+    quaternionX = new AxisRegister(this, 0x22, "QUATERNION_X");
+    quaternionY = new AxisRegister(this, 0x24, "QUATERNION_Y");
+    quaternionZ = new AxisRegister(this, 0x26, "QUATERNION_Z");
+
+
+    tempSource = new SingleByteRegister(this, 0x34, "TEMP_SOURCE");
+    sysClkStatus = new SingleByteRegister(this, 0x38, "SYS_CLK_STATUS");
+    unitSel = new SingleByteRegister(this, 0x3B, "UNIT_SEL");
+    opMode = new SingleByteRegister(this, 0x3D, "OPERATION_MODE");
+    pwrMode = new SingleByteRegister(this, 0x3E, "PWR_MODE");
+    sysTrigger = new SingleByteRegister(this, 0x3F, "SYS_TRIGGER");
+
+    axisMapConfig = new MultiByteRegister(this, 0x41, 2, "AXIS_MAP_CONFIG");
+    axisMapSign = new SingleByteRegister(this, 0x42, "AXIS_MAP_SIGN");
+
+    // Axis Registers
+
+
+    // Status Registers
     initialise();
   }
 

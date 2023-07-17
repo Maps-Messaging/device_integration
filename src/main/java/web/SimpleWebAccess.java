@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 public class SimpleWebAccess {
 
-
+  private Javalin app;
   private final DeviceBusManager deviceBusManager;
 
   public SimpleWebAccess() {
@@ -47,8 +47,7 @@ public class SimpleWebAccess {
   }
 
   private void startServer() {
-
-    Javalin app = Javalin.create().start(7001);
+    app = Javalin.create().start(7001);
     app.get("/device/list", ctx -> {
       JSONObject jsonObject = new JSONObject();
       jsonObject.put("i2c", packList(deviceBusManager.getI2cBusManager().getActive()));

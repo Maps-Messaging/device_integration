@@ -32,7 +32,7 @@ public class Calib_SRCO_TRCO_Register extends SingleByteRegister {
 
   public boolean isTRCOCalibrationSuccessful() throws IOException {
     reload();
-    return (registerValue & (1 << CALIB_SRCO_TRCO_CALIB_TRCO_DONE_BIT)) != 0;
+    return ((registerValue & 0xff) & (1 << CALIB_SRCO_TRCO_CALIB_TRCO_DONE_BIT)) != 0;
   }
 
 }
