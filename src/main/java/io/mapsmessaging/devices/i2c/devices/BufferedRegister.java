@@ -23,10 +23,36 @@ import java.io.IOException;
 public class BufferedRegister extends Register {
 
   private final byte[] data;
+  private final int length;
 
-  protected BufferedRegister(I2CDevice sensor, int address, byte[] data, String name) {
+  public BufferedRegister(I2CDevice sensor, int address, String name, byte[] data) {
+    this(sensor, address, 1, name, data);
+  }
+
+
+  public BufferedRegister(I2CDevice sensor, int address, int length, String name, byte[] data) {
     super(sensor, address, name);
     this.data = data;
+    this.length = length;
+  }
+
+  public int getValueReverse(){
+    int val = 0;
+    for (int x = 0; x < length; x++) {
+      val = val << 8;
+      val |= data[address+x] & 0xff;
+    }
+    return val;
+  }
+
+
+  public int getValue(){
+    int val = 0;
+    for (int x = length - 1; x >= 0; x--) {
+      val = val << 8;
+      val |= data[address+x] & 0xff;
+    }
+    return val;
   }
 
   @Override
@@ -41,12 +67,13 @@ public class BufferedRegister extends Register {
   }
 
   @Override
-  public String toString(int length) {
-    try {
-      reload();
-    } catch (IOException e) {
-
+  public String toString(int len) {
+    StringBuilder stringBuilder = new StringBuilder();
+    for(int x=0; x<length;x++){
+      if (x != 0) stringBuilder.append("\t");
+      stringBuilder.append(displayRegister(len, getAddress() + x, data[getAddress()+x]));
+      if (x < length-1) stringBuilder.append("\n");
     }
-    return displayRegister(length, getAddress(), data[getAddress()]);
+    return stringBuilder.toString();
   }
 }
