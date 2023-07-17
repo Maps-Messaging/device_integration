@@ -40,6 +40,34 @@ public class JsonHelper {
       response.put("pressureThreshold", thresholdPressure);
     }
 
+    // Pressure Threshold register
+    if (jsonObject.has("pressureOffset")) {
+      int offset =  jsonObject.getInt("pressureOffset");
+      sensor.setPressureOffset(offset);
+      response.put("pressureOffset", offset);
+    }
+
+
+    // resolution register
+    if (jsonObject.has("resolutionReg")) {
+      JSONObject resolution = jsonObject.getJSONObject("resolutionReg");
+      JSONObject res = new JSONObject();
+      response.put("resolutionReg", res);
+      if (resolution.has("averageTemperature")) {
+        String ave = resolution.getString("averageTemperature");
+        TemperatureAverage aver = TemperatureAverage.valueOf(ave);
+        sensor.setAverageTemperature(aver);
+        res.put("averageTemperature", aver.name());
+      }
+      if (resolution.has("averagePressure")) {
+        String ave = resolution.getString("averagePressure");
+        PressureAverage aver = PressureAverage.valueOf(ave);
+        sensor.setAveragePressure(aver);
+        res.put("averagePressure", aver.name());
+      }
+    }
+
+
     if (jsonObject.has("controlReg1")) {
       JSONObject controlReg1 = jsonObject.getJSONObject("controlReg1");
       JSONObject register1 = new JSONObject();
@@ -153,7 +181,7 @@ public class JsonHelper {
     return response.toString(2).getBytes();
   }
 
-  public static JSONObject pack(Lps25Sensor sensor) throws IOException {
+  public static JSONObject packStaticPayload(Lps25Sensor sensor) throws IOException {
     JSONObject jsonObject = new JSONObject();
     // Interrupt Config Register
     JSONObject interruptConfigObj = new JSONObject();
@@ -170,6 +198,13 @@ public class JsonHelper {
 
     // Who Am I register
     jsonObject.put("whoAmI", sensor.whoAmI());
+
+    // resolution register
+    JSONObject resolution = new JSONObject();
+    resolution.put("averageTemperature", sensor.getAverageTemperature().name());
+    resolution.put("averagePressure", sensor.getAveragePressure().name());
+    jsonObject.put("resolutionReg", resolution);
+
 
     // Control Register 1
     JSONObject controlReg1Obj = new JSONObject();
@@ -236,6 +271,7 @@ public class JsonHelper {
     }
     jsonObject.put("status", statusJsonArray);
 
+    jsonObject.put("pressureOffset", sensor.getPressureOffset());
     // Print the combined JSON object
     return jsonObject;
   }
@@ -360,11 +396,30 @@ public class JsonHelper {
             .build());
     // Define properties for deviceStatus
     schemaBuilder.addPropertySchema("deviceStatus", deviceStatusBuilder.build());
+    schemaBuilder.addPropertySchema("pressureOffset", NumberSchema.builder().build());
 
 
     return schemaBuilder;
   }
 }
 
+
+/*
+{
+    "fifoCtrl": {
+        "fifoMode": "FIFO",
+    },
+     "controlReg1": {
+         "powerDown": true,
+        "dataRate": "RATE_1_HZ",
+        "blockUpdate": false
+    },
+     "controlReg2": {
+         "reset": true,
+        "enableFiFo": true,
+        "enableOneShot": false
+    },
+}
+ */
 
 

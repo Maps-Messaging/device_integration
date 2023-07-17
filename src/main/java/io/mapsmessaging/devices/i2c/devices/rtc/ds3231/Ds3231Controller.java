@@ -18,6 +18,7 @@ package io.mapsmessaging.devices.i2c.devices.rtc.ds3231;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.NamingConstants;
+import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -50,6 +51,11 @@ public class Ds3231Controller extends I2CDeviceController {
     packer = new JsonPacker(rtc);
     unpacker = new JsonUnpacker(rtc);
   }
+
+  public I2CDevice getDevice(){
+    return rtc;
+  }
+
 
   @Override
   public boolean detect(I2C i2cDevice) {

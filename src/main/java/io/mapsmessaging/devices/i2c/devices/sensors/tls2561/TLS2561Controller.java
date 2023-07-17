@@ -18,6 +18,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.tls2561;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.NamingConstants;
+import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -46,6 +47,10 @@ public class TLS2561Controller extends I2CDeviceController {
   public TLS2561Controller(I2C device) throws IOException {
     super(device);
     sensor = new TLS2561Sensor(device);
+  }
+
+  public I2CDevice getDevice(){
+    return sensor;
   }
 
   @Override

@@ -2,6 +2,7 @@ package io.mapsmessaging.devices.i2c.devices.storage.at24c;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.NamingConstants;
+import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -32,6 +33,10 @@ public class AT24CnnController extends I2CDeviceController {
   protected AT24CnnController(I2C device) throws IOException {
     super(device);
     sensor = new AT24CnnDevice(device);
+  }
+
+  public I2CDevice getDevice(){
+    return sensor;
   }
 
   @Override

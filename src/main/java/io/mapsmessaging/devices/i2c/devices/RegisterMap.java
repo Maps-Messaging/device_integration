@@ -23,7 +23,7 @@ import java.util.Map;
 
 public class RegisterMap {
 
-  private Map<Integer, Register> registerMap;
+  private final Map<Integer, Register> registerMap;
 
   public RegisterMap() {
     registerMap = new LinkedHashMap<>();
@@ -41,9 +41,15 @@ public class RegisterMap {
     StringBuilder stringBuilder = new StringBuilder();
     List<Integer> addressList = new ArrayList<>(registerMap.keySet());
     addressList.sort(Integer::compareTo);
+    int maxLength = registerMap.values().stream()
+        .mapToInt(register -> register.getName().length())
+        .max()
+        .orElse(0);
+
+
     for (Integer address : addressList) {
       Register register = registerMap.get(address);
-      stringBuilder.append("\t").append(register).append("\n");
+      stringBuilder.append("\t").append(register.toString(maxLength)).append("\n");
     }
     return stringBuilder.toString();
   }

@@ -17,7 +17,6 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
@@ -35,8 +34,8 @@ public class Control2 extends SingleByteRegister {
   private static final byte ENABLE_ONE_SHOT = 0b00000001;
 
 
-  public Control2(I2CDevice sensor, RegisterMap registerMap) throws IOException {
-    super(sensor, CONTROL_REGISTER2, "CTRL_REG2", registerMap);
+  public Control2(I2CDevice sensor) throws IOException {
+    super(sensor, CONTROL_REGISTER2, "CTRL_REG2");
     reload();
   }
 

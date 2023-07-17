@@ -18,6 +18,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.bmp280;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.NamingConstants;
+import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -45,6 +46,9 @@ public class BMP280Controller extends I2CDeviceController {
   protected BMP280Controller(I2C device) throws IOException {
     super(device);
     sensor = new BMP280Sensor(device);
+  }
+  public I2CDevice getDevice(){
+    return sensor;
   }
 
   @Override

@@ -1,7 +1,6 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.Range;
 
@@ -9,8 +8,8 @@ import java.io.IOException;
 
 public class RangeRegister extends SingleByteRegister {
 
-  public RangeRegister(I2CDevice sensor, RegisterMap registerMap) throws IOException {
-    super(sensor, 0xF, "Range", registerMap);
+  public RangeRegister(I2CDevice sensor) throws IOException {
+    super(sensor, 0xF, "Range");
   }
 
   public Range getRange() {

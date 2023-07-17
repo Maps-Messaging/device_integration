@@ -1,7 +1,6 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.Status;
 
@@ -18,8 +17,8 @@ public class StatusRegister extends SingleByteRegister {
   private static final byte PRESSURE_DATA_AVAILABLE = 0b000010;
   private static final byte TEMPERATURE_DATA_AVAILABLE = 0b000001;
 
-  public StatusRegister(I2CDevice sensor, RegisterMap registerMap) throws IOException {
-    super(sensor, STATUS_REGISTER, "STATUS_REG", registerMap);
+  public StatusRegister(I2CDevice sensor) throws IOException {
+    super(sensor, STATUS_REGISTER, "STATUS_REG");
     reload();
   }
 

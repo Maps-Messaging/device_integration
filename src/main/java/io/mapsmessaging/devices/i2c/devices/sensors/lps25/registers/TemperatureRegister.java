@@ -18,13 +18,17 @@ package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
-import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 
 import java.io.IOException;
 
 public class TemperatureRegister extends MultiByteRegister {
-  public TemperatureRegister(I2CDevice sensor, RegisterMap registerMap) {
-    super(sensor, 0x2B | 0x80, 2, "TEMP_OUT", registerMap);
+  public TemperatureRegister(I2CDevice sensor) {
+    super(sensor, 0x2B | 0x80, 2, "TEMP_OUT");
+  }
+
+  @Override
+  public int getAddress(){
+    return address & (~0x80);
   }
 
   public float getTemperature() throws IOException {
@@ -36,17 +40,4 @@ public class TemperatureRegister extends MultiByteRegister {
     return raw / 480.0f + 42.5f;
   }
 }
-/*
 
-  //region Temperature Out Registers
-  public float getTemperature() throws IOException {
-    byte[] temperatureBuffer = new byte[2];
-    readRegister(TEMP_OUT_L | 0x80, temperatureBuffer);
-    int rawTemperature = ((temperatureBuffer[1] & 0xff) << 8) | (temperatureBuffer[0] & 0xff);
-    if ((rawTemperature & 0x8000) != 0) {
-      rawTemperature = rawTemperature - 0xFFFF;
-    }
-
-    return rawTemperature / 480.0f + 42.5f;
-  }
- */

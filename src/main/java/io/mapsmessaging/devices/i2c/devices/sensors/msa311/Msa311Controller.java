@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.TapActiveStatus;
 import io.mapsmessaging.schemas.config.SchemaConfig;
@@ -45,6 +46,10 @@ public class Msa311Controller extends I2CDeviceController {
   public Msa311Controller(I2C device) throws IOException {
     super(device);
     sensor = new Msa311Sensor(device);
+  }
+
+  public I2CDevice getDevice(){
+    return sensor;
   }
 
   @Override

@@ -18,14 +18,13 @@ package io.mapsmessaging.devices.i2c.devices.sensors.bmp280.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
-import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 
 import java.io.IOException;
 
 public class PressureRegister extends MultiByteRegister {
 
-  public PressureRegister(I2CDevice sensor, RegisterMap registerMap) {
-    super(sensor, 0xF7, 3, "Pressure", registerMap);
+  public PressureRegister(I2CDevice sensor) {
+    super(sensor, 0xF7, 3, "Pressure");
   }
 
   public double getRawPressure() throws IOException {

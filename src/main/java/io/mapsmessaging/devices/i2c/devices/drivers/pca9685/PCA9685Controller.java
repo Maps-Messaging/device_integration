@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.drivers.pca9685;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos.Servo;
 import io.mapsmessaging.schemas.config.SchemaConfig;
@@ -48,6 +49,10 @@ public class PCA9685Controller extends I2CDeviceController {
     super(device);
     this.device = new PCA9685Device(device);
     this.device.setPWMFrequency(60);
+  }
+
+  public I2CDevice getDevice(){
+    return device;
   }
 
 

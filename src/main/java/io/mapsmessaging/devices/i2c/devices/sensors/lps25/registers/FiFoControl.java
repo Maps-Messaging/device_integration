@@ -17,7 +17,6 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.FiFoMode;
 
@@ -29,8 +28,8 @@ public class FiFoControl extends SingleByteRegister {
   private static final byte FIFO_MODE = (byte) 0b11100000;
   private static final byte FIFO_THRESHOLD = 0b00011111;
 
-  public FiFoControl(I2CDevice sensor, RegisterMap registerMap) throws IOException {
-    super(sensor, FIFO_CONTROL, "FIFO_CTRL", registerMap);
+  public FiFoControl(I2CDevice sensor) throws IOException {
+    super(sensor, FIFO_CONTROL, "FIFO_CTRL");
     reload();
   }
 

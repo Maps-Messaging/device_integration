@@ -50,9 +50,9 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
   public BNO055Sensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(BNO055Sensor.class));
     registerMap = new RegisterMap();
-    calibrationStatusRegister = new CalibrationStatusRegister(this, registerMap);
-    systemStatusRegister = new SystemStatusRegister(this, registerMap);
-    errorStatusRegister = new ErrorStatusRegister(this, registerMap);
+    calibrationStatusRegister = new CalibrationStatusRegister(this);
+    systemStatusRegister = new SystemStatusRegister(this);
+    errorStatusRegister = new ErrorStatusRegister(this);
     initialise();
   }
 

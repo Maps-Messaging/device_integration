@@ -17,7 +17,6 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.Sensitivity;
 
@@ -25,8 +24,8 @@ import java.io.IOException;
 
 public class ActiveThRegister extends SingleByteRegister {
 
-  public ActiveThRegister(I2CDevice sensor, RegisterMap registerMap) throws IOException {
-    super(sensor, 0x28, "Active Threshold", registerMap);
+  public ActiveThRegister(I2CDevice sensor) throws IOException {
+    super(sensor, 0x28, "Active Threshold");
   }
 
   public double getThreshold(Sensitivity sensitivity) throws IOException {

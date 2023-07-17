@@ -17,7 +17,6 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
@@ -31,8 +30,8 @@ public class InterruptSetRegister extends SingleByteRegister {
   private static final byte ACTIVE_INT_EN_Y = (byte) 0b00000010;
   private static final byte ACTIVE_INT_EN_X = (byte) 0b00000001;
 
-  public InterruptSetRegister(I2CDevice sensor, RegisterMap registerMap) throws IOException {
-    super(sensor, 0x16, "Interrupt Set", registerMap);
+  public InterruptSetRegister(I2CDevice sensor) throws IOException {
+    super(sensor, 0x16, "Interrupt Set");
   }
 
   public void setOrientInterruptEnabled(boolean enabled) throws IOException {

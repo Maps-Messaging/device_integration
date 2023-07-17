@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.pmsa003i;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -43,6 +44,10 @@ public class Pmsa003iController extends I2CDeviceController {
   public Pmsa003iController(I2C device) {
     super(device);
     sensor = new Pmsa003iSensor(device);
+  }
+
+  public I2CDevice getDevice(){
+    return sensor;
   }
 
   @Override

@@ -17,7 +17,6 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.DataReadyInterrupt;
 
@@ -31,8 +30,8 @@ public class Control3 extends SingleByteRegister {
   private static final byte PUSH_PULL_DRAIN = 0b01000000;
   private static final byte INTERRUPT_SIGNAL = 0b00000011;
 
-  public Control3(I2CDevice sensor, RegisterMap registerMap) throws IOException {
-    super(sensor, CONTROL_REGISTER3, "CTRL_REG3", registerMap);
+  public Control3(I2CDevice sensor) throws IOException {
+    super(sensor, CONTROL_REGISTER3, "CTRL_REG3");
     reload();
   }
 

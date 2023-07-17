@@ -49,4 +49,11 @@ public abstract class I2CDeviceController implements DeviceController {
 
   public abstract boolean detect(I2C i2cDevice);
 
+  public abstract I2CDevice getDevice();
+
+  protected static float round (float value, int precision) {
+    int scale = (int) Math.pow(10, precision);
+    return (float) Math.round(value * scale) / scale;
+  }
+
 }

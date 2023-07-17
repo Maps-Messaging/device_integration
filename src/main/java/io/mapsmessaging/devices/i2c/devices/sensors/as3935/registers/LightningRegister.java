@@ -17,7 +17,6 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
@@ -28,8 +27,8 @@ public class LightningRegister extends SingleByteRegister {
   private static final int LIGHTNING_REG_MIN_NUM_LIGH_BITS = 4;
   private static final int LIGHTNING_REG_CL_STAT_BIT = 6;
 
-  public LightningRegister(I2CDevice sensor, RegisterMap registerMap) throws IOException {
-    super(sensor, 0x02, "Lightning", registerMap);
+  public LightningRegister(I2CDevice sensor) throws IOException {
+    super(sensor, 0x02, "Lightning");
   }
 
   public int getSpikeRejection() throws IOException {

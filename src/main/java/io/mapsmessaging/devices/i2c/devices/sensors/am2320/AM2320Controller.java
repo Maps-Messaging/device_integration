@@ -18,6 +18,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.am2320;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.NamingConstants;
+import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -47,6 +48,9 @@ public class AM2320Controller extends I2CDeviceController {
     sensor = new AM2320Sensor(device);
   }
 
+  public I2CDevice getDevice(){
+    return sensor;
+  }
 
   public I2CDeviceController mount(I2C device) throws IOException {
     return new AM2320Controller(device);

@@ -17,7 +17,6 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
@@ -27,8 +26,8 @@ public class ZBlockRegister extends SingleByteRegister {
   private static final byte Z_BLOCKING_MASK = (byte) 0b00001111;
   private static final float Z_BLOCKING_LSB = 0.0625f; // 1LSB is 0.0625g
 
-  public ZBlockRegister(I2CDevice sensor, RegisterMap registerMap) throws IOException {
-    super(sensor, 0x2D, "Z Blocking", registerMap);
+  public ZBlockRegister(I2CDevice sensor) throws IOException {
+    super(sensor, 0x2D, "Z Blocking");
   }
 
   public float getZBlockingThreshold() throws IOException {

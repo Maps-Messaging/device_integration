@@ -26,8 +26,8 @@ public class MultiByteRegister extends Register {
   @Getter
   private final byte[] buffer;
 
-  public MultiByteRegister(I2CDevice sensor, int address, int size, String name, RegisterMap registerMap) {
-    super(sensor, address, name, registerMap);
+  public MultiByteRegister(I2CDevice sensor, int address, int size, String name) {
+    super(sensor, address, name);
     buffer = new byte[size];
   }
 
@@ -73,7 +73,7 @@ public class MultiByteRegister extends Register {
 
 
   @Override
-  public String toString() {
+  public String toString(int length) {
     try {
       reload();
     } catch (IOException e) {
@@ -83,7 +83,7 @@ public class MultiByteRegister extends Register {
     int c = 0;
     for (byte b : buffer) {
       if (c != 0) stringBuilder.append("\t");
-      stringBuilder.append(displayRegister(address + c, b));
+      stringBuilder.append(displayRegister(length, getAddress() + c, b));
       c++;
       if (c < buffer.length) stringBuilder.append("\n");
     }

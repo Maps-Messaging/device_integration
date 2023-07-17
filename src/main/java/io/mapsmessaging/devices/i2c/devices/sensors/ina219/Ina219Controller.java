@@ -18,6 +18,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.ina219;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.NamingConstants;
+import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.*;
 import io.mapsmessaging.schemas.config.SchemaConfig;
@@ -50,6 +51,10 @@ public class Ina219Controller extends I2CDeviceController {
   public Ina219Controller(I2C device) throws IOException {
     super(device);
     sensor = new Ina219Sensor(device);
+  }
+
+  public I2CDevice getDevice(){
+    return sensor;
   }
 
   @Override

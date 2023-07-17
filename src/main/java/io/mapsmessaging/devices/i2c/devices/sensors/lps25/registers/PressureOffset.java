@@ -18,14 +18,18 @@ package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
-import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 
 import java.io.IOException;
 
 public class PressureOffset extends MultiByteRegister {
 
-  public PressureOffset(I2CDevice sensor, RegisterMap registerMap) {
-    super(sensor, 0x39 | 0x80, 2, "RPDS", registerMap);
+  public PressureOffset(I2CDevice sensor) {
+    super(sensor, 0x39 | 0x80, 2, "RPDS");
+  }
+
+  @Override
+  public int getAddress(){
+    return address & (~0x80);
   }
 
   public int getPressureOffset() throws IOException {

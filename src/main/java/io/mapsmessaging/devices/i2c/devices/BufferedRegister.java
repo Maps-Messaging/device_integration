@@ -24,8 +24,8 @@ public class BufferedRegister extends Register {
 
   private final byte[] data;
 
-  protected BufferedRegister(I2CDevice sensor, int address, byte[] data, String name, RegisterMap registerMap) {
-    super(sensor, address, name, registerMap);
+  protected BufferedRegister(I2CDevice sensor, int address, byte[] data, String name) {
+    super(sensor, address, name);
     this.data = data;
   }
 
@@ -36,17 +36,17 @@ public class BufferedRegister extends Register {
 
   @Override
   protected void setControlRegister(int mask, int value) throws IOException {
-    data[address] = (byte) ((data[address] & mask) | value);
-    sensor.write(address, data[address]);
+    data[getAddress()] = (byte) ((data[getAddress()] & mask) | value);
+    sensor.write(getAddress(), data[getAddress()]);
   }
 
   @Override
-  public String toString() {
+  public String toString(int length) {
     try {
       reload();
     } catch (IOException e) {
 
     }
-    return displayRegister(address, data[address]);
+    return displayRegister(length, getAddress(), data[getAddress()]);
   }
 }

@@ -43,15 +43,15 @@ public class AS3935Sensor extends I2CDevice implements PowerManagement, Sensor {
   public AS3935Sensor(I2C device, int tuning) throws IOException {
     super(device, LoggerFactory.getLogger(AS3935Sensor.class));
     registerMap = new RegisterMap();
-    afeRegister = new AfeRegister(this, registerMap);
-    thresholdRegister = new ThresholdRegister(this, registerMap);
-    calibSrcoTrcoRegister = new Calib_SRCO_TRCO_Register(this, registerMap);
-    calibSrcoSrcoRegister = new Calib_SRCO_SRCO_Register(this, registerMap);
-    distanceRegister = new DistanceRegister(this, registerMap);
-    interruptRegister = new InterruptRegister(this, registerMap);
-    lightningStrikeRegister = new Lightning_Strike_Register(this, registerMap);
-    lightningRegister = new LightningRegister(this, registerMap);
-    tunCapRegister = new Tun_Cap_Register(this, registerMap);
+    afeRegister = new AfeRegister(this);
+    thresholdRegister = new ThresholdRegister(this);
+    calibSrcoTrcoRegister = new Calib_SRCO_TRCO_Register(this);
+    calibSrcoSrcoRegister = new Calib_SRCO_SRCO_Register(this);
+    distanceRegister = new DistanceRegister(this);
+    interruptRegister = new InterruptRegister(this);
+    lightningStrikeRegister = new Lightning_Strike_Register(this);
+    lightningRegister = new LightningRegister(this);
+    tunCapRegister = new Tun_Cap_Register(this);
     this.tuning = tuning;
     setup();
     /*

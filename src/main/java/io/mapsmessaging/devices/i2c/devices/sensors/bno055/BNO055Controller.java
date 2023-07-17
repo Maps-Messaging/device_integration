@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.bno055;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.i2c.devices.sensors.bno055.values.SystemStatus;
@@ -47,6 +48,10 @@ public class BNO055Controller extends I2CDeviceController {
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       sensor = new BNO055Sensor(device);
     }
+  }
+
+  public I2CDevice getDevice(){
+    return sensor;
   }
 
   @Override

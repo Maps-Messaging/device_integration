@@ -1,7 +1,6 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.Odr;
 
@@ -13,8 +12,8 @@ public class OdrRegister extends SingleByteRegister {
   private static final byte DISABLE_Y_AXIS = 0b01000000;
   private static final byte DISABLE_Z_AXIS = 0b00100000;
 
-  public OdrRegister(I2CDevice sensor, RegisterMap registerMap) throws IOException {
-    super(sensor, 0x10, "ORD", registerMap);
+  public OdrRegister(I2CDevice sensor) throws IOException {
+    super(sensor, 0x10, "ORD");
   }
 
   public Odr getOdr() throws IOException {

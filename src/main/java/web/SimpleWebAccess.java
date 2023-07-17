@@ -82,8 +82,8 @@ public class SimpleWebAccess {
         ctx.status(404).result("Device not found");
       }
     });
-    // I2C get static
-    app.get("/device/i2c/{id}/static", ctx -> {
+    // I2C get config
+    app.get("/device/i2c/{id}/config", ctx -> {
       String id = ctx.pathParam("id");
       I2CDeviceController device = deviceBusManager.getI2cBusManager().get(id);
       if (device != null) {
@@ -97,7 +97,7 @@ public class SimpleWebAccess {
       }
     });
     // I2C post request handler
-    app.post("/device/i2c/{id}", ctx -> {
+    app.post("/device/i2c/{id}/config", ctx -> {
       String id = ctx.pathParam("id");
       I2CDeviceController device = deviceBusManager.getI2cBusManager().get(id);
       if (device != null) {
@@ -112,6 +112,21 @@ public class SimpleWebAccess {
         ctx.status(404).result("Device not found");
       }
     });
+    // I2C get config
+    app.get("/device/i2c/{id}/registers", ctx -> {
+      String id = ctx.pathParam("id");
+      I2CDeviceController device = deviceBusManager.getI2cBusManager().get(id);
+      if (device != null) {
+        try {
+          handleGetRegisters(ctx, device);
+        } catch (IOException ex) {
+          deviceBusManager.getI2cBusManager().close(device);
+        }
+      } else {
+        ctx.status(404).result("Device not found");
+      }
+    });
+
     //</editor-fold>
 
     //<editor-fold desc="SPI handler">
@@ -174,6 +189,15 @@ public class SimpleWebAccess {
         ctx.status(404).result("Device not found");
       }
     });
+  }
+
+
+  private void handleGetRegisters(Context ctx, DeviceController deviceController) throws IOException {
+    String res = deviceController.getName()+" - "+deviceController.getDescription()+"\n";
+    if(deviceController instanceof I2CDeviceController){
+      res += ((I2CDeviceController)deviceController).getDevice().registerMap.toString();
+    }
+    ctx.result(res);
   }
 
 

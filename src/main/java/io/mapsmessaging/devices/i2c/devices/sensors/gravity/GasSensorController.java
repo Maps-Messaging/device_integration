@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.gravity;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.AcquireMode;
@@ -50,6 +51,10 @@ public class GasSensorController extends I2CDeviceController {
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       return new GasSensorController(device);
     }
+  }
+
+  public I2CDevice getDevice(){
+    return sensor;
   }
 
   public byte[] getStaticPayload() {

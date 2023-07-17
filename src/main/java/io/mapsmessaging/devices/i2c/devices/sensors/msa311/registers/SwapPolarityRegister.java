@@ -1,7 +1,6 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
@@ -13,8 +12,8 @@ public class SwapPolarityRegister extends SingleByteRegister {
   private static final byte Z_POLARITY = (byte) 0b0010;
   private static final byte X_Y_SWAP = (byte) 0b0001;
 
-  public SwapPolarityRegister(I2CDevice sensor, RegisterMap registerMap) throws IOException {
-    super(sensor, 0x12, "Swap Polarity", registerMap);
+  public SwapPolarityRegister(I2CDevice sensor) throws IOException {
+    super(sensor, 0x12, "Swap Polarity");
   }
 
 

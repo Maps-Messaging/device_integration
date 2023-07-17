@@ -2,6 +2,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.lps35;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.NamingConstants;
+import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps35.registers.DataRate;
 import io.mapsmessaging.schemas.config.SchemaConfig;
@@ -30,6 +31,10 @@ public class Lps35Controller extends I2CDeviceController {
     super(device);
     sensor = new Lps35Sensor(device);
     sensor.setDataRate(DataRate.RATE_1_HZ);
+  }
+
+  public I2CDevice getDevice(){
+    return sensor;
   }
 
   @Override

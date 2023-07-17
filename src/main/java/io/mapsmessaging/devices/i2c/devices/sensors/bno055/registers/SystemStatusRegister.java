@@ -17,7 +17,6 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.bno055.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.bno055.values.SystemStatus;
 
@@ -29,8 +28,8 @@ public class SystemStatusRegister extends SingleByteRegister {
 
   private long lastRead;
 
-  public SystemStatusRegister(I2CDevice sensor, RegisterMap registerMap) throws IOException {
-    super(sensor, 0X39, "System Status", registerMap);
+  public SystemStatusRegister(I2CDevice sensor) throws IOException {
+    super(sensor, 0X39, "System Status");
     lastRead = System.currentTimeMillis();
   }
 

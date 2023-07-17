@@ -31,15 +31,12 @@ public abstract class Register {
   @Getter
   protected final String name;
 
-  @Getter
-  protected final RegisterMap registerMap;
 
-  protected Register(I2CDevice sensor, int address, String name, RegisterMap registerMap) {
+  protected Register(I2CDevice sensor, int address, String name) {
     this.address = address;
     this.sensor = sensor;
     this.name = name;
-    this.registerMap = registerMap;
-    registerMap.addRegister(this);
+    sensor.getRegisterMap().addRegister(this);
   }
 
   protected abstract void reload() throws IOException;
@@ -62,11 +59,14 @@ public abstract class Register {
     }
   }
 
-  protected String displayRegister(int add, int val) {
-    return getName() + "\t" + "0x" + Integer.toHexString(add) + " :: " + toBinary(val & 0xff);
+  public abstract String toString(int maxLength);
+
+  protected String displayRegister(int length, int add, int val) {
+    String paddedName = String.format("%-" + length + "s", getName());
+    String paddedHex = String.format("0x%02X", (add & 0xff));
+    String binaryString = String.format("%8s", Integer.toBinaryString(val & 0xFF)).replace(' ', '0');
+    String paddedValHex = String.format("0x%02X", (val & 0xff));
+    return paddedName + "\t" + paddedHex + "\t [" + binaryString+"] "+paddedValHex ;
   }
 
-  protected String toBinary(int value) {
-    return String.format("%8s", Integer.toBinaryString(value & 0xFF)).replace(' ', '0');
-  }
 }

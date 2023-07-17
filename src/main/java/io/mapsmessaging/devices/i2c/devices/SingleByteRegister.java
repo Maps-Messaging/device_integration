@@ -24,8 +24,8 @@ public class SingleByteRegister extends Register {
 
   protected byte registerValue;
 
-  public SingleByteRegister(I2CDevice sensor, int address, String name, RegisterMap registerMap) throws IOException {
-    super(sensor, address, name, registerMap);
+  public SingleByteRegister(I2CDevice sensor, int address, String name) throws IOException {
+    super(sensor, address, name);
     reload();
   }
 
@@ -40,12 +40,13 @@ public class SingleByteRegister extends Register {
     sensor.write(address, registerValue);
   }
 
-  public String toString() {
+
+  public String toString(int length) {
     try {
       reload();
     } catch (IOException e) {
-
+      // ignore, its a toString() function
     }
-    return displayRegister(address, registerValue);
+    return displayRegister(length, getAddress(), registerValue);
   }
 }

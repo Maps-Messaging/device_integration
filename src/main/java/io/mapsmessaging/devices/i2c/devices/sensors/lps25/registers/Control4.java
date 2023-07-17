@@ -17,7 +17,6 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
@@ -31,8 +30,8 @@ public class Control4 extends SingleByteRegister {
   private static final byte FIFO_OVERFLOW = 0b00000010;
   private static final byte DATA_READY = 0b00000001;
 
-  public Control4(I2CDevice sensor, RegisterMap registerMap) throws IOException {
-    super(sensor, CONTROL_REGISTER4, "CTRL_REG4", registerMap);
+  public Control4(I2CDevice sensor) throws IOException {
+    super(sensor, CONTROL_REGISTER4, "CTRL_REG4");
     reload();
   }
 

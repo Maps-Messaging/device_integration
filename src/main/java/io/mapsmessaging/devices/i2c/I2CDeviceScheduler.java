@@ -34,6 +34,9 @@ public class I2CDeviceScheduler extends I2CDeviceController {
     return deviceController.getName();
   }
 
+  public I2CDevice getDevice(){
+    return deviceController.getDevice();
+  }
 
   @Override
   public String getDescription() {

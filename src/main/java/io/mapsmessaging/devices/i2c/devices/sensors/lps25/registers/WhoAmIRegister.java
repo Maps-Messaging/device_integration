@@ -17,15 +17,14 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
 
 public class WhoAmIRegister extends SingleByteRegister {
 
-  public WhoAmIRegister(I2CDevice sensor, RegisterMap registerMap) throws IOException {
-    super(sensor, 0x0F, "WHO_AM_I", registerMap);
+  public WhoAmIRegister(I2CDevice sensor) throws IOException {
+    super(sensor, 0x0F, "WHO_AM_I");
   }
 
   public int getWhoAmI() {

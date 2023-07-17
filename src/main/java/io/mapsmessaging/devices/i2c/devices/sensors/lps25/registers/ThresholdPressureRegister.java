@@ -18,14 +18,18 @@ package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
-import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 
 import java.io.IOException;
 
 public class ThresholdPressureRegister extends MultiByteRegister {
 
-  public ThresholdPressureRegister(I2CDevice sensor, RegisterMap registerMap) {
-    super(sensor, 0x30 | 0x80, 2, "THS_P", registerMap);
+  public ThresholdPressureRegister(I2CDevice sensor) {
+    super(sensor, 0x30 | 0x80, 2, "THS_P");
+  }
+
+  @Override
+  public int getAddress(){
+    return address & (~0x80);
   }
 
   public void setThreshold(float value) throws IOException {

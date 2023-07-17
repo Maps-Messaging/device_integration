@@ -18,6 +18,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.bh1750;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.NamingConstants;
+import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.devices.sensors.bh1750.values.ResolutionMode;
 import io.mapsmessaging.devices.i2c.devices.sensors.bh1750.values.SensorReading;
@@ -53,6 +54,10 @@ public class Bh1750Controller extends I2CDeviceController {
   public Bh1750Controller(I2C device) throws IOException {
     super(device);
     sensor = new Bh1750Sensor(device);
+  }
+
+  public I2CDevice getDevice(){
+    return sensor;
   }
 
   @Override

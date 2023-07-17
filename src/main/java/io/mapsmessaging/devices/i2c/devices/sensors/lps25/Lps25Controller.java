@@ -2,6 +2,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.lps25;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.NamingConstants;
+import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.DataRate;
@@ -36,6 +37,10 @@ public class Lps25Controller extends I2CDeviceController {
       sensor.setDataRate(DataRate.RATE_1_HZ);
     }
   }
+  
+  public I2CDevice getDevice(){
+    return sensor;
+  }
 
   @Override
   public boolean canDetect() {
@@ -64,7 +69,7 @@ public class Lps25Controller extends I2CDeviceController {
   public byte[] getStaticPayload() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
-      return JsonHelper.pack(sensor).toString(2).getBytes();
+      return JsonHelper.packStaticPayload(sensor).toString(2).getBytes();
     }
     return jsonObject.toString(2).getBytes();
   }
@@ -72,9 +77,8 @@ public class Lps25Controller extends I2CDeviceController {
   public byte[] getUpdatePayload() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
-      System.err.println(sensor.toString());
-      jsonObject.put("temperature", sensor.getTemperature());
-      jsonObject.put("pressure", sensor.getPressure());
+      jsonObject.put("temperature", round(sensor.getTemperature(), 1));
+      jsonObject.put("pressure", round(sensor.getPressure(),2));
     }
     return jsonObject.toString(2).getBytes();
   }
