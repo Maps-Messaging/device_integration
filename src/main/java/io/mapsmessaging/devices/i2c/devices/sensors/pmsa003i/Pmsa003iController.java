@@ -47,32 +47,6 @@ public class Pmsa003iController extends I2CDeviceController {
   public Pmsa003iController(I2C device) {
     super(device);
     sensor = new Pmsa003iSensor(device);
-    Thread t = new Thread(() -> {
-      while(true){
-        try {
-          System.err.println(sensor.getPm1_0Standard() +","+
-              sensor.getPm2_5Standard()+","+
-              sensor.getPm10Standard()+","+
-              sensor.getPm1_0Atmospheric()+","+
-              sensor.getPm2_5Atmospheric()+","+
-              sensor.getPm10Atmospheric()+","+
-              sensor.getParticlesLargerThan3()+","+
-              sensor.getParticlesLargerThan5()+","+
-              sensor.getParticlesLargerThan10()+","+
-              sensor.getParticlesLargerThan25()+","+
-              sensor.getParticlesLargerThan50()+","+
-              sensor.getParticlesLargerThan100());
-        } catch (IOException e) {
-          return;
-        }
-        try {
-          Thread.sleep(10000);
-        } catch (InterruptedException e) {
-
-        }
-      }
-    });
-    t.start();
   }
 
   public I2CDevice getDevice(){
