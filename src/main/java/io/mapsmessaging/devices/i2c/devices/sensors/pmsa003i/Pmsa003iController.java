@@ -91,6 +91,7 @@ public class Pmsa003iController extends I2CDeviceController {
     }
     return jsonObject.toString(2).getBytes();
   }
+
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig();
     config.setComments("Air Quality Breakout");

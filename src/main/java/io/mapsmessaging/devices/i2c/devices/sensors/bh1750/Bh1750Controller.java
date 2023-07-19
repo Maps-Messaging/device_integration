@@ -16,12 +16,18 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.bh1750;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.NamingConstants;
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.devices.sensors.bh1750.values.ResolutionMode;
-import io.mapsmessaging.devices.i2c.devices.sensors.bh1750.values.SensorReading;
+import io.mapsmessaging.devices.i2c.devices.sensors.bh1750.values.SensorReadingMode;
+import io.mapsmessaging.devices.sensorreadings.ComputationResult;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -31,6 +37,7 @@ import org.everit.json.schema.ObjectSchema;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.List;
 
 public class Bh1750Controller extends I2CDeviceController {
 
@@ -69,38 +76,43 @@ public class Bh1750Controller extends I2CDeviceController {
     return new Bh1750Controller(device);
   }
 
-  public byte[] getDeviceConfiguration() {
+  public byte[] getDeviceConfiguration() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
-      jsonObject.put(SENSOR_READING, sensor.getSensorReading().name());
-      jsonObject.put(RESOLUTION_MODE, sensor.getResolutionMode().name());
+      ObjectMapper objectMapper = new ObjectMapper();
+      String json = objectMapper.writeValueAsString(sensor.getRegisterMap().getData());
+      return json.getBytes();
     }
     return jsonObject.toString(2).getBytes();
   }
 
   public byte[] getDeviceState() throws IOException {
     JSONObject jsonObject = new JSONObject();
-    jsonObject.put(LUX, sensor.getLux());
+    if (sensor != null) {
+      List<SensorReading<?>> readings = sensor.getReadings();
+      for (SensorReading<?> reading : readings) {
+        ComputationResult<?> computationResult = reading.getValue();
+        if (!computationResult.hasError()) {
+          jsonObject.put(reading.getName(), computationResult.getResult());
+        } else {
+          jsonObject.put(reading.getName(), computationResult.getError().getMessage());
+        }
+      }
+    }
     return jsonObject.toString(2).getBytes();
   }
 
   @Override
   public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
-    JSONObject jsonObject = new JSONObject(new String(val));
-    JSONObject response = new JSONObject();
-    if (jsonObject.has(SENSOR_READING)) {
-      SensorReading sensorReading = SensorReading.valueOf(jsonObject.getString(SENSOR_READING));
-      sensor.setSensorReading(sensorReading);
-      jsonObject.put(SENSOR_READING, sensorReading.name());
+    if (sensor != null) {
+      ObjectMapper objectMapper = new ObjectMapper();
+      objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      JavaType type = objectMapper.getTypeFactory().constructCollectionType(List.class, AbstractRegisterData.class);
+      List<AbstractRegisterData> data = objectMapper.readValue(new String(val), type);
+      sensor.getRegisterMap().setData(data);
     }
-    if (jsonObject.has(RESOLUTION_MODE)) {
-      ResolutionMode resolutionMode = ResolutionMode.valueOf(jsonObject.getString(RESOLUTION_MODE));
-      sensor.setResolutionMode(resolutionMode);
-      jsonObject.put(RESOLUTION_MODE, resolutionMode.name());
-    }
-    return response.toString(2).getBytes();
+    return ("{}").getBytes();
   }
-
 
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
@@ -124,7 +136,7 @@ public class Bh1750Controller extends I2CDeviceController {
     }
 
     EnumSchema.Builder sensorReadingEnum = EnumSchema.builder();
-    for (SensorReading val : SensorReading.values()) {
+    for (SensorReadingMode val : SensorReadingMode.values()) {
       sensorReadingEnum.possibleValue(val.name());
     }
 

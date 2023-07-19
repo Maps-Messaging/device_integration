@@ -18,7 +18,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.bh1750.values;
 
 import lombok.Getter;
 
-public enum SensorReading {
+public enum SensorReadingMode {
 
   CONTINUOUS(0b00010000),
   ONE_TIME(0b00100000);
@@ -26,7 +26,7 @@ public enum SensorReading {
   @Getter
   private final int mask;
 
-  SensorReading(int mask) {
+  SensorReadingMode(int mask) {
     this.mask = mask;
   }
 }

@@ -22,25 +22,29 @@ import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
+import io.mapsmessaging.devices.i2c.devices.sensors.bh1750.register.ReadingModeRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.bh1750.values.ResolutionMode;
-import io.mapsmessaging.devices.i2c.devices.sensors.bh1750.values.SensorReading;
+import io.mapsmessaging.devices.i2c.devices.sensors.bh1750.values.SensorReadingMode;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
+import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
 import java.io.IOException;
+import java.util.List;
 
 public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor, Resetable {
 
   private static final byte POWER_DOWN = 0b00000000;
-  private static final byte POWER_UP   = 0b00000001;
-  private static final byte RESET      = 0b00000111;
+  private static final byte POWER_UP = 0b00000001;
+  private static final byte RESET = 0b00000111;
 
   @Getter
-  private ResolutionMode resolutionMode;
+  private final ReadingModeRegister readingModeRegister;
 
   @Getter
-  private SensorReading sensorReading;
+  private final List<SensorReading<?>> readings;
 
   private int lux;
   private long lastRead;
@@ -48,28 +52,12 @@ public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor, 
   public Bh1750Sensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(Bh1750Sensor.class));
     lastRead = 0;
-    resolutionMode = ResolutionMode.H_RESOLUTION_MODE;
-    sensorReading = SensorReading.CONTINUOUS;
+    readingModeRegister = new ReadingModeRegister(this, 0, "Mode");
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       initialise();
     }
-  }
-
-  public void setResolutionMode(ResolutionMode mode) throws IOException {
-    if (logger.isDebugEnabled()) {
-      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "setResolutionMode( "+mode.name()+")");
-    }
-    resolutionMode = mode;
-    write(resolutionMode.getMask() | sensorReading.getMask());
-  }
-
-  public void setSensorReading(SensorReading reading) throws IOException {
-    if (logger.isDebugEnabled()) {
-      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "setSensorReading( "+reading.name()+")");
-    }
-
-    sensorReading = reading;
-    write(resolutionMode.getMask() | sensorReading.getMask());
+    FloatSensorReading luxReading = new FloatSensorReading("lux", "lx", 0, 0xffff, this::getLux);
+    readings = List.of(luxReading);
   }
 
   @Override
@@ -114,15 +102,8 @@ public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor, 
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "initialise()");
     }
     powerOn();
-    write(resolutionMode.getMask() | sensorReading.getMask());
-  }
-
-  public float getLux() throws IOException {
-    scanForChange();
-    if (logger.isDebugEnabled()) {
-      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), lux + " = getCurrentValue()");
-    }
-    return (lux / 1.2f) / resolutionMode.getAdjustment();
+    readingModeRegister.setResolutionMode(ResolutionMode.H_RESOLUTION_MODE);
+    readingModeRegister.setSensorReading(SensorReadingMode.CONTINUOUS);
   }
 
   @Override
@@ -138,11 +119,19 @@ public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor, 
 
   private void scanForChange() throws IOException {
     if (lastRead < System.currentTimeMillis()) {
-      lastRead = System.currentTimeMillis() + resolutionMode.getDelay();
+      lastRead = System.currentTimeMillis() + readingModeRegister.getResolutionMode().getDelay();
       byte[] data = new byte[2];
       read(data);
       lux = (data[0] & 0xff) << 8 | (data[1] & 0xff);
     }
+  }
+
+  private float getLux() throws IOException {
+    scanForChange();
+    if (logger.isDebugEnabled()) {
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), lux + " = getCurrentValue()");
+    }
+    return (lux / 1.2f) / readingModeRegister.getResolutionMode().getAdjustment();
   }
 
 }

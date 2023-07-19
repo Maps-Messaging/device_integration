@@ -51,12 +51,13 @@ public abstract class I2CDevice implements Device, AutoCloseable {
 
   public abstract boolean isConnected();
 
-  protected void write(int val) throws IOException {
+  public void write(int val) throws IOException {
     if (logger.isDebugEnabled()) {
       log(I2C_BUS_DEVICE_WRITE, 0, String.format("%02X", val));
     }
     try {
-      if (device.write(val) < 1 && DeviceBusManager.getInstance().isSupportsLengthResponse()) throw new IOException("Failed to write to device");
+      if (device.write(val) < 1 && DeviceBusManager.getInstance().isSupportsLengthResponse())
+        throw new IOException("Failed to write to device");
     } catch (Pi4JException e) {
       throw new IOException(e);
     }
