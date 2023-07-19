@@ -64,12 +64,12 @@ public class DS18B20Controller implements OneWireDeviceController {
   }
 
   @Override
-  public byte[] getStaticPayload() {
+  public byte[] getDeviceConfiguration() {
     return "{}".getBytes();
   }
 
   @Override
-  public byte[] getUpdatePayload() {
+  public byte[] getDeviceState() {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
       sensor.update();

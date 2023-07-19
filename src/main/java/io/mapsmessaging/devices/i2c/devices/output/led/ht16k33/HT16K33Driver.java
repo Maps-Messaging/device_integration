@@ -17,7 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
 import com.pi4j.io.i2c.I2C;
-import io.mapsmessaging.devices.Output;
+import io.mapsmessaging.devices.deviceinterfaces.Output;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.LoggerFactory;

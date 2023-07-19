@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps25.data.Control3Data;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.DataReadyInterrupt;
 
 import java.io.IOException;
@@ -35,7 +37,7 @@ public class Control3 extends SingleByteRegister {
     reload();
   }
 
-  public boolean isInterruptActive() throws IOException {
+  public boolean isInterruptActive() {
     return (registerValue & INTERRUPT_ACTIVE) != 0;
   }
 
@@ -44,7 +46,7 @@ public class Control3 extends SingleByteRegister {
     setControlRegister(~INTERRUPT_ACTIVE, value);
   }
 
-  public boolean isPushPullDrainInterruptActive() throws IOException {
+  public boolean isPushPullDrainInterruptActive()  {
     return (registerValue & PUSH_PULL_DRAIN) != 0;
   }
 
@@ -57,7 +59,7 @@ public class Control3 extends SingleByteRegister {
     setControlRegister(~INTERRUPT_SIGNAL, flag.getMask());
   }
 
-  public DataReadyInterrupt isSignalOnInterrupt() throws IOException {
+  public DataReadyInterrupt isSignalOnInterrupt() {
     int mask = (registerValue & INTERRUPT_SIGNAL);
     for (DataReadyInterrupt dataReadyInterrupt : DataReadyInterrupt.values()) {
       if (mask == dataReadyInterrupt.getMask()) {
@@ -67,4 +69,20 @@ public class Control3 extends SingleByteRegister {
     return DataReadyInterrupt.ORDER_OF_PRIORITY;
   }
 
+  @Override
+  public AbstractRegisterData toData(){
+    return new Control3Data(isInterruptActive(), isPushPullDrainInterruptActive(), isSignalOnInterrupt());
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if(input instanceof Control3Data) {
+      Control3Data data = (Control3Data)input;
+      setSignalOnInterrupt(data.getSignalOnInterrupt());
+      enablePushPullDrainInterrupt(data.isPushPullDrainInterruptActive());
+      enableInterrupts(data.isInterruptActive());
+      return true;
+    }
+    return false;
+  }
 }

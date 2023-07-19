@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps25.data.Control4Data;
 
 import java.io.IOException;
 
@@ -40,7 +42,7 @@ public class Control4 extends SingleByteRegister {
     setControlRegister(~FIFO_EMPTY, value);
   }
 
-  public boolean isFiFoEmptyEnabled() throws IOException {
+  public boolean isFiFoEmptyEnabled() {
     return (registerValue & FIFO_EMPTY) != 0;
   }
 
@@ -49,7 +51,7 @@ public class Control4 extends SingleByteRegister {
     setControlRegister(~FIFO_THRESHOLD, value);
   }
 
-  public boolean isFiFoWatermarkInterruptEnabled() throws IOException {
+  public boolean isFiFoWatermarkInterruptEnabled() {
     return (registerValue & FIFO_THRESHOLD) != 0;
   }
 
@@ -58,11 +60,11 @@ public class Control4 extends SingleByteRegister {
     setControlRegister(~FIFO_OVERFLOW, value);
   }
 
-  public boolean isFiFoOverrunInterruptEnabled() throws IOException {
+  public boolean isFiFoOverrunInterruptEnabled() {
     return (registerValue & FIFO_OVERFLOW) != 0;
   }
 
-  public boolean isDataReadyInterrupt() throws IOException {
+  public boolean isDataReadyInterrupt() {
     return (registerValue & DATA_READY) != 0;
   }
 
@@ -70,4 +72,23 @@ public class Control4 extends SingleByteRegister {
     int value = flag ? DATA_READY : 0;
     setControlRegister(~DATA_READY, value);
   }
+
+  @Override
+  public AbstractRegisterData toData(){
+    return new Control4Data(isFiFoEmptyEnabled(), isFiFoWatermarkInterruptEnabled(), isFiFoOverrunInterruptEnabled(), isDataReadyInterrupt());
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if(input instanceof Control4Data) {
+      Control4Data data = (Control4Data)input;
+      enabledFiFoEmptyInterrupt(data.isFifoEmptyInterruptEnabled());
+      enableFiFoWatermarkInterrupt(data.isFifoWatermarkInterruptEnabled());
+      enableFiFoOverrunInterrupt(data.isFifoOverrunInterruptEnabled());
+      setDataReadyInterrupt(data.isDataReadyInterrupt());
+      return true;
+    }
+    return false;
+  }
+
 }

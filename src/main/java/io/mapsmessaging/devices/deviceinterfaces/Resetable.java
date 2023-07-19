@@ -1,4 +1,4 @@
-package io.mapsmessaging.devices;
+package io.mapsmessaging.devices.deviceinterfaces;
 
 import java.io.IOException;
 

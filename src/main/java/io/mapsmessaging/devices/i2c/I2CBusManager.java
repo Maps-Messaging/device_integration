@@ -133,7 +133,7 @@ public class I2CBusManager {
 
   public List<Integer> findDevicesOnBus() {
     List<Integer> found = new ArrayList<>();
-    for (int x = 0; x < 0x77; x++) {
+    for (int x = 0; x < 0x78; x++) {
       if (!activeDevices.containsKey(Integer.toHexString(x))) {
         try {
           I2C device = physicalDevices.get(x);

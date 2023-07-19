@@ -16,7 +16,7 @@
 
 package io.mapsmessaging.devices.onewire.devices.ds18b20;
 
-import io.mapsmessaging.devices.Sensor;
+import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.onewire.OneWireDevice;
 import lombok.Getter;
 

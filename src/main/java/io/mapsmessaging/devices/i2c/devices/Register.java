@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import lombok.Getter;
 
@@ -67,6 +68,14 @@ public abstract class Register {
     String binaryString = String.format("%8s", Integer.toBinaryString(val & 0xFF)).replace(' ', '0');
     String paddedValHex = String.format("0x%02X", (val & 0xff));
     return paddedName + "\t" + paddedHex + "\t [" + binaryString+"] "+paddedValHex ;
+  }
+
+  public AbstractRegisterData toData() throws IOException {
+    return null;
+  }
+
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    return false;
   }
 
 }

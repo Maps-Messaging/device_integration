@@ -17,7 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.drivers.pca9685;
 
 import com.pi4j.io.i2c.I2C;
-import io.mapsmessaging.devices.Output;
+import io.mapsmessaging.devices.deviceinterfaces.Output;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos.AngleResponse;
 import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos.PwmDevice;

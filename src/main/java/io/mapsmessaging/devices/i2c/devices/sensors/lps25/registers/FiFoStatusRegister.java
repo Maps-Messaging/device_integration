@@ -16,9 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
-import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.FiFoStatus;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps25.data.FiFoStatusData;
 
 import java.io.IOException;
 
@@ -28,11 +29,22 @@ public class FiFoStatusRegister extends SingleByteRegister {
     super(sensor, 0x2F, "FIFO_STATUS");
   }
 
-  public FiFoStatus getFiFoStatus() throws IOException {
-    reload();
-    return new FiFoStatus(
-        (registerValue & 0b10000000) != 0,
-        (registerValue & 0b1000000) != 0,
-        registerValue & 0b11111);
+  public boolean hasHitThreshold(){
+    return (registerValue & 0b10000000) != 0;
   }
+
+  public boolean isOverwritten(){
+    return(registerValue & 0b1000000) != 0;
+  }
+
+  public int getSize(){
+    return (registerValue & 0b11111) & 0xff;
+  }
+
+  @Override
+  public AbstractRegisterData toData(){
+    return new FiFoStatusData(hasHitThreshold(), isOverwritten(), getSize());
+  }
+
+
 }

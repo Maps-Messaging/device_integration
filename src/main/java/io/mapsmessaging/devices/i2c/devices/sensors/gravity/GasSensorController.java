@@ -57,7 +57,7 @@ public class GasSensorController extends I2CDeviceController {
     return sensor;
   }
 
-  public byte[] getStaticPayload() {
+  public byte[] getDeviceConfiguration() {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
       jsonObject.put("sku", sensor.getSensorType().getSku());
@@ -73,7 +73,7 @@ public class GasSensorController extends I2CDeviceController {
   }
 
   @Override
-  public byte[] setPayload(byte[] payload) throws IOException {
+  public byte[] updateDeviceConfiguration(byte[] payload) throws IOException {
     JSONObject json = new JSONObject(new String(payload));
     JSONObject response = new JSONObject();
     if (sensor == null) return response.toString(2).getBytes();
@@ -136,7 +136,7 @@ public class GasSensorController extends I2CDeviceController {
   }
 
 
-  public byte[] getUpdatePayload() throws IOException {
+  public byte[] getDeviceState() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
       sensor.updateAllFields();

@@ -63,7 +63,7 @@ public class AS3935Controller extends I2CDeviceController {
     return new AS3935Controller(device);
   }
 
-  public byte[] getStaticPayload() throws IOException {
+  public byte[] getDeviceConfiguration() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
       JSONObject jsonConfig = new JSONObject();
@@ -88,7 +88,7 @@ public class AS3935Controller extends I2CDeviceController {
     return jsonObject.toString(2).getBytes();
   }
 
-  public byte[] getUpdatePayload() throws IOException {
+  public byte[] getDeviceState() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
       jsonObject.put("energy", sensor.getEnergy());
@@ -99,7 +99,7 @@ public class AS3935Controller extends I2CDeviceController {
   }
 
   @Override
-  public byte[] setPayload(byte[] payload) throws IOException {
+  public byte[] updateDeviceConfiguration(byte[] payload) throws IOException {
     JSONObject jsonConfig = new JSONObject(new String(payload));
     JSONObject response = new JSONObject();
 

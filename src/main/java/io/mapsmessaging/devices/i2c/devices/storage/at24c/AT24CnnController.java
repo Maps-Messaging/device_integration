@@ -1,20 +1,20 @@
 package io.mapsmessaging.devices.i2c.devices.storage.at24c;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pi4j.io.i2c.I2C;
-import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
+import io.mapsmessaging.devices.i2c.devices.storage.at24c.data.AT24CnnCommand;
+import io.mapsmessaging.devices.i2c.devices.storage.at24c.data.AT24CnnResponse;
+import io.mapsmessaging.devices.i2c.devices.storage.at24c.data.ActionType;
+import io.mapsmessaging.devices.i2c.devices.storage.at24c.data.Details;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
-import org.everit.json.schema.BooleanSchema;
-import org.everit.json.schema.NumberSchema;
-import org.everit.json.schema.ObjectSchema;
-import org.everit.json.schema.StringSchema;
-import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.Base64;
 
 public class AT24CnnController extends I2CDeviceController {
 
@@ -35,7 +35,7 @@ public class AT24CnnController extends I2CDeviceController {
     sensor = new AT24CnnDevice(device);
   }
 
-  public I2CDevice getDevice(){
+  public I2CDevice getDevice() {
     return sensor;
   }
 
@@ -48,60 +48,44 @@ public class AT24CnnController extends I2CDeviceController {
     return new AT24CnnController(device);
   }
 
-  public byte[] getStaticPayload() throws IOException {
-    JSONObject jsonObject = new JSONObject();
-    if (sensor != null) {
-      jsonObject.put("size", sensor.getMemorySize());
-    }
-    return jsonObject.toString(2).getBytes();
+  public byte[] getDeviceConfiguration() throws IOException {
+    return getDeviceState();
   }
 
-  public byte[] getUpdatePayload() throws IOException {
-    JSONObject jsonObject = new JSONObject();
+  public byte[] getDeviceState() throws IOException {
     if (sensor != null) {
-      jsonObject.put("size", sensor.getMemorySize());
+      Details details = new Details(sensor.getName(), sensor.getMemorySize());
+      ObjectMapper objectMapper = new ObjectMapper();
+      return objectMapper.writeValueAsString(details).getBytes();
     }
-    return jsonObject.toString(2).getBytes();
+    return "{}".getBytes();
   }
 
-  public byte[] setPayload(byte[] val) throws IOException {
-    JSONObject response = new JSONObject();
-    JSONObject jsonObject = new JSONObject(new String(val));
-    int address = -1;
-    int size = 0;
-    byte[] data = null;
-    if (jsonObject.has("address")) {
-      address = jsonObject.getInt("address");
-    }
-    if (jsonObject.has("size")) {
-      size = jsonObject.getInt("size");
-    }
-    if (jsonObject.has("data")) {
-      data = Base64.getDecoder().decode(jsonObject.getString("data"));
-    }
-    if (sensor != null && address != -1) {
-      if (data != null) {
-        if (data.length + address > sensor.getMemorySize()) {
-          response.put("status", "Exceeds memory size " + sensor.getMemorySize() + " bytes");
-        } else {
-          sensor.writeBytes(address, data);
-          response.put("status", "wrote " + data.length + " bytes");
-        }
-      } else if (size > 0) {
-        size = Math.min(size, sensor.getMemorySize());
-        byte[] buff = sensor.readBytes(address, size);
-        response.put("data", Base64.getEncoder().encodeToString(buff));
-        response.put("status", "read " + buff.length + " bytes");
+  @Override
+  public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    JavaType type = objectMapper.getTypeFactory().constructType(AT24CnnCommand.class);
+    AT24CnnCommand command = objectMapper.readValue(new String(val), type);
+    AT24CnnResponse response = null;
+    if (sensor != null) {
+      if (command.getAction() == ActionType.READ) {
+        byte[] data = sensor.readBlock(command.getAddress(), command.getLength());
+        response = new AT24CnnResponse("Success", data);
+      } else if (command.getAction() == ActionType.WRITE) {
+        sensor.writeBlock(command.getAddress(), command.getData());
+        response = new AT24CnnResponse("Success", new byte[0]);
       }
     } else {
-      response.put("status", "Invalid arguments, require address, data or size");
+      response = new AT24CnnResponse("Error", new byte[0]);
     }
-    return response.toString(2).getBytes();
+    ObjectMapper objectMapper2 = new ObjectMapper();
+    return objectMapper2.writeValueAsString(response).getBytes();
   }
 
 
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
+    JsonSchemaConfig config = new JsonSchemaConfig();
     config.setComments("i2c device AT24C32/64 eeprom");
     config.setSource("I2C bus address : 0x57");
     config.setVersion("1.0");
@@ -114,53 +98,5 @@ public class AT24CnnController extends I2CDeviceController {
   public int[] getAddressRange() {
     int i2cAddr = 0x57;
     return new int[]{i2cAddr};
-  }
-
-
-  private String buildSchema() {
-    ObjectSchema.Builder staticSchema = ObjectSchema.builder()
-        .addPropertySchema("model",
-            StringSchema.builder()
-                .description("Model number of sensor")
-                .build()
-        )
-        .addPropertySchema("id",
-            StringSchema.builder()
-                .description("Unique ID of sensor")
-                .build()
-        )
-        .addPropertySchema("status",
-            BooleanSchema.builder()
-                .description("Current Status")
-                .build())
-        .addPropertySchema("version",
-            BooleanSchema.builder()
-                .description("Chip Version")
-                .build());
-
-    ObjectSchema.Builder updateSchema = ObjectSchema.builder()
-        .addPropertySchema("temperature",
-            NumberSchema.builder()
-                .minimum(-40.0)
-                .maximum(80.0)
-                .description("Temperature")
-                .build()
-        )
-        .addPropertySchema("humidity",
-            NumberSchema.builder()
-                .minimum(0.0)
-                .maximum(100.0)
-                .description("Humidity")
-                .build()
-        );
-
-    ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
-    schemaBuilder
-        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, updateSchema.build())
-        .addPropertySchema(NamingConstants.DEVICE_STATIC_DATA_SCHEMA, staticSchema.build())
-        .description("Humidity and Temperature Module")
-        .title("AM2315");
-
-    return schemaToString(schemaBuilder.build());
   }
 }

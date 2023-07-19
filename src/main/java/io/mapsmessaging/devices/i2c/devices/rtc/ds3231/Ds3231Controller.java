@@ -67,7 +67,7 @@ public class Ds3231Controller extends I2CDeviceController {
   }
 
   @Override
-  public byte[] getStaticPayload() {
+  public byte[] getDeviceConfiguration() {
     JSONObject jsonObject = new JSONObject();
     if (rtc != null) {
 
@@ -76,7 +76,7 @@ public class Ds3231Controller extends I2CDeviceController {
   }
 
   @Override
-  public byte[] getUpdatePayload() throws IOException {
+  public byte[] getDeviceState() throws IOException {
     if (packer != null && rtc != null) {
       rtc.read();
       return packer.pack();
@@ -85,7 +85,7 @@ public class Ds3231Controller extends I2CDeviceController {
   }
 
   @Override
-  public byte[] setPayload(byte[] val) throws IOException {
+  public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
     if (unpacker != null) {
       JSONObject jsonObject = new JSONObject(new String(val));
       return unpacker.unpack(jsonObject);

@@ -14,14 +14,13 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices;
+package io.mapsmessaging.devices.deviceinterfaces;
 
 import java.io.IOException;
 
-public interface PowerManagement {
+public interface Storage {
+  void writeBlock(int address, byte[] data) throws IOException;
 
-  void powerOn() throws IOException;
-
-  void powerOff() throws IOException;
+  byte[] readBlock(int address, int length) throws IOException;
 
 }

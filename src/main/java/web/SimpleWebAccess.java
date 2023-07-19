@@ -102,7 +102,7 @@ public class SimpleWebAccess {
       if (device != null) {
         try {
           ctx.status(200);
-          ctx.json(new String(device.setPayload(ctx.body().getBytes())));
+          ctx.json(new String(device.updateDeviceConfiguration(ctx.body().getBytes())));
         } catch (IOException e) {
           deviceBusManager.getI2cBusManager().close(device);
           ctx.status(400).result("Internal Error:" + e.getMessage());
@@ -162,7 +162,7 @@ public class SimpleWebAccess {
       SpiDeviceController device = deviceBusManager.getSpiBusManager().get(id);
       if (device != null) {
         ctx.status(200);
-        ctx.json(new String(device.setPayload(ctx.body().getBytes())));
+        ctx.json(new String(device.updateDeviceConfiguration(ctx.body().getBytes())));
       } else {
         ctx.status(404).result("Device not found");
       }
@@ -213,11 +213,11 @@ public class SimpleWebAccess {
   }
 
   private void handleGetStatic(Context ctx, DeviceController deviceController) throws IOException {
-    ctx.json(new String(deviceController.getStaticPayload()));
+    ctx.json(new String(deviceController.getDeviceConfiguration()));
   }
 
   private void handleDeviceGet(Context ctx, DeviceController deviceController) throws IOException {
-    ctx.json(new String(deviceController.getUpdatePayload()));
+    ctx.json(new String(deviceController.getDeviceState()));
   }
 
   private JSONArray packList(Map<String, DeviceController> devices) {

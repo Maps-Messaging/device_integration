@@ -1,7 +1,9 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps25.data.InterruptControlData;
 
 import java.io.IOException;
 
@@ -23,7 +25,7 @@ public class InterruptControl extends SingleByteRegister {
     setControlRegister(~LATCH_INTERRUPT_ENABLE, value);
   }
 
-  public boolean isLatchInterruptEnabled() throws IOException {
+  public boolean isLatchInterruptEnabled() {
     return (registerValue & LATCH_INTERRUPT_ENABLE) != 0;
   }
 
@@ -33,7 +35,7 @@ public class InterruptControl extends SingleByteRegister {
     setControlRegister(~LOW_INTERRUPT_ENABLE, value);
   }
 
-  public boolean isInterruptOnLowEnabled() throws IOException {
+  public boolean isInterruptOnLowEnabled() {
     return (registerValue & LOW_INTERRUPT_ENABLE) != 0;
   }
 
@@ -42,8 +44,27 @@ public class InterruptControl extends SingleByteRegister {
     setControlRegister(~HIGH_INTERRUPT_ENABLE, value);
   }
 
-  public boolean isInterruptOnHighEnabled() throws IOException {
+  public boolean isInterruptOnHighEnabled() {
     return (registerValue & HIGH_INTERRUPT_ENABLE) != 0;
+  }
+
+  public AbstractRegisterData toData() {
+    InterruptControlData data = new InterruptControlData();
+    data.setLatchInterruptEnabled(isLatchInterruptEnabled());
+    data.setInterruptOnLowEnabled(isInterruptOnLowEnabled());
+    data.setInterruptOnHighEnabled(isInterruptOnHighEnabled());
+    return data;
+  }
+
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if(input instanceof InterruptControlData) {
+      InterruptControlData data = (InterruptControlData)input;
+      setInterruptOnHigh(data.isInterruptOnHighEnabled());
+      setInterruptOnLow(data.isInterruptOnLowEnabled());
+      setLatchInterruptEnable(data.isLatchInterruptEnabled());
+      return true;
+    }
+    return false;
   }
 
 }

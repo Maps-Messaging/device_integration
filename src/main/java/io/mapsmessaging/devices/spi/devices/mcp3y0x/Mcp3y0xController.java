@@ -69,7 +69,7 @@ public class Mcp3y0xController extends SpiDeviceController {
     return device.getDescription();
   }
 
-  public byte[] getStaticPayload() {
+  public byte[] getDeviceConfiguration() {
     JSONObject jsonObject = new JSONObject();
     if (device != null) {
       jsonObject.put("resolution", device.getBits());
@@ -79,7 +79,7 @@ public class Mcp3y0xController extends SpiDeviceController {
     return jsonObject.toString(2).getBytes();
   }
 
-  public byte[] getUpdatePayload() {
+  public byte[] getDeviceState() {
     JSONObject jsonObject = new JSONObject();
     JSONArray jsonArray = new JSONArray();
     if (device != null) {

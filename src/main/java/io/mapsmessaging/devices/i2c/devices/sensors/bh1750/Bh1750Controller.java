@@ -69,7 +69,7 @@ public class Bh1750Controller extends I2CDeviceController {
     return new Bh1750Controller(device);
   }
 
-  public byte[] getStaticPayload() {
+  public byte[] getDeviceConfiguration() {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
       jsonObject.put(SENSOR_READING, sensor.getSensorReading().name());
@@ -78,14 +78,14 @@ public class Bh1750Controller extends I2CDeviceController {
     return jsonObject.toString(2).getBytes();
   }
 
-  public byte[] getUpdatePayload() throws IOException {
+  public byte[] getDeviceState() throws IOException {
     JSONObject jsonObject = new JSONObject();
     jsonObject.put(LUX, sensor.getLux());
     return jsonObject.toString(2).getBytes();
   }
 
   @Override
-  public byte[] setPayload(byte[] val) throws IOException {
+  public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
     JSONObject jsonObject = new JSONObject(new String(val));
     JSONObject response = new JSONObject();
     if (jsonObject.has(SENSOR_READING)) {

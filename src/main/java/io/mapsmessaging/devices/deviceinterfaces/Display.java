@@ -14,7 +14,7 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices;
+package io.mapsmessaging.devices.deviceinterfaces;
 
-public interface Storage {
+public interface Display {
 }

@@ -1,13 +1,14 @@
 package io.mapsmessaging.devices.i2c.devices.storage.at24c;
 
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.deviceinterfaces.Storage;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
 import java.io.IOException;
 
-public class AT24CnnDevice extends I2CDevice {
+public class AT24CnnDevice extends I2CDevice implements Storage {
 
   @Getter
   private final int memorySize;
@@ -26,24 +27,8 @@ public class AT24CnnDevice extends I2CDevice {
     memorySize = size;
   }
 
-  // Read a single byte at the given address
-  public byte readByte(int address) throws IOException {
-    byte[] writeBuffer = new byte[]{(byte) (address >> 8), (byte) (address & 0xFF)};
-    byte[] readBuffer = new byte[1];
-    write(writeBuffer, 0, writeBuffer.length);
-    int val = read(readBuffer, 0, readBuffer.length);
-    if (val < 0) return (byte) -1;
-    return readBuffer[0];
-  }
-
-  // Write a single byte at the given address
-  public void writeByte(int address, byte data) throws IOException {
-    byte[] buffer = new byte[]{(byte) (address >> 8), (byte) (address & 0xFF), data};
-    write(buffer, 0, buffer.length);
-  }
-
-  // Write a byte array at the given address
-  public void writeBytes(int address, byte[] data) throws IOException {
+  @Override
+  public void writeBlock(int address, byte[] data) throws IOException {
     int offset = 0;
     while (offset < data.length) {
       int len = Math.min(32, (data.length - offset));
@@ -55,22 +40,8 @@ public class AT24CnnDevice extends I2CDevice {
     }
   }
 
-  private void waitForReady() {
-    int count = 0;
-    boolean cont = true;
-    while (cont & count < 10) {
-      try {
-        cont = device.read() < 0;
-      } catch (Exception e) {
-        //ignore till we get the device to respond once more
-      }
-      delay(1);
-      count++;
-    }
-  }
-
-  // Read a byte array at the given address
-  public byte[] readBytes(int address, int length) throws IOException {
+  @Override
+  public byte[] readBlock(int address, int length) throws IOException {
     byte[] buffer = new byte[length];
     int offset = 0;
     while (offset < length) {
@@ -83,22 +54,6 @@ public class AT24CnnDevice extends I2CDevice {
       }
     }
     return buffer;
-  }
-
-  // Read a byte array at the given address
-  private int readBlock(int address, byte[] buffer, int offset, int len) throws IOException {
-    byte[] writeBuffer = new byte[]{(byte) (address >> 8), (byte) (address & 0xFF)};
-    write(writeBuffer, 0, writeBuffer.length);
-    return read(buffer, offset, len);
-  }
-
-  // Write a byte array at the given address
-  public void writeBlock(int address, byte[] data, int offset, int len) throws IOException {
-    byte[] buffer = new byte[len + 2];
-    buffer[0] = (byte) (address >> 8);
-    buffer[1] = (byte) (address & 0xFF);
-    System.arraycopy(data, offset, buffer, 2, len);
-    write(buffer, 0, buffer.length);
   }
 
   @Override
@@ -121,4 +76,46 @@ public class AT24CnnDevice extends I2CDevice {
   public boolean isConnected() {
     return true;
   }
+
+  private void waitForReady() {
+    int count = 0;
+    boolean cont = true;
+    while (cont & count < 10) {
+      try {
+        cont = device.read() < 0;
+      } catch (Exception e) {
+        //ignore till we get the device to respond once more
+      }
+      delay(1);
+      count++;
+    }
+  }
+
+  // Read a single byte at the given address
+  private byte readByte(int address) throws IOException {
+    byte[] writeBuffer = new byte[]{(byte) (address >> 8), (byte) (address & 0xFF)};
+    byte[] readBuffer = new byte[1];
+    write(writeBuffer, 0, writeBuffer.length);
+    int val = read(readBuffer, 0, readBuffer.length);
+    if (val < 0) return (byte) -1;
+    return readBuffer[0];
+  }
+
+
+  // Read a byte array at the given address
+  private int readBlock(int address, byte[] buffer, int offset, int len) throws IOException {
+    byte[] writeBuffer = new byte[]{(byte) (address >> 8), (byte) (address & 0xFF)};
+    write(writeBuffer, 0, writeBuffer.length);
+    return read(buffer, offset, len);
+  }
+
+  // Write a byte array at the given address
+  private void writeBlock(int address, byte[] data, int offset, int len) throws IOException {
+    byte[] buffer = new byte[len + 2];
+    buffer[0] = (byte) (address >> 8);
+    buffer[1] = (byte) (address & 0xFF);
+    System.arraycopy(data, offset, buffer, 2, len);
+    write(buffer, 0, buffer.length);
+  }
+
 }

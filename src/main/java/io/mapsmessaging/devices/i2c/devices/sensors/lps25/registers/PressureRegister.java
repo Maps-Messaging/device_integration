@@ -22,6 +22,7 @@ import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
 import java.io.IOException;
 
 public class PressureRegister extends MultiByteRegister {
+
   public PressureRegister(I2CDevice sensor) {
     super(sensor, 0x28 | 0x80, 3, "PRESS_OUT");
   }

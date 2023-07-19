@@ -17,7 +17,7 @@
 package io.mapsmessaging.devices.spi.devices.mcp3y0x;
 
 import com.pi4j.io.spi.Spi;
-import io.mapsmessaging.devices.Sensor;
+import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.spi.SpiDevice;
 import lombok.Getter;
 

@@ -1,7 +1,9 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps25.data.ResolutionData;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.PressureAverage;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.TemperatureAverage;
 
@@ -45,5 +47,19 @@ public class ResolutionRegister extends SingleByteRegister {
   public void setTemperatureAverage(TemperatureAverage ave) throws IOException {
     setControlRegister(~AVE_TEMPERATURE_MASK, (ave.getMask() << 2));
   }
+  public AbstractRegisterData toData() {
+    return new ResolutionData(getPressureAverage(), getTemperatureAverage());
+  }
+
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if(input instanceof ResolutionData) {
+      ResolutionData data = (ResolutionData)input;
+      setPressureAverage(data.getPressureAverage());
+      setTemperatureAverage(data.getTemperatureAverage());
+      return true;
+    }
+    return false;
+  }
+
 
 }

@@ -17,7 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.pmsa003i;
 
 import com.pi4j.io.i2c.I2C;
-import io.mapsmessaging.devices.Sensor;
+import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.BufferedRegister;
 import io.mapsmessaging.logging.LoggerFactory;

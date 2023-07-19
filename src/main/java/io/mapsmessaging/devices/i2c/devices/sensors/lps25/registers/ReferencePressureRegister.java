@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps25.data.ReferencePressureData;
 
 import java.io.IOException;
 
@@ -39,6 +41,21 @@ public class ReferencePressureRegister extends MultiByteRegister {
 
   public int getReference() {
     return asInt();
+  }
+
+  public AbstractRegisterData toData() {
+    ReferencePressureData data = new ReferencePressureData();
+    data.setReference(getReference());
+    return data;
+  }
+
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if(input instanceof ReferencePressureData) {
+      ReferencePressureData data = (ReferencePressureData) input;
+      setReference(data.getReference());
+      return true;
+    }
+    return false;
   }
 
 }

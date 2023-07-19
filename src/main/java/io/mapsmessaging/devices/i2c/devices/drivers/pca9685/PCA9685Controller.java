@@ -60,18 +60,18 @@ public class PCA9685Controller extends I2CDeviceController {
     return new PCA9685Controller(device);
   }
 
-  public byte[] getStaticPayload() {
+  public byte[] getDeviceConfiguration() {
     JSONObject jsonObject = new JSONObject();
     return jsonObject.toString(2).getBytes();
   }
 
-  public byte[] getUpdatePayload() {
+  public byte[] getDeviceState() {
     JSONObject jsonObject = new JSONObject();
     return jsonObject.toString(2).getBytes();
   }
 
   @Override
-  public byte[] setPayload(byte[] val) {
+  public byte[] updateDeviceConfiguration(byte[] val) {
     return "{}".getBytes();
   }
 

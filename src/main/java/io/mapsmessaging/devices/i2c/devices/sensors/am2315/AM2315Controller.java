@@ -63,7 +63,7 @@ public class AM2315Controller extends I2CDeviceController {
     return new AM2315Controller(device);
   }
 
-  public byte[] getStaticPayload() throws IOException {
+  public byte[] getDeviceConfiguration() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
       jsonObject.put("model", sensor.getModel());
@@ -74,7 +74,7 @@ public class AM2315Controller extends I2CDeviceController {
     return jsonObject.toString(2).getBytes();
   }
 
-  public byte[] getUpdatePayload() throws IOException {
+  public byte[] getDeviceState() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
       jsonObject.put("temperature", sensor.getTemperature());

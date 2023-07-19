@@ -59,11 +59,11 @@ public abstract class HT16K33Controller extends I2CDeviceController {
     return display != null && display.isConnected();
   }
 
-  public byte[] getStaticPayload() {
+  public byte[] getDeviceConfiguration() {
     return "{}".getBytes();
   }
 
-  public byte[] getUpdatePayload() {
+  public byte[] getDeviceState() {
     JSONObject jsonObject = new JSONObject();
     if (display != null) {
       jsonObject.put("display", display.getCurrent());
@@ -87,7 +87,7 @@ public abstract class HT16K33Controller extends I2CDeviceController {
   }
 
   @Override
-  public byte[] setPayload(byte[] val) throws IOException {
+  public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
     JSONObject jsonObject = new JSONObject(new String(val));
     JSONObject response = new JSONObject();
 

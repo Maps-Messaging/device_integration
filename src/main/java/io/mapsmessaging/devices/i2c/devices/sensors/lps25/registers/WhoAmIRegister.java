@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps25.data.WhoAmIData;
 
 import java.io.IOException;
 
@@ -29,5 +31,9 @@ public class WhoAmIRegister extends SingleByteRegister {
 
   public int getWhoAmI() {
     return registerValue & 0xff;
+  }
+
+  public AbstractRegisterData toData() {
+    return new WhoAmIData(getWhoAmI());
   }
 }

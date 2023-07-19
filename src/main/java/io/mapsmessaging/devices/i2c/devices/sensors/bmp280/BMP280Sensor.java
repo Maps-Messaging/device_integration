@@ -17,8 +17,8 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.bmp280;
 
 import com.pi4j.io.i2c.I2C;
-import io.mapsmessaging.devices.PowerManagement;
-import io.mapsmessaging.devices.Sensor;
+import io.mapsmessaging.devices.deviceinterfaces.PowerManagement;
+import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.bmp280.values.OversamplingRate;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;

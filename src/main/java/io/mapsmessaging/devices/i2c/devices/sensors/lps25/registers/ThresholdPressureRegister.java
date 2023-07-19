@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps25.data.ThresholdPressureData;
 
 import java.io.IOException;
 
@@ -40,4 +42,18 @@ public class ThresholdPressureRegister extends MultiByteRegister {
   public float getThreshold() {
     return asInt() / 16.0f;
   }
+
+  public AbstractRegisterData toData() throws IOException {
+    return new ThresholdPressureData(getThreshold());
+  }
+
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if(input instanceof ThresholdPressureData) {
+      ThresholdPressureData data = (ThresholdPressureData) input;
+      setThreshold(data.getThreshold());
+      return true;
+    }
+    return false;
+  }
+
 }

@@ -68,7 +68,7 @@ public class BNO055Controller extends I2CDeviceController {
     return new BNO055Controller(device);
   }
 
-  public byte[] getUpdatePayload() throws IOException {
+  public byte[] getDeviceState() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
       double[] orientation = sensor.getOrientation();
@@ -79,7 +79,7 @@ public class BNO055Controller extends I2CDeviceController {
     return jsonObject.toString(2).getBytes();
   }
 
-  public byte[] getStaticPayload() throws IOException {
+  public byte[] getDeviceConfiguration() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
       JSONObject callibrationStatus = new JSONObject();

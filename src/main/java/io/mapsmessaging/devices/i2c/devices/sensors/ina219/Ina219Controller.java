@@ -66,7 +66,7 @@ public class Ina219Controller extends I2CDeviceController {
     return new Ina219Controller(device);
   }
 
-  public byte[] getStaticPayload() {
+  public byte[] getDeviceConfiguration() {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
       jsonObject.put("adcResolution", sensor.getAdcResolution().name());
@@ -79,7 +79,7 @@ public class Ina219Controller extends I2CDeviceController {
   }
 
   @Override
-  public byte[] setPayload(byte[] payload) throws IOException {
+  public byte[] updateDeviceConfiguration(byte[] payload) throws IOException {
     JSONObject jsonObject = new JSONObject(new String(payload));
     JSONObject response = new JSONObject();
     if (sensor == null) return response.toString(2).getBytes();
@@ -122,7 +122,7 @@ public class Ina219Controller extends I2CDeviceController {
     return response.toString(2).getBytes();
   }
 
-  public byte[] getUpdatePayload() throws IOException {
+  public byte[] getDeviceState() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
       jsonObject.put("current", sensor.getCurrent());

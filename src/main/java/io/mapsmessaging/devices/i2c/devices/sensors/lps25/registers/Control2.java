@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps25.data.Control2Data;
 
 import java.io.IOException;
 
@@ -49,7 +51,7 @@ public class Control2 extends SingleByteRegister {
     setControlRegister(~FIFO_ENABLED, value);
   }
 
-  public boolean isFiFoEnabled() throws IOException {
+  public boolean isFiFoEnabled() {
     return (registerValue & FIFO_ENABLED) != 0;
   }
 
@@ -58,7 +60,7 @@ public class Control2 extends SingleByteRegister {
     setControlRegister(~STOP_ON_FIFO_THRESHOLD, value);
   }
 
-  public boolean isStopFiFoOnThresholdEnabled() throws IOException {
+  public boolean isStopFiFoOnThresholdEnabled() {
     return (registerValue & STOP_ON_FIFO_THRESHOLD) != 0;
   }
 
@@ -83,6 +85,24 @@ public class Control2 extends SingleByteRegister {
 
   public boolean isOneShotEnabled() {
     return (registerValue & ENABLE_ONE_SHOT) != 0;
+  }
+
+  @Override
+  public AbstractRegisterData toData(){
+    return new Control2Data(isFiFoEnabled(), isStopFiFoOnThresholdEnabled(), isAutoZeroEnabled(), isOneShotEnabled());
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if(input instanceof Control2Data) {
+      Control2Data data = (Control2Data)input;
+      enableFiFo(data.isFifoEnabled());
+      enableStopFiFoOnThreshold(data.isStopFifoOnThreshold());
+      enableAutoZero(data.isAutoZeroEnabled());
+      enableOneShot(data.isOneShotEnabled());
+      return true;
+    }
+    return false;
   }
 
 }

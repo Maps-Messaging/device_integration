@@ -49,28 +49,28 @@ public class I2CDeviceScheduler extends I2CDeviceController {
   }
 
   @Override
-  public byte[] getStaticPayload() throws IOException {
+  public byte[] getDeviceConfiguration() throws IOException {
     synchronized (deviceController) {
       synchronized (I2C_BUS_LOCK) {
-        return deviceController.getStaticPayload();
+        return deviceController.getDeviceConfiguration();
       }
     }
   }
 
   @Override
-  public byte[] getUpdatePayload() throws IOException {
+  public byte[] getDeviceState() throws IOException {
     synchronized (deviceController) {
       synchronized (I2C_BUS_LOCK) {
-        return deviceController.getUpdatePayload();
+        return deviceController.getDeviceState();
       }
     }
   }
 
   @Override
-  public byte[] setPayload(byte[] val) throws IOException {
+  public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
     synchronized (deviceController) {
       synchronized (I2C_BUS_LOCK) {
-        return deviceController.setPayload(val);
+        return deviceController.updateDeviceConfiguration(val);
       }
     }
   }

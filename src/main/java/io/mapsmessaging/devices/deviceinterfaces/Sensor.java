@@ -14,7 +14,18 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices;
+package io.mapsmessaging.devices.deviceinterfaces;
 
-public interface Clock {
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+public interface Sensor {
+
+  default List<SensorReading<?>> getReadings() throws IOException {
+    return new ArrayList<>();
+  }
+
 }

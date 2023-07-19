@@ -56,12 +56,12 @@ public class AM2320Controller extends I2CDeviceController {
     return new AM2320Controller(device);
   }
 
-  public byte[] getStaticPayload() {
+  public byte[] getDeviceConfiguration() {
     return "{}".getBytes();
   }
 
 
-  public byte[] getUpdatePayload() throws IOException {
+  public byte[] getDeviceState() throws IOException {
     JSONObject jsonObject = new JSONObject();
     jsonObject.put("humidity", sensor.getHumidity());
     jsonObject.put("temperature", sensor.getTemperature());

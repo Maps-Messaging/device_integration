@@ -17,9 +17,9 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.bh1750;
 
 import com.pi4j.io.i2c.I2C;
-import io.mapsmessaging.devices.PowerManagement;
-import io.mapsmessaging.devices.Resetable;
-import io.mapsmessaging.devices.Sensor;
+import io.mapsmessaging.devices.deviceinterfaces.PowerManagement;
+import io.mapsmessaging.devices.deviceinterfaces.Resetable;
+import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.i2c.devices.sensors.bh1750.values.ResolutionMode;
@@ -56,12 +56,19 @@ public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor, 
   }
 
   public void setResolutionMode(ResolutionMode mode) throws IOException {
+    if (logger.isDebugEnabled()) {
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "setResolutionMode( "+mode.name()+")");
+    }
     resolutionMode = mode;
     write(resolutionMode.getMask() | sensorReading.getMask());
   }
 
-  public void setSensorReading(SensorReading sensor) throws IOException {
-    sensorReading = sensor;
+  public void setSensorReading(SensorReading reading) throws IOException {
+    if (logger.isDebugEnabled()) {
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "setSensorReading( "+reading.name()+")");
+    }
+
+    sensorReading = reading;
     write(resolutionMode.getMask() | sensorReading.getMask());
   }
 
@@ -88,7 +95,11 @@ public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor, 
 
   @Override
   public void softReset() throws IOException {
-    reset();
+    if (logger.isDebugEnabled()) {
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "softReset()");
+    }
+    write(RESET);
+    delay(10);
   }
 
   public void powerOff() throws IOException {
@@ -99,6 +110,9 @@ public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor, 
   }
 
   public void initialise() throws IOException {
+    if (logger.isDebugEnabled()) {
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "initialise()");
+    }
     powerOn();
     write(resolutionMode.getMask() | sensorReading.getMask());
   }

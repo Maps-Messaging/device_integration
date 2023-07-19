@@ -1,18 +1,23 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pi4j.io.i2c.I2C;
-import io.mapsmessaging.devices.NamingConstants;
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.DataRate;
+import io.mapsmessaging.devices.sensorreadings.ComputationResult;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
-import org.everit.json.schema.ObjectSchema;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.List;
 
 public class Lps25Controller extends I2CDeviceController {
 
@@ -34,7 +39,7 @@ public class Lps25Controller extends I2CDeviceController {
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       sensor.softReset();
       sensor.setPowerDownMode(true);
-      sensor.setDataRate(DataRate.RATE_1_HZ);
+      sensor.getControl1().setDataRate(DataRate.RATE_7_HZ);
     }
   }
   
@@ -56,35 +61,47 @@ public class Lps25Controller extends I2CDeviceController {
     return new Lps25Controller(device);
   }
 
-
   @Override
-  public byte[] setPayload(byte[] val) throws IOException {
+  public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
     if (sensor != null) {
-      return JsonHelper.unpackJson(new JSONObject(new String(val)), sensor);
+      ObjectMapper objectMapper = new ObjectMapper();
+      objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      JavaType type = objectMapper.getTypeFactory().constructCollectionType(List.class, AbstractRegisterData.class);
+      List<AbstractRegisterData> data = objectMapper.readValue(new String(val), type);
+      sensor.getRegisterMap().setData(data);
     }
     return ("{}").getBytes();
   }
 
-
-  public byte[] getStaticPayload() throws IOException {
+  public byte[] getDeviceConfiguration() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
-      return JsonHelper.packStaticPayload(sensor).toString(2).getBytes();
+      ObjectMapper objectMapper = new ObjectMapper();
+      String json = objectMapper.writeValueAsString(sensor.getRegisterMap().getData());
+      return json.getBytes();
     }
     return jsonObject.toString(2).getBytes();
   }
 
-  public byte[] getUpdatePayload() throws IOException {
+  public byte[] getDeviceState() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
-      jsonObject.put("temperature", round(sensor.getTemperature(), 1));
-      jsonObject.put("pressure", round(sensor.getPressure(),2));
+      List<SensorReading<?>> readings = sensor.getReadings();
+      for(SensorReading<?> reading : readings){
+        ComputationResult<?> computationResult = reading.getValue();
+        if(!computationResult.hasError()){
+          jsonObject.put(reading.getName(), computationResult.getResult());
+        }
+        else{
+          jsonObject.put(reading.getName(), computationResult.getError().getMessage());
+        }
+      }
     }
     return jsonObject.toString(2).getBytes();
   }
 
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
+    JsonSchemaConfig config = new JsonSchemaConfig();
     config.setComments("i2c device LPS25 pressure sensor: 260-1260 hPa");
     config.setSource("I2C bus address : 0x5d");
     config.setVersion("1.0");
@@ -97,17 +114,5 @@ public class Lps25Controller extends I2CDeviceController {
   public int[] getAddressRange() {
     int i2cAddr = 0x5D;
     return new int[]{i2cAddr};
-  }
-
-  private String buildSchema() {
-    ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
-    schemaBuilder
-        // .addPropertySchema("staticPayloadSchema", staticPayloadSchema.build())
-        // .addPropertySchema("updatePayloadSchema", updatePayloadSchema.build())
-        .addPropertySchema(NamingConstants.DEVICE_WRITE_SCHEMA, JsonHelper.generateSchema().build())
-        .description("Pressure and Temperature sensor")
-        .id("LPS25");
-
-    return schemaToString(schemaBuilder.build());
   }
 }

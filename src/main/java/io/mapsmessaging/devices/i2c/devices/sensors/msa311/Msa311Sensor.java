@@ -17,9 +17,9 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311;
 
 import com.pi4j.io.i2c.I2C;
-import io.mapsmessaging.devices.PowerManagement;
-import io.mapsmessaging.devices.Resetable;
-import io.mapsmessaging.devices.Sensor;
+import io.mapsmessaging.devices.deviceinterfaces.PowerManagement;
+import io.mapsmessaging.devices.deviceinterfaces.Resetable;
+import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers.*;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.*;

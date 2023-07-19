@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps25.data.FiFoControlData;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.FiFoMode;
 
 import java.io.IOException;
@@ -33,7 +35,7 @@ public class FiFoControl extends SingleByteRegister {
     reload();
   }
 
-  public FiFoMode getFifoMode() throws IOException {
+  public FiFoMode getFifoMode() {
     int mask = (registerValue & 0xff) >> 5;
     for (FiFoMode mode : FiFoMode.values()) {
       if (mode.getMask() == mask) {
@@ -47,12 +49,29 @@ public class FiFoControl extends SingleByteRegister {
     setControlRegister(~FIFO_MODE, mode.getMask() << 5);
   }
 
-  public int getFiFoWaterMark() throws IOException {
+  public int getFiFoWaterMark() {
     return (registerValue & FIFO_THRESHOLD);
   }
 
   public void setFiFoWaterMark(int waterMark) throws IOException {
     setControlRegister(~FIFO_THRESHOLD, (waterMark & FIFO_THRESHOLD));
+  }
+
+  public FiFoControlData toData() {
+    FiFoControlData data = new FiFoControlData();
+    data.setFifoMode(getFifoMode());
+    data.setFifoWaterMark(getFiFoWaterMark());
+    return data;
+  }
+
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if(input instanceof FiFoControlData) {
+      FiFoControlData data = (FiFoControlData)input;
+      setFifoMode(data.getFifoMode());
+      setFiFoWaterMark(data.getFifoWaterMark());
+      return true;
+    }
+    return false;
   }
 
 }

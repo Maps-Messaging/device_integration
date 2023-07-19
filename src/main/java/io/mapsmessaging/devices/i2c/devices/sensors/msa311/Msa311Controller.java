@@ -61,7 +61,7 @@ public class Msa311Controller extends I2CDeviceController {
     return new Msa311Controller(device);
   }
 
-  public byte[] getStaticPayload() throws IOException {
+  public byte[] getDeviceConfiguration() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
     }
@@ -69,7 +69,7 @@ public class Msa311Controller extends I2CDeviceController {
   }
 
 
-  public byte[] getUpdatePayload() throws IOException {
+  public byte[] getDeviceState() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
       jsonObject.put("x-axis", sensor.getX());

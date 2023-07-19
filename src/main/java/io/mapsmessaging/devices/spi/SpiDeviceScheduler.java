@@ -33,30 +33,30 @@ public class SpiDeviceScheduler extends SpiDeviceController {
   }
 
   @Override
-  public byte[] getStaticPayload() throws IOException {
+  public byte[] getDeviceConfiguration() throws IOException {
     try {
       SPI_BUS_SEMAPHORE.acquireUninterruptibly();
-      return deviceController.getStaticPayload();
+      return deviceController.getDeviceConfiguration();
     } finally {
       SPI_BUS_SEMAPHORE.release();
     }
   }
 
   @Override
-  public byte[] getUpdatePayload() throws IOException {
+  public byte[] getDeviceState() throws IOException {
     try {
       SPI_BUS_SEMAPHORE.acquireUninterruptibly();
-      return deviceController.getUpdatePayload();
+      return deviceController.getDeviceState();
     } finally {
       SPI_BUS_SEMAPHORE.release();
     }
   }
 
   @Override
-  public byte[] setPayload(byte[] val) throws IOException {
+  public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
     try {
       SPI_BUS_SEMAPHORE.acquireUninterruptibly();
-      return deviceController.setPayload(val);
+      return deviceController.updateDeviceConfiguration(val);
     } finally {
       SPI_BUS_SEMAPHORE.release();
     }

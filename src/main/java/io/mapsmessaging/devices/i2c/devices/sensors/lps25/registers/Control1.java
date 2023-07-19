@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps25.data.Control1Data;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.DataRate;
 
 import java.io.IOException;
@@ -80,5 +82,23 @@ public class Control1 extends SingleByteRegister {
   public void resetAutoZero(boolean flag) throws IOException {
     int value = flag ? RESET_AUTO_ZERO : 0;
     setControlRegister(~RESET_AUTO_ZERO, value);
+  }
+
+  @Override
+  public AbstractRegisterData toData(){
+    return new Control1Data(getPowerDownMode(), getDataRate(), isInterruptGenerationEnabled(), isBlockUpdateSet());
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if(input instanceof Control1Data) {
+      Control1Data data = (Control1Data)input;
+      setDataRate(data.getDataRate());
+      setInterruptGenerationEnabled(data.isInterruptGenerationEnabled());
+      setBlockUpdate(data.isBlockUpdateSet());
+      setPowerDownMode(data.isPowerDownMode());
+      return true;
+    }
+    return false;
   }
 }
