@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.bh1750.register;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.Register;
+import io.mapsmessaging.devices.i2c.devices.sensors.bh1750.data.ReadingModeData;
 import io.mapsmessaging.devices.i2c.devices.sensors.bh1750.values.ResolutionMode;
 import io.mapsmessaging.devices.i2c.devices.sensors.bh1750.values.SensorReadingMode;
 import lombok.Getter;
@@ -45,7 +47,26 @@ public class ReadingModeRegister extends Register {
 
   public void setResolutionMode(ResolutionMode mode) throws IOException {
     resolutionMode = mode;
-    sensor.write(resolutionMode.getMask() | sensorReading.getMask());
+    int val = 0;
+    if (resolutionMode != null) val = resolutionMode.getMask();
+    if (sensorReading != null) val = val | sensorReading.getMask();
+    sensor.write(val);
+  }
+
+  @Override
+  public AbstractRegisterData toData() {
+    return new ReadingModeData(resolutionMode, sensorReading);
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof ReadingModeData) {
+      ReadingModeData data = (ReadingModeData) input;
+      setResolutionMode(data.getResolutionMode());
+      setSensorReading(data.getSensorReading());
+      return true;
+    }
+    return false;
   }
 
   @Override
