@@ -19,12 +19,15 @@ package io.mapsmessaging.devices.i2c.devices.sensors.pmsa003i;
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
+import io.mapsmessaging.devices.sensorreadings.ComputationResult;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.List;
 
 public class Pmsa003iController extends I2CDeviceController {
 
@@ -102,23 +105,18 @@ public class Pmsa003iController extends I2CDeviceController {
   public byte[] getDeviceState() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
-      jsonObject.put("Pm1_0_standard", sensor.getPm1_0Standard());
-      jsonObject.put("Pm2_5_standard", sensor.getPm2_5Standard());
-      jsonObject.put("Pm10_standard", sensor.getPm10Standard());
-      jsonObject.put("Pm1_0_atmospheric", sensor.getPm1_0Atmospheric());
-      jsonObject.put("Pm2_5_atmospheric", sensor.getPm2_5Atmospheric());
-      jsonObject.put("Pm10_atmospheric", sensor.getPm10Atmospheric());
-      jsonObject.put("particles_larger_than_0.3", sensor.getParticlesLargerThan3());
-      jsonObject.put("particles_larger_than_0.5", sensor.getParticlesLargerThan5());
-      jsonObject.put("particles_larger_than_1.0", sensor.getParticlesLargerThan10());
-      jsonObject.put("particles_larger_than_2.5", sensor.getParticlesLargerThan25());
-      jsonObject.put("particles_larger_than_5.0", sensor.getParticlesLargerThan50());
-      jsonObject.put("particles_larger_than_10.0", sensor.getParticlesLargerThan100());
-      jsonObject.put("error_code", sensor.getErrorCode());
+      List<SensorReading<?>> readings = sensor.getReadings();
+      for (SensorReading<?> reading : readings) {
+        ComputationResult<?> computationResult = reading.getValue();
+        if (!computationResult.hasError()) {
+          jsonObject.put(reading.getName(), computationResult.getResult());
+        } else {
+          jsonObject.put(reading.getName(), computationResult.getError().getMessage());
+        }
+      }
     }
     return jsonObject.toString(2).getBytes();
   }
-
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig();
     config.setComments("Air Quality Breakout");
