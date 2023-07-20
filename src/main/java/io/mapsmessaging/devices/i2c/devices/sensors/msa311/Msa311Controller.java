@@ -19,14 +19,16 @@ package io.mapsmessaging.devices.i2c.devices.sensors.msa311;
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
-import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.TapActiveStatus;
+import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
+import io.mapsmessaging.devices.sensorreadings.ComputationResult;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.List;
 
 public class Msa311Controller extends I2CDeviceController {
 
@@ -45,7 +47,9 @@ public class Msa311Controller extends I2CDeviceController {
 
   public Msa311Controller(I2C device) throws IOException {
     super(device);
-    sensor = new Msa311Sensor(device);
+    synchronized (I2CDeviceScheduler.getI2cBusLock()) {
+      sensor = new Msa311Sensor(device);
+    }
   }
 
   public I2CDevice getDevice(){
@@ -72,17 +76,15 @@ public class Msa311Controller extends I2CDeviceController {
   public byte[] getDeviceState() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
-      jsonObject.put("x-axis", sensor.getX());
-      jsonObject.put("y-axis", sensor.getY());
-      jsonObject.put("z-axis", sensor.getZ());
-      jsonObject.put("range", sensor.getRange().name());
-      jsonObject.put("orientation", sensor.getOrientation().name());
-      JSONArray tapActivityList = new JSONArray();
-      for (TapActiveStatus tapActiveStatus : sensor.getTapActivity()) {
-        tapActivityList.put(tapActiveStatus.name());
-      }
-      if (!tapActivityList.isEmpty()) {
-        jsonObject.put("tapActivity", tapActivityList);
+      List<SensorReading<?>> readings = sensor.getReadings();
+      for(SensorReading<?> reading : readings){
+        ComputationResult<?> computationResult = reading.getValue();
+        if(!computationResult.hasError()){
+          jsonObject.put(reading.getName(), computationResult.getResult());
+        }
+        else{
+          jsonObject.put(reading.getName(), computationResult.getError().getMessage());
+        }
       }
     }
     return jsonObject.toString(2).getBytes();

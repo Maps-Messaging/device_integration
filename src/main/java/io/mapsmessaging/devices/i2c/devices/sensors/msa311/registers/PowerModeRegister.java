@@ -15,7 +15,7 @@ public class PowerModeRegister extends SingleByteRegister {
 
   public LowPowerBandwidth getLowPowerBandwidth() throws IOException {
     reload();
-    int val = registerValue & 0b1111;
+    int val = (registerValue & 0b11110) >> 1;
     for (LowPowerBandwidth odr : LowPowerBandwidth.values()) {
       if (val <= odr.getEnd() && val >= odr.getStart()) {
         return odr;
@@ -25,12 +25,12 @@ public class PowerModeRegister extends SingleByteRegister {
   }
 
   public void setLowPowerBandwidth(LowPowerBandwidth bandwidth) throws IOException {
-    registerValue = (byte) ((registerValue & 0b11000000) | bandwidth.getStart());
+    registerValue = (byte) ((registerValue & 0b11000001) | (bandwidth.getStart() << 1));
     sensor.write(address, registerValue);
   }
 
   public void setPowerMode(PowerMode mode) throws IOException {
-    super.setControlRegister(0b11000000, mode.ordinal() << 6);
+    super.setControlRegister(0b00011110, mode.ordinal() << 6);
   }
 
   public PowerMode getPowerMode() throws IOException {

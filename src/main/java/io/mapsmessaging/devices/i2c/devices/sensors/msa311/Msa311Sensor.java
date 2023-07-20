@@ -22,8 +22,14 @@ import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers.*;
-import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.*;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.LowPowerBandwidth;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.Odr;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.PowerMode;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.Range;
+import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
+import lombok.Getter;
 
 import java.io.IOException;
 import java.util.List;
@@ -31,37 +37,71 @@ import java.util.List;
 public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, Resetable {
   private static final float GRAVITY = 9.80665f; //m/s^2
 
+  @Getter
   private final ResetRegister resetRegister;
+  @Getter
   private final PartIdRegister partIdRegister;
+  @Getter
   private final AxisRegister xAxisRegister;
+  @Getter
   private final AxisRegister yAxisRegister;
+  @Getter
   private final AxisRegister zAxisRegister;
+  @Getter
   private final MotionInterruptRegister motionInterruptRegister;
+  @Getter
   private final DataReadyRegister dataReadyRegister;
+  @Getter
   private final TapActiveStatusRegister tapActiveStatusRegister;
+  @Getter
   private final OrientationRegister orientationRegister;
+  @Getter
   private final RangeRegister rangeRegister;
+  @Getter
   private final OdrRegister odrRegister;
+  @Getter
   private final PowerModeRegister powerModeRegister;
+  @Getter
   private final SwapPolarityRegister swapPolarityRegister;
+  @Getter
   private final InterruptSet0Register interruptSetRegister;
+  @Getter
   private final InterruptSet1Register interruptSet1Register;
+  @Getter
   private final InterruptMap0Register interruptMap0Register;
+  @Getter
   private final InterruptMap1Register interruptMap1Register;
+  @Getter
   private final IntConfigRegister intConfigRegister;
+  @Getter
   private final IntLatchRegister intLatchRegister;
+  @Getter
   private final FreefallDurRegister freefallDurRegister;
+  @Getter
   private final FreefallThRegister freefallThRegister;
+  @Getter
   private final FreefallHyRegister freefallHyRegister;
+  @Getter
   private final ActiveDurRegister activeDurRegister;
+  @Getter
   private final ActiveThRegister activeThRegister;
+  @Getter
   private final TapDurRegister tapDurRegister;
+  @Getter
   private final TapThresholdRegister tapThresholdRegister;
+  @Getter
   private final OrientHyRegister orientHyRegister;
+  @Getter
   private final ZBlockRegister zBlockRegister;
+  @Getter
   private final OffsetCompensationRegister xOffsetCompensation;
+  @Getter
   private final OffsetCompensationRegister yOffsetCompensation;
+  @Getter
   private final OffsetCompensationRegister zOffsetCompensation;
+
+  @Getter
+  private final List<SensorReading<?>> readings;
 
   public Msa311Sensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(Msa311Sensor.class));
@@ -97,23 +137,22 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
     yOffsetCompensation = new OffsetCompensationRegister(this, 0x39, "Y offset compensation");
     zOffsetCompensation = new OffsetCompensationRegister(this, 0x3A, "Z offset compensation");
 
+
+    FloatSensorReading x_orientation = new FloatSensorReading("x_orientation", "m/s^2", -100, 100, this::getX);
+    FloatSensorReading y_orientation = new FloatSensorReading("y_orientation", "m/s^2", -100, 100, this::getY);
+    FloatSensorReading z_orientation = new FloatSensorReading("z_orientation", "m/s^2", -100, 100, this::getZ);
+
+    readings = List.of(x_orientation, y_orientation, z_orientation);
+    initialise();
+  }
+
+  public void initialise() throws IOException {
+    reset();
+    delay(10);
     powerModeRegister.setPowerMode(PowerMode.NORMAL);
-    odrRegister.setOdr(Odr.HERTZ_250);
-    rangeRegister.setRange(Range.RANGE_2G);
-
-        /*
-      enableAxes(true, true, true);
-  // normal mode
-  setPowerMode(MSA301_NORMALMODE);
-  // 500Hz rate
-  setDataRate(MSA301_DATARATE_500_HZ);
-  // 250Hz bw
-  setBandwidth(MSA301_BANDWIDTH_250_HZ);
-  setRange(MSA301_RANGE_4_G);
-  setResolution(MSA301_RESOLUTION_14);
-
-
-     */
+    powerModeRegister.setLowPowerBandwidth(LowPowerBandwidth.HERTZ_250);
+    rangeRegister.setRange(Range.RANGE_4G);
+    odrRegister.setOdr(Odr.HERTZ_500);
   }
 
 
@@ -133,35 +172,6 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
     return "Digital Tri-axial Accelerometer";
   }
 
-  public Range getRange() {
-    return rangeRegister.getRange();
-  }
-
-  public float getX() throws IOException {
-    float raw = xAxisRegister.getValue();
-    float scale = getRange().getScale();
-    return (raw / scale) * GRAVITY;
-  }
-
-  public float getY() throws IOException {
-    float raw = yAxisRegister.getValue();
-    float scale = getRange().getScale();
-    return (raw / scale) * GRAVITY;
-  }
-
-  public float getZ() throws IOException {
-    float raw = zAxisRegister.getValue();
-    float scale = getRange().getScale();
-    return (raw / scale) * GRAVITY;
-  }
-
-  public List<TapActiveStatus> getTapActivity() throws IOException {
-    return tapActiveStatusRegister.getTapActiveStatus();
-  }
-
-  public OrientationStatus getOrientation() throws IOException {
-    return orientationRegister.getOrientation();
-  }
 
   @Override
   public void powerOn() throws IOException {
@@ -175,7 +185,7 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
 
   @Override
   public void reset() throws IOException {
-
+    resetRegister.reset();
   }
 
   @Override
@@ -186,6 +196,28 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
   @Override
   public String toString() {
     return registerMap.toString();
+  }
+
+  protected float getX() throws IOException {
+    float raw = xAxisRegister.getValue();
+    float scale = getRange().getScale();
+    return (raw / scale) * GRAVITY;
+  }
+
+  protected float getY() throws IOException {
+    float raw = yAxisRegister.getValue();
+    float scale = getRange().getScale();
+    return (raw / scale) * GRAVITY;
+  }
+
+  protected float getZ() throws IOException {
+    float raw = zAxisRegister.getValue();
+    float scale = getRange().getScale();
+    return (raw / scale) * GRAVITY;
+  }
+
+  private Range getRange() {
+    return rangeRegister.getRange();
   }
 
 }
