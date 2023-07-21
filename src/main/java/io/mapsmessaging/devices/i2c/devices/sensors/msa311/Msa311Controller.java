@@ -52,13 +52,19 @@ public class Msa311Controller extends I2CDeviceController {
     }
   }
 
-  public I2CDevice getDevice(){
+  public I2CDevice getDevice() {
     return sensor;
+  }
+
+
+  @Override
+  public boolean canDetect() {
+    return true;
   }
 
   @Override
   public boolean detect(I2C i2cDevice) {
-    return sensor != null && sensor.isConnected();
+    return (Msa311Sensor.getId(i2cDevice) == 0b00010011);
   }
 
   public I2CDeviceController mount(I2C device) throws IOException {

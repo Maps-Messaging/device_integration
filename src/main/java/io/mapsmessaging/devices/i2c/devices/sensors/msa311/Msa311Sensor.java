@@ -36,6 +36,11 @@ import java.util.List;
 
 public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, Resetable {
   private static final float GRAVITY = 9.80665f; //m/s^2
+  private static final int PART_ID = 0x1;
+
+  public static int getId(I2C device) {
+    return device.readRegister(PART_ID);
+  }
 
   @Getter
   private final ResetRegister resetRegister;
