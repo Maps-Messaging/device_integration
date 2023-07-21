@@ -73,20 +73,20 @@ public class Pmsa003iSensor extends I2CDevice implements Sensor {
     this.errorCodeRegister = new BufferedRegister(this, 0x1d, 1, "ErrorCode", data);
     lastRead = 0;
     readings = new ArrayList<>();
-    readings.add(new IntegerSensorReading("PM 1.0", "pm", 0, 0x7ffff, pm1_0StandardRegister::getValueReverse));
-    readings.add(new IntegerSensorReading("PM 2.5", "pm", 0, 0x7ffff, pm2_5StandardRegister::getValueReverse));
-    readings.add(new IntegerSensorReading("PM 10", "pm", 0, 0x7ffff, pm10StandardRegister::getValueReverse));
+    readings.add(new IntegerSensorReading("PM 1.0", "pm", 0, 0x7ffff, this::getPm1_0Standard));
+    readings.add(new IntegerSensorReading("PM 2.5", "pm", 0, 0x7ffff, this::getPm2_5Standard));
+    readings.add(new IntegerSensorReading("PM 10", "pm", 0, 0x7ffff, this::getPm10Standard));
 
-    readings.add(new IntegerSensorReading("PM 1.0 Atmospheric", "pm", 0, 0x7ffff, pm1_0AtmosphericRegister::getValueReverse));
-    readings.add(new IntegerSensorReading("PM 2.5 Atmospheric", "pm", 0, 0x7ffff, pm2_5AtmosphericRegister::getValueReverse));
-    readings.add(new IntegerSensorReading("PM 10 Atmospheric", "pm", 0, 0x7ffff, pm10AtmosphericRegister::getValueReverse));
+    readings.add(new IntegerSensorReading("PM 1.0 Atmospheric", "pm", 0, 0x7ffff, this::getPm1_0Atmospheric));
+    readings.add(new IntegerSensorReading("PM 2.5 Atmospheric", "pm", 0, 0x7ffff, this::getPm2_5Atmospheric));
+    readings.add(new IntegerSensorReading("PM 10 Atmospheric", "pm", 0, 0x7ffff, this::getPm10Atmospheric));
 
-    readings.add(new IntegerSensorReading("Particles larger than 3", "count", 0, 0x7ffff, particlesLargerThan3Register::getValueReverse));
-    readings.add(new IntegerSensorReading("Particles larger than 5", "count", 0, 0x7ffff, particlesLargerThan5Register::getValueReverse));
-    readings.add(new IntegerSensorReading("Particles larger than 10", "count", 0, 0x7ffff, particlesLargerThan10Register::getValueReverse));
-    readings.add(new IntegerSensorReading("Particles larger than 25", "count", 0, 0x7ffff, particlesLargerThan25Register::getValueReverse));
-    readings.add(new IntegerSensorReading("Particles larger than 50", "count", 0, 0x7ffff, particlesLargerThan50Register::getValueReverse));
-    readings.add(new IntegerSensorReading("Particles larger than 100", "count", 0, 0x7ffff, particlesLargerThan100Register::getValueReverse));
+    readings.add(new IntegerSensorReading("Particles larger than 3", "count", 0, 0x7ffff, this::getParticlesLargerThan3));
+    readings.add(new IntegerSensorReading("Particles larger than 5", "count", 0, 0x7ffff, this::getParticlesLargerThan5));
+    readings.add(new IntegerSensorReading("Particles larger than 10", "count", 0, 0x7ffff, this::getParticlesLargerThan10));
+    readings.add(new IntegerSensorReading("Particles larger than 25", "count", 0, 0x7ffff, this::getParticlesLargerThan25));
+    readings.add(new IntegerSensorReading("Particles larger than 50", "count", 0, 0x7ffff, this::getParticlesLargerThan50));
+    readings.add(new IntegerSensorReading("Particles larger than 100", "count", 0, 0x7ffff, this::getParticlesLargerThan100));
   }
 
   @Override
@@ -96,17 +96,17 @@ public class Pmsa003iSensor extends I2CDevice implements Sensor {
 
   protected int getPm1_0Standard() throws IOException {
     update();
-    return pm1_0StandardRegister.getValue();
+    return pm1_0StandardRegister.getValueReverse();
   }
 
   protected int getPm2_5Standard() throws IOException {
     update();
-    return pm2_5StandardRegister.getValue();
+    return pm2_5StandardRegister.getValueReverse();
   }
 
   protected int getPm10Standard() throws IOException {
     update();
-    return pm10StandardRegister.getValue();
+    return pm10StandardRegister.getValueReverse();
   }
 
   protected int getPm1_0Atmospheric() throws IOException {

@@ -44,9 +44,6 @@ public class GasSensor extends I2CDevice implements Sensor {
   private final ThresholdAlarmRegister thresholdAlarmRegister;
 
   @Getter
-  private final SensorTypeRegister sensorTypeRegister;
-
-  @Getter
   private final ConcentrationRegister concentrationRegister;
 
   @Getter
@@ -63,12 +60,11 @@ public class GasSensor extends I2CDevice implements Sensor {
 
   public GasSensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(GasSensor.class));
-    sensorTypeRegister = new SensorTypeRegister(this);
-    sensorType = sensorTypeRegister.getSensorType();
+    concentrationRegister = new ConcentrationRegister(this);
+    sensorType = concentrationRegister.getSensorType();
     i2CRegister = new I2CRegister(this);
     acquireModeRegister = new AcquireModeRegister(this);
     thresholdAlarmRegister = new ThresholdAlarmRegister(this);
-    concentrationRegister = new ConcentrationRegister(this);
     temperatureRegister = new TemperatureRegister(this);
     sensorReadingRegister = new SensorReadingRegister(this);
     voltageRegister = new VoltageRegister(this);

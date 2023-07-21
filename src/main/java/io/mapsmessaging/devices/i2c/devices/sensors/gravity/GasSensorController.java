@@ -35,7 +35,7 @@ import java.util.List;
 
 public class GasSensorController extends I2CDeviceController {
 
-  private final int i2cAddr = 0x74;
+  private final int[] i2cAddr = {0x74, 0x76};
   private final GasSensor sensor;
 
   public GasSensorController() {
@@ -132,7 +132,7 @@ public class GasSensorController extends I2CDeviceController {
 
   @Override
   public int[] getAddressRange() {
-    return new int[]{i2cAddr};
+    return i2cAddr;
   }
 
   private String buildSchema() {

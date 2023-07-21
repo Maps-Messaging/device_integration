@@ -48,6 +48,10 @@ public class SimpleWebAccess {
 
   private void startServer() {
     app = Javalin.create().start(7001);
+    app.get("/device/exit", ctx->{
+      app.stop();
+      System.exit(0);
+        });
     app.get("/device/list", ctx -> {
       JSONObject jsonObject = new JSONObject();
       jsonObject.put("i2c", packList(deviceBusManager.getI2cBusManager().getActive()));

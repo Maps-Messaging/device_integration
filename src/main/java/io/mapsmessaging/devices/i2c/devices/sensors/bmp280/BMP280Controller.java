@@ -20,6 +20,7 @@ import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
+import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -31,7 +32,7 @@ import java.io.IOException;
 
 public class BMP280Controller extends I2CDeviceController {
 
-  private final int i2cAddr = 0x76;
+  private final int i2cAddr = 0x78;
   private final BMP280Sensor sensor;
 
   @Getter
@@ -57,7 +58,9 @@ public class BMP280Controller extends I2CDeviceController {
   }
 
   public I2CDeviceController mount(I2C device) throws IOException {
-    return new BMP280Controller(device);
+    synchronized (I2CDeviceScheduler.getI2cBusLock()) {
+      return new BMP280Controller(device);
+    }
   }
 
   public byte[] getDeviceConfiguration() {
