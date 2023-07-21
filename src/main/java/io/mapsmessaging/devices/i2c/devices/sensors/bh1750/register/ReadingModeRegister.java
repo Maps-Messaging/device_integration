@@ -80,7 +80,10 @@ public class ReadingModeRegister extends Register {
   }
 
   @Override
-  public String toString(int maxLength) {
-    return null;
+  public String toString(int length) {
+    int val = 0;
+    if (resolutionMode != null) val = resolutionMode.getMask();
+    if (sensorReading != null) val = val | sensorReading.getMask();
+    return displayRegister(length, getAddress(), val);
   }
 }
