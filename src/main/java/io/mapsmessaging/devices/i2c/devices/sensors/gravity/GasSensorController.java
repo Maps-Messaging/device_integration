@@ -16,17 +16,22 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.gravity;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
-import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.AcquireMode;
-import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.AlarmType;
+import io.mapsmessaging.devices.sensorreadings.ComputationResult;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.List;
 
 public class GasSensorController extends I2CDeviceController {
 
@@ -57,67 +62,27 @@ public class GasSensorController extends I2CDeviceController {
     return sensor;
   }
 
-  public byte[] getDeviceConfiguration() {
+
+  public byte[] getDeviceConfiguration() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
-      jsonObject.put("sku", sensor.getSensorType().getSku());
-      jsonObject.put("name", sensor.getSensorType().name());
-      jsonObject.put("resolution", sensor.getSensorType().getResolution());
-      jsonObject.put("units", sensor.getSensorType().getUnits());
-      jsonObject.put("minimum", sensor.getSensorType().getMinimumRange());
-      jsonObject.put("maximum", sensor.getSensorType().getMaximumRange());
-      jsonObject.put("responseTime", sensor.getSensorType().getResponseTime());
-      jsonObject.put("threshold", sensor.getSensorType().getThreshold());
+      ObjectMapper objectMapper = new ObjectMapper();
+      String json = objectMapper.writeValueAsString(sensor.getRegisterMap().getData());
+      return json.getBytes();
     }
     return jsonObject.toString(2).getBytes();
   }
 
   @Override
-  public byte[] updateDeviceConfiguration(byte[] payload) throws IOException {
-    JSONObject json = new JSONObject(new String(payload));
-    JSONObject response = new JSONObject();
-    if (sensor == null) return response.toString(2).getBytes();
-    if (json.has("functionName") && json.has("parameters")) {
-      String functionName = json.getString("functionName");
-      JSONObject parameters = json.getJSONObject("parameters");
-      String alarmTypeName;
-      AlarmType alarmType;
-      switch (functionName) {
-        case "setThresholdAlarm":
-          int threshold = parameters.getInt("threshold");
-          alarmTypeName = parameters.getString("alarmType");
-          alarmType = AlarmType.valueOf(alarmTypeName);
-          sensor.setThresholdAlarm(threshold, alarmType);
-          response.put("setThresholdAlarm", alarmType.name());
-          break;
-
-        case "clearThresholdAlarm":
-          alarmTypeName = parameters.getString("alarmType");
-          alarmType = AlarmType.valueOf(alarmTypeName);
-          sensor.clearThresholdAlarm(alarmType);
-          response.put("clearThresholdAlarm", alarmType.name());
-          break;
-
-        case "setI2CAddress":
-          byte group = (byte) parameters.getInt("group");
-          sensor.setI2CAddress(group);
-          response.put("setI2CAddress", group);
-
-          break;
-
-        case "changeAcquireMode":
-          String acquireMode = parameters.getString("acquireMode");
-          AcquireMode mode = AcquireMode.valueOf(acquireMode);
-          sensor.changeAcquireMode(mode);
-          response.put("changeAcquireMode", mode.name());
-
-          break;
-
-        default:
-          break;
-      }
+  public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
+    if (sensor != null) {
+      ObjectMapper objectMapper = new ObjectMapper();
+      objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      JavaType type = objectMapper.getTypeFactory().constructCollectionType(List.class, AbstractRegisterData.class);
+      List<AbstractRegisterData> data = objectMapper.readValue(new String(val), type);
+      sensor.getRegisterMap().setData(data);
     }
-    return response.toString(2).getBytes();
+    return ("{}").getBytes();
   }
 
   public String getName() {
@@ -136,17 +101,24 @@ public class GasSensorController extends I2CDeviceController {
   }
 
 
+
   public byte[] getDeviceState() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
-      sensor.updateAllFields();
-      jsonObject.put("temperature", sensor.getTemperature());
-      jsonObject.put("concentration", sensor.getConcentration());
-      jsonObject.put("compensated", sensor.getTemperatureAdjustedConcentration());
-      jsonObject.put("voltage", sensor.readVoltageData());
+      List<SensorReading<?>> readings = sensor.getReadings();
+      for(SensorReading<?> reading : readings){
+        ComputationResult<?> computationResult = reading.getValue();
+        if(!computationResult.hasError()){
+          jsonObject.put(reading.getName(), computationResult.getResult());
+        }
+        else{
+          jsonObject.put(reading.getName(), computationResult.getError().getMessage());
+        }
+      }
     }
     return jsonObject.toString(2).getBytes();
   }
+
 
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());

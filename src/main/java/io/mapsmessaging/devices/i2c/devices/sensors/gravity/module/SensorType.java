@@ -15,7 +15,8 @@ public enum SensorType {
   HCL(0x2E, "SEN0474", 0, 10, "ppm", 0.1f, 60, new HCLModule(), 50),
   Cl2(0x31, "SEN0468", 0, 20, "ppm", 0.1f, 60, new Cl2Module(), 50),
   HF(0x33, "SEN0475", 0, 10, "ppm", 0.1f, 60, new HFModule(), 30),
-  PH3(0x45, "SEN0476", 0, 1000, "ppm", 0.1f, 30, new PH3Module(), 50);
+  PH3(0x45, "SEN0476", 0, 1000, "ppm", 0.1f, 30, new PH3Module(), 50),
+  UNKNOWN(0x0, "Unknown", 0, 0, "", 0.0f, 0, null, 0);
 
   @Getter
   private final int type;

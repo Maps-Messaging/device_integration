@@ -63,7 +63,7 @@ public abstract class I2CDevice implements Device, AutoCloseable {
     }
   }
 
-  protected void write(byte[] buffer) throws IOException {
+  public void write(byte[] buffer) throws IOException {
     write(buffer, 0, buffer.length);
   }
 

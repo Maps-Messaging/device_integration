@@ -19,110 +19,83 @@ package io.mapsmessaging.devices.i2c.devices.sensors.gravity;
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.AcquireMode;
-import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.AlarmType;
-import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.Command;
 import io.mapsmessaging.devices.i2c.devices.sensors.gravity.module.SensorType;
+import io.mapsmessaging.devices.i2c.devices.sensors.gravity.registers.*;
+import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
 import java.io.IOException;
-
-import static java.lang.Math.log;
+import java.util.List;
 
 public class GasSensor extends I2CDevice implements Sensor {
 
   @Getter
   private final SensorType sensorType;
+
   @Getter
-  private float temperature;
+  private final I2CRegister i2CRegister;
+
   @Getter
-  private float concentration;
+  private final AcquireModeRegister acquireModeRegister;
+
+  @Getter
+  private final ThresholdAlarmRegister thresholdAlarmRegister;
+
+  @Getter
+  private final SensorTypeRegister sensorTypeRegister;
+
+  @Getter
+  private final ConcentrationRegister concentrationRegister;
+
+  @Getter
+  private final TemperatureRegister temperatureRegister;
+
+  @Getter
+  private final SensorReadingRegister sensorReadingRegister;
+
+  @Getter
+  private final VoltageRegister voltageRegister;
+
+  @Getter
+  private final List<SensorReading<?>> readings;
 
   public GasSensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(GasSensor.class));
-    sensorType = detectType();
+    sensorTypeRegister = new SensorTypeRegister(this);
+    sensorType = sensorTypeRegister.getSensorType();
+    i2CRegister = new I2CRegister(this);
+    acquireModeRegister = new AcquireModeRegister(this);
+    thresholdAlarmRegister = new ThresholdAlarmRegister(this);
+    concentrationRegister = new ConcentrationRegister(this);
+    temperatureRegister = new TemperatureRegister(this);
+    sensorReadingRegister = new SensorReadingRegister(this);
+    voltageRegister = new VoltageRegister(this);
+    FloatSensorReading concentration = new FloatSensorReading("concentration", sensorType.getUnits(), sensorType.getMinimumRange(), sensorType.getMaximumRange(), this::getConcentration);
+    FloatSensorReading concentrationTempAdj = new FloatSensorReading("concentrationTempAdj", sensorType.getUnits(), sensorType.getMinimumRange(), sensorType.getMaximumRange(), this::getConcentration);
+    FloatSensorReading temperature = new FloatSensorReading("temperature", "C", -30, 70, this::getTemperature);
+    readings = List.of(temperature, concentration, concentrationTempAdj);
   }
 
-  public float getCurrentConcentration() throws IOException {
-    byte[] data = new byte[9];
-    request(Command.GET_GAS_CONCENTRATION, data);
-    concentration = (data[2] << 8 | (data[3] & 0xff));
-    concentration = adjustPowers(data[5], concentration);
-    return concentration;
-  }
-
-  public float getTemperatureAdjustedConcentration() {
+  protected float getTemperatureAdjustedConcentration() throws IOException {
+    float concentration = concentrationRegister.getConcentration();
     if (sensorType != null && concentration > 0) {
-      return sensorType.getSensorModule().computeGasConcentration(temperature, concentration);
+      return sensorType.getSensorModule().
+          computeGasConcentration(temperatureRegister.getTemperature(), concentration);
     }
     return 0;
   }
 
-  public boolean setI2CAddress(byte group) throws IOException {
-    byte[] data = new byte[9];
-    byte[] request = new byte[6];
-    request[1] = group;
-    return (request(Command.CHANGE_I2C_ADDR, request, data) && data[2] == 1);
+
+  protected float getTemperature() throws IOException {
+    return sensorReadingRegister.getTemperature();
   }
 
-  public boolean changeAcquireMode(AcquireMode acquireMode) throws IOException {
-    byte[] data = new byte[9];
-    byte[] buf = new byte[6];
-    buf[1] = acquireMode.getValue();
-    return (request(Command.CHANGE_GET_METHOD, buf, data) && data[2] == 1);
+  protected float getConcentration() throws IOException{
+    return sensorReadingRegister.getConcentration();
   }
 
-  public boolean setThresholdAlarm(int threshold, AlarmType alarmType) throws IOException {
-    if (threshold == 0) {
-      threshold = sensorType.getThreshold();
-    }
-    byte[] data = new byte[9];
-    byte[] buf = new byte[6];
-    buf[1] = 0x1; // enable
-    buf[2] = (byte) (threshold >> 8 & 0xff);
-    buf[3] = (byte) (threshold & 0xff);
-    buf[4] = alarmType.getValue();
-    return (request(Command.SET_THRESHOLD_ALARMS, buf, data) && data[2] == 1);
-  }
-
-  public boolean clearThresholdAlarm(AlarmType alarmType) throws IOException {
-    byte[] data = new byte[9];
-    byte[] buf = new byte[6];
-    buf[1] = 0x0; // disable
-    buf[2] = 0x0;
-    buf[3] = (byte) 0xff;
-    buf[4] = alarmType.getValue();
-    return (request(Command.SET_THRESHOLD_ALARMS, buf, data) && data[2] == 1);
-  }
-
-  public float readTempC() throws IOException {
-    byte[] data = new byte[9];
-    if (request(Command.GET_TEMP, data)) {
-      int raw = data[2] << 8 | (data[3] & 0xff);
-      temperature = computeTemperature(raw);
-      return temperature;
-    }
-    return Float.NaN;
-  }
-
-  public float readVoltageData() throws IOException {
-    byte[] recvbuf = new byte[9];
-    if (request(Command.SENSOR_VOLTAGE, recvbuf)) {
-      return ((recvbuf[2] << 8 | recvbuf[3] & 0xff) * 3.0f) / 1024.0f * 2f;
-    }
-    return Float.NaN;
-  }
-
-  public void updateAllFields() throws IOException {
-    byte[] data = new byte[9];
-    if (request(Command.GET_ALL_DATA, data)) {
-      concentration = (data[2] << 8 | (data[3] & 0xff));
-      concentration = adjustPowers(data[5], concentration);
-      int raw = data[6] << 8 | (data[7] & 0xff);
-      temperature = computeTemperature(raw);
-    }
-  }
 
 
   @Override
@@ -145,72 +118,5 @@ public class GasSensor extends I2CDevice implements Sensor {
           " to " + sensorType.getMaximumRange() + " " + sensorType.getUnits();
     }
     return "Generic Gas Sensor";
-  }
-
-
-  private float computeTemperature(int rawTemperature) {
-    float vpd3 = 3 * (float) rawTemperature / 1024.0f;
-    float rth = vpd3 * 10000f / (3f - vpd3);
-    return (float) (1 / (1 / (273.15f + 25) + 1 / 3380.13f * log(rth / 10000f)) - 273.15f);
-  }
-
-
-  // Send the command, wait 100ms for the result and then read the result
-  private boolean request(Command command, byte[] result) throws IOException {
-    byte[] buf = new byte[6];
-    return request(command, buf, result);
-  }
-
-  private boolean request(Command command, byte[] buf, byte[] result) throws IOException {
-    buf[0] = command.getCommandValue();
-    write(pack(buf));
-    delay(100);
-    readRegister(0, result, 0, result.length);
-    byte checksum = calculateChecksum(result);
-    return (result[8] == checksum);
-  }
-
-  private byte[] pack(byte[] data) {
-    byte[] payload = new byte[9];
-    payload[0] = (byte) 0xff;
-    payload[1] = 0x1;
-    System.arraycopy(data, 0, payload, 2, data.length);
-    payload[8] = calculateChecksum(payload);
-    return payload;
-  }
-
-
-  private byte calculateChecksum(byte[] data) {
-    int checksum = 0;
-    for (int i = 1; i < data.length - 2; i++) {
-      int t = (data[i] & 0xff);
-      checksum += t;
-    }
-    checksum = (~checksum) & 0xff;
-    checksum = (checksum + 1);
-    return (byte) checksum;
-  }
-
-  private SensorType detectType() throws IOException {
-    byte[] data = new byte[9];
-    if (request(Command.GET_GAS_CONCENTRATION, data)) {
-      return SensorType.getByType(data[4]);
-    }
-    return null;
-  }
-
-  private float adjustPowers(int decimalPoint, float raw) {
-    switch (decimalPoint) {
-      case 1:
-        raw = raw * 0.1f;
-        break;
-      case 2:
-        raw = raw * 0.01f;
-        break;
-
-      default:
-        break;
-    }
-    return raw;
   }
 }
