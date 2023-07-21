@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.data.InterruptSet1Data;
 
 import java.io.IOException;
 
@@ -47,5 +49,26 @@ public class InterruptSet1Register extends SingleByteRegister {
   public boolean isFreefallInterruptEnabled() {
     return (registerValue & FREEFALL_INT_EN) != 0;
   }
+
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new InterruptSet1Data(
+        isNewDataInterruptEnabled(),
+        isFreefallInterruptEnabled()
+    );
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof InterruptSet1Data) {
+      InterruptSet1Data data = (InterruptSet1Data) input;
+      setNewDataInterruptEnabled(data.isNewDataInterruptEnabled());
+      setFreefallInterruptEnabled(data.isFreefallInterruptEnabled());
+      return true;
+    }
+    return false;
+  }
+
 }
 

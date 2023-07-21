@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.data.InterruptSet0Data;
 
 import java.io.IOException;
 
@@ -86,5 +88,32 @@ public class InterruptSet0Register extends SingleByteRegister {
 
   public boolean isActiveInterruptEnabledX() {
     return (registerValue & ACTIVE_INT_EN_X) != 0;
+  }
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new InterruptSet0Data(
+        isOrientInterruptEnabled(),
+        isSingleTapInterruptEnabled(),
+        isDoubleTapInterruptEnabled(),
+        isActiveInterruptEnabledZ(),
+        isActiveInterruptEnabledY(),
+        isActiveInterruptEnabledX()
+    );
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof InterruptSet0Data) {
+      InterruptSet0Data data = (InterruptSet0Data) input;
+      setOrientInterruptEnabled(data.isOrientInterruptEnabled());
+      setSingleTapInterruptEnabled(data.isSingleTapInterruptEnabled());
+      setDoubleTapInterruptEnabled(data.isDoubleTapInterruptEnabled());
+      setActiveInterruptEnabledZ(data.isActiveInterruptEnabledZ());
+      setActiveInterruptEnabledY(data.isActiveInterruptEnabledY());
+      setActiveInterruptEnabledX(data.isActiveInterruptEnabledX());
+      return true;
+    }
+    return false;
   }
 }

@@ -1,7 +1,9 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.data.OdrData;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.Odr;
 
 import java.io.IOException;
@@ -58,4 +60,28 @@ public class OdrRegister extends SingleByteRegister {
   public boolean isZAxisDisabled(){
     return (registerValue & DISABLE_Z_AXIS) != 0;
   }
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new OdrData(
+        getOdr(),
+        isXAxisDisabled(),
+        isYAxisDisabled(),
+        isZAxisDisabled()
+    );
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof OdrData) {
+      OdrData data = (OdrData) input;
+      setOdr(data.getOdr());
+      disableXAxis(data.isXAxisDisabled());
+      disableYAxis(data.isYAxisDisabled());
+      disableZAxis(data.isZAxisDisabled());
+      return true;
+    }
+    return false;
+  }
+
 }

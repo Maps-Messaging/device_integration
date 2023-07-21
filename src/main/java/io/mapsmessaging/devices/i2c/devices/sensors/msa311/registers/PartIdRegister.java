@@ -1,7 +1,9 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.data.PartIdData;
 
 import java.io.IOException;
 
@@ -14,4 +16,9 @@ public class PartIdRegister extends SingleByteRegister {
   public int getId() throws IOException {
     return registerValue & 0xff;
   }
+
+  public AbstractRegisterData toData() throws IOException {
+    return new PartIdData(getId());
+  }
+
 }

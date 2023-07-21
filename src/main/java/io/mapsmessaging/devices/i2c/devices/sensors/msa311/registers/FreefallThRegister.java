@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.data.FreefallThData;
 
 import java.io.IOException;
 
@@ -36,5 +38,19 @@ public class FreefallThRegister extends SingleByteRegister {
     threshold = (int) Math.max(0, Math.min(255, threshold / 7.81f));
     registerValue = (byte) threshold;
     sensor.write(address, registerValue);
+  }
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new FreefallThData(getFreefallThreshold());
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if(input instanceof FreefallThData) {
+      FreefallThData data = (FreefallThData) input;
+      setFreefallThreshold((int) data.getFreefallThreshold());
+      return true;
+    }
+    return false;
   }
 }

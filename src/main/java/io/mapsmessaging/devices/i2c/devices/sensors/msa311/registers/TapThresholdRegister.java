@@ -16,40 +16,45 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
-import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.Range;
-import lombok.Getter;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.data.TapThresholdData;
 
 import java.io.IOException;
+
 
 public class TapThresholdRegister extends SingleByteRegister {
   private static final byte TAP_TH_MASK = (byte) 0b00011111;
 
-  public TapThresholdRegister(I2CDevice sensor) throws IOException {
+  private final RangeRegister rangeRegister;
+
+  public TapThresholdRegister(I2CDevice sensor,  RangeRegister rangeRegister) throws IOException {
     super(sensor, 0x2B, "Tap_Th");
+    this.rangeRegister = rangeRegister;
   }
 
-  public TapThreshold getTapThreshold(Range range) throws IOException {
+  public float getTapThreshold() throws IOException {
     reload();
-    float thresholdValue = (float) ((registerValue & TAP_TH_MASK) * range.getLsbMultiplier());
-    return new TapThreshold(thresholdValue, range);
+    return (float) ((registerValue & TAP_TH_MASK) * rangeRegister.getRange().getLsbMultiplier());
   }
 
-  public void setTapThreshold(TapThreshold threshold) throws IOException {
-    int maskedValue = (int) (threshold.getValue() / threshold.getRange().getLsbMultiplier()) & TAP_TH_MASK;
+  public void setTapThreshold(float threshold) throws IOException {
+    int maskedValue = (int) (threshold / rangeRegister.getRange().getLsbMultiplier()) & TAP_TH_MASK;
     setControlRegister(~TAP_TH_MASK, maskedValue);
   }
 
-  public static class TapThreshold {
-    @Getter
-    private final float value;
-    @Getter
-    private final Range range;
-
-    public TapThreshold(float value, Range range) {
-      this.value = value;
-      this.range = range;
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof TapThresholdData) {
+      TapThresholdData data = (TapThresholdData) input;
+      int maskedValue = (int) (data.getTapThreshold() / rangeRegister.getRange().getLsbMultiplier()) & TAP_TH_MASK;
+      setControlRegister(~TAP_TH_MASK, maskedValue);
+      return true;
     }
+    return false;
+  }
+
+  public AbstractRegisterData toData() throws IOException {
+    return new TapThresholdData(getTapThreshold());
   }
 }

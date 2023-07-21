@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.data.FreefallHyData;
 
 import java.io.IOException;
 
@@ -53,5 +55,20 @@ public class FreefallHyRegister extends SingleByteRegister {
     int value = registerValue & ~HYSTERESIS_MASK;
     value |= hysteresis & HYSTERESIS_MASK;
     sensor.write(address, (byte) value);
+  }
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new FreefallHyData(isFreefallModeEnabled(), getHysteresis());
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if(input instanceof FreefallHyData) {
+      FreefallHyData data = (FreefallHyData) input;
+      setFreefallMode(data.isFreefallModeEnabled());
+      setHysteresis(data.getHysteresis());
+      return true;
+    }
+    return false;
   }
 }

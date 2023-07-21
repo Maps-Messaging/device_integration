@@ -16,7 +16,11 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
@@ -74,10 +78,30 @@ public class Msa311Controller extends I2CDeviceController {
   public byte[] getDeviceConfiguration() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
+      ObjectMapper objectMapper = new ObjectMapper();
+      try {
+        String json = objectMapper.writeValueAsString(sensor.getRegisterMap().getData());
+        return json.getBytes();
+      }
+      catch(IOException ioException){
+        ioException.printStackTrace();
+        throw ioException;
+      }
     }
     return jsonObject.toString(2).getBytes();
   }
 
+  @Override
+  public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
+    if (sensor != null) {
+      ObjectMapper objectMapper = new ObjectMapper();
+      objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      JavaType type = objectMapper.getTypeFactory().constructCollectionType(List.class, AbstractRegisterData.class);
+      List<AbstractRegisterData> data = objectMapper.readValue(new String(val), type);
+      sensor.getRegisterMap().setData(data);
+    }
+    return ("{}").getBytes();
+  }
 
   public byte[] getDeviceState() throws IOException {
     JSONObject jsonObject = new JSONObject();

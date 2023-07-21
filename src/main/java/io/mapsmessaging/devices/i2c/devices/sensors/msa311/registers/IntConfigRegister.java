@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.data.IntConfigData;
 
 import java.io.IOException;
 
@@ -46,6 +48,22 @@ public class IntConfigRegister extends SingleByteRegister {
 
   public boolean isInt1ActiveLevelHigh() {
     return (registerValue & INT1_LVL) != 0;
+  }
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new IntConfigData(isInt1OutputTypeOpenDrain(), isInt1ActiveLevelHigh());
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if(input instanceof IntConfigData) {
+      IntConfigData data = (IntConfigData) input;
+      setInt1OutputType(data.isInt1OutputTypeOpenDrain());
+      setInt1ActiveLevel(data.isInt1ActiveLevelHigh());
+      return true;
+    }
+    return false;
   }
 }
 

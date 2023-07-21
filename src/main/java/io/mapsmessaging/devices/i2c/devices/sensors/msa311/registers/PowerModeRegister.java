@@ -1,7 +1,9 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.data.PowerModeData;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.LowPowerBandwidth;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.PowerMode;
 
@@ -42,4 +44,19 @@ public class PowerModeRegister extends SingleByteRegister {
     }
     return PowerMode.UNKNOWN;
   }
+  public AbstractRegisterData toData() throws IOException {
+    return new PowerModeData(getLowPowerBandwidth(), getPowerMode());
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof PowerModeData) {
+      PowerModeData data = (PowerModeData) input;
+      setLowPowerBandwidth(data.getLowPowerBandwidth());
+      setPowerMode(data.getPowerMode());
+      return true;
+    }
+    return false;
+  }
+
 }

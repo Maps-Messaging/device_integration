@@ -112,6 +112,8 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
     super(device, LoggerFactory.getLogger(Msa311Sensor.class));
     resetRegister = new ResetRegister(this);
     partIdRegister = new PartIdRegister(this);
+    rangeRegister = new RangeRegister(this);
+
     xAxisRegister = new AxisRegister(this, 0x2,"ACC_X");
     yAxisRegister = new AxisRegister(this, 0x4, "ACC_Y");
     zAxisRegister = new AxisRegister(this, 0x6, "ACC_Z");
@@ -119,7 +121,6 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
     dataReadyRegister = new DataReadyRegister(this);
     tapActiveStatusRegister = new TapActiveStatusRegister(this);
     orientationRegister = new OrientationRegister(this);
-    rangeRegister = new RangeRegister(this);
     odrRegister = new OdrRegister(this);
     powerModeRegister = new PowerModeRegister(this);
     swapPolarityRegister = new SwapPolarityRegister(this);
@@ -133,9 +134,9 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
     freefallThRegister = new FreefallThRegister(this);
     freefallHyRegister = new FreefallHyRegister(this);
     activeDurRegister = new ActiveDurRegister(this);
-    activeThRegister = new ActiveThRegister(this);
+    activeThRegister = new ActiveThRegister(this, rangeRegister);
     tapDurRegister = new TapDurRegister(this);
-    tapThresholdRegister = new TapThresholdRegister(this);
+    tapThresholdRegister = new TapThresholdRegister(this, rangeRegister);
     orientHyRegister = new OrientHyRegister(this);
     zBlockRegister = new ZBlockRegister(this);
     xOffsetCompensation = new OffsetCompensationRegister(this, 0x38, "X offset compensation");

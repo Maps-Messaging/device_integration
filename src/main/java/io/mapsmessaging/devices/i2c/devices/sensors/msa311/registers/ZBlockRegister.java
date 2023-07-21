@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.data.ZBlockData;
 
 import java.io.IOException;
 
@@ -39,5 +41,22 @@ public class ZBlockRegister extends SingleByteRegister {
     int val = Math.round(threshold / 0.0625f);
     registerValue = (byte) ((registerValue & ~Z_BLOCKING_MASK) | val);
     sensor.write(address, registerValue);
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof ZBlockData) {
+      ZBlockData data = (ZBlockData) input;
+      int val = Math.round(data.getZBlockingThreshold() / 0.0625f);
+      registerValue = (byte) ((registerValue & ~Z_BLOCKING_MASK) | val);
+      sensor.write(address, registerValue);
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new ZBlockData(getZBlockingThreshold());
   }
 }

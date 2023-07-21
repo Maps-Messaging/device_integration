@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.data.OrientHyData;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.OrientBlocking;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.OrientMode;
 
@@ -64,5 +66,23 @@ public class OrientHyRegister extends SingleByteRegister {
     int maskedValue = (mode.getValue()) & ORIENT_MODE_MASK;
     setControlRegister(~ORIENT_MODE_MASK, maskedValue);
   }
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new OrientHyData(getOrientHysteresis(), getOrientBlocking(), getOrientMode());
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof OrientHyData) {
+      OrientHyData data = (OrientHyData) input;
+      setOrientHysteresis(data.getOrientHysteresis());
+      setOrientBlocking(data.getOrientBlocking());
+      setOrientMode(data.getOrientMode());
+      return true;
+    }
+    return false;
+  }
+
+
 }
 

@@ -16,29 +16,47 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
-import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.Sensitivity;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.data.ActiveThData;
 
 import java.io.IOException;
 
 public class ActiveThRegister extends SingleByteRegister {
 
-  public ActiveThRegister(I2CDevice sensor) throws IOException {
+  private final RangeRegister rangeRegister;
+
+  public ActiveThRegister(I2CDevice sensor, RangeRegister rangeRegister) throws IOException {
     super(sensor, 0x28, "Active_Th");
+    this.rangeRegister = rangeRegister;
   }
 
-  public double getThreshold(Sensitivity sensitivity) throws IOException {
+  public double getThreshold() throws IOException {
     reload();
     int value = registerValue & 0xFF;
-    double sensitivityFactor = sensitivity.getFactor();
-    return value * sensitivityFactor;
+    return value * rangeRegister.getRange().getThresholdMultiplier();
   }
 
-  public void setThreshold(double threshold, Sensitivity sensitivity) throws IOException {
-    double sensitivityFactor = sensitivity.getFactor();
+  public void setThreshold(double threshold) throws IOException {
+    double sensitivityFactor = rangeRegister.getRange().getThresholdMultiplier();
     int value = (int) Math.round(threshold / sensitivityFactor);
     sensor.write(address, (byte) value);
+  }
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new ActiveThData(getThreshold());
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof ActiveThData) {
+      ActiveThData data = (ActiveThData) input;
+      setThreshold(data.getThreshold());
+      return true;
+    }
+    return false;
   }
 
 }

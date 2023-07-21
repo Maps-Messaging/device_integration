@@ -1,7 +1,9 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.data.RangeData;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.Range;
 
 import java.io.IOException;
@@ -27,4 +29,18 @@ public class RangeRegister extends SingleByteRegister {
     sensor.write(address, registerValue);
   }
 
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof RangeData) {
+      RangeData data = (RangeData) input;
+      setRange(data.getRange());
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new RangeData(getRange());
+  }
 }

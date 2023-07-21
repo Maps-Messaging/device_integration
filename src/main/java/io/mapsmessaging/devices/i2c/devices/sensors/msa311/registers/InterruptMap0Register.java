@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.data.InterruptMap0Data;
 
 import java.io.IOException;
 
@@ -77,5 +79,30 @@ public class InterruptMap0Register extends SingleByteRegister {
   public boolean isFreefallInterruptMappedToInt1() {
     return (registerValue & INT1_FREEFALL) != 0;
   }
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new InterruptMap0Data(
+        isOrientationInterruptMappedToInt1(),
+        isSingleTapInterruptMappedToInt1(),
+        isDoubleTapInterruptMappedToInt1(),
+        isActiveInterruptMappedToInt1(),
+        isFreefallInterruptMappedToInt1()
+    );
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if(input instanceof InterruptMap0Data) {
+      InterruptMap0Data data = (InterruptMap0Data) input;
+      mapOrientationInterruptToInt1(data.isOrientationInterruptMappedToInt1());
+      mapSingleTapInterruptToInt1(data.isSingleTapInterruptMappedToInt1());
+      mapDoubleTapInterruptToInt1(data.isDoubleTapInterruptMappedToInt1());
+      mapActiveInterruptToInt1(data.isActiveInterruptMappedToInt1());
+      mapFreefallInterruptToInt1(data.isFreefallInterruptMappedToInt1());
+      return true;
+    }
+    return false;
+  }
+
 }
 

@@ -18,6 +18,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.data.TapDurData;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.TapDuration;
 
 import java.io.IOException;
@@ -38,12 +39,17 @@ public class TapDurRegister extends SingleByteRegister {
 
   public TapDuration getTapShockDuration() throws IOException {
     reload();
-    return TapDuration.fromValue((registerValue & TAP_DUR_MASK));
+    return TapDuration.values()[(registerValue & TAP_DUR_MASK)];
   }
 
   public boolean getTapShock() throws IOException {
     reload();
     return (registerValue & TAP_SHOCK_MASK) != 0;
+  }
+
+  @Override
+  public TapDurData toData() throws IOException {
+    return new TapDurData(getTapQuiet(), getTapShockDuration(), getTapShock());
   }
 
 }

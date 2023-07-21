@@ -1,7 +1,9 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.data.MotionInterruptData;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.MotionInterrupts;
 
 import java.io.IOException;
@@ -23,6 +25,11 @@ public class MotionInterruptRegister extends SingleByteRegister {
       }
     }
     return list;
+  }
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new MotionInterruptData(getInterrupts());
   }
 
 }

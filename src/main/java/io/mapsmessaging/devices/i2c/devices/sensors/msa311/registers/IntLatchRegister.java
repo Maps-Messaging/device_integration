@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.data.IntLatchData;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.Latch;
 
 import java.io.IOException;
@@ -55,4 +57,24 @@ public class IntLatchRegister extends SingleByteRegister {
     int value = flag ? RESET_FLAG : 0;
     setControlRegister(~RESET_FLAG, value);
   }
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new IntLatchData(
+        getLatch(),
+        isResetFlagSet()
+    );
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof IntLatchData) {
+      IntLatchData data = (IntLatchData) input;
+      setLatch(data.getLatch());
+      setResetFlag(data.isResetFlag());
+      return true;
+    }
+    return false;
+  }
+
 }

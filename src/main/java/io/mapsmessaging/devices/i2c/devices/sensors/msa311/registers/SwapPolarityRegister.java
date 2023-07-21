@@ -1,7 +1,9 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.msa311.data.SwapPolarityData;
 
 import java.io.IOException;
 
@@ -53,4 +55,26 @@ public class SwapPolarityRegister extends SingleByteRegister {
     return (registerValue & X_Y_SWAP) != 0;
   }
 
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof SwapPolarityData) {
+      SwapPolarityData data = (SwapPolarityData) input;
+      swapXPolarity(data.isXPolaritySwapped());
+      swapYPolarity(data.isYPolaritySwapped());
+      swapZPolarity(data.isZPolaritySwapped());
+      swapX_Y(data.isXYSwapped());
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new SwapPolarityData(
+        isXPolaritySwapped(),
+        isYPolaritySwapped(),
+        isZPolaritySwapped(),
+        isX_YSwapped()
+    );
+  }
 }
