@@ -138,11 +138,11 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
     zOffsetCompensation = new OffsetCompensationRegister(this, 0x3A, "Z offset compensation");
 
 
-    FloatSensorReading x_orientation = new FloatSensorReading("x_orientation", "m/s^2", -100, 100, this::getX);
-    FloatSensorReading y_orientation = new FloatSensorReading("y_orientation", "m/s^2", -100, 100, this::getY);
-    FloatSensorReading z_orientation = new FloatSensorReading("z_orientation", "m/s^2", -100, 100, this::getZ);
+    FloatSensorReading xOrientation = new FloatSensorReading("x_orientation", "m/s^2", -100, 100, this::getX);
+    FloatSensorReading yOrientation = new FloatSensorReading("y_orientation", "m/s^2", -100, 100, this::getY);
+    FloatSensorReading zOrientation = new FloatSensorReading("z_orientation", "m/s^2", -100, 100, this::getZ);
 
-    readings = List.of(x_orientation, y_orientation, z_orientation);
+    readings = List.of(xOrientation, yOrientation, zOrientation);
     initialise();
   }
 
@@ -175,12 +175,12 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
 
   @Override
   public void powerOn() throws IOException {
-
+    powerModeRegister.setPowerMode(PowerMode.NORMAL);
   }
 
   @Override
   public void powerOff() throws IOException {
-
+    powerModeRegister.setPowerMode(PowerMode.SUSPENDED);
   }
 
   @Override
@@ -190,7 +190,7 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
 
   @Override
   public void softReset() throws IOException {
-
+    initialise();
   }
 
   @Override
