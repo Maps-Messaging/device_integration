@@ -221,38 +221,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <version>3.5.0</version>
       </plugin>
-
-      <plugin>
-        <groupId>com.github.os72</groupId>
-        <artifactId>protoc-jar-maven-plugin</artifactId>
-        <version>3.11.4</version>
-        <executions>
-          <execution>
-            <phase>generate-test-sources</phase>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <configuration>
-              <protocVersion>3.1.0</protocVersion>
-              <inputDirectories>
-                <include>src/test/resources</include>
-              </inputDirectories>
-              <outputTargets>
-                <outputTarget>
-                  <type>java</type>
-                  <addSources>none</addSources>
-                  <outputDirectory>target/generated-test-sources</outputDirectory>
-                </outputTarget>
-                <outputTarget>
-                  <type>descriptor</type>
-                  <addSources>none</addSources>
-                  <outputDirectory>src/test/resources</outputDirectory>
-                </outputTarget>
-              </outputTargets>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
@@ -281,93 +249,119 @@
           <target>11</target>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.2.0</version>
+        <configuration>
+          <excludes>
+            <!-- Exclude example source code from the build jar -->
+            <exclude>examples/**</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
+  <profiles>
+    <!-- Profile for the main project (excluding example dependencies) -->
+    <profile>
+      <id>main</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>io.mapsmessaging</groupId>
+          <artifactId>Simple_Logging</artifactId>
+          <version>2.0.9</version>
+        </dependency>
 
-  <dependencies>
-    <dependency>
-      <groupId>io.mapsmessaging</groupId>
-      <artifactId>Simple_Logging</artifactId>
-      <version>2.0.9</version>
-    </dependency>
+        <dependency>
+          <groupId>io.mapsmessaging</groupId>
+          <artifactId>Schemas</artifactId>
+          <version>2.1.2</version>
+        </dependency>
 
-    <dependency>
-      <groupId>io.mapsmessaging</groupId>
-      <artifactId>Schemas</artifactId>
-      <version>2.1.2</version>
-    </dependency>
+        <dependency>
+          <groupId>com.pi4j</groupId>
+          <artifactId>pi4j-core</artifactId>
+          <version>${pi4j.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>com.pi4j</groupId>
-      <artifactId>pi4j-core</artifactId>
-      <version>${pi4j.version}</version>
-    </dependency>
+        <dependency>
+          <groupId>com.pi4j</groupId>
+          <artifactId>pi4j-plugin-raspberrypi</artifactId>
+          <version>${pi4j.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.pi4j/pi4j-plugin-linuxfs -->
+        <dependency>
+          <groupId>com.pi4j</groupId>
+          <artifactId>pi4j-plugin-linuxfs</artifactId>
+          <version>${pi4j.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.pi4j/pi4j-library-linuxfs -->
+        <dependency>
+          <groupId>com.pi4j</groupId>
+          <artifactId>pi4j-library-linuxfs</artifactId>
+          <version>${pi4j.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>com.pi4j</groupId>
-      <artifactId>pi4j-plugin-raspberrypi</artifactId>
-      <version>${pi4j.version}</version>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/com.pi4j/pi4j-plugin-linuxfs -->
-    <dependency>
-      <groupId>com.pi4j</groupId>
-      <artifactId>pi4j-plugin-linuxfs</artifactId>
-      <version>${pi4j.version}</version>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/com.pi4j/pi4j-library-linuxfs -->
-    <dependency>
-      <groupId>com.pi4j</groupId>
-      <artifactId>pi4j-library-linuxfs</artifactId>
-      <version>${pi4j.version}</version>
-    </dependency>
+        <dependency>
+          <groupId>com.pi4j</groupId>
+          <artifactId>pi4j-plugin-pigpio</artifactId>
+          <version>${pi4j.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>com.pi4j</groupId>
-      <artifactId>pi4j-plugin-pigpio</artifactId>
-      <version>${pi4j.version}</version>
-    </dependency>
+        <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-simple</artifactId>
+          <version>2.0.7</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <version>2.0.7</version>
-    </dependency>
+        <dependency>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+          <version>2.13.0</version>  <!-- use the latest version available -->
+        </dependency>
 
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>2.13.0</version>  <!-- use the latest version available -->
-    </dependency>
+        <!-- https://mvnrepository.com/artifact/org.json/json -->
+        <dependency>
+          <groupId>org.json</groupId>
+          <artifactId>json</artifactId>
+          <version>20230227</version>
+        </dependency>
 
-    <!-- https://mvnrepository.com/artifact/org.json/json -->
-    <dependency>
-      <groupId>org.json</groupId>
-      <artifactId>json</artifactId>
-      <version>20230227</version>
-    </dependency>
+        <!-- https://mvnrepository.com/artifact/org.everit.json/org.everit.json.schema -->
+        <dependency>
+          <groupId>org.everit.json</groupId>
+          <artifactId>org.everit.json.schema</artifactId>
+          <version>1.5.1</version>
+        </dependency>
 
-    <!-- https://mvnrepository.com/artifact/org.everit.json/org.everit.json.schema -->
-    <dependency>
-      <groupId>org.everit.json</groupId>
-      <artifactId>org.everit.json.schema</artifactId>
-      <version>1.5.1</version>
-    </dependency>
+        <!-- Junit5 -->
+        <dependency>
+          <artifactId>junit-jupiter-engine</artifactId>
+          <groupId>org.junit.jupiter</groupId>
+          <scope>test</scope>
+          <version>5.9.2</version>
+        </dependency>
 
-    <!-- Junit5 -->
-    <dependency>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <groupId>org.junit.jupiter</groupId>
-      <scope>test</scope>
-      <version>5.9.2</version>
-    </dependency>
 
-    <!-- https://mvnrepository.com/artifact/io.javalin/javalin -->
-    <dependency>
-      <groupId>io.javalin</groupId>
-      <artifactId>javalin</artifactId>
-      <version>5.6.0</version>
-    </dependency>
+      </dependencies>
+    </profile>
 
-  </dependencies>
+    <!-- Profile for the examples (with additional dependencies) -->
+    <profile>
+      <id>examples</id>
+      <dependencies>
+        <dependency>
+          <groupId>io.javalin</groupId>
+          <artifactId>javalin</artifactId>
+          <version>5.6.0</version>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+
 </project>

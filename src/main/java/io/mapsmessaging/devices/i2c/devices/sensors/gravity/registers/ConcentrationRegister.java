@@ -6,9 +6,9 @@ import io.mapsmessaging.devices.i2c.devices.sensors.gravity.module.SensorType;
 
 import java.io.IOException;
 
-public class ConcentrationRegister extends CrcValidatingRegsiter {
+public class ConcentrationRegister extends CrcValidatingRegister {
 
-  public ConcentrationRegister(I2CDevice sensor ) {
+  public ConcentrationRegister(I2CDevice sensor) {
     super(sensor, Command.GET_GAS_CONCENTRATION);
   }
 

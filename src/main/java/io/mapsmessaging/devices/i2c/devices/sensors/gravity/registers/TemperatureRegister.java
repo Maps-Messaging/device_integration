@@ -5,9 +5,9 @@ import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.Command;
 
 import java.io.IOException;
 
-public class TemperatureRegister extends CrcValidatingRegsiter {
+public class TemperatureRegister extends CrcValidatingRegister {
 
-  public TemperatureRegister(I2CDevice sensor ) {
+  public TemperatureRegister(I2CDevice sensor) {
     super(sensor, Command.GET_TEMP);
   }
 

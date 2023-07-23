@@ -5,10 +5,10 @@ import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.Command;
 
 import java.io.IOException;
 
-public class I2CRegister extends CrcValidatingRegsiter {
+public class I2CRegister extends CrcValidatingRegister {
 
 
-  public I2CRegister(I2CDevice sensor ) {
+  public I2CRegister(I2CDevice sensor) {
     super(sensor, Command.CHANGE_I2C_ADDR);
   }
 

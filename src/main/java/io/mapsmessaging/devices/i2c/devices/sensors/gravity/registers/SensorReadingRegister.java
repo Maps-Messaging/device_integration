@@ -5,13 +5,13 @@ import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.Command;
 
 import java.io.IOException;
 
-public class SensorReadingRegister  extends CrcValidatingRegsiter {
+public class SensorReadingRegister extends CrcValidatingRegister {
 
   private float concentration;
   private float temperature;
   private long lastRead;
 
-  public SensorReadingRegister(I2CDevice sensor ) {
+  public SensorReadingRegister(I2CDevice sensor) {
     super(sensor, Command.GET_ALL_DATA);
     lastRead = 0;
   }

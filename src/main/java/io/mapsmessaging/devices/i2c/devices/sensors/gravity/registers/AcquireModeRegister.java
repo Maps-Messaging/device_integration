@@ -5,9 +5,9 @@ import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.Command;
 
 import java.io.IOException;
 
-public class AcquireModeRegister  extends CrcValidatingRegsiter {
+public class AcquireModeRegister extends CrcValidatingRegister {
 
-  public AcquireModeRegister(I2CDevice sensor ) {
+  public AcquireModeRegister(I2CDevice sensor) {
     super(sensor, Command.CHANGE_GET_METHOD);
   }
 

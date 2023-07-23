@@ -5,9 +5,9 @@ import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.Command;
 
 import java.io.IOException;
 
-public class VoltageRegister extends CrcValidatingRegsiter {
+public class VoltageRegister extends CrcValidatingRegister {
 
-  public VoltageRegister(I2CDevice sensor ) {
+  public VoltageRegister(I2CDevice sensor) {
     super(sensor, Command.SENSOR_VOLTAGE);
   }
 

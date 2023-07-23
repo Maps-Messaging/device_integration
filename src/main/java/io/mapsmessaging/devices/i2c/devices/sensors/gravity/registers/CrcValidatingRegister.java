@@ -24,16 +24,16 @@ import java.io.IOException;
 
 import static java.lang.Math.log;
 
-public class CrcValidatingRegsiter extends Register {
+public class CrcValidatingRegister extends Register {
 
   private final Command command;
 
-  public CrcValidatingRegsiter(I2CDevice sensor, Command command) {
+  public CrcValidatingRegister(I2CDevice sensor, Command command) {
     super(sensor, command.getCommandValue(), command.name());
     this.command = command;
   }
 
-  protected boolean sendBufferCommand(byte[] buffer) throws IOException{
+  protected boolean sendBufferCommand(byte[] buffer) throws IOException {
     byte[] data = new byte[9];
     return (request(buffer, data) && data[2] == 1);
   }

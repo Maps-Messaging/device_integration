@@ -7,16 +7,16 @@ import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.Command;
 
 import java.io.IOException;
 
-public class ThresholdAlarmRegister extends CrcValidatingRegsiter {
+public class ThresholdAlarmRegister extends CrcValidatingRegister {
 
 
-  public ThresholdAlarmRegister(I2CDevice sensor ) {
+  public ThresholdAlarmRegister(I2CDevice sensor) {
     super(sensor, Command.SET_THRESHOLD_ALARMS);
   }
 
-  public boolean setThresholdAlarm (int threshold, AlarmType alarmType) throws IOException {
+  public boolean setThresholdAlarm(int threshold, AlarmType alarmType) throws IOException {
     if (threshold == 0) {
-      threshold = ((GasSensor)sensor).getSensorType().getThreshold();
+      threshold = ((GasSensor) sensor).getSensorType().getThreshold();
     }
     byte[] buf = new byte[6];
     buf[1] = 0x1; // enable
