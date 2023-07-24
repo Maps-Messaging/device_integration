@@ -49,6 +49,10 @@ public abstract class I2CDevice implements Device, AutoCloseable {
     log(I2C_BUS_DEVICE_CLOSE);
   }
 
+  public int getBus() {
+    return device.getBus();
+  }
+
   public abstract boolean isConnected();
 
   public void write(int val) throws IOException {

@@ -43,10 +43,15 @@ public class I2CBusManager {
 
   private final Context pi4j;
   private final I2CProvider i2cProvider;
+  private final int i2cBus;
+  private final boolean active;
 
 
-  public I2CBusManager(Context pi4j, I2CProvider i2cProvider) {
+  public I2CBusManager(Context pi4j, I2CProvider i2cProvider, int bus) {
     logger.log(DeviceLogMessage.I2C_BUS_MANAGER_STARTUP);
+    boolean enableBus0 = Boolean.parseBoolean(System.getProperty("i2cbus0", "false"));
+    active = bus != 0 || enableBus0;
+    i2cBus = bus;
     this.pi4j = pi4j;
     this.i2cProvider = i2cProvider;
     mappedDevices = new LinkedHashMap<>();
@@ -97,6 +102,7 @@ public class I2CBusManager {
   }
 
   public void scanForDevices() {
+    if (!active) return;
     List<Integer> foundDevices = findDevicesOnBus();
     for (Integer addr : foundDevices) {
       List<I2CDeviceController> devices = mappedDevices.get(addr);
@@ -141,7 +147,7 @@ public class I2CBusManager {
             I2CConfig i2cConfig = I2C.newConfigBuilder(pi4j)
                 .id("Device::" + Integer.toHexString(x))
                 .description("Device::" + Integer.toHexString(x))
-                .bus(1)
+                .bus(i2cBus)
                 .device(x)
                 .build();
             device = i2cProvider.create(i2cConfig);
@@ -186,6 +192,7 @@ public class I2CBusManager {
       activeList.add(((I2CDeviceController) controller).getMountedAddress());
     }
     int addr = 0;
+    logger.log(I2C_BUS_SCAN, "I2C Device on bus " + i2cBus);
     logger.log(I2C_BUS_SCAN, "     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f");
     for (int x = 0; x < 8; x++) {
       StringBuilder sb = new StringBuilder(x + "0: ");

@@ -22,8 +22,10 @@ public class I2cDetect {
 
   public static void main(String[] args) {
     DeviceBusManager deviceBusManager = DeviceBusManager.getInstance();
-    I2CBusManager i2CBusManager = deviceBusManager.getI2cBusManager();
-    i2CBusManager.findDevicesOnBus();
+    I2CBusManager[] i2CBusManager = deviceBusManager.getI2cBusManager();
+    for (I2CBusManager cBusManager : i2CBusManager) {
+      cBusManager.findDevicesOnBus();
+    }
     deviceBusManager.close();
   }
 }

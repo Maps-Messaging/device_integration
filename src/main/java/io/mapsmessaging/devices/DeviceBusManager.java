@@ -40,7 +40,7 @@ public class DeviceBusManager {
   private final Logger logger = LoggerFactory.getLogger(DeviceBusManager.class);
   private final Context pi4j;
   @Getter
-  private final I2CBusManager i2cBusManager;
+  private final I2CBusManager[] i2cBusManager;
   @Getter
   private final OneWireBusManager oneWireBusManager;
   @Getter
@@ -60,7 +60,10 @@ public class DeviceBusManager {
     supportsLengthResponse = provider.equalsIgnoreCase("linuxfs-i2c");
     I2CProvider i2cProvider = pi4j.provider(provider);
     logger.log(DeviceLogMessage.BUS_MANAGER_PROVIDER, provider);
-    i2cBusManager = new I2CBusManager(pi4j, i2cProvider);
+    i2cBusManager = new I2CBusManager[2];
+    for (int x = 0; x < i2cBusManager.length; x++) {
+      i2cBusManager[x] = new I2CBusManager(pi4j, i2cProvider, x);
+    }
     oneWireBusManager = new OneWireBusManager();
     interruptFactory = new InterruptFactory(pi4j);
     spiBusManager = new SpiBusManager(pi4j);
@@ -91,23 +94,14 @@ public class DeviceBusManager {
     logger.log(DeviceLogMessage.BUS_MANAGER_CONFIGURE_DEVICES);
     if (config.containsKey("i2c")) {
       Map<String, Object> i2c = (Map) config.get("i2c");
-      i2cBusManager.configureDevices(i2c);
+      int bus = Integer.parseInt(i2c.get("bus").toString());
+      i2cBusManager[bus].configureDevices(i2c);
     }
     if (config.containsKey("spi")) {
       Map<String, Object> spi = (Map) config.get("spi");
       spiBusManager.configureDevices(spi);
     }
   }
-
-  /*
-  if(addr == 0x72){
-            JSONObject config = new JSONObject();
-            config.put("enabled", true);
-            config.put("task", "clock");
-            config.put("brightness", 1);
-            physicalDevice.setPayload(config.toString(2).getBytes());
-          }
-   */
 
   public void close() {
     pi4j.shutdown();

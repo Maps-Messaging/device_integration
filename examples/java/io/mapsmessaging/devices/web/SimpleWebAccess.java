@@ -20,6 +20,7 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.mapsmessaging.devices.DeviceBusManager;
 import io.mapsmessaging.devices.DeviceController;
+import io.mapsmessaging.devices.i2c.I2CBusManager;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.onewire.OneWireDeviceController;
 import io.mapsmessaging.devices.spi.SpiDeviceController;
@@ -40,9 +41,9 @@ public class SimpleWebAccess {
 
   public SimpleWebAccess() {
     deviceBusManager = DeviceBusManager.getInstance();
-    deviceBusManager.getI2cBusManager().scanForDevices();
+    scan();
     ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    executor.scheduleAtFixedRate(deviceBusManager.getI2cBusManager()::scanForDevices, 0, 1, TimeUnit.MINUTES);
+    executor.scheduleAtFixedRate(this::scan, 0, 1, TimeUnit.MINUTES);
 
 
     Map<String, Object> deviceConfig = new LinkedHashMap<>();
@@ -57,6 +58,12 @@ public class SimpleWebAccess {
     deviceBusManager.getSpiBusManager().configureDevices(map);
   }
 
+  protected void scan() {
+    for (I2CBusManager manager : deviceBusManager.getI2cBusManager()) {
+      manager.scanForDevices();
+    }
+  }
+
   public static void main(String[] args) {
     SimpleWebAccess simpleWebAccess = new SimpleWebAccess();
     simpleWebAccess.startServer();
@@ -64,13 +71,15 @@ public class SimpleWebAccess {
 
   private void startServer() {
     app = Javalin.create().start(7001);
-    app.get("/device/exit", ctx->{
+    app.get("/device/exit", ctx -> {
       app.stop();
       System.exit(0);
         });
     app.get("/device/list", ctx -> {
       JSONObject jsonObject = new JSONObject();
-      jsonObject.put("i2c", packList(deviceBusManager.getI2cBusManager().getActive()));
+
+      jsonObject.put("i2c[0]", packList(deviceBusManager.getI2cBusManager()[0].getActive()));
+      jsonObject.put("i2c[1]", packList(deviceBusManager.getI2cBusManager()[1].getActive()));
       jsonObject.put("1Wire", packList(deviceBusManager.getOneWireBusManager().getActive()));
       jsonObject.put("spi", packList(deviceBusManager.getSpiBusManager().getActive()));
       ctx.json(jsonObject.toString(2));
@@ -78,23 +87,25 @@ public class SimpleWebAccess {
 
     //<editor-fold desc="I2C handler">
     // Add the I2C bus
-    app.get("/device/i2c/{id}", ctx -> {
+    app.get("/device/i2c/{bus}/{id}", ctx -> {
+      int bus = Integer.parseInt(ctx.pathParam("bus"));
       String id = ctx.pathParam("id");
-      I2CDeviceController device = deviceBusManager.getI2cBusManager().get(id);
+      I2CDeviceController device = deviceBusManager.getI2cBusManager()[bus].get(id);
       if (device != null) {
         try {
           handleDeviceGet(ctx, device);
         } catch (IOException e) {
-          deviceBusManager.getI2cBusManager().close(device);
+          deviceBusManager.getI2cBusManager()[bus].close(device);
         }
       } else {
         ctx.status(404).result("Device not found");
       }
     });
     // I2C get Schema
-    app.get("/device/i2c/{id}/schema", ctx -> {
+    app.get("/device/i2c/{bus}/{id}/schema", ctx -> {
+      int bus = Integer.parseInt(ctx.pathParam("bus"));
       String id = ctx.pathParam("id");
-      I2CDeviceController device = deviceBusManager.getI2cBusManager().get(id);
+      I2CDeviceController device = deviceBusManager.getI2cBusManager()[bus].get(id);
       if (device != null) {
         handleGetSchema(ctx, device);
       } else {
@@ -102,29 +113,31 @@ public class SimpleWebAccess {
       }
     });
     // I2C get config
-    app.get("/device/i2c/{id}/config", ctx -> {
+    app.get("/device/i2c/{bus}/{id}/config", ctx -> {
+      int bus = Integer.parseInt(ctx.pathParam("bus"));
       String id = ctx.pathParam("id");
-      I2CDeviceController device = deviceBusManager.getI2cBusManager().get(id);
+      I2CDeviceController device = deviceBusManager.getI2cBusManager()[bus].get(id);
       if (device != null) {
         try {
           handleGetStatic(ctx, device);
         } catch (IOException ex) {
-          deviceBusManager.getI2cBusManager().close(device);
+          deviceBusManager.getI2cBusManager()[bus].close(device);
         }
       } else {
         ctx.status(404).result("Device not found");
       }
     });
     // I2C post request handler
-    app.post("/device/i2c/{id}/config", ctx -> {
+    app.post("/device/i2c/{bus}/{id}/config", ctx -> {
+      int bus = Integer.parseInt(ctx.pathParam("bus"));
       String id = ctx.pathParam("id");
-      I2CDeviceController device = deviceBusManager.getI2cBusManager().get(id);
+      I2CDeviceController device = deviceBusManager.getI2cBusManager()[bus].get(id);
       if (device != null) {
         try {
           ctx.status(200);
           ctx.json(new String(device.updateDeviceConfiguration(ctx.body().getBytes())));
         } catch (IOException e) {
-          deviceBusManager.getI2cBusManager().close(device);
+          deviceBusManager.getI2cBusManager()[bus].close(device);
           ctx.status(400).result("Internal Error:" + e.getMessage());
         }
       } else {
@@ -133,13 +146,14 @@ public class SimpleWebAccess {
     });
     // I2C get config
     app.get("/device/i2c/{id}/registers", ctx -> {
+      int bus = Integer.parseInt(ctx.pathParam("bus"));
       String id = ctx.pathParam("id");
-      I2CDeviceController device = deviceBusManager.getI2cBusManager().get(id);
+      I2CDeviceController device = deviceBusManager.getI2cBusManager()[bus].get(id);
       if (device != null) {
         try {
           handleGetRegisters(ctx, device);
         } catch (IOException ex) {
-          deviceBusManager.getI2cBusManager().close(device);
+          deviceBusManager.getI2cBusManager()[bus].close(device);
         }
       } else {
         ctx.status(404).result("Device not found");
