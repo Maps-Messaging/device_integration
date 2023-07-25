@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.as3935.data.ThresholdData;
 
 import java.io.IOException;
 
@@ -31,7 +33,7 @@ public class ThresholdRegister extends SingleByteRegister {
   }
 
   // THRESHOLD Register : 1
-  public int getWatchdogThreshold() throws IOException {
+  public int getWatchdogThreshold() {
     return registerValue & 0x0F;
   }
 
@@ -42,7 +44,7 @@ public class ThresholdRegister extends SingleByteRegister {
     sensor.write(address, registerValue);
   }
 
-  public int getNoiseFloorLevel() throws IOException {
+  public int getNoiseFloorLevel() {
     return (registerValue >> THRESHOLD_NF_LEV_BITS) & 0x07;
   }
 
@@ -50,5 +52,23 @@ public class ThresholdRegister extends SingleByteRegister {
     registerValue &= ~((0x07) << THRESHOLD_NF_LEV_BITS);
     registerValue |= (level << THRESHOLD_NF_LEV_BITS) & ((0x07) << THRESHOLD_NF_LEV_BITS);
     sensor.write(address, registerValue);
+  }
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    int watchdogThreshold = getWatchdogThreshold();
+    int noiseFloorLevel = getNoiseFloorLevel();
+    return new ThresholdData(watchdogThreshold, noiseFloorLevel);
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof ThresholdData) {
+      ThresholdData data = (ThresholdData) input;
+      setWatchdogThreshold(data.getWatchdogThreshold());
+      setNoiseFloorLevel(data.getNoiseFloorLevel());
+      return true;
+    }
+    return false;
   }
 }

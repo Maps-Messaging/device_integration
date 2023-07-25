@@ -21,19 +21,13 @@ import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
 
-public class Lightning_Strike_Register extends SingleByteRegister {
-  private static final int LIGHTNING_STRIKE_MSB_ADDR = 0x04;
-  private static final int LIGHTNING_STRIKE_LSB_ADDR = 0x05;
-  private static final int LIGHTNING_STRIKE_BITS_0_TO_4_ADDR = 0x06;
+public class PresetDefaultRegister extends SingleByteRegister {
 
-  public Lightning_Strike_Register(I2CDevice sensor) throws IOException {
-    super(sensor, 0x04, "Lightning Strike");
+  public PresetDefaultRegister(I2CDevice sensor) throws IOException {
+    super(sensor, 0x3C, "PRESET_DEFAULT");
   }
 
-  public int getEnergy() throws IOException {
-    int msb = sensor.readRegister(LIGHTNING_STRIKE_MSB_ADDR);
-    int lsb = sensor.readRegister(LIGHTNING_STRIKE_LSB_ADDR);
-    int bits0to4 = sensor.readRegister(LIGHTNING_STRIKE_BITS_0_TO_4_ADDR);
-    return ((bits0to4 & 0x1F) << 16) | (msb << 8) | lsb;
+  public void reset() throws IOException {
+    sensor.write(address, (byte) 0x96);
   }
 }

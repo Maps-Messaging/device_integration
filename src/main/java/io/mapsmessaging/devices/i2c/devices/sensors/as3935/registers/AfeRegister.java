@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.as3935.data.AfeData;
 
 import java.io.IOException;
 
@@ -31,12 +33,11 @@ public class AfeRegister extends SingleByteRegister {
     reload();
   }
 
-  // AFE_GAIN Register : 0
-  public boolean isAFE_PowerDown() throws IOException {
+  public boolean isPowerDown() {
     return ((registerValue & 0xff) & (1 << AFE_GAIN_PD_BIT)) != 0;
   }
 
-  public void setAFE_PowerDown(boolean powerDown) throws IOException {
+  public void setPowerDown(boolean powerDown) throws IOException {
     byte value = registerValue;
     if (powerDown) {
       value |= (1 << AFE_GAIN_PD_BIT);
@@ -46,13 +47,52 @@ public class AfeRegister extends SingleByteRegister {
     sensor.write(AFE_GAIN_ADDR, value);
   }
 
-  public int getAFE_GainBoost() throws IOException {
+  public int getGainBoost() {
     return (registerValue >> AFE_GAIN_BOOST_BITS) & 0x1F;
   }
 
-  public void setAFE_GainBoost(int gainBoost) throws IOException {
+  public void setGainBoost(int gainBoost) throws IOException {
     registerValue &= ~((0x1F) << AFE_GAIN_BOOST_BITS);
     registerValue |= (gainBoost << AFE_GAIN_BOOST_BITS) & ((0x1F) << AFE_GAIN_BOOST_BITS);
     sensor.write(AFE_GAIN_ADDR, registerValue);
   }
+
+  public String getBoostName() {
+    int gain = getGainBoost();
+    if (gain == 0b10010) {
+      return "Indoor";
+    }
+    if (gain == 0b01110) {
+      return "Outdoor";
+    }
+    return "Custom";
+  }
+
+  public void setIndoor() throws IOException {
+    setGainBoost(0b10010);
+  }
+
+  public void setOutdoor() throws IOException {
+    setGainBoost(0b01110);
+  }
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    boolean powerDown = isPowerDown();
+    int gainBoost = getGainBoost();
+    return new AfeData(powerDown, gainBoost, getBoostName());
+  }
+
+  // Method to set AfeRegister data from AfeData
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof AfeData) {
+      AfeData data = (AfeData) input;
+      setPowerDown(data.isPowerDown());
+      setGainBoost(data.getGainBoost());
+      return true;
+    }
+    return false;
+  }
+
 }

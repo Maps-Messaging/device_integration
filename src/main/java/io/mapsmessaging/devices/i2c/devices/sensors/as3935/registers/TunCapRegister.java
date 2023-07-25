@@ -16,18 +16,20 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.as3935.data.TunCapData;
 
 import java.io.IOException;
 
-public class Tun_Cap_Register extends SingleByteRegister {
+public class TunCapRegister extends SingleByteRegister {
 
   private static final int TUN_CAP_CAP_BITS = 0;
-  private static final int TUN_CAP_DISP_TRCO_BIT = 6;
-  private static final int TUN_CAP_DISP_SRCO_BIT = 7;
+  private static final int TUN_CAP_DISP_TRCO = 0b01000000;
+  private static final int TUN_CAP_DISP_SRCO = 0b10000000;
 
-  public Tun_Cap_Register(I2CDevice sensor) throws IOException {
+  public TunCapRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0x08, "Tune Capacitor");
   }
 
@@ -39,31 +41,55 @@ public class Tun_Cap_Register extends SingleByteRegister {
     registerValue &= ~((0x0F) << TUN_CAP_CAP_BITS);
     registerValue |= cap & ((0x0F) << TUN_CAP_CAP_BITS);
     sensor.write(address, registerValue);
+    sensor.delay(200);
   }
 
   public boolean isDispTRCOEnabled() {
-    return ((registerValue & 0xff) & (1 << TUN_CAP_DISP_TRCO_BIT)) != 0;
+    return ((registerValue & 0xff) & TUN_CAP_DISP_TRCO) != 0;
   }
 
   public void setDispTRCOEnabled(boolean enabled) throws IOException {
     if (enabled) {
-      registerValue |= (1 << TUN_CAP_DISP_TRCO_BIT);
+      registerValue |= TUN_CAP_DISP_TRCO;
     } else {
-      registerValue &= ~(1 << TUN_CAP_DISP_TRCO_BIT);
+      registerValue &= ~(TUN_CAP_DISP_TRCO);
     }
     sensor.write(address, registerValue);
+    sensor.delay(200);
   }
 
   public boolean isDispSRCOEnabled() {
-    return ((registerValue & 0xff) & (1 << TUN_CAP_DISP_SRCO_BIT)) != 0;
+    return ((registerValue & 0xff) & (TUN_CAP_DISP_SRCO)) != 0;
   }
 
   public void setDispSRCOEnabled(boolean enabled) throws IOException {
     if (enabled) {
-      registerValue |= (1 << TUN_CAP_DISP_SRCO_BIT);
+      registerValue |= (TUN_CAP_DISP_SRCO);
     } else {
-      registerValue &= ~(1 << TUN_CAP_DISP_SRCO_BIT);
+      registerValue &= ~(TUN_CAP_DISP_SRCO);
     }
     sensor.write(address, registerValue);
+    sensor.delay(200);
+  }
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    int tuningCap = getTuningCap();
+    boolean dispTRCOEnabled = isDispTRCOEnabled();
+    boolean dispSRCOEnabled = isDispSRCOEnabled();
+    return new TunCapData(tuningCap, dispTRCOEnabled, dispSRCOEnabled);
+  }
+
+  // Method to set Tun_Cap_Register data from TunCapData
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof TunCapData) {
+      TunCapData data = (TunCapData) input;
+      setTuningCap(data.getTuningCap());
+      setDispTRCOEnabled(data.isDispTRCOEnabled());
+      setDispSRCOEnabled(data.isDispSRCOEnabled());
+      return true;
+    }
+    return false;
   }
 }

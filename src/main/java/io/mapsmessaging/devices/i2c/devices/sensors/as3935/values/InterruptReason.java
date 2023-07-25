@@ -14,25 +14,23 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
+package io.mapsmessaging.devices.i2c.devices.sensors.as3935.values;
 
-import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import lombok.Getter;
 
-import java.io.IOException;
+public enum InterruptReason {
+  NONE(0b0000, "None"),
+  NT_NH(0b0001, "Noise level too high"),
+  INT_D(0b0100, "Disturber detected"),
+  INT_L(0b1000, "Lightning interrupt");
 
-public class DistanceRegister extends SingleByteRegister {
+  @Getter
+  private final int mask;
+  @Getter
+  private final String description;
 
-  public DistanceRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0x07, "Distance");
-  }
-
-  public int getDistanceEstimation() throws IOException {
-    reload();
-    int val = registerValue & 0x3F;
-    if (val == 63) {
-      val = Short.MAX_VALUE;
-    }
-    return val;
+  InterruptReason(int mask, String description) {
+    this.mask = mask;
+    this.description = description;
   }
 }

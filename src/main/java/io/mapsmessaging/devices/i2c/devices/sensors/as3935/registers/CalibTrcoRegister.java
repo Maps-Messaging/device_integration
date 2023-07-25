@@ -18,21 +18,33 @@ package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.as3935.data.TrcoCalibrationData;
 
 import java.io.IOException;
 
-public class Calib_SRCO_TRCO_Register extends SingleByteRegister {
+public class CalibTrcoRegister extends SingleByteRegister {
 
-  private static final int CALIB_SRCO_TRCO_CALIB_TRCO_BIT = 6;
-  private static final int CALIB_SRCO_TRCO_CALIB_TRCO_DONE_BIT = 7;
+  private static final int CALIB_TRCO_NOK_BIT = 0b01000000;
+  private static final int CALIB_TRCO_DONE_MASK = 0b10000000;
 
-  public Calib_SRCO_TRCO_Register(I2CDevice sensor) throws IOException {
+  public CalibTrcoRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0x3A, "Calibrate SRCO TRCO");
   }
 
   public boolean isTRCOCalibrationSuccessful() throws IOException {
     reload();
-    return ((registerValue & 0xff) & (1 << CALIB_SRCO_TRCO_CALIB_TRCO_DONE_BIT)) != 0;
+    return ((registerValue & 0xff) & CALIB_TRCO_DONE_MASK) != 0;
   }
 
+  public boolean isTRCOCalibrationUnsuccessful() throws IOException {
+    reload();
+    return ((registerValue & 0xff) & CALIB_TRCO_NOK_BIT) != 0;
+  }
+
+  @Override
+  public TrcoCalibrationData toData() throws IOException {
+    boolean trcoCalibrationSuccessful = isTRCOCalibrationSuccessful();
+    boolean trcoCalibrationUnsuccessful = isTRCOCalibrationUnsuccessful();
+    return new TrcoCalibrationData(trcoCalibrationSuccessful, trcoCalibrationUnsuccessful);
+  }
 }

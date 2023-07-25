@@ -18,15 +18,16 @@ package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.as3935.data.SrcoCalibrationData;
 
 import java.io.IOException;
 
-public class Calib_SRCO_SRCO_Register extends SingleByteRegister {
+public class CalibrateSrcoRegister extends SingleByteRegister {
 
+  private static final int CALIB_SCRO_SRCO_CALIB_TRCO_NOK_BIT = 6;
   private static final int CALIB_SCRO_SRCO_CALIB_SRCO_DONE_BIT = 7;
 
-
-  public Calib_SRCO_SRCO_Register(I2CDevice sensor) throws IOException {
+  public CalibrateSrcoRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0x3B, "Calibrate SRCO SRCO");
   }
 
@@ -34,4 +35,17 @@ public class Calib_SRCO_SRCO_Register extends SingleByteRegister {
     reload();
     return ((registerValue & 0xff) & (1 << CALIB_SCRO_SRCO_CALIB_SRCO_DONE_BIT)) != 0;
   }
+
+  public boolean isSRCOCalibrationUnsuccessful() throws IOException {
+    reload();
+    return ((registerValue & 0xff) & (1 << CALIB_SCRO_SRCO_CALIB_TRCO_NOK_BIT)) != 0;
+  }
+
+  @Override
+  public SrcoCalibrationData toData() throws IOException {
+    boolean srcoCalibrationSuccessful = isSRCOCalibrationSuccessful();
+    boolean srcoCalibrationUnsuccessful = isSRCOCalibrationUnsuccessful();
+    return new SrcoCalibrationData(srcoCalibrationSuccessful, srcoCalibrationUnsuccessful);
+  }
+
 }

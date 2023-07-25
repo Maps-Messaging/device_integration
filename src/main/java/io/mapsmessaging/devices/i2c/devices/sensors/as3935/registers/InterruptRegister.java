@@ -16,8 +16,11 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.as3935.data.InterruptData;
+import io.mapsmessaging.devices.i2c.devices.sensors.as3935.values.InterruptReason;
 
 import java.io.IOException;
 
@@ -30,11 +33,18 @@ public class InterruptRegister extends SingleByteRegister {
     super(sensor, 0x03, "Interrupt");
   }
 
-  public int getInterruptReason() throws IOException {
-    return registerValue & 0xF;
+  public InterruptReason getInterruptReason() {
+    int mask = registerValue & 0xF;
+
+    for (InterruptReason interruptReason : InterruptReason.values()) {
+      if (interruptReason.getMask() == mask) {
+        return interruptReason;
+      }
+    }
+    return InterruptReason.NONE;
   }
 
-  public boolean isMaskDisturberEnabled() throws IOException {
+  public boolean isMaskDisturberEnabled() {
     return ((registerValue & 0xff) & (1 << ENERGY_MASK_DISTURBER_BIT)) != 0;
   }
 
@@ -48,7 +58,7 @@ public class InterruptRegister extends SingleByteRegister {
     sensor.write(address, registerValue);
   }
 
-  public int getEnergyDivRatio() throws IOException {
+  public int getEnergyDivRatio() {
     return (registerValue >> ENERGY_DIV_RATIO_BITS) & 0x03;
   }
 
@@ -57,5 +67,25 @@ public class InterruptRegister extends SingleByteRegister {
     registerValue &= ~((0x03) << ENERGY_DIV_RATIO_BITS);
     registerValue |= (divRatio << ENERGY_DIV_RATIO_BITS) & ((0x03) << ENERGY_DIV_RATIO_BITS);
     sensor.write(address, registerValue);
+  }
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    InterruptReason interruptReason = getInterruptReason();
+    boolean maskDisturberEnabled = isMaskDisturberEnabled();
+    int energyDivRatio = getEnergyDivRatio();
+    return new InterruptData(interruptReason, maskDisturberEnabled, energyDivRatio);
+  }
+
+  // Method to set InterruptRegister data from InterruptData
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof InterruptData) {
+      InterruptData data = (InterruptData) input;
+      setMaskDisturberEnabled(data.isMaskDisturberEnabled());
+      setEnergyDivRatio(data.getEnergyDivRatio());
+      return true;
+    }
+    return false;
   }
 }

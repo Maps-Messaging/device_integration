@@ -21,18 +21,13 @@ import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
 
-public class DistanceRegister extends SingleByteRegister {
+public class CalibrateRcoRegister extends SingleByteRegister {
 
-  public DistanceRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0x07, "Distance");
+  public CalibrateRcoRegister(I2CDevice sensor) throws IOException {
+    super(sensor, 0x3D, "CALIB_RCO");
   }
 
-  public int getDistanceEstimation() throws IOException {
-    reload();
-    int val = registerValue & 0x3F;
-    if (val == 63) {
-      val = Short.MAX_VALUE;
-    }
-    return val;
+  public void reset() throws IOException {
+    sensor.write(address, (byte) 0x96);
   }
 }

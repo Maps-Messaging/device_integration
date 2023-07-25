@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.as3935.data.LightningData;
 
 import java.io.IOException;
 
@@ -63,5 +65,25 @@ public class LightningRegister extends SingleByteRegister {
       registerValue &= ~(1 << LIGHTNING_REG_CL_STAT_BIT);
     }
     sensor.write(address, registerValue);
+  }
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    int spikeRejection = getSpikeRejection();
+    int minNumLightning = getMinNumLightning();
+    boolean clearStatisticsEnabled = isClearStatisticsEnabled();
+    return new LightningData(spikeRejection, minNumLightning, clearStatisticsEnabled);
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof LightningData) {
+      LightningData data = (LightningData) input;
+      setSpikeRejection(data.getSpikeRejection());
+      setMinNumLightning(data.getMinNumLightning());
+      setClearStatisticsEnabled(data.isClearStatisticsEnabled());
+      return true;
+    }
+    return false;
   }
 }

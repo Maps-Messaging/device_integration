@@ -21,18 +21,19 @@ import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
 
-public class DistanceRegister extends SingleByteRegister {
+public class LightningStrikeRegister extends SingleByteRegister {
+  private static final int LIGHTNING_STRIKE_MSB_ADDR = 0x04;
+  private static final int LIGHTNING_STRIKE_LSB_ADDR = 0x05;
+  private static final int LIGHTNING_STRIKE_BITS_0_TO_4_ADDR = 0x06;
 
-  public DistanceRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0x07, "Distance");
+  public LightningStrikeRegister(I2CDevice sensor) throws IOException {
+    super(sensor, 0x04, "Lightning Strike");
   }
 
-  public int getDistanceEstimation() throws IOException {
-    reload();
-    int val = registerValue & 0x3F;
-    if (val == 63) {
-      val = Short.MAX_VALUE;
-    }
-    return val;
+  public int getEnergy() throws IOException {
+    int msb = sensor.readRegister(LIGHTNING_STRIKE_MSB_ADDR);
+    int lsb = sensor.readRegister(LIGHTNING_STRIKE_LSB_ADDR);
+    int bits0to4 = sensor.readRegister(LIGHTNING_STRIKE_BITS_0_TO_4_ADDR);
+    return ((bits0to4 & 0x1F) << 16) | (msb << 8) | lsb;
   }
 }

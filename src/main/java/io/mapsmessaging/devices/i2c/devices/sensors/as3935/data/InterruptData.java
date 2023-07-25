@@ -14,25 +14,22 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
+package io.mapsmessaging.devices.i2c.devices.sensors.as3935.data;
 
-import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import io.mapsmessaging.devices.i2c.devices.sensors.as3935.values.InterruptReason;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
-import java.io.IOException;
-
-public class DistanceRegister extends SingleByteRegister {
-
-  public DistanceRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0x07, "Distance");
-  }
-
-  public int getDistanceEstimation() throws IOException {
-    reload();
-    int val = registerValue & 0x3F;
-    if (val == 63) {
-      val = Short.MAX_VALUE;
-    }
-    return val;
-  }
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+public class InterruptData implements AbstractRegisterData {
+  private InterruptReason interruptReason;
+  private boolean maskDisturberEnabled;
+  private int energyDivRatio;
 }
+

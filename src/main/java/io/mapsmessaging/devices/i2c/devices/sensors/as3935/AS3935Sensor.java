@@ -18,23 +18,46 @@ package io.mapsmessaging.devices.i2c.devices.sensors.as3935;
 
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.deviceinterfaces.PowerManagement;
+import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers.*;
+import io.mapsmessaging.devices.sensorreadings.IntegerSensorReading;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
+import io.mapsmessaging.devices.sensorreadings.StringSensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
+import lombok.Getter;
 
 import java.io.IOException;
+import java.util.List;
 
-public class AS3935Sensor extends I2CDevice implements PowerManagement, Sensor {
+public class AS3935Sensor extends I2CDevice implements PowerManagement, Sensor, Resetable {
+
+  @Getter
   private final AfeRegister afeRegister;
+  @Getter
   private final ThresholdRegister thresholdRegister;
-  private final Calib_SRCO_TRCO_Register calibSrcoTrcoRegister;
-  private final Calib_SRCO_SRCO_Register calibSrcoSrcoRegister;
+  @Getter
+  private final CalibTrcoRegister calibSrcoTrcoRegister;
+  @Getter
+  private final CalibrateSrcoRegister calibSrcoSrcoRegister;
+  @Getter
   private final DistanceRegister distanceRegister;
+  @Getter
   private final InterruptRegister interruptRegister;
-  private final Lightning_Strike_Register lightningStrikeRegister;
+  @Getter
+  private final LightningStrikeRegister lightningStrikeRegister;
+  @Getter
   private final LightningRegister lightningRegister;
-  private final Tun_Cap_Register tunCapRegister;
+  @Getter
+  private final TunCapRegister tunCapRegister;
+  @Getter
+  private final CalibrateRcoRegister calibrateRcoRegister;
+  @Getter
+  private final PresetDefaultRegister presetDefaultRegister;
+  @Getter
+  private final List<SensorReading<?>> readings;
 
   private final int tuning;
 
@@ -42,26 +65,25 @@ public class AS3935Sensor extends I2CDevice implements PowerManagement, Sensor {
     super(device, LoggerFactory.getLogger(AS3935Sensor.class));
     afeRegister = new AfeRegister(this);
     thresholdRegister = new ThresholdRegister(this);
-    calibSrcoTrcoRegister = new Calib_SRCO_TRCO_Register(this);
-    calibSrcoSrcoRegister = new Calib_SRCO_SRCO_Register(this);
+    calibSrcoTrcoRegister = new CalibTrcoRegister(this);
+    calibSrcoSrcoRegister = new CalibrateSrcoRegister(this);
     distanceRegister = new DistanceRegister(this);
     interruptRegister = new InterruptRegister(this);
-    lightningStrikeRegister = new Lightning_Strike_Register(this);
+    lightningStrikeRegister = new LightningStrikeRegister(this);
     lightningRegister = new LightningRegister(this);
-    tunCapRegister = new Tun_Cap_Register(this);
+    tunCapRegister = new TunCapRegister(this);
+    calibrateRcoRegister = new CalibrateRcoRegister(this);
+    presetDefaultRegister = new PresetDefaultRegister(this);
     this.tuning = tuning;
-    setup();
-    /*
-    if (pinNumber > -1) {
-      InterruptFactory interruptFactory = DeviceBusManager.getInstance().getInterruptFactory();
-      interruptFactory.create(
-          "AS3935InterruptPin",
-          "AS3935InterruptPin",
-          pinNumber,
-          InterruptManager.PULL.DOWN,
-          this);
+    synchronized (I2CDeviceScheduler.getI2cBusLock()) {
+      powerOn();
+      reset();
     }
-     */
+
+    IntegerSensorReading energySensor = new IntegerSensorReading("energy", "", 0, 0xffff, this::getEnergy);
+    IntegerSensorReading distance = new IntegerSensorReading("distance", "km", 0, 0b0111111, this::getDistanceEstimation);
+    StringSensorReading reason = new StringSensorReading("reason", "", this::getInterruptReason);
+    readings = List.of(energySensor, distance, reason);
   }
 
   @Override
@@ -69,22 +91,25 @@ public class AS3935Sensor extends I2CDevice implements PowerManagement, Sensor {
     return true;
   }
 
-  public void setup() throws IOException {
-    delay(80);
-    if (tuning != 0) {
-      if (tuning < 0x10 && tuning > -1) {
-        tunCapRegister.setTuningCap(tuning);
-      }
-      delay(200);
+  @Override
+  public void softReset() throws IOException {
+    if (tuning >= 0 && tuning <= 15) {
+      tunCapRegister.setTuningCap(tuning);
     } else {
       throw new IOException("Value of TUN_CAP must be between 0 and 15");
     }
-    tunCapRegister.setDispSRCOEnabled(true);
-    delay(200);
     tunCapRegister.setDispTRCOEnabled(true);
-    delay(200);
+    delay(2);
+    tunCapRegister.setDispTRCOEnabled(false);
   }
 
+  @Override
+  public void reset() throws IOException {
+    presetDefaultRegister.reset();
+    calibrateRcoRegister.reset();
+    delay(200);
+    softReset();
+  }
 
   @Override
   public String getName() {
@@ -96,138 +121,26 @@ public class AS3935Sensor extends I2CDevice implements PowerManagement, Sensor {
     return "Lightning detector and warning sensor";
   }
 
-  // AFE_GAIN Register : 0
-  public boolean isAFE_PowerDown() throws IOException {
-    return afeRegister.isAFE_PowerDown();
-  }
-
   public void powerOn() throws IOException {
-    afeRegister.setAFE_PowerDown(false);
+    afeRegister.setPowerDown(false);
     tunCapRegister.setDispTRCOEnabled(true);
-    delay(2);
     tunCapRegister.setDispTRCOEnabled(false);
   }
 
   public void powerOff() throws IOException {
-    afeRegister.setAFE_PowerDown(true);
+    afeRegister.setPowerDown(true);
   }
 
-  public int getAFE_GainBoost() throws IOException {
-    return afeRegister.getAFE_GainBoost();
+  protected String getInterruptReason() throws IOException {
+    return interruptRegister.getInterruptReason().getDescription();
   }
 
-  public void setAFE_GainBoost(int gainBoost) throws IOException {
-    afeRegister.setAFE_GainBoost(gainBoost);
-  }
-
-  // THRESHOLD Register : 1
-  public int getWatchdogThreshold() throws IOException {
-    return thresholdRegister.getWatchdogThreshold();
-  }
-
-  public void setWatchdogThreshold(int threshold) throws IOException {
-    thresholdRegister.setWatchdogThreshold(threshold);
-  }
-
-  public int getNoiseFloorLevel() throws IOException {
-    return thresholdRegister.getNoiseFloorLevel();
-  }
-
-  public void setNoiseFloorLevel(int level) throws IOException {
-    thresholdRegister.setNoiseFloorLevel(level);
-  }
-
-  // LIGHTNING_REG Register : 2
-  public int getSpikeRejection() throws IOException {
-    return lightningRegister.getSpikeRejection();
-  }
-
-  public void setSpikeRejection(int rejection) throws IOException {
-    lightningRegister.setSpikeRejection(rejection);
-  }
-
-  public int getMinNumLightning() throws IOException {
-    return lightningRegister.getMinNumLightning();
-  }
-
-  public void setMinNumLightning(int numLightning) throws IOException {
-    lightningRegister.setMinNumLightning(numLightning);
-  }
-
-  public boolean isClearStatisticsEnabled() throws IOException {
-    return lightningRegister.isClearStatisticsEnabled();
-  }
-
-  public void setClearStatisticsEnabled(boolean enabled) throws IOException {
-    lightningRegister.setClearStatisticsEnabled(enabled);
-  }
-
-  // Interrupt Register
-
-  public int getInterruptReason() throws IOException {
-    return interruptRegister.getInterruptReason();
-  }
-
-
-  public boolean isMaskDisturberEnabled() throws IOException {
-    return interruptRegister.isMaskDisturberEnabled();
-  }
-
-  public void setMaskDisturberEnabled(boolean enabled) throws IOException {
-    interruptRegister.setMaskDisturberEnabled(enabled);
-  }
-
-  public int getEnergyDivRatio() throws IOException {
-    return interruptRegister.getEnergyDivRatio();
-  }
-
-  public void setEnergyDivRatio(int divRatio) throws IOException {
-    interruptRegister.setEnergyDivRatio(divRatio);
-  }
-
-  // DISTANCE Register
-  public int getDistanceEstimation() throws IOException {
-    return distanceRegister.getDistanceEstimation();
-  }
-
-  // TUN_CAP Register
-  public int getTuningCap() throws IOException {
-    return tunCapRegister.getTuningCap();
-  }
-
-  public void setTuningCap(int cap) throws IOException {
-    tunCapRegister.setTuningCap(cap);
-  }
-
-  public boolean isDispTRCOEnabled() throws IOException {
-    return tunCapRegister.isDispTRCOEnabled();
-  }
-
-  public void setDispTRCOEnabled(boolean enabled) throws IOException {
-    tunCapRegister.setDispTRCOEnabled(enabled);
-  }
-
-  public boolean isDispSRCOEnabled() throws IOException {
-    return tunCapRegister.isDispSRCOEnabled();
-  }
-
-  public void setDispSRCOEnabled(boolean enabled) throws IOException {
-    tunCapRegister.setDispSRCOEnabled(enabled);
-  }
-
-  // CALIB_SRCO_TRCO Register
-  public boolean isTRCOCalibrationSuccessful() throws IOException {
-    return calibSrcoTrcoRegister.isTRCOCalibrationSuccessful();
-  }
-
-  // CALIB_SCRO_SRCO Register
-  public boolean isSRCOCalibrationSuccessful() throws IOException {
-    return calibSrcoSrcoRegister.isSRCOCalibrationSuccessful();
-  }
-
-  // LIGHTNING_STRIKE Register
   public int getEnergy() throws IOException {
     return lightningStrikeRegister.getEnergy();
+  }
+
+  protected int getDistanceEstimation() throws IOException {
+    return distanceRegister.getDistanceEstimation();
   }
 
   @Override
