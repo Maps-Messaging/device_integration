@@ -145,7 +145,7 @@ public class SimpleWebAccess {
       }
     });
     // I2C get config
-    app.get("/device/i2c/{id}/registers", ctx -> {
+    app.get("/device/i2c/{bus}/{id}/registers", ctx -> {
       int bus = Integer.parseInt(ctx.pathParam("bus"));
       String id = ctx.pathParam("id");
       I2CDeviceController device = deviceBusManager.getI2cBusManager()[bus].get(id);

@@ -26,7 +26,7 @@ io.mapsmessaging.devices.i2c.devices.sensors.lps25.Lps25Controller
 io.mapsmessaging.devices.i2c.devices.sensors.lps35.Lps35Controller
 io.mapsmessaging.devices.i2c.devices.sensors.msa311.Msa311Controller
 io.mapsmessaging.devices.i2c.devices.sensors.pmsa003i.Pmsa003iController
-io.mapsmessaging.devices.i2c.devices.sensors.tls2561.TLS2561Controller
+io.mapsmessaging.devices.i2c.devices.sensors.tsl2561.TSL2561Controller
 
 #Gravity Gas Sensors, support for all known sensors
 io.mapsmessaging.devices.i2c.devices.sensors.gravity.GasSensorController

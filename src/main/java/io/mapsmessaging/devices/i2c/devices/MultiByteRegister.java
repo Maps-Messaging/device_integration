@@ -32,7 +32,7 @@ public class MultiByteRegister extends Register {
   }
 
   @Override
-  protected void reload() throws IOException {
+  public void reload() throws IOException {
     sensor.readRegister(address, buffer);
   }
 
@@ -62,7 +62,18 @@ public class MultiByteRegister extends Register {
     return (int) asLong();
   }
 
-  protected long asLong() {
+
+  public long asLongReverse(){
+    long val = 0;
+    for (int x = 0; x < buffer.length; x++) {
+      val = val << 8;
+      val |= buffer[x] & 0xff;
+    }
+    return val;
+  }
+
+
+  public long asLong() {
     long val = 0;
     for (int x = buffer.length - 1; x >= 0; x--) {
       val = val << 8;
@@ -71,7 +82,7 @@ public class MultiByteRegister extends Register {
     return val;
   }
 
-  protected long asSignedLong() {
+  public long asSignedLong() {
     long val = 0;
 
     for (int x = buffer.length - 1; x >= 0; x--) {

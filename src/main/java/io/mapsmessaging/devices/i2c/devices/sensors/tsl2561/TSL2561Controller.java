@@ -14,12 +14,18 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.tls2561;
+package io.mapsmessaging.devices.i2c.devices.sensors.tsl2561;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.NamingConstants;
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
+import io.mapsmessaging.devices.sensorreadings.ComputationResult;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -30,23 +36,24 @@ import org.everit.json.schema.StringSchema;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.List;
 
-public class TLS2561Controller extends I2CDeviceController {
+public class TSL2561Controller extends I2CDeviceController {
 
-  private final TLS2561Sensor sensor;
+  private final TSL2561Sensor sensor;
 
   @Getter
   private final String name = "TLS2561";
   @Getter
   private final String description = "Light sensor, returns light and IR light levels and computed lux level";
 
-  public TLS2561Controller() {
+  public TSL2561Controller() {
     sensor = null;
   }
 
-  public TLS2561Controller(I2C device) throws IOException {
+  public TSL2561Controller(I2C device) throws IOException {
     super(device);
-    sensor = new TLS2561Sensor(device);
+    sensor = new TSL2561Sensor(device);
   }
 
   public I2CDevice getDevice(){
@@ -59,23 +66,44 @@ public class TLS2561Controller extends I2CDeviceController {
   }
 
   public I2CDeviceController mount(I2C device) throws IOException {
-    return new TLS2561Controller(device);
+    return new TSL2561Controller(device);
   }
 
-  public byte[] getDeviceConfiguration() {
+  @Override
+  public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
+    if (sensor != null) {
+      ObjectMapper objectMapper = new ObjectMapper();
+      objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      JavaType type = objectMapper.getTypeFactory().constructCollectionType(List.class, AbstractRegisterData.class);
+      List<AbstractRegisterData> data = objectMapper.readValue(new String(val), type);
+      sensor.getRegisterMap().setData(data);
+    }
+    return ("{}").getBytes();
+  }
+
+  public byte[] getDeviceConfiguration() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
-      jsonObject.put("integration", sensor.getIntegrationTime().getTime());
-      jsonObject.put("highGain", sensor.getHighGain() != 0);
+      ObjectMapper objectMapper = new ObjectMapper();
+      String json = objectMapper.writeValueAsString(sensor.getRegisterMap().getData());
+      return json.getBytes();
     }
     return jsonObject.toString(2).getBytes();
   }
 
   public byte[] getDeviceState() throws IOException {
     JSONObject jsonObject = new JSONObject();
-    jsonObject.put("ch0", sensor.getFull());
-    jsonObject.put("ch1", sensor.getIr());
-    jsonObject.put("lux", sensor.calculateLux());
+    if (sensor != null) {
+      List<SensorReading<?>> readings = sensor.getReadings();
+      for (SensorReading<?> reading : readings) {
+        ComputationResult<?> computationResult = reading.getValue();
+        if (!computationResult.hasError()) {
+          jsonObject.put(reading.getName(), computationResult.getResult());
+        } else {
+          jsonObject.put(reading.getName(), computationResult.getError().getMessage());
+        }
+      }
+    }
     return jsonObject.toString(2).getBytes();
   }
 
