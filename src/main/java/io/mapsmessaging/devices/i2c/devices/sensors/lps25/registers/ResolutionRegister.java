@@ -47,13 +47,14 @@ public class ResolutionRegister extends SingleByteRegister {
   public void setTemperatureAverage(TemperatureAverage ave) throws IOException {
     setControlRegister(~AVE_TEMPERATURE_MASK, (ave.getMask() << 2));
   }
+
   public AbstractRegisterData toData() {
     return new ResolutionData(getPressureAverage(), getTemperatureAverage());
   }
 
   public boolean fromData(AbstractRegisterData input) throws IOException {
-    if(input instanceof ResolutionData) {
-      ResolutionData data = (ResolutionData)input;
+    if (input instanceof ResolutionData) {
+      ResolutionData data = (ResolutionData) input;
       setPressureAverage(data.getPressureAverage());
       setTemperatureAverage(data.getTemperatureAverage());
       return true;

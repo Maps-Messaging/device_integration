@@ -16,22 +16,14 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.gravity;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pi4j.io.i2c.I2C;
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
-import io.mapsmessaging.devices.sensorreadings.ComputationResult;
-import io.mapsmessaging.devices.sensorreadings.SensorReading;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.List;
 
 public class GasSensorController extends I2CDeviceController {
 
@@ -42,47 +34,24 @@ public class GasSensorController extends I2CDeviceController {
     sensor = null;
   }
 
-  public GasSensorController(I2C device) throws IOException {
+  public GasSensorController(AddressableDevice device) throws IOException {
     super(device);
     sensor = new GasSensor(device);
   }
 
   @Override
-  public boolean detect(I2C i2cDevice) {
+  public boolean detect(AddressableDevice i2cDevice) {
     return sensor != null && sensor.isConnected();
   }
 
-  public I2CDeviceController mount(I2C device) throws IOException {
+  public I2CDeviceController mount(AddressableDevice device) throws IOException {
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       return new GasSensorController(device);
     }
   }
 
-  public I2CDevice getDevice(){
+  public I2CDevice getDevice() {
     return sensor;
-  }
-
-
-  public byte[] getDeviceConfiguration() throws IOException {
-    JSONObject jsonObject = new JSONObject();
-    if (sensor != null) {
-      ObjectMapper objectMapper = new ObjectMapper();
-      String json = objectMapper.writeValueAsString(sensor.getRegisterMap().getData());
-      return json.getBytes();
-    }
-    return jsonObject.toString(2).getBytes();
-  }
-
-  @Override
-  public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
-    if (sensor != null) {
-      ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-      JavaType type = objectMapper.getTypeFactory().constructCollectionType(List.class, AbstractRegisterData.class);
-      List<AbstractRegisterData> data = objectMapper.readValue(new String(val), type);
-      sensor.getRegisterMap().setData(data);
-    }
-    return ("{}").getBytes();
   }
 
   public String getName() {
@@ -101,27 +70,8 @@ public class GasSensorController extends I2CDeviceController {
   }
 
 
-
-  public byte[] getDeviceState() throws IOException {
-    JSONObject jsonObject = new JSONObject();
-    if (sensor != null) {
-      List<SensorReading<?>> readings = sensor.getReadings();
-      for(SensorReading<?> reading : readings){
-        ComputationResult<?> computationResult = reading.getValue();
-        if(!computationResult.hasError()){
-          jsonObject.put(reading.getName(), computationResult.getResult());
-        }
-        else{
-          jsonObject.put(reading.getName(), computationResult.getError().getMessage());
-        }
-      }
-    }
-    return jsonObject.toString(2).getBytes();
-  }
-
-
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
+    JsonSchemaConfig config = new JsonSchemaConfig();
     config.setComments(getName());
     config.setSource("I2C bus address : " + i2cAddr);
     config.setVersion("1.0");
@@ -135,7 +85,4 @@ public class GasSensorController extends I2CDeviceController {
     return i2cAddr;
   }
 
-  private String buildSchema() {
-    return null;
-  }
 }

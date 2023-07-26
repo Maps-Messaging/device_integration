@@ -29,7 +29,7 @@ public class TapThresholdRegister extends SingleByteRegister {
 
   private final RangeRegister rangeRegister;
 
-  public TapThresholdRegister(I2CDevice sensor,  RangeRegister rangeRegister) throws IOException {
+  public TapThresholdRegister(I2CDevice sensor, RangeRegister rangeRegister) throws IOException {
     super(sensor, 0x2B, "Tap_Th");
     this.rangeRegister = rangeRegister;
   }

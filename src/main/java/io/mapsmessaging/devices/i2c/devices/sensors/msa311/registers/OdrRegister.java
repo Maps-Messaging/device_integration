@@ -29,7 +29,7 @@ public class OdrRegister extends SingleByteRegister {
     return Odr.HERTZ_1000; // Default
   }
 
-  public void setOdr(Odr odr) throws IOException{
+  public void setOdr(Odr odr) throws IOException {
     registerValue = (byte) ((registerValue & 0b11110000) | odr.getMask());
     sensor.write(address, registerValue);
   }
@@ -39,7 +39,7 @@ public class OdrRegister extends SingleByteRegister {
     setControlRegister(~DISABLE_X_AXIS, value);
   }
 
-  public boolean isXAxisDisabled(){
+  public boolean isXAxisDisabled() {
     return (registerValue & DISABLE_X_AXIS) != 0;
   }
 
@@ -48,7 +48,7 @@ public class OdrRegister extends SingleByteRegister {
     setControlRegister(~DISABLE_Y_AXIS, value);
   }
 
-  public boolean isYAxisDisabled(){
+  public boolean isYAxisDisabled() {
     return (registerValue & DISABLE_Y_AXIS) != 0;
   }
 
@@ -57,7 +57,7 @@ public class OdrRegister extends SingleByteRegister {
     setControlRegister(~DISABLE_Z_AXIS, value);
   }
 
-  public boolean isZAxisDisabled(){
+  public boolean isZAxisDisabled() {
     return (registerValue & DISABLE_Z_AXIS) != 0;
   }
 

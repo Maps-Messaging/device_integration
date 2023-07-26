@@ -16,6 +16,6 @@ public enum InterruptPersistence {
   OUT_OF_RANGE_12,
   OUT_OF_RANGE_13,
   OUT_OF_RANGE_14,
-  OUT_OF_RANGE_15;
+  OUT_OF_RANGE_15
 
 }

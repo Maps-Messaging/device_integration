@@ -1,8 +1,8 @@
 package io.mapsmessaging.devices.i2c.devices.storage.at24c;
 
-import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.deviceinterfaces.Storage;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
@@ -13,7 +13,7 @@ public class AT24CnnDevice extends I2CDevice implements Storage {
   @Getter
   private final int memorySize;
 
-  protected AT24CnnDevice(I2C device) {
+  protected AT24CnnDevice(AddressableDevice device) {
     super(device, LoggerFactory.getLogger(AT24CnnDevice.class));
     int size = 8192;
     try {

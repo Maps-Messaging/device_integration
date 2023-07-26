@@ -39,6 +39,7 @@ public class FreefallThRegister extends SingleByteRegister {
     registerValue = (byte) threshold;
     sensor.write(address, registerValue);
   }
+
   @Override
   public AbstractRegisterData toData() throws IOException {
     return new FreefallThData(getFreefallThreshold());
@@ -46,7 +47,7 @@ public class FreefallThRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(AbstractRegisterData input) throws IOException {
-    if(input instanceof FreefallThData) {
+    if (input instanceof FreefallThData) {
       FreefallThData data = (FreefallThData) input;
       setFreefallThreshold((int) data.getFreefallThreshold());
       return true;

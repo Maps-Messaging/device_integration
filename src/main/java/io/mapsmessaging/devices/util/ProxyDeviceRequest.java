@@ -7,7 +7,7 @@ public class ProxyDeviceRequest extends DeviceRequest {
   @Getter
   private final byte[] buf;
 
-  public ProxyDeviceRequest(byte[] data){
+  public ProxyDeviceRequest(byte[] data) {
     buf = data;
   }
 }

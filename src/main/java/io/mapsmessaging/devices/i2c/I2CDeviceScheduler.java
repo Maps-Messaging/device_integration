@@ -1,6 +1,6 @@
 package io.mapsmessaging.devices.i2c;
 
-import com.pi4j.io.i2c.I2C;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 
 import java.io.IOException;
@@ -34,7 +34,7 @@ public class I2CDeviceScheduler extends I2CDeviceController {
     return deviceController.getName();
   }
 
-  public I2CDevice getDevice(){
+  public I2CDevice getDevice() {
     return deviceController.getDevice();
   }
 
@@ -76,7 +76,7 @@ public class I2CDeviceScheduler extends I2CDeviceController {
   }
 
   @Override
-  public I2CDeviceController mount(I2C device) throws IOException {
+  public I2CDeviceController mount(AddressableDevice device) throws IOException {
     throw new IOException("Device already mounted");
   }
 
@@ -86,7 +86,7 @@ public class I2CDeviceScheduler extends I2CDeviceController {
   }
 
   @Override
-  public boolean detect(I2C i2cDevice) {
+  public boolean detect(AddressableDevice i2cDevice) {
     return true; // This is indeed a physical device
   }
 }

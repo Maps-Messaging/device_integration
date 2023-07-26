@@ -29,20 +29,20 @@ public class FiFoStatusRegister extends SingleByteRegister {
     super(sensor, 0x2F, "FIFO_STATUS");
   }
 
-  public boolean hasHitThreshold(){
+  public boolean hasHitThreshold() {
     return (registerValue & 0b10000000) != 0;
   }
 
-  public boolean isOverwritten(){
-    return(registerValue & 0b1000000) != 0;
+  public boolean isOverwritten() {
+    return (registerValue & 0b1000000) != 0;
   }
 
-  public int getSize(){
+  public int getSize() {
     return (registerValue & 0b11111) & 0xff;
   }
 
   @Override
-  public AbstractRegisterData toData(){
+  public AbstractRegisterData toData() {
     return new FiFoStatusData(hasHitThreshold(), isOverwritten(), getSize());
   }
 

@@ -8,7 +8,7 @@ public class ProxyDeviceConfiguration extends DeviceConfiguration {
   @Getter
   private final byte[] buf;
 
-  public ProxyDeviceConfiguration(byte[] data){
+  public ProxyDeviceConfiguration(byte[] data) {
     buf = data;
   }
 }

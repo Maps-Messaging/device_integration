@@ -16,10 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.ina219;
 
-import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.*;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 import lombok.Setter;
@@ -48,7 +48,7 @@ public class Ina219Sensor extends I2CDevice implements Sensor {
   @Setter
   private ShuntADCResolution shuntADCResolution;
 
-  public Ina219Sensor(I2C device) throws IOException {
+  public Ina219Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(Ina219Sensor.class));
     adcResolution = ADCResolution.RES_12BIT;
     busVoltageRange = BusVoltageRange.RANGE_32V;

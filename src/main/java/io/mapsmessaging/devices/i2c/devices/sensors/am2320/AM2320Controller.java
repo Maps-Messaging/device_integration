@@ -16,10 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.am2320;
 
-import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -43,16 +43,16 @@ public class AM2320Controller extends I2CDeviceController {
     sensor = null;
   }
 
-  protected AM2320Controller(I2C device) throws IOException {
+  protected AM2320Controller(AddressableDevice device) throws IOException {
     super(device);
     sensor = new AM2320Sensor(device);
   }
 
-  public I2CDevice getDevice(){
+  public I2CDevice getDevice() {
     return sensor;
   }
 
-  public I2CDeviceController mount(I2C device) throws IOException {
+  public I2CDeviceController mount(AddressableDevice device) throws IOException {
     return new AM2320Controller(device);
   }
 
@@ -69,13 +69,13 @@ public class AM2320Controller extends I2CDeviceController {
   }
 
   @Override
-  public boolean detect(I2C i2cDevice) {
+  public boolean detect(AddressableDevice i2cDevice) {
     return sensor != null && sensor.isConnected();
   }
 
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
-    config.setComments("i2c device AM2320 Pressure and Temperature Sensor https://learn.adafruit.com/adafruit-am2320-temperature-humidity-i2c-sensor");
+    config.setComments("I2C device AM2320 Pressure and Temperature Sensor https://learn.adafruit.com/adafruit-am2320-temperature-humidity-i2c-sensor");
     config.setSource("I2C bus address : 0x5C");
     config.setVersion("1.0");
     config.setResourceType("sensor");

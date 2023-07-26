@@ -42,9 +42,9 @@ public class RegisterMap {
 
   public List<AbstractRegisterData> getData() throws IOException {
     List<AbstractRegisterData> data = new ArrayList<>();
-    for(Register register:map.values()){
+    for (Register register : map.values()) {
       AbstractRegisterData values = register.toData();
-      if(values != null) {
+      if (values != null) {
         data.add(values);
       }
     }
@@ -52,9 +52,9 @@ public class RegisterMap {
   }
 
   public void setData(List<AbstractRegisterData> update) throws IOException {
-    for(AbstractRegisterData data:update) {
+    for (AbstractRegisterData data : update) {
       for (Register register : map.values()) {
-        if(register.fromData(data)){
+        if (register.fromData(data)) {
           break;
         }
       }

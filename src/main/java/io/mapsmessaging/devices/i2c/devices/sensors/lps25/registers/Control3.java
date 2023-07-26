@@ -46,7 +46,7 @@ public class Control3 extends SingleByteRegister {
     setControlRegister(~INTERRUPT_ACTIVE, value);
   }
 
-  public boolean isPushPullDrainInterruptActive()  {
+  public boolean isPushPullDrainInterruptActive() {
     return (registerValue & PUSH_PULL_DRAIN) != 0;
   }
 
@@ -70,14 +70,14 @@ public class Control3 extends SingleByteRegister {
   }
 
   @Override
-  public AbstractRegisterData toData(){
+  public AbstractRegisterData toData() {
     return new Control3Data(isInterruptActive(), isPushPullDrainInterruptActive(), isSignalOnInterrupt());
   }
 
   @Override
   public boolean fromData(AbstractRegisterData input) throws IOException {
-    if(input instanceof Control3Data) {
-      Control3Data data = (Control3Data)input;
+    if (input instanceof Control3Data) {
+      Control3Data data = (Control3Data) input;
       setSignalOnInterrupt(data.getSignalOnInterrupt());
       enablePushPullDrainInterrupt(data.isPushPullDrainInterruptActive());
       enableInterrupts(data.isInterruptActive());

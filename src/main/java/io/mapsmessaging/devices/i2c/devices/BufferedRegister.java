@@ -36,21 +36,21 @@ public class BufferedRegister extends Register {
     this.length = length;
   }
 
-  public int getValueReverse(){
+  public int getValueReverse() {
     int val = 0;
     for (int x = 0; x < length; x++) {
       val = val << 8;
-      val |= data[address+x] & 0xff;
+      val |= data[address + x] & 0xff;
     }
     return val;
   }
 
 
-  public int getValue(){
+  public int getValue() {
     int val = 0;
     for (int x = length - 1; x >= 0; x--) {
       val = val << 8;
-      val |= data[address+x] & 0xff;
+      val |= data[address + x] & 0xff;
     }
     return val;
   }
@@ -69,10 +69,10 @@ public class BufferedRegister extends Register {
   @Override
   public String toString(int len) {
     StringBuilder stringBuilder = new StringBuilder();
-    for(int x=0; x<length;x++){
+    for (int x = 0; x < length; x++) {
       if (x != 0) stringBuilder.append("\t");
-      stringBuilder.append(displayRegister(len, getAddress() + x, data[getAddress()+x]));
-      if (x < length-1) stringBuilder.append("\n");
+      stringBuilder.append(displayRegister(len, getAddress() + x, data[getAddress() + x]));
+      if (x < length - 1) stringBuilder.append("\n");
     }
     return stringBuilder.toString();
   }

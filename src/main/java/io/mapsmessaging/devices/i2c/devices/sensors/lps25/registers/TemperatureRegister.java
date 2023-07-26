@@ -27,7 +27,7 @@ public class TemperatureRegister extends MultiByteRegister {
   }
 
   @Override
-  public int getAddress(){
+  public int getAddress() {
     return address & (~0x80);
   }
 

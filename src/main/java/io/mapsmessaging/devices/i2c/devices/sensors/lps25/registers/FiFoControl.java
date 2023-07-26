@@ -65,8 +65,8 @@ public class FiFoControl extends SingleByteRegister {
   }
 
   public boolean fromData(AbstractRegisterData input) throws IOException {
-    if(input instanceof FiFoControlData) {
-      FiFoControlData data = (FiFoControlData)input;
+    if (input instanceof FiFoControlData) {
+      FiFoControlData data = (FiFoControlData) input;
       setFifoMode(data.getFifoMode());
       setFiFoWaterMark(data.getFifoWaterMark());
       return true;

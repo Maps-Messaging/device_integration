@@ -31,16 +31,16 @@ public class ReferencePressureRegister extends MultiByteRegister {
   }
 
   @Override
-  public int getAddress(){
+  public int getAddress() {
     return address & (~0x80);
-  }
-
-  public void setReference(int val) throws IOException {
-    write(val);
   }
 
   public int getReference() {
     return asInt();
+  }
+
+  public void setReference(int val) throws IOException {
+    write(val);
   }
 
   public AbstractRegisterData toData() {
@@ -50,7 +50,7 @@ public class ReferencePressureRegister extends MultiByteRegister {
   }
 
   public boolean fromData(AbstractRegisterData input) throws IOException {
-    if(input instanceof ReferencePressureData) {
+    if (input instanceof ReferencePressureData) {
       ReferencePressureData data = (ReferencePressureData) input;
       setReference(data.getReference());
       return true;

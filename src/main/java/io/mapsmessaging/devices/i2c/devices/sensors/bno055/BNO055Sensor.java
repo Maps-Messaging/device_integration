@@ -16,7 +16,6 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.bno055;
 
-import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
@@ -28,6 +27,7 @@ import io.mapsmessaging.devices.i2c.devices.sensors.bno055.registers.SystemStatu
 import io.mapsmessaging.devices.i2c.devices.sensors.bno055.values.CalibrationStatus;
 import io.mapsmessaging.devices.i2c.devices.sensors.bno055.values.SystemErrorStatus;
 import io.mapsmessaging.devices.i2c.devices.sensors.bno055.values.SystemStatus;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 import org.json.JSONObject;
@@ -38,18 +38,14 @@ import java.util.List;
 public class BNO055Sensor extends I2CDevice implements Sensor {
 
   private final float[] myEuler = new float[3];
-  private long lastRead;
-
   private final CalibrationStatusRegister calibrationStatusRegister;
   private final SystemStatusRegister systemStatusRegister;
   private final ErrorStatusRegister errorStatusRegister;
-
   // Configuration Registers
   private final SingleByteRegister opMode;
   private final SingleByteRegister pwrMode;
   private final MultiByteRegister axisMapConfig;
   private final SingleByteRegister axisMapSign;
-
   private final AxisRegister accelDataX;
   private final AxisRegister accelDataY;
   private final AxisRegister accelDataZ;
@@ -66,7 +62,6 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
   private final AxisRegister quaternionX;
   private final AxisRegister quaternionY;
   private final AxisRegister quaternionZ;
-
   private final SingleByteRegister chipId;
   private final SingleByteRegister accelRevId;
   private final SingleByteRegister magRevId;
@@ -77,15 +72,13 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
   private final SingleByteRegister tempSource;
   private final SingleByteRegister unitSel;
   private final SingleByteRegister sysTrigger;
-
-
   // Status Registers
   private final SingleByteRegister sysClkStatus;
-
+  private long lastRead;
   @Getter
   private String version;
 
-  public BNO055Sensor(I2C device) throws IOException {
+  public BNO055Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(BNO055Sensor.class));
     calibrationStatusRegister = new CalibrationStatusRegister(this);
     systemStatusRegister = new SystemStatusRegister(this);
@@ -133,7 +126,7 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
     initialise();
   }
 
-  public static int getId(I2C device) {
+  public static int getId(AddressableDevice device) {
     return device.readRegister(BNO055Constants.BNO055_CHIP_ID_ADDR);
   }
 

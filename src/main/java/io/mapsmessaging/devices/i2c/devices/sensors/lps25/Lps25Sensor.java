@@ -1,10 +1,10 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25;
 
-import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers.*;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
@@ -15,11 +15,6 @@ import java.util.List;
 
 public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
   private static final int WHO_AM_I = 0xf;
-
-  public static int getId(I2C device) {
-    return device.readRegister(WHO_AM_I);
-  }
-
   @Getter
   private final ResolutionRegister resolutionRegister;
   @Getter
@@ -52,11 +47,10 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
   private final WhoAmIRegister whoAmIRegister;
   @Getter
   private final PressureOffset pressureOffset;
-
   @Getter
   private final List<SensorReading<?>> readings;
 
-  public Lps25Sensor(I2C device) throws IOException {
+  public Lps25Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(Lps25Sensor.class));
     control1 = new Control1(this);
     control2 = new Control2(this);
@@ -79,6 +73,9 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
     readings = List.of(pressureReading, temperatureReading);
   }
 
+  public static int getId(AddressableDevice device) {
+    return device.readRegister(WHO_AM_I);
+  }
 
   @Override
   public String toString() {

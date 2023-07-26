@@ -16,7 +16,7 @@ public enum TapActiveStatus {
   @Getter
   private final byte mask;
 
-  TapActiveStatus(byte mask){
+  TapActiveStatus(byte mask) {
     this.mask = mask;
   }
 }

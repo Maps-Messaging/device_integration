@@ -16,12 +16,12 @@
 
 package io.mapsmessaging.devices.i2c.devices.drivers.pca9685;
 
-import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.deviceinterfaces.Output;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos.AngleResponse;
 import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos.PwmDevice;
 import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos.Servo;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.logging.LoggerFactory;
 
 import java.io.IOException;
@@ -54,7 +54,7 @@ public class PCA9685Device extends I2CDevice implements Output {
 
   private final ArrayList<PwmDevice> myServoList;
 
-  public PCA9685Device(I2C device) throws IOException {
+  public PCA9685Device(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(PCA9685Device.class));
     myServos = new BitSet(16);
     myServoList = new ArrayList<>();

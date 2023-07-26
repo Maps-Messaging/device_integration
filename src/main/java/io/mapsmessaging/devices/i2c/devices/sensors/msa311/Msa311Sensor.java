@@ -16,7 +16,6 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311;
 
-import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.deviceinterfaces.PowerManagement;
 import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
@@ -26,6 +25,7 @@ import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.LowPowerBandwi
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.Odr;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.PowerMode;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.Range;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
@@ -37,11 +37,6 @@ import java.util.List;
 public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, Resetable {
   private static final float GRAVITY = 9.80665f; //m/s^2
   private static final int PART_ID = 0x1;
-
-  public static int getId(I2C device) {
-    return device.readRegister(PART_ID);
-  }
-
   @Getter
   private final ResetRegister resetRegister;
   @Getter
@@ -104,17 +99,16 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
   private final OffsetCompensationRegister yOffsetCompensation;
   @Getter
   private final OffsetCompensationRegister zOffsetCompensation;
-
   @Getter
   private final List<SensorReading<?>> readings;
 
-  public Msa311Sensor(I2C device) throws IOException {
+  public Msa311Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(Msa311Sensor.class));
     resetRegister = new ResetRegister(this);
     partIdRegister = new PartIdRegister(this);
     rangeRegister = new RangeRegister(this);
 
-    xAxisRegister = new AxisRegister(this, 0x2,"ACC_X");
+    xAxisRegister = new AxisRegister(this, 0x2, "ACC_X");
     yAxisRegister = new AxisRegister(this, 0x4, "ACC_Y");
     zAxisRegister = new AxisRegister(this, 0x6, "ACC_Z");
     motionInterruptRegister = new MotionInterruptRegister(this);
@@ -150,6 +144,10 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
 
     readings = List.of(xOrientation, yOrientation, zOrientation);
     initialise();
+  }
+
+  public static int getId(AddressableDevice device) {
+    return device.readRegister(PART_ID);
   }
 
   public void initialise() throws IOException {

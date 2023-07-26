@@ -16,10 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231;
 
-import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -46,23 +46,23 @@ public class Ds3231Controller extends I2CDeviceController {
     unpacker = null;
   }
 
-  public Ds3231Controller(I2C device) throws IOException {
+  public Ds3231Controller(AddressableDevice device) throws IOException {
     rtc = new Ds3231Rtc(device);
     packer = new JsonPacker(rtc);
     unpacker = new JsonUnpacker(rtc);
   }
 
-  public I2CDevice getDevice(){
+  public I2CDevice getDevice() {
     return rtc;
   }
 
 
   @Override
-  public boolean detect(I2C i2cDevice) {
+  public boolean detect(AddressableDevice i2cDevice) {
     return rtc != null && rtc.isConnected();
   }
 
-  public I2CDeviceController mount(I2C device) throws IOException {
+  public I2CDeviceController mount(AddressableDevice device) throws IOException {
     return new Ds3231Controller(device);
   }
 

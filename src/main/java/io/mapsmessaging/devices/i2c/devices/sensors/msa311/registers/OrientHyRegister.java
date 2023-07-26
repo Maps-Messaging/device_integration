@@ -66,6 +66,7 @@ public class OrientHyRegister extends SingleByteRegister {
     int maskedValue = (mode.getValue()) & ORIENT_MODE_MASK;
     setControlRegister(~ORIENT_MODE_MASK, maskedValue);
   }
+
   @Override
   public AbstractRegisterData toData() throws IOException {
     return new OrientHyData(getOrientHysteresis(), getOrientBlocking(), getOrientMode());

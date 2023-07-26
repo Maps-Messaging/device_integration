@@ -49,7 +49,7 @@ public class InterruptMap1Register extends SingleByteRegister {
 
   @Override
   public boolean fromData(AbstractRegisterData input) throws IOException {
-    if(input instanceof InterruptMap1Data) {
+    if (input instanceof InterruptMap1Data) {
       InterruptMap1Data data = (InterruptMap1Data) input;
       mapNewDataInterruptToInt1(data.isNewDataInterruptMappedToInt1());
       return true;

@@ -48,7 +48,7 @@ public class ActiveDurRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(AbstractRegisterData input) throws IOException {
-    if(input instanceof ActiveDurData) {
+    if (input instanceof ActiveDurData) {
       ActiveDurData data = (ActiveDurData) input;
       setDuration(data.getDuration());
       return true;

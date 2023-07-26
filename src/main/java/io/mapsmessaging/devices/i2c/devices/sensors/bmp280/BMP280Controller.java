@@ -16,11 +16,11 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.bmp280;
 
-import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -44,20 +44,21 @@ public class BMP280Controller extends I2CDeviceController {
     sensor = null;
   }
 
-  protected BMP280Controller(I2C device) throws IOException {
+  protected BMP280Controller(AddressableDevice device) throws IOException {
     super(device);
     sensor = new BMP280Sensor(device);
   }
-  public I2CDevice getDevice(){
+
+  public I2CDevice getDevice() {
     return sensor;
   }
 
   @Override
-  public boolean detect(I2C i2cDevice) {
+  public boolean detect(AddressableDevice i2cDevice) {
     return sensor != null && sensor.isConnected();
   }
 
-  public I2CDeviceController mount(I2C device) throws IOException {
+  public I2CDeviceController mount(AddressableDevice device) throws IOException {
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       return new BMP280Controller(device);
     }

@@ -16,11 +16,11 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.gravity;
 
-import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.gravity.module.SensorType;
 import io.mapsmessaging.devices.i2c.devices.sensors.gravity.registers.*;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
@@ -58,7 +58,7 @@ public class GasSensor extends I2CDevice implements Sensor {
   @Getter
   private final List<SensorReading<?>> readings;
 
-  public GasSensor(I2C device) throws IOException {
+  public GasSensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(GasSensor.class));
     concentrationRegister = new ConcentrationRegister(this);
     sensorType = concentrationRegister.getSensorType();
@@ -88,10 +88,9 @@ public class GasSensor extends I2CDevice implements Sensor {
     return sensorReadingRegister.getTemperature();
   }
 
-  protected float getConcentration() throws IOException{
+  protected float getConcentration() throws IOException {
     return sensorReadingRegister.getConcentration();
   }
-
 
 
   @Override

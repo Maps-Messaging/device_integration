@@ -4,5 +4,5 @@ public enum PowerMode {
   NORMAL,
   LOW_POWER,
   SUSPENDED,
-  UNKNOWN;
+  UNKNOWN
 }

@@ -38,6 +38,7 @@ public class OffsetCompensationRegister extends SingleByteRegister {
     registerValue = (byte) ((registerValue & 0xFF00) | (offset & 0xFF));
     sensor.write(address, registerValue);
   }
+
   @Override
   public AbstractRegisterData toData() throws IOException {
     return new OffsetCompensationData(getOffset());

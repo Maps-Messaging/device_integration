@@ -16,11 +16,11 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.bno055;
 
-import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.i2c.devices.sensors.bno055.values.SystemStatus;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -43,14 +43,14 @@ public class BNO055Controller extends I2CDeviceController {
     sensor = null;
   }
 
-  protected BNO055Controller(I2C device) throws IOException {
+  protected BNO055Controller(AddressableDevice device) throws IOException {
     super(device);
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       sensor = new BNO055Sensor(device);
     }
   }
 
-  public I2CDevice getDevice(){
+  public I2CDevice getDevice() {
     return sensor;
   }
 
@@ -60,11 +60,11 @@ public class BNO055Controller extends I2CDeviceController {
   }
 
   @Override
-  public boolean detect(I2C i2cDevice) {
+  public boolean detect(AddressableDevice i2cDevice) {
     return (BNO055Sensor.getId(i2cDevice) == BNO055Constants.BNO055_CHIP_ID_ADDR);
   }
 
-  public I2CDeviceController mount(I2C device) throws IOException {
+  public I2CDeviceController mount(AddressableDevice device) throws IOException {
     return new BNO055Controller(device);
   }
 

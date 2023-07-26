@@ -16,18 +16,15 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.pmsa003i;
 
-import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
-import io.mapsmessaging.devices.sensorreadings.ComputationResult;
-import io.mapsmessaging.devices.sensorreadings.SensorReading;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.List;
 
 public class Pmsa003iController extends I2CDeviceController {
 
@@ -44,21 +41,21 @@ public class Pmsa003iController extends I2CDeviceController {
     sensor = null;
   }
 
-  public Pmsa003iController(I2C device) {
+  public Pmsa003iController(AddressableDevice device) {
     super(device);
     sensor = new Pmsa003iSensor(device);
   }
 
-  public I2CDevice getDevice(){
+  public I2CDevice getDevice() {
     return sensor;
   }
 
   @Override
-  public boolean detect(I2C i2cDevice) {
+  public boolean detect(AddressableDevice i2cDevice) {
     return sensor != null && sensor.isConnected();
   }
 
-  public I2CDeviceController mount(I2C device) {
+  public I2CDeviceController mount(AddressableDevice device) {
     return new Pmsa003iController(device);
   }
 
@@ -74,22 +71,6 @@ public class Pmsa003iController extends I2CDeviceController {
     JSONObject jsonObject = new JSONObject();
 
     return jsonObject;
-  }
-
-  public byte[] getDeviceState() throws IOException {
-    JSONObject jsonObject = new JSONObject();
-    if (sensor != null) {
-      List<SensorReading<?>> readings = sensor.getReadings();
-      for (SensorReading<?> reading : readings) {
-        ComputationResult<?> computationResult = reading.getValue();
-        if (!computationResult.hasError()) {
-          jsonObject.put(reading.getName(), computationResult.getResult());
-        } else {
-          jsonObject.put(reading.getName(), computationResult.getError().getMessage());
-        }
-      }
-    }
-    return jsonObject.toString(2).getBytes();
   }
 
   public SchemaConfig getSchema() {

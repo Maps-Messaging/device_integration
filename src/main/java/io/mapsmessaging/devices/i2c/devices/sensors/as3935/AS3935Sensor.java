@@ -16,13 +16,13 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935;
 
-import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.deviceinterfaces.PowerManagement;
 import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers.*;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.sensorreadings.IntegerSensorReading;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.devices.sensorreadings.StringSensorReading;
@@ -61,7 +61,7 @@ public class AS3935Sensor extends I2CDevice implements PowerManagement, Sensor, 
 
   private final int tuning;
 
-  public AS3935Sensor(I2C device, int tuning) throws IOException {
+  public AS3935Sensor(AddressableDevice device, int tuning) throws IOException {
     super(device, LoggerFactory.getLogger(AS3935Sensor.class));
     afeRegister = new AfeRegister(this);
     thresholdRegister = new ThresholdRegister(this);

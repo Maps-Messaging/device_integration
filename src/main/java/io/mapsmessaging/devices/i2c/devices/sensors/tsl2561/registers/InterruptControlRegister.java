@@ -19,23 +19,22 @@ public class InterruptControlRegister extends SingleByteRegister {
     reload();
   }
 
+  public InterruptControl getControl() {
+    int val = (registerValue & INTR_MASK) >> 4;
+    return InterruptControl.values()[val];
+  }
+
   public void setControl(InterruptControl control) throws IOException {
     setControlRegister(INTR_MASK, control.ordinal());
   }
 
-  public InterruptControl getControl(){
-    int val = (registerValue &INTR_MASK) >> 4;
-    return InterruptControl.values()[val];
+  public InterruptPersistence getPersist() {
+    int val = (registerValue & PERSIST_MASK);
+    return InterruptPersistence.values()[val];
   }
-
 
   public void setPersist(InterruptPersistence persist) throws IOException {
     setControlRegister(PERSIST_MASK, persist.ordinal());
-  }
-
-  public InterruptPersistence getPersist(){
-    int val = (registerValue & PERSIST_MASK);
-    return InterruptPersistence.values()[val];
   }
 
   @Override

@@ -18,7 +18,7 @@ public enum Odr {
   @Getter
   private final byte mask;
 
-  Odr(int mask){
+  Odr(int mask) {
     this.mask = (byte) mask;
   }
 }

@@ -35,18 +35,18 @@ public interface DeviceController {
 
   SchemaConfig getSchema();
 
-  default DeviceValue getValue() throws IOException{
+  default DeviceValue getValue() throws IOException {
     return new ProxyDeviceValue(getDeviceState());
   }
 
-  default DeviceConfiguration getConfiguration() throws IOException{
+  default DeviceConfiguration getConfiguration() throws IOException {
     return new ProxyDeviceConfiguration(getDeviceConfiguration());
   }
 
 
-  default DeviceRequest updateDeviceConfiguration(DeviceRequest request) throws IOException{
-    if(request instanceof ProxyDeviceRequest){
-      return new ProxyDeviceRequest(updateDeviceConfiguration( ((ProxyDeviceRequest)request).getBuf()));
+  default DeviceRequest updateDeviceConfiguration(DeviceRequest request) throws IOException {
+    if (request instanceof ProxyDeviceRequest) {
+      return new ProxyDeviceRequest(updateDeviceConfiguration(((ProxyDeviceRequest) request).getBuf()));
     }
     return new ProxyDeviceRequest(new byte[0]);
   }

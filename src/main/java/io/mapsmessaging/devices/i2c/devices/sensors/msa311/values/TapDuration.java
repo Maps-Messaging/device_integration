@@ -36,10 +36,6 @@ public enum TapDuration {
     this.value = value;
   }
 
-  public int getValue() {
-    return value;
-  }
-
   public static TapDuration fromValue(int value) {
     for (TapDuration duration : TapDuration.values()) {
       if (duration.getValue() == value) {
@@ -47,5 +43,9 @@ public enum TapDuration {
       }
     }
     throw new IllegalArgumentException("Invalid TapDuration value: " + value);
+  }
+
+  public int getValue() {
+    return value;
   }
 }

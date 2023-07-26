@@ -28,10 +28,6 @@ public enum OrientBlocking {
     this.value = value;
   }
 
-  public int getValue() {
-    return value;
-  }
-
   public static OrientBlocking fromValue(int value) {
     for (OrientBlocking blocking : OrientBlocking.values()) {
       if (blocking.value == value) {
@@ -39,5 +35,9 @@ public enum OrientBlocking {
       }
     }
     throw new IllegalArgumentException("Invalid OrientBlocking value: " + value);
+  }
+
+  public int getValue() {
+    return value;
   }
 }

@@ -16,12 +16,12 @@
 
 package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
-import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks.Clock;
 import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks.Task;
 import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks.TestTask;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import org.everit.json.schema.*;
@@ -40,12 +40,12 @@ public abstract class HT16K33Controller extends I2CDeviceController {
     currentTask = null;
   }
 
-  protected HT16K33Controller(HT16K33Driver display, I2C device) {
+  protected HT16K33Controller(HT16K33Driver display, AddressableDevice device) {
     super(device);
     this.display = display;
   }
 
-  public I2CDevice getDevice(){
+  public I2CDevice getDevice() {
     return display;
   }
 
@@ -55,7 +55,7 @@ public abstract class HT16K33Controller extends I2CDeviceController {
   }
 
   @Override
-  public boolean detect(I2C i2cDevice) {
+  public boolean detect(AddressableDevice i2cDevice) {
     return display != null && display.isConnected();
   }
 

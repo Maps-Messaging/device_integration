@@ -30,7 +30,7 @@ public class PressureOffset extends MultiByteRegister {
   }
 
   @Override
-  public int getAddress(){
+  public int getAddress() {
     return address & (~0x80);
   }
 
@@ -50,7 +50,7 @@ public class PressureOffset extends MultiByteRegister {
   }
 
   public boolean fromData(AbstractRegisterData input) throws IOException {
-    if(input instanceof PressureOffsetData) {
+    if (input instanceof PressureOffsetData) {
       PressureOffsetData data = (PressureOffsetData) input;
       setPressureOffset(data.getPressureOffset());
       return true;

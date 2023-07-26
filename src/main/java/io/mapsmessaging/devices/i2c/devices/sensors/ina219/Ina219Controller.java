@@ -16,11 +16,11 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.ina219;
 
-import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.*;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -48,21 +48,21 @@ public class Ina219Controller extends I2CDeviceController {
     sensor = null;
   }
 
-  public Ina219Controller(I2C device) throws IOException {
+  public Ina219Controller(AddressableDevice device) throws IOException {
     super(device);
     sensor = new Ina219Sensor(device);
   }
 
-  public I2CDevice getDevice(){
+  public I2CDevice getDevice() {
     return sensor;
   }
 
   @Override
-  public boolean detect(I2C i2cDevice) {
+  public boolean detect(AddressableDevice i2cDevice) {
     return sensor != null && sensor.isConnected();
   }
 
-  public I2CDeviceController mount(I2C device) throws IOException {
+  public I2CDeviceController mount(AddressableDevice device) throws IOException {
     return new Ina219Controller(device);
   }
 

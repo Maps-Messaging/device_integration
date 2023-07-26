@@ -16,11 +16,20 @@
 
 package io.mapsmessaging.devices.i2c;
 
-import com.pi4j.io.i2c.I2C;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mapsmessaging.devices.DeviceController;
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import io.mapsmessaging.devices.deviceinterfaces.Sensor;
+import io.mapsmessaging.devices.impl.AddressableDevice;
+import io.mapsmessaging.devices.sensorreadings.ComputationResult;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import lombok.Getter;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.List;
 
 public abstract class I2CDeviceController implements DeviceController {
 
@@ -31,7 +40,7 @@ public abstract class I2CDeviceController implements DeviceController {
     this(null);
   }
 
-  protected I2CDeviceController(I2C device) {
+  protected I2CDeviceController(AddressableDevice device) {
     if (device != null) {
       mountedAddress = device.getDevice();
     } else {
@@ -39,21 +48,59 @@ public abstract class I2CDeviceController implements DeviceController {
     }
   }
 
+  @Override
+  public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
+    I2CDevice device = getDevice();
+    if (device != null) {
+      ObjectMapper objectMapper = new ObjectMapper();
+      objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      JavaType type = objectMapper.getTypeFactory().constructCollectionType(List.class, AbstractRegisterData.class);
+      List<AbstractRegisterData> data = objectMapper.readValue(new String(val), type);
+      device.getRegisterMap().setData(data);
+    }
+    return ("{}").getBytes();
+  }
+
+  @Override
+  public byte[] getDeviceConfiguration() throws IOException {
+    I2CDevice device = getDevice();
+    JSONObject jsonObject = new JSONObject();
+    if (device != null) {
+      ObjectMapper objectMapper = new ObjectMapper();
+      String json = objectMapper.writeValueAsString(device.getRegisterMap().getData());
+      return json.getBytes();
+    }
+    return jsonObject.toString(2).getBytes();
+  }
+
+  @Override
+  public byte[] getDeviceState() throws IOException {
+    I2CDevice device = getDevice();
+    JSONObject jsonObject = new JSONObject();
+    if (device instanceof Sensor) {
+      List<SensorReading<?>> readings = ((Sensor)device).getReadings();
+      for (SensorReading<?> reading : readings) {
+        ComputationResult<?> computationResult = reading.getValue();
+        if (!computationResult.hasError()) {
+          jsonObject.put(reading.getName(), computationResult.getResult());
+        } else {
+          jsonObject.put(reading.getName(), computationResult.getError().getMessage());
+        }
+      }
+    }
+    return jsonObject.toString(2).getBytes();
+  }
+
   public boolean canDetect() {
     return false;
   }
 
-  public abstract I2CDeviceController mount(I2C device) throws IOException;
+  public abstract I2CDeviceController mount(AddressableDevice device) throws IOException;
 
   public abstract int[] getAddressRange();
 
-  public abstract boolean detect(I2C i2cDevice);
+  public abstract boolean detect(AddressableDevice i2cDevice);
 
   public abstract I2CDevice getDevice();
-
-  protected static float round (float value, int precision) {
-    int scale = (int) Math.pow(10, precision);
-    return (float) Math.round(value * scale) / scale;
-  }
 
 }

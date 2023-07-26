@@ -20,6 +20,9 @@ public class TimingRegister extends SingleByteRegister {
     reload();
   }
 
+  public boolean getManual() {
+    return (registerValue & MANUAL_MASK) != 0;
+  }
 
   public void setManual(boolean flag) throws IOException {
     if (flag) {
@@ -30,10 +33,9 @@ public class TimingRegister extends SingleByteRegister {
     sensor.write(address, registerValue);
   }
 
-  public boolean getManual() {
-    return (registerValue & MANUAL_MASK) != 0;
+  public boolean getHighGain() {
+    return (registerValue & GAIN_MASK) != 0;
   }
-
 
   public void setHighGain(boolean flag) throws IOException {
     if (flag) {
@@ -44,8 +46,14 @@ public class TimingRegister extends SingleByteRegister {
     sensor.write(address, registerValue);
   }
 
-  public boolean getHighGain() {
-    return (registerValue & GAIN_MASK) != 0;
+  public IntegrationTime getIntegrationTime() {
+    byte val = (byte) (registerValue & INTEGRATION_MASK);
+    for (IntegrationTime time : IntegrationTime.values()) {
+      if (time.getMask() == val) {
+        return time;
+      }
+    }
+    return IntegrationTime.MANUAL;
   }
 
   public void setIntegrationTime(IntegrationTime times) throws IOException {
@@ -54,15 +62,6 @@ public class TimingRegister extends SingleByteRegister {
     sensor.delay(500);
   }
 
-  public IntegrationTime getIntegrationTime(){
-    byte val = (byte)(registerValue & INTEGRATION_MASK);
-    for(IntegrationTime time:IntegrationTime.values()){
-      if(time.getMask() == val){
-        return time;
-      }
-    }
-    return IntegrationTime.MANUAL;
-  }
   @Override
   public AbstractRegisterData toData() throws IOException {
     boolean manual = getManual();

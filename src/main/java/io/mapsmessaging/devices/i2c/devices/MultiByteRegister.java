@@ -63,7 +63,7 @@ public class MultiByteRegister extends Register {
   }
 
 
-  public long asLongReverse(){
+  public long asLongReverse() {
     long val = 0;
     for (int x = 0; x < buffer.length; x++) {
       val = val << 8;
@@ -87,10 +87,9 @@ public class MultiByteRegister extends Register {
 
     for (int x = buffer.length - 1; x >= 0; x--) {
       val = val << 8;
-      if(x == buffer.length - 1){
+      if (x == buffer.length - 1) {
         val |= buffer[x];
-      }
-      else {
+      } else {
         val |= buffer[x] & 0xff;
       }
 

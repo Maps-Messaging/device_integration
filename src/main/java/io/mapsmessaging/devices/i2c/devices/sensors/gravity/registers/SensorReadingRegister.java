@@ -28,7 +28,7 @@ public class SensorReadingRegister extends CrcValidatingRegister {
 
 
   private void updateAllFields() throws IOException {
-    if(lastRead< System.currentTimeMillis()) {
+    if (lastRead < System.currentTimeMillis()) {
       byte[] data = new byte[9];
       if (request(new byte[6], data)) {
         concentration = (data[2] << 8 | (data[3] & 0xff));
@@ -36,7 +36,7 @@ public class SensorReadingRegister extends CrcValidatingRegister {
         int raw = data[6] << 8 | (data[7] & 0xff);
         temperature = computeTemperature(raw);
       }
-      lastRead = System.currentTimeMillis() +100;
+      lastRead = System.currentTimeMillis() + 100;
     }
   }
 

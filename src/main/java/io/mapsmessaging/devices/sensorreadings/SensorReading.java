@@ -16,16 +16,15 @@ public class SensorReading<T> {
   private final ReadingSupplier<T> supplier;
 
   protected SensorReading(String name, String unit, ReadingSupplier<T> valueSupplier) {
-    this.name =name;
+    this.name = name;
     this.unit = unit;
     this.supplier = valueSupplier;
   }
 
   public ComputationResult<T> getValue() {
-    try{
+    try {
       return ComputationResult.success(supplier.get());
-    }
-    catch(IOException ioException){
+    } catch (IOException ioException) {
       return ComputationResult.failure(ioException);
     }
   }

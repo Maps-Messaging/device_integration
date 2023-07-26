@@ -16,9 +16,9 @@
 
 package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
-import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import lombok.Getter;
 import org.everit.json.schema.ObjectSchema;
@@ -38,11 +38,11 @@ public class QuadAlphaNumericController extends HT16K33Controller {
   public QuadAlphaNumericController() {
   }
 
-  public QuadAlphaNumericController(I2C device) throws IOException {
+  public QuadAlphaNumericController(AddressableDevice device) throws IOException {
     super(new QuadAlphaNumeric(device), device);
   }
 
-  public I2CDeviceController mount(I2C device) throws IOException {
+  public I2CDeviceController mount(AddressableDevice device) throws IOException {
     return new QuadAlphaNumericController(device);
   }
 

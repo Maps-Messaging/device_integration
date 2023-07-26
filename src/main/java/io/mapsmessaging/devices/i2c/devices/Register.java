@@ -67,7 +67,7 @@ public abstract class Register {
     String paddedHex = String.format("0x%02X", (add & 0xff));
     String binaryString = String.format("%8s", Integer.toBinaryString(val & 0xFF)).replace(' ', '0');
     String paddedValHex = String.format("0x%02X", (val & 0xff));
-    return paddedName + "\t" + paddedHex + "\t [" + binaryString+"] "+paddedValHex ;
+    return paddedName + "\t" + paddedHex + "\t [" + binaryString + "] " + paddedValHex;
   }
 
   public AbstractRegisterData toData() throws IOException {

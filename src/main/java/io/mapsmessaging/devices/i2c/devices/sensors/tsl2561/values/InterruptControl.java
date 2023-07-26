@@ -12,7 +12,7 @@ public enum InterruptControl {
   @Getter
   private final byte mask;
 
-  InterruptControl(int mask){
-    this.mask = (byte)mask;
+  InterruptControl(int mask) {
+    this.mask = (byte) mask;
   }
 }

@@ -16,9 +16,9 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.am2315;
 
-import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.logging.LoggerFactory;
 
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class AM2315Sensor extends I2CDevice implements Sensor {
   private long lastRead;
 
 
-  public AM2315Sensor(I2C device) throws IOException {
+  public AM2315Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(AM2315Sensor.class));
     lastRead = 0;
     loadValues();

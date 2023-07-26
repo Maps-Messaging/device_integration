@@ -17,10 +17,10 @@
 package io.mapsmessaging.devices.i2c;
 
 import com.pi4j.exception.Pi4JException;
-import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.Device;
 import io.mapsmessaging.devices.DeviceBusManager;
 import io.mapsmessaging.devices.i2c.devices.RegisterMap;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.Logger;
 import lombok.Getter;
@@ -31,13 +31,12 @@ import static io.mapsmessaging.devices.logging.DeviceLogMessage.*;
 
 public abstract class I2CDevice implements Device, AutoCloseable {
 
-  protected final Logger logger;
-  protected final I2C device;
-
   @Getter
   public final RegisterMap registerMap;
+  protected final Logger logger;
+  protected final AddressableDevice device;
 
-  protected I2CDevice(I2C device, Logger logger) {
+  protected I2CDevice(AddressableDevice device, Logger logger) {
     this.device = device;
     this.logger = logger;
     registerMap = new RegisterMap();

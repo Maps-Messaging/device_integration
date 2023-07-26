@@ -16,7 +16,6 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.bh1750;
 
-import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.deviceinterfaces.PowerManagement;
 import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
@@ -25,6 +24,7 @@ import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.i2c.devices.sensors.bh1750.register.ReadingModeRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.bh1750.values.ResolutionMode;
 import io.mapsmessaging.devices.i2c.devices.sensors.bh1750.values.SensorReadingMode;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
@@ -49,7 +49,7 @@ public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor, 
   private int lux;
   private long lastRead;
 
-  public Bh1750Sensor(I2C device) throws IOException {
+  public Bh1750Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(Bh1750Sensor.class));
     lastRead = 0;
     readingModeRegister = new ReadingModeRegister(this, 0, "Mode");

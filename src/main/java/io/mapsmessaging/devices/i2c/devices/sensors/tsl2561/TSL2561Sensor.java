@@ -16,7 +16,6 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.tsl2561;
 
-import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.deviceinterfaces.PowerManagement;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
@@ -27,6 +26,7 @@ import io.mapsmessaging.devices.i2c.devices.sensors.tsl2561.registers.ControlReg
 import io.mapsmessaging.devices.i2c.devices.sensors.tsl2561.registers.InterruptControlRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.tsl2561.registers.TimingRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.tsl2561.values.IntegrationTime;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
 import io.mapsmessaging.devices.sensorreadings.IntegerSensorReading;
@@ -61,7 +61,7 @@ public class TSL2561Sensor extends I2CDevice implements PowerManagement, Sensor 
 
   private long lastRead;
 
-  public TSL2561Sensor(I2C device) throws IOException {
+  public TSL2561Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(TSL2561Sensor.class));
     controlRegister = new ControlRegister(this);
     timingRegister = new TimingRegister(this);
@@ -109,7 +109,7 @@ public class TSL2561Sensor extends I2CDevice implements PowerManagement, Sensor 
 
   private void scanForChange() throws IOException {
     if (lastRead < System.currentTimeMillis()) {
-      lastRead = System.currentTimeMillis() + (int)timingRegister.getIntegrationTime().getTime();
+      lastRead = System.currentTimeMillis() + (int) timingRegister.getIntegrationTime().getTime();
       // Read 4 bytes of data
       // ch0 lsb, ch0 msb, ch1 lsb, ch1 msb
       adcData0Register.reload();
@@ -122,7 +122,7 @@ public class TSL2561Sensor extends I2CDevice implements PowerManagement, Sensor 
     if (logger.isDebugEnabled()) {
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "getIr()");
     }
-    return (int)(adcData1Register.asLong() & 0xFFFF);
+    return (int) (adcData1Register.asLong() & 0xFFFF);
   }
 
   protected int getFull() throws IOException {
@@ -130,7 +130,7 @@ public class TSL2561Sensor extends I2CDevice implements PowerManagement, Sensor 
     if (logger.isDebugEnabled()) {
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), " getFull()");
     }
-    return (int)(adcData0Register.asLong() & 0xFFFF);
+    return (int) (adcData0Register.asLong() & 0xFFFF);
   }
 
   protected float calculateLux() throws IOException {
@@ -140,7 +140,7 @@ public class TSL2561Sensor extends I2CDevice implements PowerManagement, Sensor 
     float channelRatio = irValue / (float) fullValue;
     float lux;
     if (channelRatio <= 0.5) {
-      lux = (0.0304f * fullValue) - ((0.062f * fullValue) * (float)Math.pow(channelRatio, 1.4f));
+      lux = (0.0304f * fullValue) - ((0.062f * fullValue) * (float) Math.pow(channelRatio, 1.4f));
     } else if (channelRatio <= 0.61f) {
       lux = 0.0224f * fullValue - 0.031f * irValue;
     } else if (channelRatio <= 0.80) {
@@ -166,7 +166,6 @@ public class TSL2561Sensor extends I2CDevice implements PowerManagement, Sensor 
   public String getDescription() {
     return "Light sensor and Lux computation";
   }
-
 
 
 }

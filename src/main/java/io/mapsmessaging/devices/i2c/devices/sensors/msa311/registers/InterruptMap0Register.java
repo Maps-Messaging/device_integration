@@ -79,6 +79,7 @@ public class InterruptMap0Register extends SingleByteRegister {
   public boolean isFreefallInterruptMappedToInt1() {
     return (registerValue & INT1_FREEFALL) != 0;
   }
+
   @Override
   public AbstractRegisterData toData() throws IOException {
     return new InterruptMap0Data(
@@ -92,7 +93,7 @@ public class InterruptMap0Register extends SingleByteRegister {
 
   @Override
   public boolean fromData(AbstractRegisterData input) throws IOException {
-    if(input instanceof InterruptMap0Data) {
+    if (input instanceof InterruptMap0Data) {
       InterruptMap0Data data = (InterruptMap0Data) input;
       mapOrientationInterruptToInt1(data.isOrientationInterruptMappedToInt1());
       mapSingleTapInterruptToInt1(data.isSingleTapInterruptMappedToInt1());

@@ -30,8 +30,12 @@ public class ThresholdPressureRegister extends MultiByteRegister {
   }
 
   @Override
-  public int getAddress(){
+  public int getAddress() {
     return address & (~0x80);
+  }
+
+  public float getThreshold() {
+    return asInt() / 16.0f;
   }
 
   public void setThreshold(float value) throws IOException {
@@ -39,16 +43,12 @@ public class ThresholdPressureRegister extends MultiByteRegister {
     write(val);
   }
 
-  public float getThreshold() {
-    return asInt() / 16.0f;
-  }
-
   public AbstractRegisterData toData() throws IOException {
     return new ThresholdPressureData(getThreshold());
   }
 
   public boolean fromData(AbstractRegisterData input) throws IOException {
-    if(input instanceof ThresholdPressureData) {
+    if (input instanceof ThresholdPressureData) {
       ThresholdPressureData data = (ThresholdPressureData) input;
       setThreshold(data.getThreshold());
       return true;

@@ -28,10 +28,6 @@ public enum OrientMode {
     this.value = value;
   }
 
-  public int getValue() {
-    return value;
-  }
-
   public static OrientMode fromValue(int value) {
     for (OrientMode mode : OrientMode.values()) {
       if (mode.value == value) {
@@ -39,5 +35,9 @@ public enum OrientMode {
       }
     }
     throw new IllegalArgumentException("Invalid OrientMode value: " + value);
+  }
+
+  public int getValue() {
+    return value;
   }
 }

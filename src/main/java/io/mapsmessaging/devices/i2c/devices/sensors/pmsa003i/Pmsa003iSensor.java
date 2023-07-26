@@ -16,10 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.pmsa003i;
 
-import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.BufferedRegister;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.sensorreadings.IntegerSensorReading;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
@@ -30,9 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Pmsa003iSensor extends I2CDevice implements Sensor {
-  private long lastRead;
-  private final  byte[] data;
-
+  private final byte[] data;
   private final BufferedRegister pm1_0StandardRegister;
   private final BufferedRegister pm2_5StandardRegister;
   private final BufferedRegister pm10StandardRegister;
@@ -47,11 +45,11 @@ public class Pmsa003iSensor extends I2CDevice implements Sensor {
   private final BufferedRegister particlesLargerThan100Register;
   private final BufferedRegister versionRegister;
   private final BufferedRegister errorCodeRegister;
-
   @Getter
   private final List<SensorReading<?>> readings;
+  private long lastRead;
 
-  public Pmsa003iSensor(I2C device) {
+  public Pmsa003iSensor(AddressableDevice device) {
     super(device, LoggerFactory.getLogger(Pmsa003iSensor.class));
     data = new byte[0x20];
 
@@ -60,8 +58,8 @@ public class Pmsa003iSensor extends I2CDevice implements Sensor {
     this.pm10StandardRegister = new BufferedRegister(this, 8, 2, "Pm10Standard", data);
 
     this.pm1_0AtmosphericRegister = new BufferedRegister(this, 0xa, 2, "Pm1_0Atmospheric", data);
-    this.pm2_5AtmosphericRegister = new BufferedRegister(this, 0xc,2, "Pm2_5Atmospheric", data);
-    this.pm10AtmosphericRegister = new BufferedRegister(this, 0xe, 2,"Pm10Atmospheric", data);
+    this.pm2_5AtmosphericRegister = new BufferedRegister(this, 0xc, 2, "Pm2_5Atmospheric", data);
+    this.pm10AtmosphericRegister = new BufferedRegister(this, 0xe, 2, "Pm10Atmospheric", data);
 
     this.particlesLargerThan3Register = new BufferedRegister(this, 0x10, 2, "ParticlesLargerThan3", data);
     this.particlesLargerThan5Register = new BufferedRegister(this, 0x12, 2, "ParticlesLargerThan5", data);

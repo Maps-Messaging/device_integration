@@ -59,8 +59,8 @@ public class InterruptControl extends SingleByteRegister {
 
   @Override
   public boolean fromData(AbstractRegisterData input) throws IOException {
-    if(input instanceof InterruptControlData) {
-      InterruptControlData data = (InterruptControlData)input;
+    if (input instanceof InterruptControlData) {
+      InterruptControlData data = (InterruptControlData) input;
       setInterruptOnHigh(data.isInterruptOnHighEnabled());
       setInterruptOnLow(data.isInterruptOnLowEnabled());
       setLatchInterruptEnable(data.isLatchInterruptEnabled());

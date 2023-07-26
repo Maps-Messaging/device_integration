@@ -85,14 +85,14 @@ public class Control1 extends SingleByteRegister {
   }
 
   @Override
-  public AbstractRegisterData toData(){
+  public AbstractRegisterData toData() {
     return new Control1Data(getPowerDownMode(), getDataRate(), isInterruptGenerationEnabled(), isBlockUpdateSet());
   }
 
   @Override
   public boolean fromData(AbstractRegisterData input) throws IOException {
-    if(input instanceof Control1Data) {
-      Control1Data data = (Control1Data)input;
+    if (input instanceof Control1Data) {
+      Control1Data data = (Control1Data) input;
       setDataRate(data.getDataRate());
       setInterruptGenerationEnabled(data.isInterruptGenerationEnabled());
       setBlockUpdate(data.isBlockUpdateSet());

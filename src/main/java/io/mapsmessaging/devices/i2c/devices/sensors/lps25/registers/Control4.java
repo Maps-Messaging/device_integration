@@ -74,14 +74,14 @@ public class Control4 extends SingleByteRegister {
   }
 
   @Override
-  public AbstractRegisterData toData(){
+  public AbstractRegisterData toData() {
     return new Control4Data(isFiFoEmptyEnabled(), isFiFoWatermarkInterruptEnabled(), isFiFoOverrunInterruptEnabled(), isDataReadyInterrupt());
   }
 
   @Override
   public boolean fromData(AbstractRegisterData input) throws IOException {
-    if(input instanceof Control4Data) {
-      Control4Data data = (Control4Data)input;
+    if (input instanceof Control4Data) {
+      Control4Data data = (Control4Data) input;
       enabledFiFoEmptyInterrupt(data.isFifoEmptyInterruptEnabled());
       enableFiFoWatermarkInterrupt(data.isFifoWatermarkInterruptEnabled());
       enableFiFoOverrunInterrupt(data.isFifoOverrunInterruptEnabled());

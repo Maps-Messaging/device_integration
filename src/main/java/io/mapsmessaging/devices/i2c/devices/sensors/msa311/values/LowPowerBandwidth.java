@@ -19,12 +19,12 @@ public enum LowPowerBandwidth {
   @Getter
   private final byte end;
 
-  LowPowerBandwidth(int start){
+  LowPowerBandwidth(int start) {
     this(start, start);
   }
 
 
-  LowPowerBandwidth(int start, int end){
+  LowPowerBandwidth(int start, int end) {
     this.start = (byte) start;
     this.end = (byte) end;
   }

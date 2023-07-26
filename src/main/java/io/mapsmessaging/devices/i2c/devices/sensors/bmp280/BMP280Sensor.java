@@ -16,11 +16,11 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.bmp280;
 
-import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.deviceinterfaces.PowerManagement;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.bmp280.values.OversamplingRate;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.LoggerFactory;
 
@@ -54,7 +54,7 @@ public class BMP280Sensor extends I2CDevice implements PowerManagement, Sensor {
 
   private long lastRead;
 
-  public BMP280Sensor(I2C device) throws IOException {
+  public BMP280Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(BMP280Sensor.class));
     prom = new int[8];
     lastRead = 0;

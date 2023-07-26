@@ -56,6 +56,7 @@ public class FreefallHyRegister extends SingleByteRegister {
     value |= hysteresis & HYSTERESIS_MASK;
     sensor.write(address, (byte) value);
   }
+
   @Override
   public AbstractRegisterData toData() throws IOException {
     return new FreefallHyData(isFreefallModeEnabled(), getHysteresis());
@@ -63,7 +64,7 @@ public class FreefallHyRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(AbstractRegisterData input) throws IOException {
-    if(input instanceof FreefallHyData) {
+    if (input instanceof FreefallHyData) {
       FreefallHyData data = (FreefallHyData) input;
       setFreefallMode(data.isFreefallModeEnabled());
       setHysteresis(data.getHysteresis());

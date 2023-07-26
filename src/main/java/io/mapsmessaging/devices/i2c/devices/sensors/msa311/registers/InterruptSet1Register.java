@@ -32,24 +32,23 @@ public class InterruptSet1Register extends SingleByteRegister {
     super(sensor, 0x17, "Int_Set_1");
   }
 
-  public void setNewDataInterruptEnabled(boolean enabled) throws IOException {
-    int value = enabled ? NEW_DATA_INT_EN : 0;
-    setControlRegister(~NEW_DATA_INT_EN, value);
-  }
-
   public boolean isNewDataInterruptEnabled() {
     return (registerValue & NEW_DATA_INT_EN) != 0;
   }
 
-  public void setFreefallInterruptEnabled(boolean enabled) throws IOException {
-    int value = enabled ? FREEFALL_INT_EN : 0;
-    setControlRegister(~FREEFALL_INT_EN, value);
+  public void setNewDataInterruptEnabled(boolean enabled) throws IOException {
+    int value = enabled ? NEW_DATA_INT_EN : 0;
+    setControlRegister(~NEW_DATA_INT_EN, value);
   }
 
   public boolean isFreefallInterruptEnabled() {
     return (registerValue & FREEFALL_INT_EN) != 0;
   }
 
+  public void setFreefallInterruptEnabled(boolean enabled) throws IOException {
+    int value = enabled ? FREEFALL_INT_EN : 0;
+    setControlRegister(~FREEFALL_INT_EN, value);
+  }
 
   @Override
   public AbstractRegisterData toData() throws IOException {

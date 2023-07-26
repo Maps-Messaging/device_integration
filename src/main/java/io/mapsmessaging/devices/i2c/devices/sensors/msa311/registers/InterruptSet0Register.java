@@ -36,13 +36,17 @@ public class InterruptSet0Register extends SingleByteRegister {
     super(sensor, 0x16, "Int_Set_0");
   }
 
+  public boolean isOrientInterruptEnabled() {
+    return (registerValue & ORIENT_INT_EN) != 0;
+  }
+
   public void setOrientInterruptEnabled(boolean enabled) throws IOException {
     int value = enabled ? ORIENT_INT_EN : 0;
     setControlRegister(~ORIENT_INT_EN, value);
   }
 
-  public boolean isOrientInterruptEnabled() {
-    return (registerValue & ORIENT_INT_EN) != 0;
+  public boolean isSingleTapInterruptEnabled() {
+    return (registerValue & S_TAP_INT_EN) != 0;
   }
 
   public void setSingleTapInterruptEnabled(boolean enabled) throws IOException {
@@ -50,8 +54,8 @@ public class InterruptSet0Register extends SingleByteRegister {
     setControlRegister(~S_TAP_INT_EN, value);
   }
 
-  public boolean isSingleTapInterruptEnabled() {
-    return (registerValue & S_TAP_INT_EN) != 0;
+  public boolean isDoubleTapInterruptEnabled() {
+    return (registerValue & D_TAP_INT_EN) != 0;
   }
 
   public void setDoubleTapInterruptEnabled(boolean enabled) throws IOException {
@@ -59,8 +63,8 @@ public class InterruptSet0Register extends SingleByteRegister {
     setControlRegister(~D_TAP_INT_EN, value);
   }
 
-  public boolean isDoubleTapInterruptEnabled() {
-    return (registerValue & D_TAP_INT_EN) != 0;
+  public boolean isActiveInterruptEnabledZ() {
+    return (registerValue & ACTIVE_INT_EN_Z) != 0;
   }
 
   public void setActiveInterruptEnabledZ(boolean enabled) throws IOException {
@@ -68,8 +72,8 @@ public class InterruptSet0Register extends SingleByteRegister {
     setControlRegister(~ACTIVE_INT_EN_Z, value);
   }
 
-  public boolean isActiveInterruptEnabledZ() {
-    return (registerValue & ACTIVE_INT_EN_Z) != 0;
+  public boolean isActiveInterruptEnabledY() {
+    return (registerValue & ACTIVE_INT_EN_Y) != 0;
   }
 
   public void setActiveInterruptEnabledY(boolean enabled) throws IOException {
@@ -77,17 +81,13 @@ public class InterruptSet0Register extends SingleByteRegister {
     setControlRegister(~ACTIVE_INT_EN_Y, value);
   }
 
-  public boolean isActiveInterruptEnabledY() {
-    return (registerValue & ACTIVE_INT_EN_Y) != 0;
+  public boolean isActiveInterruptEnabledX() {
+    return (registerValue & ACTIVE_INT_EN_X) != 0;
   }
 
   public void setActiveInterruptEnabledX(boolean enabled) throws IOException {
     int value = enabled ? ACTIVE_INT_EN_X : 0;
     setControlRegister(~ACTIVE_INT_EN_X, value);
-  }
-
-  public boolean isActiveInterruptEnabledX() {
-    return (registerValue & ACTIVE_INT_EN_X) != 0;
   }
 
   @Override

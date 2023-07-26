@@ -21,6 +21,7 @@ import com.pi4j.io.i2c.I2C;
 import com.pi4j.io.i2c.I2CConfig;
 import com.pi4j.io.i2c.I2CProvider;
 import io.mapsmessaging.devices.DeviceController;
+import io.mapsmessaging.devices.impl.I2CDeviceImpl;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.Logger;
 import io.mapsmessaging.logging.LoggerFactory;
@@ -116,7 +117,8 @@ public class I2CBusManager {
         } else {
           boolean located = false;
           for (I2CDeviceController device : devices) {
-            if (device.canDetect() && device.detect(physicalDevices.get(addr))) {
+            I2CDeviceImpl i2CDevice = new I2CDeviceImpl(physicalDevices.get(addr));
+            if (device.canDetect() && device.detect(i2CDevice)) {
               try {
                 createAndMountDevice(addr, device);
                 located = true;
@@ -182,11 +184,12 @@ public class I2CBusManager {
   }
 
   private void createAndMountDevice(int i2cAddress, I2CDeviceController deviceEntry) throws IOException {
-    I2CDeviceController device = deviceEntry.mount(physicalDevices.get(i2cAddress));
+    I2CDeviceImpl i2CDevice = new I2CDeviceImpl(physicalDevices.get(i2cAddress));
+    I2CDeviceController device = deviceEntry.mount(i2CDevice);
     activeDevices.put(Integer.toHexString(i2cAddress), new I2CDeviceScheduler(device));
   }
 
-  public  List<String> listDetected(List<Integer> found) {
+  public List<String> listDetected(List<Integer> found) {
     List<Integer> activeList = new ArrayList<>();
     for (DeviceController controller : activeDevices.values()) {
       activeList.add(((I2CDeviceController) controller).getMountedAddress());
@@ -214,7 +217,7 @@ public class I2CBusManager {
       }
       scanResult.add(sb.toString());
     }
-    for(String line:scanResult){
+    for (String line : scanResult) {
       logger.log(I2C_BUS_SCAN, line);
     }
     return scanResult;
