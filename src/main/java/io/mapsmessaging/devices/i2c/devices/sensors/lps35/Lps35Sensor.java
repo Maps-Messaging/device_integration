@@ -4,7 +4,7 @@ import com.pi4j.io.i2c.I2C;
 import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.sensors.lps35.registers.*;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps35.values.*;
 import io.mapsmessaging.logging.LoggerFactory;
 
 import java.io.IOException;
@@ -34,8 +34,9 @@ public class Lps35Sensor extends I2CDevice implements Sensor, Resetable {
   public static final byte PRESS_OUT_XL = 0x28;
   public static final byte TEMP_OUT_L = 0x2B;
 
-  public Lps35Sensor(I2C device) {
+  public Lps35Sensor(I2C device) throws IOException {
     super(device, LoggerFactory.getLogger(Lps35Sensor.class));
+    setDataRate(DataRate.RATE_1_HZ);
   }
 
   public static int getId(I2C device) throws IOException {

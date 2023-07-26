@@ -1,6 +1,6 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps35;
 
-import io.mapsmessaging.devices.i2c.devices.sensors.lps35.registers.*;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps35.values.*;
 import org.everit.json.schema.*;
 import org.json.JSONArray;
 import org.json.JSONObject;

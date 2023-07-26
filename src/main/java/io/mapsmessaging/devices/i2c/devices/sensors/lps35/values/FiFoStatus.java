@@ -1,4 +1,4 @@
-package io.mapsmessaging.devices.i2c.devices.sensors.lps35.registers;
+package io.mapsmessaging.devices.i2c.devices.sensors.lps35.values;
 
 import lombok.Getter;
 
