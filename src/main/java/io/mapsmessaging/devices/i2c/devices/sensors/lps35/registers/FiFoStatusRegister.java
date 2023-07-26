@@ -14,19 +14,19 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
+package io.mapsmessaging.devices.i2c.devices.sensors.lps35.registers;
 
 import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
-import io.mapsmessaging.devices.i2c.devices.sensors.lps25.data.FiFoStatusData;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps35.data.FiFoStatusData;
 
 import java.io.IOException;
 
 public class FiFoStatusRegister extends SingleByteRegister {
 
   public FiFoStatusRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0x2F, "FIFO_STATUS");
+    super(sensor, 0x26, "FIFO_STATUS");
   }
 
   public boolean hasHitThreshold() {

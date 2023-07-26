@@ -1,10 +1,10 @@
-package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
+package io.mapsmessaging.devices.i2c.devices.sensors.lps35.registers;
 
 import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
-import io.mapsmessaging.devices.i2c.devices.sensors.lps25.data.InterruptSourceData;
-import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.InterruptSource;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps35.data.InterruptSourceData;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps35.values.InterruptSource;
 
 import java.io.IOException;
 import java.util.ArrayList;

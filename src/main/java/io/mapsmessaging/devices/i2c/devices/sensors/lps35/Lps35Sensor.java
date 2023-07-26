@@ -4,7 +4,9 @@ import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps35.registers.*;
-import io.mapsmessaging.devices.i2c.devices.sensors.lps35.values.*;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps35.values.DataRate;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps35.values.DataReadyInterrupt;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps35.values.FiFoMode;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
@@ -12,7 +14,6 @@ import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,9 +29,6 @@ public class Lps35Sensor extends I2CDevice implements Sensor, Resetable {
   public static final byte FIFO_CTRL = 0x14;
 
   public static final byte RES_CONF = 0x1A;
-  public static final byte INT_SOURCE = 0x25;
-  public static final byte FIFO_STATUS = 0x26;
-  public static final byte STATUS = 0x27;
 
   @Getter
   private final InterruptConfigRegister interruptConfigRegister;
@@ -51,6 +49,15 @@ public class Lps35Sensor extends I2CDevice implements Sensor, Resetable {
   private final PressureRegister pressureRegister;
 
   @Getter
+  private final InterruptSourceRegister interruptSourceRegister;
+
+  @Getter
+  private final FiFoStatusRegister fiFoStatusRegister;
+
+  @Getter
+  private final StatusRegister statusRegister;
+
+  @Getter
   private final List<SensorReading<?>> readings;
 
   public Lps35Sensor(AddressableDevice device) throws IOException {
@@ -61,6 +68,9 @@ public class Lps35Sensor extends I2CDevice implements Sensor, Resetable {
     pressureOffsetRegister = new PressureOffsetRegister(this);
     temperatureRegister = new TemperatureRegister(this);
     pressureRegister = new PressureRegister(this);
+    interruptSourceRegister = new InterruptSourceRegister(this);
+    fiFoStatusRegister = new FiFoStatusRegister(this);
+    statusRegister = new StatusRegister(this);
 
     FloatSensorReading pressureReading = new FloatSensorReading("pressure", "hPa", 260, 1260, this::getPressure);
     FloatSensorReading temperatureReading = new FloatSensorReading("temperature", "C", -30, 70, this::getTemperature);
@@ -272,53 +282,6 @@ public class Lps35Sensor extends I2CDevice implements Sensor, Resetable {
   }
   //endregion
 
-  //region Interrupt Source Register
-  public InterruptSource[] getInterruptSource() throws IOException {
-    int val = readRegister(INT_SOURCE);
-    List<InterruptSource> sourceList = new ArrayList<>();
-    if ((val & 0b100000000) != 0) {
-      sourceList.add(InterruptSource.BOOT);
-    }
-    if ((val & 0b1) != 0) {
-      sourceList.add(InterruptSource.PRESSURE_HIGH);
-    }
-    if ((val & 0b10) != 0) {
-      sourceList.add(InterruptSource.PRESSURE_LOW);
-    }
-    if ((val & 0b100) != 0) {
-      sourceList.add(InterruptSource.INTERRUPT_ACTIVE);
-    }
-
-    return sourceList.toArray(new InterruptSource[]{});
-  }
-  //endregion
-
-  //region FiFo Status Register
-  public FiFoStatus getFiFoStatus() throws IOException {
-    int val = readRegister(FIFO_STATUS);
-    return new FiFoStatus((val & 0b10000000) != 0, ((val & 0b1000000) != 0), val & 0b11111);
-  }
-  //endregion
-
-  //region Device Status Register
-  public Status[] getStatus() throws IOException {
-    int val = readRegister(STATUS);
-    List<Status> sourceList = new ArrayList<>();
-    if ((val & 0b100000) != 0) {
-      sourceList.add(Status.TEMPERATURE_OVERRUN);
-    }
-    if ((val & 0b10000) != 0) {
-      sourceList.add(Status.PRESSURE_OVERRUN);
-    }
-    if ((val & 0b10) != 0) {
-      sourceList.add(Status.TEMPERATURE_DATA_AVAILABLE);
-    }
-    if ((val & 0b1) != 0) {
-      sourceList.add(Status.PRESSURE_DATA_AVAILABLE);
-    }
-    return sourceList.toArray(new Status[]{});
-  }
-  //endregion
 
   //region Pressure Out Registers
   protected float getPressure() throws IOException {
