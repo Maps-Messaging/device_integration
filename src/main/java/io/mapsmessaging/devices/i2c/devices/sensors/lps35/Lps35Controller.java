@@ -6,7 +6,6 @@ import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
-import org.json.JSONObject;
 
 import java.io.IOException;
 
@@ -45,31 +44,6 @@ public class Lps35Controller extends I2CDeviceController {
 
   public I2CDeviceController mount(AddressableDevice device) throws IOException {
     return new Lps35Controller(device);
-  }
-
-
-  @Override
-  public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
-    if (sensor != null) {
-    }
-    return ("{}").getBytes();
-  }
-
-
-  public byte[] getDeviceConfiguration() throws IOException {
-    JSONObject jsonObject = new JSONObject();
-    if (sensor != null) {
-    }
-    return jsonObject.toString(2).getBytes();
-  }
-
-  public byte[] getDeviceState() throws IOException {
-    JSONObject jsonObject = new JSONObject();
-    if (sensor != null) {
-      jsonObject.put("temperature", sensor.getTemperature());
-      jsonObject.put("pressure", sensor.getPressure());
-    }
-    return jsonObject.toString(2).getBytes();
   }
 
   public SchemaConfig getSchema() {

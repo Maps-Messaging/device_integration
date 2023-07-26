@@ -3,9 +3,11 @@ package io.mapsmessaging.devices.i2c.devices.sensors.lps35;
 import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.sensors.lps35.registers.InterruptConfigRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps35.registers.*;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps35.values.*;
 import io.mapsmessaging.devices.impl.AddressableDevice;
+import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
@@ -19,29 +21,50 @@ import java.util.List;
 
 public class Lps35Sensor extends I2CDevice implements Sensor, Resetable {
 
-  public static final byte THS_P_L = 0x0C;
-  public static final byte THS_P_H = 0x0D;
   public static final byte WHO_AM_I = 0x0F;
   public static final byte CTRL_REG1 = 0x10;
   public static final byte CTRL_REG2 = 0x11;
   public static final byte CTRL_REG3 = 0x12;
   public static final byte FIFO_CTRL = 0x14;
-  public static final byte REF_P_XL = 0x15;
 
   public static final byte RES_CONF = 0x1A;
   public static final byte INT_SOURCE = 0x25;
   public static final byte FIFO_STATUS = 0x26;
   public static final byte STATUS = 0x27;
-  public static final byte PRESS_OUT_XL = 0x28;
-  public static final byte TEMP_OUT_L = 0x2B;
 
   @Getter
   private final InterruptConfigRegister interruptConfigRegister;
 
+  @Getter
+  private final ReferencePressureRegister referencePressureRegister;
+
+  @Getter
+  private final PressureOffsetRegister pressureOffsetRegister;
+
+  @Getter
+  private final ThresholdPressureRegister thresholdPressureRegister;
+
+  @Getter
+  private final TemperatureRegister temperatureRegister;
+
+  @Getter
+  private final PressureRegister pressureRegister;
+
+  @Getter
+  private final List<SensorReading<?>> readings;
+
   public Lps35Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(Lps35Sensor.class));
     interruptConfigRegister = new InterruptConfigRegister(this);
+    referencePressureRegister = new ReferencePressureRegister(this);
+    thresholdPressureRegister = new ThresholdPressureRegister(this);
+    pressureOffsetRegister = new PressureOffsetRegister(this);
+    temperatureRegister = new TemperatureRegister(this);
+    pressureRegister = new PressureRegister(this);
 
+    FloatSensorReading pressureReading = new FloatSensorReading("pressure", "hPa", 260, 1260, this::getPressure);
+    FloatSensorReading temperatureReading = new FloatSensorReading("temperature", "C", -30, 70, this::getTemperature);
+    readings = List.of(pressureReading, temperatureReading);
     setDataRate(DataRate.RATE_1_HZ);
   }
 
@@ -64,19 +87,6 @@ public class Lps35Sensor extends I2CDevice implements Sensor, Resetable {
     return "Pressure sensor: 260-1260 hPa";
   }
 
-
-  public float getThresholdPressure() throws IOException {
-    byte[] b = new byte[2];
-    readRegister(THS_P_L, b, 0, 2);
-    return ((b[0] * 0xff) | ((b[1] << 8) & 0xff)) / 16f;
-  }
-
-  //region Pressure Threshold register
-  public void setThresholdPressure(float thresholdPressure) throws IOException {
-    int val = Math.round(thresholdPressure * 16);
-    write(THS_P_L, (byte) (val & 0xff));
-    write(THS_P_H, (byte) ((val >> 8) & 0xff));
-  }
   //endregion
 
   //region Who Am I register
@@ -250,21 +260,6 @@ public class Lps35Sensor extends I2CDevice implements Sensor, Resetable {
   }
   //endregion
 
-  public int getReferencePressure() throws IOException {
-    byte[] data = new byte[3];
-    readRegister(REF_P_XL, data);
-    return (data[2] << 16 | ((data[1] & 0xff) << 8) | (data[0] & 0xff));
-  }
-
-  //region Reference Pressure Registers
-  public void setReferencePressure(int value) throws IOException {
-    byte[] data = new byte[3];
-    data[0] = (byte) (value & 0xff);
-    data[1] = (byte) (value >> 8 & 0xff);
-    data[2] = (byte) (value >> 16 & 0xff);
-    write(REF_P_XL, data);
-  }
-  //endregion
 
   //region Low Power Mode Registers
   public void setLowPowerMode(boolean flag) throws IOException {
@@ -326,23 +321,14 @@ public class Lps35Sensor extends I2CDevice implements Sensor, Resetable {
   //endregion
 
   //region Pressure Out Registers
-  public float getPressure() throws IOException {
-    byte[] pressureBuffer = new byte[3];
-    readRegister(PRESS_OUT_XL, pressureBuffer, 0, pressureBuffer.length);
-    int rawPressure = (pressureBuffer[2] << 16 | ((pressureBuffer[1] & 0xff) << 8) | (pressureBuffer[0] & 0xff));
-    if ((rawPressure & 0x800000) != 0) {
-      rawPressure = (0xff000000) | rawPressure; // It's now negative
-    }
-    return rawPressure / 4096.0f;
+  protected float getPressure() throws IOException {
+    return pressureRegister.getPressure();
   }
   //endregion
 
   //region Temperature Out Registers
-  public float getTemperature() throws IOException {
-    byte[] temperatureBuffer = new byte[2];
-    readRegister(TEMP_OUT_L, temperatureBuffer, 0, temperatureBuffer.length);
-    int rawTemperature = ((temperatureBuffer[1] & 0xff) << 8) | (temperatureBuffer[0] & 0xff);
-    return rawTemperature / 100.0f;
+  protected float getTemperature() throws IOException {
+    return temperatureRegister.getTemperature();
   }
   //endregion
 
