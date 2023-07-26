@@ -58,7 +58,7 @@ public class TimingRegister extends SingleByteRegister {
 
   public void setIntegrationTime(IntegrationTime times) throws IOException {
     byte mask = times.getMask();
-    super.setControlRegister(INTEGRATION_MASK, mask);
+    super.setControlRegister(~INTEGRATION_MASK, mask);
     sensor.delay(500);
   }
 

@@ -16,13 +16,13 @@ public class ControlRegister extends SingleByteRegister {
   }
 
   public void powerOn() throws IOException {
-    setControlRegister(POWER_MASK, 0b11);
+    setControlRegister(~POWER_MASK, 0b11);
     sensor.delay(500);
   }
 
 
   public void powerOff() throws IOException {
-    setControlRegister(POWER_MASK, 0b0);
+    setControlRegister(~POWER_MASK, 0b0);
   }
 
   @Override
@@ -37,7 +37,7 @@ public class ControlRegister extends SingleByteRegister {
     if (input instanceof ControlData) {
       ControlData data = (ControlData) input;
       int value = data.isPowerOn() ? 0b11 : 0b00;
-      setControlRegister(POWER_MASK, value);
+      setControlRegister(~POWER_MASK, value);
       return true;
     }
     return false;

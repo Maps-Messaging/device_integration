@@ -34,8 +34,9 @@ import lombok.Getter;
 import java.io.IOException;
 import java.util.List;
 
+import static io.mapsmessaging.devices.util.Constants.EARTH_GRAVITY_FLOAT;
+
 public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, Resetable {
-  private static final float GRAVITY = 9.80665f; //m/s^2
   private static final int PART_ID = 0x1;
   @Getter
   private final ResetRegister resetRegister;
@@ -205,19 +206,19 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
   protected float getX() throws IOException {
     float raw = xAxisRegister.getValue();
     float scale = getRange().getScale();
-    return (raw / scale) * GRAVITY;
+    return (raw / scale) * EARTH_GRAVITY_FLOAT;
   }
 
   protected float getY() throws IOException {
     float raw = yAxisRegister.getValue();
     float scale = getRange().getScale();
-    return (raw / scale) * GRAVITY;
+    return (raw / scale) * EARTH_GRAVITY_FLOAT;
   }
 
   protected float getZ() throws IOException {
     float raw = zAxisRegister.getValue();
     float scale = getRange().getScale();
-    return (raw / scale) * GRAVITY;
+    return (raw / scale) * EARTH_GRAVITY_FLOAT;
   }
 
   private Range getRange() {

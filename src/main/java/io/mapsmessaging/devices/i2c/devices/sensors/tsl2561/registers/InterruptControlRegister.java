@@ -25,7 +25,7 @@ public class InterruptControlRegister extends SingleByteRegister {
   }
 
   public void setControl(InterruptControl control) throws IOException {
-    setControlRegister(INTR_MASK, control.ordinal());
+    setControlRegister(~INTR_MASK, control.ordinal());
   }
 
   public InterruptPersistence getPersist() {
@@ -34,7 +34,7 @@ public class InterruptControlRegister extends SingleByteRegister {
   }
 
   public void setPersist(InterruptPersistence persist) throws IOException {
-    setControlRegister(PERSIST_MASK, persist.ordinal());
+    setControlRegister(~PERSIST_MASK, persist.ordinal());
   }
 
   @Override

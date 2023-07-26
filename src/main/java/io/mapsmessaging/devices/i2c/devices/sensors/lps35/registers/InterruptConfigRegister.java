@@ -1,7 +1,9 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps35.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps35.data.InterruptConfigData;
 
 import java.io.IOException;
 
@@ -23,7 +25,7 @@ public class InterruptConfigRegister extends SingleByteRegister {
 
   //region Interrupt Config Register
   public void enableAutoRifp(boolean flag) throws IOException {
-    setControlRegister(AUTO_RIFP, flag ? AUTO_RIFP : 0);
+    setControlRegister(~AUTO_RIFP, flag ? AUTO_RIFP : 0);
   }
 
   public boolean isAutoRifpEnabled() {
@@ -31,11 +33,11 @@ public class InterruptConfigRegister extends SingleByteRegister {
   }
 
   public void resetAutoRifp() throws IOException {
-    setControlRegister(RESET_ARP, RESET_ARP);
+    setControlRegister(~RESET_ARP, RESET_ARP);
   }
 
   public void enableAutoZero(boolean flag) throws IOException {
-    setControlRegister(AUTO_ZERO, flag ? AUTO_ZERO : 0);
+    setControlRegister(~AUTO_ZERO, flag ? AUTO_ZERO : 0);
   }
 
   public boolean isAutoZeroEnabled() {
@@ -43,11 +45,11 @@ public class InterruptConfigRegister extends SingleByteRegister {
   }
 
   public void resetAutoZero() throws IOException {
-    setControlRegister(RESET_AZ, RESET_AZ);
+    setControlRegister(~RESET_AZ, RESET_AZ);
   }
 
   public void enableInterrupt(boolean flag) throws IOException {
-    setControlRegister(DIFF_EN, flag ? DIFF_EN : 0);
+    setControlRegister(~DIFF_EN, flag ? DIFF_EN : 0);
   }
 
   public boolean isInterruptEnabled() {
@@ -55,7 +57,7 @@ public class InterruptConfigRegister extends SingleByteRegister {
   }
 
   public void latchInterruptToSource(boolean flag) throws IOException {
-    setControlRegister(LIR, flag ? LIR : 0);
+    setControlRegister(~LIR, flag ? LIR : 0);
   }
 
   public boolean isLatchInterruptToSource() {
@@ -63,7 +65,7 @@ public class InterruptConfigRegister extends SingleByteRegister {
   }
 
   public void latchInterruptToPressureLow(boolean flag) throws IOException {
-    setControlRegister(PLE, flag ? PLE : 0);
+    setControlRegister(~PLE, flag ? PLE : 0);
   }
 
   public boolean isLatchInterruptToPressureLow() {
@@ -71,12 +73,37 @@ public class InterruptConfigRegister extends SingleByteRegister {
   }
 
   public void latchInterruptToPressureHigh(boolean flag) throws IOException {
-    int value = flag ? PHE : 0;
-    setControlRegister(PHE, flag ? PHE : 0);
+    setControlRegister(~PHE, flag ? PHE : 0);
   }
 
   public boolean isLatchInterruptToPressureHigh() {
     return (registerValue & PHE) != 0;
   }
 
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    boolean autoRifpEnabled = isAutoRifpEnabled();
+    boolean autoZeroEnabled = isAutoZeroEnabled();
+    boolean interruptEnabled = isInterruptEnabled();
+    boolean latchInterruptToSource = isLatchInterruptToSource();
+    boolean latchInterruptToPressureLow = isLatchInterruptToPressureLow();
+    boolean latchInterruptToPressureHigh = isLatchInterruptToPressureHigh();
+    return new InterruptConfigData(autoRifpEnabled, autoZeroEnabled, interruptEnabled, latchInterruptToSource, latchInterruptToPressureLow, latchInterruptToPressureHigh);
+  }
+
+  // Method to set InterruptConfigRegister data from InterruptConfigData
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof InterruptConfigData) {
+      InterruptConfigData data = (InterruptConfigData) input;
+      enableAutoRifp(data.isAutoRifpEnabled());
+      enableAutoZero(data.isAutoZeroEnabled());
+      enableInterrupt(data.isInterruptEnabled());
+      latchInterruptToSource(data.isLatchInterruptToSource());
+      latchInterruptToPressureLow(data.isLatchInterruptToPressureLow());
+      latchInterruptToPressureHigh(data.isLatchInterruptToPressureHigh());
+      return true;
+    }
+    return false;
+  }
 }

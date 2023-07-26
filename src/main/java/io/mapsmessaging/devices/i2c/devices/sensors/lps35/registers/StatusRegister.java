@@ -15,9 +15,9 @@ public class StatusRegister extends SingleByteRegister {
 
   private static final byte STATUS_REGISTER = 0x27;
 
-  private static final byte PRESSURE_OVERRUN    = 0b00010000;
+  private static final byte PRESSURE_OVERRUN = 0b00010000;
   private static final byte TEMPERATURE_OVERRUN = 0b00100000;
-  private static final byte PRESSURE_DATA_AVAILABLE    = 0b00000001;
+  private static final byte PRESSURE_DATA_AVAILABLE = 0b00000001;
   private static final byte TEMPERATURE_DATA_AVAILABLE = 0b00000010;
 
   public StatusRegister(I2CDevice sensor) throws IOException {
@@ -43,6 +43,7 @@ public class StatusRegister extends SingleByteRegister {
     return sourceList.toArray(new Status[]{});
   }
 
+  @Override
   public AbstractRegisterData toData() throws IOException {
     return new StatusData(Arrays.asList(getStatus()));
   }

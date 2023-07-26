@@ -1,5 +1,7 @@
 package io.mapsmessaging.devices.util;
 
+import static io.mapsmessaging.devices.util.Constants.*;
+
 public class AltitudeMonitor {
 
   private final boolean update;
@@ -19,12 +21,12 @@ public class AltitudeMonitor {
   }
 
   public static double computeHeightDifference(double pressure1, double pressure2, double temperature1, double temperature2) {
-    double R = 287.053;  // Specific gas constant for dry air (J/(kg·K))
-    double g = 9.8;      // Acceleration due to gravity (m/s²)
-    double M = 0.02896;  // Molar mass of air (kg/mol)
+    double R = GAS_CONSTANTS_PER_KG;       // Specific gas constant for dry air (J/(kg·K))
+    double g = EARTH_GRAVITY; // Acceleration due to gravity (m/s²)
+    double M = MOLAR_MASS;       // Molar mass of air (kg/mol)
 
-    double temp1K = temperature1 + 273.15;  // Convert temperature to Kelvin
-    double temp2K = temperature2 + 273.15;
+    double temp1K = temperature1 + ZERO_CELSIUS_KELVIN;  // Convert temperature to Kelvin
+    double temp2K = temperature2 + ZERO_CELSIUS_KELVIN;
 
     double P0 = pressure1 * 100;  // Convert pressure from hPa to Pa
     double P1 = pressure2 * 100;
@@ -45,22 +47,18 @@ public class AltitudeMonitor {
     double deltaT = temperature + 273.15; // Convert temperature to Kelvin
 
     // Constants for the International Standard Atmosphere (ISA) model
-    final double g = 9.80665; // Acceleration due to gravity (m/s^2)
-    final double M = 0.0289644; // Molar mass of Earth's air (kg/mol)
-    final double R = 8.31432; // Universal gas constant (J/(mol·K))
+    final double g = GAS_CONSTANTS_PER_KG; // Acceleration due to gravity (m/s^2)
+    final double M = MOLAR_MASS; // Molar mass of Earth's air (kg/mol)
+    final double R = GAS_CONSTANTS_PER_MOL; // Universal gas constant (J/(mol·K))
     final double P0 = 1013.25; // Standard pressure at sea level (hPa)
 
     // Calculate the height difference using the barometric formula
-    double heightDifference = (R * deltaT) / (M * g) * Math.log((P0 - deltaP) / P0);
-
-    return heightDifference;
+    return (R * deltaT) / (M * g) * Math.log((P0 - deltaP) / P0);
   }
 
   public double compute(float pressureReading, float temperatureReading) {
     double value = 0;
-    if (temperature != Float.NaN && pressure != Float.NaN) {
-      value = calculateHeightDifference(pressure, pressureReading, temperatureReading);
-    }
+    value = calculateHeightDifference(pressure, pressureReading, temperatureReading);
     if (update) {
       temperature = temperatureReading;
       pressure = pressureReading;
