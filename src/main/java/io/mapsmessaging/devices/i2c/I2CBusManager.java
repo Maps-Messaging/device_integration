@@ -71,7 +71,7 @@ public class I2CBusManager {
     }
   }
 
-  public void configureDevices(Map<String, Object> configuration) throws IOException {
+  public I2CDeviceController configureDevices(Map<String, Object> configuration) throws IOException {
     for (Map.Entry<String, Object> entry : configuration.entrySet()) {
       int i2cAddress = Integer.parseInt(entry.getKey());
       Map<String, Object> deviceConfig = (Map<String, Object>) entry.getValue();
@@ -81,11 +81,12 @@ public class I2CBusManager {
       I2CDeviceController deviceEntry = knownDevices.get(deviceName);
       if (deviceEntry != null) {
         logger.log(DeviceLogMessage.I2C_BUS_CONFIGURING_DEVICE, deviceEntry.getName(), i2cAddress);
-        createAndMountDevice(i2cAddress, deviceEntry);
+        return createAndMountDevice(i2cAddress, deviceEntry);
       } else {
         logger.log(DeviceLogMessage.I2C_BUS_DEVICE_NOT_FOUND, deviceName);
       }
     }
+    return null;
   }
 
   public void close(I2CDeviceController deviceController) {
@@ -146,14 +147,7 @@ public class I2CBusManager {
         try {
           I2C device = physicalDevices.get(x);
           if (device == null) {
-            I2CConfig i2cConfig = I2C.newConfigBuilder(pi4j)
-                .id("Device::" + Integer.toHexString(x))
-                .description("Device::" + Integer.toHexString(x))
-                .bus(i2cBus)
-                .device(x)
-                .build();
-            device = i2cProvider.create(i2cConfig);
-            physicalDevices.put(x, device);
+            device = createi2cDevice(x);
           }
           if (isOnBus(x, device)) {
             found.add(x);
@@ -165,6 +159,18 @@ public class I2CBusManager {
     }
     listDetected(found);
     return found;
+  }
+
+  private I2C createi2cDevice(int addr) {
+    I2CConfig i2cConfig = I2C.newConfigBuilder(pi4j)
+        .id("Device::" + Integer.toHexString(addr))
+        .description("Device::" + Integer.toHexString(addr))
+        .bus(i2cBus)
+        .device(addr)
+        .build();
+    I2C device = i2cProvider.create(i2cConfig);
+    physicalDevices.put(addr, device);
+    return device;
   }
 
   private boolean isOnBus(int addr, I2C device) {
@@ -183,10 +189,16 @@ public class I2CBusManager {
     return false;
   }
 
-  private void createAndMountDevice(int i2cAddress, I2CDeviceController deviceEntry) throws IOException {
-    I2CDeviceImpl i2CDevice = new I2CDeviceImpl(physicalDevices.get(i2cAddress));
+  private I2CDeviceController createAndMountDevice(int i2cAddress, I2CDeviceController deviceEntry) throws IOException {
+    I2C i2c = physicalDevices.get(i2cAddress);
+    if (i2c == null) {
+      i2c = createi2cDevice(i2cAddress);
+    }
+    I2CDeviceImpl i2CDevice = new I2CDeviceImpl(i2c);
     I2CDeviceController device = deviceEntry.mount(i2CDevice);
-    activeDevices.put(Integer.toHexString(i2cAddress), new I2CDeviceScheduler(device));
+    I2CDeviceController controller = new I2CDeviceScheduler(device);
+    activeDevices.put(Integer.toHexString(i2cAddress), controller);
+    return controller;
   }
 
   public List<String> listDetected(List<Integer> found) {

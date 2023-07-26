@@ -25,6 +25,16 @@ public class StatusRegister extends SingleByteRegister {
     reload();
   }
 
+  public boolean isTemperatureDataAvailable() throws IOException {
+    reload();
+    return (registerValue & TEMPERATURE_DATA_AVAILABLE) != 0;
+  }
+
+  public boolean isPressureDataAvailable() throws IOException {
+    reload();
+    return (registerValue & PRESSURE_DATA_AVAILABLE) != 0;
+  }
+
   public Status[] getStatus() throws IOException {
     reload();
     List<Status> sourceList = new ArrayList<>();
@@ -34,10 +44,10 @@ public class StatusRegister extends SingleByteRegister {
     if ((registerValue & PRESSURE_OVERRUN) != 0) {
       sourceList.add(Status.PRESSURE_OVERRUN);
     }
-    if ((registerValue & TEMPERATURE_DATA_AVAILABLE) != 0) {
+    if (isTemperatureDataAvailable()) {
       sourceList.add(Status.TEMPERATURE_DATA_AVAILABLE);
     }
-    if ((registerValue & PRESSURE_DATA_AVAILABLE) != 0) {
+    if (isPressureDataAvailable()) {
       sourceList.add(Status.PRESSURE_DATA_AVAILABLE);
     }
     return sourceList.toArray(new Status[]{});

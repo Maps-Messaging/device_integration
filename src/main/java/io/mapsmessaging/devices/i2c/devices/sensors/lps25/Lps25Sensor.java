@@ -4,6 +4,7 @@ import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers.*;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.DataRate;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
@@ -98,12 +99,6 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
   }
 
 
-  //region Who Am I register
-  public int whoAmI() {
-    return whoAmIRegister.getWhoAmI();
-  }
-  //endregion
-
   public boolean getPowerDownMode() {
     return control1.getPowerDownMode();
   }
@@ -123,12 +118,26 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
 
   //region Pressure Out Registers
   protected float getPressure() throws IOException {
+    int count = 0;
+    if (!control1.getDataRate().equals(DataRate.RATE_ONE_SHOT)) {
+      while (!statusRegister.isPressureDataAvailable() && count < 10000) {
+        delay(1);
+        count++;
+      }
+    }
     return pressureRegister.getPressure();
   }
   //endregion
 
   //region Temperature Out Registers
   protected float getTemperature() throws IOException {
+    if (!control1.getDataRate().equals(DataRate.RATE_ONE_SHOT)) {
+      int count = 0;
+      while (!statusRegister.isTemperatureDataAvailable() && count < 10000) {
+        delay(1);
+        count++;
+      }
+    }
     return temperatureRegister.getTemperature();
   }
   //endregion

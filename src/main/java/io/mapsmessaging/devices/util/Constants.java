@@ -16,6 +16,8 @@
 
 package io.mapsmessaging.devices.util;
 
+import java.text.DecimalFormat;
+
 public class Constants {
 
   public static final float EARTH_GRAVITY_FLOAT = 9.80665f;   // m/s^2
@@ -25,4 +27,15 @@ public class Constants {
   public static final double MOLAR_MASS = 0.02896;            // Molar mass of air (kg/mol)
   public static final double ZERO_CELSIUS_KELVIN = 273.15;
 
+  public static String roundFloatToString(float number, int decimalPlaces) {
+    // Create the pattern for DecimalFormat based on the specified decimalPlaces
+    StringBuilder patternBuilder = new StringBuilder("#.");
+    for (int i = 0; i < decimalPlaces; i++) {
+      patternBuilder.append("#");
+    }
+    DecimalFormat decimalFormat = new DecimalFormat(patternBuilder.toString());
+
+    // Format the number and return the rounded string representation
+    return decimalFormat.format(number);
+  }
 }
