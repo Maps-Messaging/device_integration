@@ -161,7 +161,7 @@ public class I2CBusManager {
         }
       }
     }
-    logDetect(found);
+    listDetected(found);
     return found;
   }
 
@@ -186,14 +186,15 @@ public class I2CBusManager {
     activeDevices.put(Integer.toHexString(i2cAddress), new I2CDeviceScheduler(device));
   }
 
-  private void logDetect(List<Integer> found) {
+  public  List<String> listDetected(List<Integer> found) {
     List<Integer> activeList = new ArrayList<>();
     for (DeviceController controller : activeDevices.values()) {
       activeList.add(((I2CDeviceController) controller).getMountedAddress());
     }
     int addr = 0;
-    logger.log(I2C_BUS_SCAN, "I2C Device on bus " + i2cBus);
-    logger.log(I2C_BUS_SCAN, "     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f");
+    List<String> scanResult = new ArrayList<>();
+    scanResult.add("I2C Device on bus " + i2cBus);
+    scanResult.add("     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f");
     for (int x = 0; x < 8; x++) {
       StringBuilder sb = new StringBuilder(x + "0: ");
       for (int y = 0; y < 16; y++) {
@@ -211,8 +212,12 @@ public class I2CBusManager {
         sb.append(display).append(" ");
         addr++;
       }
-      logger.log(I2C_BUS_SCAN, sb.toString());
+      scanResult.add(sb.toString());
     }
+    for(String line:scanResult){
+      logger.log(I2C_BUS_SCAN, line);
+    }
+    return scanResult;
   }
 
 

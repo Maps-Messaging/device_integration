@@ -48,6 +48,7 @@ public class InterruptControl extends SingleByteRegister {
     return (registerValue & HIGH_INTERRUPT_ENABLE) != 0;
   }
 
+  @Override
   public AbstractRegisterData toData() {
     InterruptControlData data = new InterruptControlData();
     data.setLatchInterruptEnabled(isLatchInterruptEnabled());
@@ -56,6 +57,7 @@ public class InterruptControl extends SingleByteRegister {
     return data;
   }
 
+  @Override
   public boolean fromData(AbstractRegisterData input) throws IOException {
     if(input instanceof InterruptControlData) {
       InterruptControlData data = (InterruptControlData)input;

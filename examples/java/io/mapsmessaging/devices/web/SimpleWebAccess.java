@@ -20,8 +20,12 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.mapsmessaging.devices.DeviceBusManager;
 import io.mapsmessaging.devices.DeviceController;
+import io.mapsmessaging.devices.deviceinterfaces.PowerManagement;
+import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.i2c.I2CBusManager;
+import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
+import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.onewire.OneWireDeviceController;
 import io.mapsmessaging.devices.spi.SpiDeviceController;
 import org.json.JSONArray;
@@ -29,6 +33,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -87,6 +92,19 @@ public class SimpleWebAccess {
 
     //<editor-fold desc="I2C handler">
     // Add the I2C bus
+    app.get("/device/i2c/{bus}/scan", ctx -> {
+      int bus = Integer.parseInt(ctx.pathParam("bus"));
+      List<Integer> found = deviceBusManager.getI2cBusManager()[bus].findDevicesOnBus();
+      List<String> map = deviceBusManager.getI2cBusManager()[bus].listDetected(found);
+      JSONArray jsonArray = new JSONArray();
+      for(String line:map){
+        jsonArray.put(line);
+      }
+      JSONObject json = new JSONObject();
+      json.put("I2C_Detect", jsonArray);
+      ctx.json(json.toString(2));
+    });
+
     app.get("/device/i2c/{bus}/{id}", ctx -> {
       int bus = Integer.parseInt(ctx.pathParam("bus"));
       String id = ctx.pathParam("id");
@@ -159,6 +177,30 @@ public class SimpleWebAccess {
         ctx.status(404).result("Device not found");
       }
     });
+    // I2C get functions
+    app.get("/device/i2c/{bus}/{id}/function", ctx -> {
+      int bus = Integer.parseInt(ctx.pathParam("bus"));
+      String id = ctx.pathParam("id");
+      I2CDeviceController device = deviceBusManager.getI2cBusManager()[bus].get(id);
+      if (device != null) {
+        handleGetFunctions(ctx, device);
+      } else {
+        ctx.status(404).result("Device not found");
+      }
+    });
+    // I2C get functions
+    app.get("/device/i2c/{bus}/{id}/function/{function}", ctx -> {
+      int bus = Integer.parseInt(ctx.pathParam("bus"));
+      String id = ctx.pathParam("id");
+      I2CDeviceController device = deviceBusManager.getI2cBusManager()[bus].get(id);
+      if (device != null) {
+        // execute requested function on device
+        handleFunction(ctx, device, ctx.pathParam("function"));
+      } else {
+        ctx.status(404).result("Device not found");
+      }
+    });
+
 
     //</editor-fold>
 
@@ -231,6 +273,57 @@ public class SimpleWebAccess {
       res += ((I2CDeviceController)deviceController).getDevice().registerMap.toString();
     }
     ctx.result(res);
+  }
+
+  private void handleFunction(Context ctx, DeviceController deviceController, String function) throws IOException {
+    if(deviceController instanceof I2CDeviceController) {
+      I2CDevice device = ((I2CDeviceController) deviceController).getDevice();
+      synchronized (I2CDeviceScheduler.getI2cBusLock()) {
+        if (device instanceof PowerManagement) {
+          if (function.equalsIgnoreCase("powerOn")) {
+            ((PowerManagement) device).powerOn();
+            ctx.result("Power on executed");
+            return;
+          }
+          if (function.equalsIgnoreCase("powerOff")) {
+            ((PowerManagement) device).powerOff();
+            ctx.result("Power off executed");
+            return;
+          }
+        }
+        if (device instanceof Resetable) {
+          if (function.equalsIgnoreCase("reset")) {
+            ((Resetable) device).reset();
+            ctx.result("Reset executed");
+            return;
+          }
+          if (function.equalsIgnoreCase("softReset")) {
+            ((Resetable) device).softReset();
+            ctx.result("soft Reset executed");
+            return;
+          }
+        }
+      }
+    }
+    ctx.result("unknown or unhandled function received "+function);
+  }
+
+  private void handleGetFunctions(Context ctx, DeviceController deviceController)  {
+    JSONObject schemaObject = new JSONObject();
+    JSONArray functionList = new JSONArray();
+    if(deviceController instanceof I2CDeviceController){
+      I2CDevice device = ((I2CDeviceController) deviceController).getDevice();
+      if(device instanceof PowerManagement){
+        functionList.put("powerOn");
+        functionList.put("powerOff");
+      }
+      if(device instanceof Resetable){
+        functionList.put("reset");
+        functionList.put("softReset");
+      }
+    }
+    schemaObject.put("functions", functionList);
+    ctx.json(schemaObject.toString(2));
   }
 
 
