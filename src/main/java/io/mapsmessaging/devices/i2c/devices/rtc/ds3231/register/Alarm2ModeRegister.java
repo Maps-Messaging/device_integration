@@ -19,7 +19,7 @@ public class Alarm2ModeRegister extends Register {
         MinutesRegister minutesRegister,
         HourRegister hourRegister,
         AlarmDayRegister dayRegister) {
-      super(sensor, 0, "");
+      super(sensor, 0x81, "");
       this.minutesRegister = minutesRegister;
       this.hourRegister = hourRegister;
       this.dayRegister = dayRegister;
