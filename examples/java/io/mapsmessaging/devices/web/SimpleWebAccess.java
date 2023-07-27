@@ -35,9 +35,6 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class SimpleWebAccess {
 
@@ -47,10 +44,6 @@ public class SimpleWebAccess {
   public SimpleWebAccess() {
     deviceBusManager = DeviceBusManager.getInstance();
     scan();
-    ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    executor.scheduleAtFixedRate(this::scan, 0, 1, TimeUnit.MINUTES);
-
-
     Map<String, Object> deviceConfig = new LinkedHashMap<>();
     deviceConfig.put("spiBus", "0");
     deviceConfig.put("spiMode", "0");
