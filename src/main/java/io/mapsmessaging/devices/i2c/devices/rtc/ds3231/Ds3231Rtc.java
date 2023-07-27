@@ -49,7 +49,6 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
   private final MonthRegister monthRegister;
   @Getter
   private final YearRegister yearRegister;
-
   @Getter
   private final SecondsRegister alarm1Seconds;
   @Getter
