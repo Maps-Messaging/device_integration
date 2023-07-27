@@ -52,8 +52,9 @@ public class PressureMonitor implements Runnable {
         temp = val;
       }
     }
-    long stop = System.currentTimeMillis() + 120_000;
+    long stop = System.currentTimeMillis() + 600_000;
 
+    float altitude = 0.0f;
     float pResOld = 0.0f;
     while (pressure != null && temp != null && stop > System.currentTimeMillis()) {
       synchronized (I2CDeviceScheduler.getI2cBusLock()) {
@@ -66,10 +67,12 @@ public class PressureMonitor implements Runnable {
             pResOld = pRes;
           }
           float dist = (float) calculateHeightDifference(pRes, pResOld, tRes) * 1000;
+          pResOld = pRes;
+          altitude += dist;
           String pre = roundFloatToString(pRes, 2);
           String tmp = roundFloatToString(tRes, 1);
           String dis = roundFloatToString(dist, 3);
-          System.err.println(pre + " hPa\t" + tmp + " C\t" + dis + "mm");
+          System.err.println(pre + " hPa\t" + tmp + " C\t" + dis + "mm\t"+altitude+"mm");
         }
       }
     }
