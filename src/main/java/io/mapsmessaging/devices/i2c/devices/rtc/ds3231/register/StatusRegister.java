@@ -17,56 +17,59 @@
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
 
-public class StatusRegister {
+public class StatusRegister extends SingleByteRegister {
 
-  private final I2CDevice device;
-  private byte statusByte;
+  private static final int OSC_STOPPED = 0b10000000;
+  private static final int ENABLE_32_K = 0b00001000;
 
-  public StatusRegister(I2CDevice device, byte statusByte) {
-    this.statusByte = statusByte;
-    this.device = device;
+  private static final int BUSY          = 0b00000100;
+  private static final int ALARM2_ACTIVE = 0b00000010;
+  private static final int ALARM1_ACTIVE = 0b00000001;
 
+  public StatusRegister(I2CDevice device) throws IOException {
+    super(device, 0xF, "STATUS");
   }
 
-  public boolean isOscillatorStopped() {
-    return (statusByte & 0x80) != 0;
+  public boolean isOscillatorStopped() throws IOException {
+    reload();
+    return (registerValue & OSC_STOPPED) != 0;
   }
 
-  public boolean is32kHzOutputEnabled() {
-    return (statusByte & 0x08) != 0;
+  public boolean isEnabled32K() throws IOException {
+    reload();
+    return (registerValue & ENABLE_32_K) != 0;
   }
 
-  public boolean isAlarm2FlagSet() {
-    return (statusByte & 0x02) != 0;
+  public void setEnable32K(boolean flag) throws IOException {
+    setControlRegister(~ENABLE_32_K, flag?ENABLE_32_K:0);
   }
 
-  public boolean isAlarm1FlagSet() {
-    return (statusByte & 0x01) != 0;
+  public boolean isBusy() throws IOException {
+    reload();
+    return (registerValue & BUSY) != 0;
+  }
+
+  public boolean isAlarm2FlagSet() throws IOException {
+    reload();
+    return (registerValue & ALARM2_ACTIVE) != 0;
+  }
+
+  public boolean isAlarm1FlagSet() throws IOException {
+    reload();
+    return (registerValue & ALARM1_ACTIVE) != 0;
   }
 
   public void clearAlarm2Flag() throws IOException {
-    statusByte &= 0xFD;
-    device.write(0xf, statusByte);
+    setControlRegister(~ALARM2_ACTIVE, 0);
   }
 
   public void clearAlarm1Flag() throws IOException {
-    statusByte &= 0xFE;
-    device.write(0xf, statusByte);
+    setControlRegister(~ALARM1_ACTIVE, 0);
   }
 
-  public byte toByte() {
-    return statusByte;
-  }
-
-  @Override
-  public String toString() {
-    return "Oscillator Stopped : " + isOscillatorStopped() + "\n" +
-        "32kHz Output Enabled : " + is32kHzOutputEnabled() + "\n" +
-        "Alarm 2 Flag Set : " + isAlarm2FlagSet() + "\n" +
-        "Alarm 1 Flag Set : " + isAlarm1FlagSet() + "\n";
-  }
 }
 

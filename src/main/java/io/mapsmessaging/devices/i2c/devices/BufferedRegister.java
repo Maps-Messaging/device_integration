@@ -22,7 +22,7 @@ import java.io.IOException;
 
 public class BufferedRegister extends Register {
 
-  private final byte[] data;
+  protected final byte[] data;
   private final int length;
 
   public BufferedRegister(I2CDevice sensor, int address, String name, byte[] data) {

@@ -17,147 +17,83 @@
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.values.ClockFrequency;
 
 import java.io.IOException;
 
-public class ControlRegister {
-  private final I2CDevice device;
-  private byte controlByte;
+public class ControlRegister extends SingleByteRegister {
 
-  public ControlRegister(I2CDevice device, byte controlByte) {
-    this.controlByte = controlByte;
-    this.device = device;
+  private static final int ENABLE_OSC   = 0b10000000;
+  private static final int ENABLE_BB_SQ = 0b01000000;
+  private static final int CONV         = 0b00100000;
+  private static final int CLOCK_FREQ   = 0b00011000;
+  private static final int INT_ENABLE   = 0b00000100;
+  private static final int ALARM2_INT   = 0b00000010;
+  private static final int ALARM1_INT   = 0b00000001;
+
+
+  public ControlRegister(I2CDevice device) throws IOException {
+    super(device, 0xE, "CONTROL");
   }
 
   public boolean isOscillatorEnabled() {
-    return (controlByte & 0x80) != 0;
+    return (registerValue & ENABLE_OSC) != 0;
   }
 
   public void setOscillatorEnabled(boolean enabled) throws IOException {
-    if (enabled) {
-      controlByte |= 0x80;
-    } else {
-      controlByte &= 0x7F;
-    }
-    write();
+    setControlRegister(~ENABLE_OSC, enabled?ENABLE_OSC:0);
   }
 
   public boolean isSquareWaveEnabled() {
-    return (controlByte & 0x40) != 0;
+    return (registerValue & ENABLE_BB_SQ) != 0;
   }
 
   public void setSquareWaveEnabled(boolean enabled) throws IOException {
-    if (enabled) {
-      controlByte |= 0x40;
-    } else {
-      controlByte &= 0xBF;
-    }
-    write();
+    setControlRegister(~ENABLE_BB_SQ, enabled?ENABLE_BB_SQ:0);
   }
 
   public boolean isConvertTemperatureEnabled() {
-    return (controlByte & 0x20) != 0;
+    return (registerValue & CONV) != 0;
   }
 
   public void setConvertTemperature(boolean enabled) throws IOException {
-    if (enabled) {
-      controlByte |= 0x20;
-    } else {
-      controlByte &= 0xDF;
-    }
-    write();
+    setControlRegister(~CONV, enabled?CONV:0);
   }
 
-  public int getSquareWaveFrequency() {
-    int frequencyBits = (controlByte >> 3) & 0x03;
-    switch (frequencyBits) {
-      case 0:
-        return 1; // 1Hz
-      case 1:
-        return 4096; // 4096Hz
-      case 2:
-        return 8192; // 8192Hz
-      case 3:
-        return 32768; // 32768Hz
-      default:
-        return 0; // Invalid frequency
-    }
+  public ClockFrequency getSquareWaveFrequency() {
+    int frequencyBits = (registerValue &CLOCK_FREQ)>>3;
+    return ClockFrequency.values()[frequencyBits];
   }
 
-  public void setSquareWaveFrequency(int frequency) throws IOException {
-    int frequencyBits;
-    switch (frequency) {
-      case 1:
-        frequencyBits = 0;
-        break;
-      case 4096:
-        frequencyBits = 1;
-        break;
-      case 8192:
-        frequencyBits = 2;
-        break;
-      case 32768:
-        frequencyBits = 3;
-        break;
-      default:
-        frequencyBits = 0; // Invalid frequency, default to 1Hz
-    }
-    controlByte = (byte) ((controlByte & 0xC7) | (frequencyBits << 3));
-    write();
+  public void setSquareWaveFrequency(ClockFrequency frequency) throws IOException {
+    setControlRegister(~CLOCK_FREQ, frequency.ordinal()<<3);
   }
 
   public boolean isSquareWaveInterruptEnabled() {
-    return (controlByte & 0x04) != 0;
+    return (registerValue & INT_ENABLE) != 0;
   }
 
   public void setSquareWaveInterruptEnabled(boolean enabled) throws IOException {
-    if (enabled) {
-      controlByte |= 0x04;
-    } else {
-      controlByte &= 0xFB;
-    }
-    write();
+    setControlRegister(~INT_ENABLE, enabled?INT_ENABLE:0);
   }
 
-  public boolean isAlarm1InterruptEnabled() {
-    return (controlByte & 0x01) != 0;
+  public boolean isAlarm1InterruptEnabled() throws IOException {
+    reload();
+    return (registerValue & ALARM1_INT) != 0;
   }
 
   public void setAlarm1InterruptEnabled(boolean enabled) throws IOException {
-    if (enabled) {
-      controlByte |= 0x01;
-    } else {
-      controlByte &= 0xFE;
-    }
-    write();
+    setControlRegister(~ALARM1_INT, enabled?ALARM1_INT:0);
   }
 
-  public boolean isAlarm2InterruptEnabled() {
-    return (controlByte & 0x02) != 0;
+  public boolean isAlarm2InterruptEnabled() throws IOException {
+    reload();
+    return (registerValue & ALARM2_INT) != 0;
   }
 
   public void setAlarm2InterruptEnabled(boolean enabled) throws IOException {
-    if (enabled) {
-      controlByte |= 0x02;
-    } else {
-      controlByte &= 0xFD;
-    }
-    write();
-  }
-
-  private void write() throws IOException {
-    device.write(0xE, controlByte);
-  }
-
-  @Override
-  public String toString() {
-    return "Oscillator : " + isOscillatorEnabled() + "\n" +
-        "Battery Backed Square Wave : " + isSquareWaveEnabled() + "\n" +
-        "Convert Temperature : " + isConvertTemperatureEnabled() + "\n" +
-        "Square Wave Frequency : " + getSquareWaveFrequency() + "\n" +
-        "Interrupt Enabled : " + isSquareWaveInterruptEnabled() + "\n" +
-        "Alarm 2 Enabled : " + isAlarm1InterruptEnabled() + "\n" +
-        "Alarm 1 Enabled : " + isAlarm2InterruptEnabled() + "\n";
+    setControlRegister(~ALARM2_INT, enabled?ALARM2_INT:0);
   }
 
 }

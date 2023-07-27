@@ -16,5 +16,26 @@
 
 package io.mapsmessaging.devices.deviceinterfaces;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 public interface Clock {
+
+  LocalDate getDate() throws IOException;
+
+  LocalTime getTime() throws IOException;
+
+  LocalDateTime getDateTime() throws IOException;
+
+  void setDateTime(LocalDateTime dateTime) throws IOException;
+
+  void setDate(LocalDate date) throws IOException;
+
+  void setTime(LocalTime time) throws IOException;
+
+  default void setAlarm(int alarmNumber, LocalDateTime dateTime) throws IOException{}
+  default void setAlarm(int alarmNumber, LocalTime time) throws IOException{}
+
 }
