@@ -1,6 +1,8 @@
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.data.YearData;
 
 import java.io.IOException;
 
@@ -17,5 +19,20 @@ public class YearRegister extends BcdRegister {
 
   public void setYear(int year) throws IOException {
     setValue(year-2000);
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof YearData) {
+      YearData data = (YearData) input;
+      setYear(data.getYear());
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new YearData(getYear());
   }
 }

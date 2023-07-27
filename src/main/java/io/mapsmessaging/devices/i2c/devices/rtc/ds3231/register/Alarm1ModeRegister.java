@@ -1,7 +1,9 @@
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.Register;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.data.Alarm1SettingsData;
 import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.values.Alarm1Settings;
 
 import java.io.IOException;
@@ -54,6 +56,21 @@ public class Alarm1ModeRegister extends Register {
     return Alarm1Settings.find(mode, setDay);
   }
 
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof Alarm1SettingsData) {
+      Alarm1SettingsData data = (Alarm1SettingsData) input;
+      setAlarmSettings(data.getAlarmSettings());
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new Alarm1SettingsData(getAlarmSettings());
+  }
 
   @Override
   protected void reload() throws IOException {

@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.data.ControlData;
 import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.values.ClockFrequency;
 
 import java.io.IOException;
@@ -96,5 +98,32 @@ public class ControlRegister extends SingleByteRegister {
     setControlRegister(~ALARM2_INT, enabled?ALARM2_INT:0);
   }
 
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof ControlData) {
+      ControlData data = (ControlData) input;
+      setOscillatorEnabled(data.isOscillatorEnabled());
+      setSquareWaveEnabled(data.isSquareWaveEnabled());
+      setConvertTemperature(data.isConvertTemperatureEnabled());
+      setSquareWaveFrequency(data.getSquareWaveFrequency());
+      setSquareWaveInterruptEnabled(data.isSquareWaveInterruptEnabled());
+      setAlarm1InterruptEnabled(data.isAlarm1InterruptEnabled());
+      setAlarm2InterruptEnabled(data.isAlarm2InterruptEnabled());
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new ControlData(
+        isOscillatorEnabled(),
+        isSquareWaveEnabled(),
+        isConvertTemperatureEnabled(),
+        getSquareWaveFrequency(),
+        isSquareWaveInterruptEnabled(),
+        isAlarm1InterruptEnabled(),
+        isAlarm2InterruptEnabled());
+  }
 }
 

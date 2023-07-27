@@ -1,7 +1,9 @@
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.data.AgingData;
 
 import java.io.IOException;
 
@@ -18,5 +20,20 @@ public class AgingRegister extends SingleByteRegister {
 
   public void setAging(int aging) throws IOException {
     sensor.write(address, (byte) aging);
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof AgingData) {
+      AgingData data = (AgingData) input;
+      setAging(data.getAging());
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new AgingData(getAging());
   }
 }

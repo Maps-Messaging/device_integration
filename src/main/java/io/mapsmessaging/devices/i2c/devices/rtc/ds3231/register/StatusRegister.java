@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.data.StatusData;
 
 import java.io.IOException;
 
@@ -70,6 +72,31 @@ public class StatusRegister extends SingleByteRegister {
   public void clearAlarm1Flag() throws IOException {
     setControlRegister(~ALARM1_ACTIVE, 0);
   }
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof StatusData) {
+      StatusData data = (StatusData) input;
+      setEnable32K(data.isEnable32K());
+      if(data.isAlarm2FlagSet()) {
+        clearAlarm2Flag();
+      }
+      if(data.isAlarm1FlagSet()) {
+        clearAlarm1Flag();
+      }
+      return true;
+    }
+    return false;
+  }
 
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new StatusData(
+        isOscillatorStopped(),
+        isEnabled32K(),
+        isBusy(),
+        isAlarm2FlagSet(),
+        isAlarm1FlagSet()
+    );
+  }
 }
 

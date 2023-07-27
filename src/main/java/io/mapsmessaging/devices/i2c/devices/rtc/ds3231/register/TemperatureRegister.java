@@ -1,7 +1,9 @@
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.data.TemperatureData;
 
 import java.io.IOException;
 
@@ -15,6 +17,11 @@ public class TemperatureRegister extends MultiByteRegister {
     reload();
     int tempValue = ((buffer[0] & 0x7F) << 2) + ((buffer[1] >> 6) & 0x03);
     return tempValue / 4.0f;
+  }
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new TemperatureData(getTemperature());
   }
 
 }

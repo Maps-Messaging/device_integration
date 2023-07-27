@@ -1,6 +1,8 @@
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.data.SecondData;
 
 import java.io.IOException;
 
@@ -17,5 +19,20 @@ public class SecondsRegister extends BcdRegister {
 
   public void setSeconds(int seconds) throws IOException {
     setValue(seconds);
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof SecondData) {
+      SecondData data = (SecondData) input;
+      setSeconds(data.getSeconds());
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new SecondData(getSeconds());
   }
 }
