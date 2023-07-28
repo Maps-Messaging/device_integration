@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.drivers.pca9685.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.data.Mode1Data;
 
 import java.io.IOException;
 
@@ -94,5 +96,34 @@ public class Mode1Register extends SingleByteRegister {
 
   public boolean isEnableAllCall() {
     return (registerValue & ALLCALL) != 0;
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof Mode1Data) {
+      Mode1Data data = (Mode1Data) input;
+      setExtClk(data.isExtClk());
+      setAutoIncrement(data.isAutoIncrement());
+      setSleep(data.isSleep());
+      setRespondToAddr1(data.isRespondToAddr1());
+      setRespondToAddr2(data.isRespondToAddr2());
+      setRespondToAddr3(data.isRespondToAddr3());
+      enableAllCall(data.isEnableAllCall());
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new Mode1Data(
+        isExtClt(),
+        isAutoIncrement(),
+        isSleep(),
+        isRespondToAddr1(),
+        isRespondToAddr2(),
+        isRespondToAddr3(),
+        isEnableAllCall()
+    );
   }
 }

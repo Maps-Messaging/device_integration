@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.drivers.pca9685.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.data.PreScaleData;
 
 import java.io.IOException;
 
@@ -33,5 +35,20 @@ public class PreScaleRegister extends SingleByteRegister {
 
   public int getPrescale() {
     return registerValue;
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof PreScaleData) {
+      PreScaleData data = (PreScaleData) input;
+      setPrescale(data.getPrescale());
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new PreScaleData(getPrescale());
   }
 }

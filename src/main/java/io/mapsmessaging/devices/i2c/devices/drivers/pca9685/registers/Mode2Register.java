@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.drivers.pca9685.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.data.Mode2Data;
 
 import java.io.IOException;
 
@@ -63,5 +65,28 @@ public class Mode2Register extends SingleByteRegister {
 
   public int getOutputDriver() {
     return (registerValue & OUTNE);
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof Mode2Data) {
+      Mode2Data data = (Mode2Data) input;
+      setInvertLogic(data.isInvertLogic());
+      setOutputChangeOnAck(data.isOutputChangeOnAck());
+      setOutputTotemPole(data.isOutputTotemPole());
+      setOutputDriver(data.getOutputDriver());
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new Mode2Data(
+        isInvertLogic(),
+        getOutputChangeOnAck(),
+        getOutputTotemPole(),
+        getOutputDriver()
+    );
   }
 }

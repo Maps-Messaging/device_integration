@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.drivers.pca9685.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
+import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.data.LedControlData;
 
 import java.io.IOException;
 
@@ -41,6 +43,22 @@ public class LedControlRegister extends MultiByteRegister {
 
   public void setOff(int off) throws IOException {
     writeVal(2, off);
+  }
+
+  @Override
+  public boolean fromData(AbstractRegisterData input) throws IOException {
+    if (input instanceof LedControlData) {
+      LedControlData data = (LedControlData) input;
+      setOn(data.getOn());
+      setOff(data.getOff());
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public AbstractRegisterData toData() throws IOException {
+    return new LedControlData(getOn(), getOff());
   }
 
   protected void writeVal(int offset, int val) throws IOException {
