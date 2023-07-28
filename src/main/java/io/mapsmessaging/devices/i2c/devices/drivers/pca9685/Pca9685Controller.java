@@ -18,22 +18,17 @@ package io.mapsmessaging.devices.i2c.devices.drivers.pca9685;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
-import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos.Servo;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
-import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-public class PCA9685Controller extends I2CDeviceController {
+public class Pca9685Controller extends I2CDeviceController {
 
-  private final int i2cAddr = 0x40;
-  private final PCA9685Device device;
-  private final List<Servo> connected = new ArrayList<>();
+  private static final int i2cAddr = 0x40;
+  private final Pca9685Device device;
 
   @Getter
   private final String name = "PCA9685";
@@ -41,13 +36,13 @@ public class PCA9685Controller extends I2CDeviceController {
   @Getter
   private final String description = "i2c device PCA9685 supports 16 PWM devices like servos or LEDs";
 
-  public PCA9685Controller() {
+  public Pca9685Controller() {
     device = null;
   }
 
-  public PCA9685Controller(AddressableDevice device) throws IOException {
+  public Pca9685Controller(AddressableDevice device) throws IOException {
     super(device);
-    this.device = new PCA9685Device(device);
+    this.device = new Pca9685Device(device);
     this.device.setPWMFrequency(60);
   }
 
@@ -57,22 +52,7 @@ public class PCA9685Controller extends I2CDeviceController {
 
 
   public I2CDeviceController mount(AddressableDevice device) throws IOException {
-    return new PCA9685Controller(device);
-  }
-
-  public byte[] getDeviceConfiguration() {
-    JSONObject jsonObject = new JSONObject();
-    return jsonObject.toString(2).getBytes();
-  }
-
-  public byte[] getDeviceState() {
-    JSONObject jsonObject = new JSONObject();
-    return jsonObject.toString(2).getBytes();
-  }
-
-  @Override
-  public byte[] updateDeviceConfiguration(byte[] val) {
-    return "{}".getBytes();
+    return new Pca9685Controller(device);
   }
 
   @Override

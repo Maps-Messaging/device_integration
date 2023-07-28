@@ -42,38 +42,69 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
   private final SystemStatusRegister systemStatusRegister;
   private final ErrorStatusRegister errorStatusRegister;
   // Configuration Registers
+  @Getter
   private final SingleByteRegister opMode;
+  @Getter
   private final SingleByteRegister pwrMode;
+  @Getter
   private final MultiByteRegister axisMapConfig;
+  @Getter
   private final SingleByteRegister axisMapSign;
+  @Getter
   private final AxisRegister accelDataX;
+  @Getter
   private final AxisRegister accelDataY;
+  @Getter
   private final AxisRegister accelDataZ;
+  @Getter
   private final AxisRegister magDataX;
+  @Getter
   private final AxisRegister magDataY;
+  @Getter
   private final AxisRegister magDataZ;
+  @Getter
   private final AxisRegister gyroDataX;
+  @Getter
   private final AxisRegister gyroDataY;
+  @Getter
   private final AxisRegister gyroDataZ;
+  @Getter
   private final AxisRegister eulerH;
+  @Getter
   private final AxisRegister eulerR;
+  @Getter
   private final AxisRegister eulerP;
+  @Getter
   private final AxisRegister quaternionW;
+  @Getter
   private final AxisRegister quaternionX;
+  @Getter
   private final AxisRegister quaternionY;
+  @Getter
   private final AxisRegister quaternionZ;
+  @Getter
   private final SingleByteRegister chipId;
+  @Getter
   private final SingleByteRegister accelRevId;
+  @Getter
   private final SingleByteRegister magRevId;
+  @Getter
   private final SingleByteRegister gyroRevId;
+  @Getter
   private final MultiByteRegister swRevId;
+  @Getter
   private final SingleByteRegister blRevId;
+  @Getter
   private final SingleByteRegister pageId;
+  @Getter
   private final SingleByteRegister tempSource;
+  @Getter
   private final SingleByteRegister unitSel;
+  @Getter
   private final SingleByteRegister sysTrigger;
-  // Status Registers
+  @Getter
   private final SingleByteRegister sysClkStatus;
+
   private long lastRead;
   @Getter
   private String version;

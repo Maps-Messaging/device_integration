@@ -14,26 +14,29 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.drivers.pca9685.servos;
+package io.mapsmessaging.devices.i2c.devices.drivers.pca9685.registers;
 
-import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.Pca9685Device;
+import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 
 import java.io.IOException;
 
-public class Servo extends PwmDevice {
+public class SubAddressRegister extends SingleByteRegister {
 
-  private float myPos;
+  private static final int ADDRESS_MASK = 0b11111110;
 
-  public Servo(Pca9685Device pwm, short servoId, AngleResponse response) throws IOException {
-    super(pwm, servoId, response);
+  public SubAddressRegister(I2CDevice sensor, int address, String name) throws IOException {
+    super(sensor, address, name);
+    reload();
   }
 
-  public float getPosition() {
-    return myPos;
+  public void setI2CAddress(int addr) throws IOException {
+    int add = addr << 1;
+    setControlRegister(ADDRESS_MASK, add);
   }
 
-  public void setPosition(float angle) throws IOException {
-    myPos = myResponse.getResponse(angle);
-    myPWMController.setPWM(myServoPort, (short) 1, (short) myPos);
+  public int getI2CAddress() {
+    return registerValue >> 1;
   }
+
 }

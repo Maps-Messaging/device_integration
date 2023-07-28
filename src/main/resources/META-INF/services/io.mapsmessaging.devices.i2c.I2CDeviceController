@@ -43,7 +43,7 @@ io.mapsmessaging.devices.i2c.devices.rtc.ds3231.Ds3231Controller
 #
 # PWM controllers
 #
-io.mapsmessaging.devices.i2c.devices.drivers.pca9685.PCA9685Controller
+io.mapsmessaging.devices.i2c.devices.drivers.pca9685.Pca9685Controller
 
 #
 # Output devices
