@@ -16,7 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.data.PressureOffsetData;
@@ -43,13 +43,13 @@ public class PressureOffset extends MultiByteRegister {
     super.write(val);
   }
 
-  public AbstractRegisterData toData() throws IOException {
+  public RegisterData toData() throws IOException {
     PressureOffsetData data = new PressureOffsetData();
     data.setPressureOffset(getPressureOffset());
     return data;
   }
 
-  public boolean fromData(AbstractRegisterData input) throws IOException {
+  public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof PressureOffsetData) {
       PressureOffsetData data = (PressureOffsetData) input;
       setPressureOffset(data.getPressureOffset());

@@ -16,7 +16,8 @@
 
 package io.mapsmessaging.devices.i2c.devices.drivers.pca9685.data;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,7 +27,8 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class Mode1Data implements AbstractRegisterData {
+@JsonTypeName("Mode1Data")
+public class Mode1Data implements RegisterData {
   private boolean extClk;
   private boolean autoIncrement;
   private boolean sleep;

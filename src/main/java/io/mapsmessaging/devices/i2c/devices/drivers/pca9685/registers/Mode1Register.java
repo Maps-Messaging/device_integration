@@ -16,7 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.drivers.pca9685.registers;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.data.Mode1Data;
@@ -99,7 +99,7 @@ public class Mode1Register extends SingleByteRegister {
   }
 
   @Override
-  public boolean fromData(AbstractRegisterData input) throws IOException {
+  public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof Mode1Data) {
       Mode1Data data = (Mode1Data) input;
       setExtClk(data.isExtClk());
@@ -115,7 +115,7 @@ public class Mode1Register extends SingleByteRegister {
   }
 
   @Override
-  public AbstractRegisterData toData() throws IOException {
+  public RegisterData toData() throws IOException {
     return new Mode1Data(
         isExtClt(),
         isAutoIncrement(),

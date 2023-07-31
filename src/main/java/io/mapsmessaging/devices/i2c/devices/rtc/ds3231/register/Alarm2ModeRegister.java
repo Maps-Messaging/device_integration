@@ -1,6 +1,6 @@
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.Register;
 import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.data.Alarm2SettingsData;
@@ -50,7 +50,7 @@ public class Alarm2ModeRegister extends Register {
   }
 
   @Override
-  public boolean fromData(AbstractRegisterData input) throws IOException {
+  public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof Alarm2SettingsData) {
       Alarm2SettingsData data = (Alarm2SettingsData) input;
       setAlarmSettings(data.getAlarmSettings());
@@ -60,7 +60,7 @@ public class Alarm2ModeRegister extends Register {
   }
 
   @Override
-  public AbstractRegisterData toData() throws IOException {
+  public RegisterData toData() throws IOException {
     return new Alarm2SettingsData(getAlarmSettings());
   }
 

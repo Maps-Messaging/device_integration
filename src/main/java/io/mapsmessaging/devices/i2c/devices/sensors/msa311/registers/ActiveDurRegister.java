@@ -16,7 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.data.ActiveDurData;
@@ -47,7 +47,7 @@ public class ActiveDurRegister extends SingleByteRegister {
   }
 
   @Override
-  public boolean fromData(AbstractRegisterData input) throws IOException {
+  public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof ActiveDurData) {
       ActiveDurData data = (ActiveDurData) input;
       setDuration(data.getDuration());

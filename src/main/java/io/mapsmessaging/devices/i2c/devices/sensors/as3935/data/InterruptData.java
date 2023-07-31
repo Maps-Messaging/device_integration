@@ -16,18 +16,24 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935.data;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.devices.sensors.as3935.values.InterruptReason;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "@class"
+)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class InterruptData implements AbstractRegisterData {
+public class InterruptData implements RegisterData {
   private InterruptReason interruptReason;
   private boolean maskDisturberEnabled;
   private int energyDivRatio;

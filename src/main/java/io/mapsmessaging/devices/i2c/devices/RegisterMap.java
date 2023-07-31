@@ -16,7 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,19 +40,19 @@ public class RegisterMap {
     map.put(register.getAddress(), register);
   }
 
-  public List<AbstractRegisterData> getData() throws IOException {
-    List<AbstractRegisterData> data = new ArrayList<>();
-    for (Register register : map.values()) {
-      AbstractRegisterData values = register.toData();
-      if (values != null) {
-        data.add(values);
+  public Map<Integer, RegisterData> getData() throws IOException {
+    Map<Integer, RegisterData> data = new LinkedHashMap<>();
+    for (Map.Entry<Integer, Register> entry : map.entrySet()) {
+      RegisterData res = entry.getValue().toData();
+      if (res != null) {
+        data.put(entry.getKey(), entry.getValue().toData());
       }
     }
     return data;
   }
 
-  public void setData(List<AbstractRegisterData> update) throws IOException {
-    for (AbstractRegisterData data : update) {
+  public void setData(Map<Integer, RegisterData> update) throws IOException {
+    for (RegisterData data : update.values()) {
       for (Register register : map.values()) {
         if (register.fromData(data)) {
           break;

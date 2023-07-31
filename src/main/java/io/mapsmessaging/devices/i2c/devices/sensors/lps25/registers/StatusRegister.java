@@ -1,6 +1,6 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.data.StatusData;
@@ -53,7 +53,7 @@ public class StatusRegister extends SingleByteRegister {
     return sourceList.toArray(new Status[]{});
   }
 
-  public AbstractRegisterData toData() throws IOException {
+  public RegisterData toData() throws IOException {
     return new StatusData(Arrays.asList(getStatus()));
   }
 

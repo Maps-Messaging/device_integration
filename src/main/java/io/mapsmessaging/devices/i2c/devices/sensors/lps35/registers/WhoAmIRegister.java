@@ -16,7 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.lps35.registers;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps35.data.WhoAmIData;
@@ -34,7 +34,7 @@ public class WhoAmIRegister extends SingleByteRegister {
   }
 
   @Override
-  public AbstractRegisterData toData() {
+  public RegisterData toData() {
     return new WhoAmIData(getWhoAmI());
   }
 }

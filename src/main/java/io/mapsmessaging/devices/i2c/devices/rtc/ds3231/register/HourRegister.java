@@ -1,6 +1,6 @@
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.data.HourData;
@@ -72,7 +72,7 @@ public class HourRegister extends SingleByteRegister {
     setControlRegister(~HOURS, val);
   }
   @Override
-  public boolean fromData(AbstractRegisterData input) throws IOException {
+  public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof HourData) {
       HourData data = (HourData) input;
       setTop(data.isTopSet());
@@ -85,7 +85,7 @@ public class HourRegister extends SingleByteRegister {
   }
 
   @Override
-  public AbstractRegisterData toData() throws IOException {
+  public RegisterData toData() throws IOException {
     return new HourData(
         isTopSet(),
         getClock24Mode(),

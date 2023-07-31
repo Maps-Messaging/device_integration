@@ -16,7 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.lps35.registers;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps35.data.Control2Data;
@@ -71,7 +71,7 @@ public class Control2Register extends SingleByteRegister {
   }
 
   @Override
-  public AbstractRegisterData toData() throws IOException {
+  public RegisterData toData() throws IOException {
     boolean fiFoEnabled = isFiFoEnabled();
     boolean stopFiFoOnThresholdEnabled = isStopFiFoOnThresholdEnabled();
     boolean oneShotEnabled = isOneShotEnabled();
@@ -80,7 +80,7 @@ public class Control2Register extends SingleByteRegister {
 
   // Method to set Control2Register data from Control2Data
   @Override
-  public boolean fromData(AbstractRegisterData input) throws IOException {
+  public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof Control2Data) {
       Control2Data data = (Control2Data) input;
       enableFiFo(data.isFiFoEnabled());

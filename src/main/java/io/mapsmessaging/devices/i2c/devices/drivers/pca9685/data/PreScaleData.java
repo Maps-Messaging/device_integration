@@ -16,7 +16,8 @@
 
 package io.mapsmessaging.devices.i2c.devices.drivers.pca9685.data;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,6 +27,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class PreScaleData implements AbstractRegisterData {
+@JsonTypeName("PreScaleData")
+public class PreScaleData implements RegisterData {
   private int prescale;
 }

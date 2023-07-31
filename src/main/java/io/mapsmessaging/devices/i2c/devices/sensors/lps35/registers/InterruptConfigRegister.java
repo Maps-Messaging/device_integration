@@ -1,6 +1,6 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps35.registers;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps35.data.InterruptConfigData;
@@ -81,7 +81,7 @@ public class InterruptConfigRegister extends SingleByteRegister {
   }
 
   @Override
-  public AbstractRegisterData toData() throws IOException {
+  public RegisterData toData() throws IOException {
     boolean autoRifpEnabled = isAutoRifpEnabled();
     boolean autoZeroEnabled = isAutoZeroEnabled();
     boolean interruptEnabled = isInterruptEnabled();
@@ -93,7 +93,7 @@ public class InterruptConfigRegister extends SingleByteRegister {
 
   // Method to set InterruptConfigRegister data from InterruptConfigData
   @Override
-  public boolean fromData(AbstractRegisterData input) throws IOException {
+  public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof InterruptConfigData) {
       InterruptConfigData data = (InterruptConfigData) input;
       enableAutoRifp(data.isAutoRifpEnabled());

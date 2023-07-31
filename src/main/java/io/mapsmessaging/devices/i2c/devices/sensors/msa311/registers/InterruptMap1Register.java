@@ -16,7 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.registers;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.data.InterruptMap1Data;
@@ -41,14 +41,14 @@ public class InterruptMap1Register extends SingleByteRegister {
   }
 
   @Override
-  public AbstractRegisterData toData() {
+  public RegisterData toData() {
     InterruptMap1Data data = new InterruptMap1Data();
     data.setNewDataInterruptMappedToInt1(isNewDataInterruptMappedToInt1());
     return data;
   }
 
   @Override
-  public boolean fromData(AbstractRegisterData input) throws IOException {
+  public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof InterruptMap1Data) {
       InterruptMap1Data data = (InterruptMap1Data) input;
       mapNewDataInterruptToInt1(data.isNewDataInterruptMappedToInt1());

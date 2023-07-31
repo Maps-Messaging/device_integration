@@ -16,7 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.lps35.registers;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps35.data.Control3Data;
@@ -85,7 +85,7 @@ public class Control3Register extends SingleByteRegister {
   }
 
   @Override
-  public AbstractRegisterData toData() throws IOException {
+  public RegisterData toData() throws IOException {
     boolean fiFoDrainInterruptEnabled = isFiFoDrainInterruptEnabled();
     boolean fiFoWatermarkInterruptEnabled = isFiFoWatermarkInterruptEnabled();
     boolean fiFoOverrunInterruptEnabled = isFiFoOverrunInterruptEnabled();
@@ -97,7 +97,7 @@ public class Control3Register extends SingleByteRegister {
 
   // Method to set Control3Register data from Control3Data
   @Override
-  public boolean fromData(AbstractRegisterData input) throws IOException {
+  public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof Control3Data) {
       Control3Data data = (Control3Data) input;
       enableFiFoDrainInterrupt(data.isFiFoDrainInterruptEnabled());

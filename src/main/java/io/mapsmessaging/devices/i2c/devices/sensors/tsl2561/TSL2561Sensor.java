@@ -22,9 +22,7 @@ import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
-import io.mapsmessaging.devices.i2c.devices.sensors.tsl2561.registers.ControlRegister;
-import io.mapsmessaging.devices.i2c.devices.sensors.tsl2561.registers.InterruptControlRegister;
-import io.mapsmessaging.devices.i2c.devices.sensors.tsl2561.registers.TimingRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.tsl2561.registers.*;
 import io.mapsmessaging.devices.i2c.devices.sensors.tsl2561.values.IntegrationTime;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
@@ -68,8 +66,8 @@ public class TSL2561Sensor extends I2CDevice implements PowerManagement, Sensor 
     interruptControlRegister = new InterruptControlRegister(this);
     whoAmIRegister = new SingleByteRegister(this, 0x8A, "ID");
 
-    interruptLowThresholdRegister = new MultiByteRegister(this, 0x82, 2, "LowThresholdRegister");
-    interruptHighThresholdRegister = new MultiByteRegister(this, 0x84, 2, "HighThresholdRegister");
+    interruptLowThresholdRegister = new LowThresholdRegister(this);
+    interruptHighThresholdRegister = new HighThresholdRegister(this);
 
     adcData0Register = new MultiByteRegister(this, 0x8C, 2, "ADCData0Register");
     adcData1Register = new MultiByteRegister(this, 0x8E, 2, "ADCData1Register");
@@ -104,6 +102,8 @@ public class TSL2561Sensor extends I2CDevice implements PowerManagement, Sensor 
 
   public void initialise() throws IOException {
     powerOn();
+    timingRegister.setManual(false);
+    timingRegister.setHighGain(false);
     timingRegister.setIntegrationTime(IntegrationTime.MS_402);
   }
 

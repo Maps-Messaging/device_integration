@@ -1,6 +1,6 @@
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.data.WeekDayData;
@@ -23,7 +23,7 @@ public class WeekDayRegister extends SingleByteRegister {
     super.setControlRegister(~DAY, day&DAY);
   }
   @Override
-  public boolean fromData(AbstractRegisterData input) throws IOException {
+  public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof WeekDayData) {
       WeekDayData data = (WeekDayData) input;
       setDay(data.getDay());
@@ -33,7 +33,7 @@ public class WeekDayRegister extends SingleByteRegister {
   }
 
   @Override
-  public AbstractRegisterData toData() throws IOException {
+  public RegisterData toData() throws IOException {
     return new WeekDayData(getDay());
   }
 }

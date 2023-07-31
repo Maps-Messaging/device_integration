@@ -1,6 +1,6 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps35.registers;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps35.data.InterruptSourceData;
@@ -45,7 +45,7 @@ public class InterruptSourceRegister extends SingleByteRegister {
     return sourceList.toArray(new InterruptSource[]{});
   }
 
-  public AbstractRegisterData toData() throws IOException {
+  public RegisterData toData() throws IOException {
     InterruptSourceData data = new InterruptSourceData();
     data.setInterruptSources(Arrays.asList(getInterruptSource()));
     return data;

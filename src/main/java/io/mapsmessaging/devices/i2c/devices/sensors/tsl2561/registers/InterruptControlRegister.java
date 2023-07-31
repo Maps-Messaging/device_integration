@@ -1,6 +1,6 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.tsl2561.registers;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.tsl2561.data.InterruptControlData;
@@ -38,7 +38,7 @@ public class InterruptControlRegister extends SingleByteRegister {
   }
 
   @Override
-  public AbstractRegisterData toData() throws IOException {
+  public RegisterData toData() throws IOException {
     InterruptControl control = getControl();
     InterruptPersistence persist = getPersist();
     return new InterruptControlData(control, persist);
@@ -46,7 +46,7 @@ public class InterruptControlRegister extends SingleByteRegister {
 
   // Method to set InterruptControlRegister data from InterruptControlData
   @Override
-  public boolean fromData(AbstractRegisterData input) throws IOException {
+  public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof InterruptControlData) {
       InterruptControlData data = (InterruptControlData) input;
       setControl(data.getControl());

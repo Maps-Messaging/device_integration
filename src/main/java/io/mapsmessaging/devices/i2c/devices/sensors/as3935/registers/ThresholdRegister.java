@@ -16,7 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.as3935.data.ThresholdData;
@@ -55,14 +55,14 @@ public class ThresholdRegister extends SingleByteRegister {
   }
 
   @Override
-  public AbstractRegisterData toData() throws IOException {
+  public RegisterData toData() throws IOException {
     int watchdogThreshold = getWatchdogThreshold();
     int noiseFloorLevel = getNoiseFloorLevel();
     return new ThresholdData(watchdogThreshold, noiseFloorLevel);
   }
 
   @Override
-  public boolean fromData(AbstractRegisterData input) throws IOException {
+  public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof ThresholdData) {
       ThresholdData data = (ThresholdData) input;
       setWatchdogThreshold(data.getWatchdogThreshold());

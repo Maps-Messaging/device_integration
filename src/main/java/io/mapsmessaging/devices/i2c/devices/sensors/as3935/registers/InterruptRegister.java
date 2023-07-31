@@ -16,7 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.as3935.data.InterruptData;
@@ -70,7 +70,7 @@ public class InterruptRegister extends SingleByteRegister {
   }
 
   @Override
-  public AbstractRegisterData toData() throws IOException {
+  public RegisterData toData() throws IOException {
     InterruptReason interruptReason = getInterruptReason();
     boolean maskDisturberEnabled = isMaskDisturberEnabled();
     int energyDivRatio = getEnergyDivRatio();
@@ -79,7 +79,7 @@ public class InterruptRegister extends SingleByteRegister {
 
   // Method to set InterruptRegister data from InterruptData
   @Override
-  public boolean fromData(AbstractRegisterData input) throws IOException {
+  public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof InterruptData) {
       InterruptData data = (InterruptData) input;
       setMaskDisturberEnabled(data.isMaskDisturberEnabled());

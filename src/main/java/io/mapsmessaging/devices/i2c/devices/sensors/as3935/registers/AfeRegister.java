@@ -16,7 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.as3935.data.AfeData;
@@ -77,7 +77,7 @@ public class AfeRegister extends SingleByteRegister {
   }
 
   @Override
-  public AbstractRegisterData toData() throws IOException {
+  public RegisterData toData() throws IOException {
     boolean powerDown = isPowerDown();
     int gainBoost = getGainBoost();
     return new AfeData(powerDown, gainBoost, getBoostName());
@@ -85,7 +85,7 @@ public class AfeRegister extends SingleByteRegister {
 
   // Method to set AfeRegister data from AfeData
   @Override
-  public boolean fromData(AbstractRegisterData input) throws IOException {
+  public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof AfeData) {
       AfeData data = (AfeData) input;
       setPowerDown(data.isPowerDown());

@@ -1,14 +1,18 @@
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231.data;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AlarmDaySettingsData implements AbstractRegisterData {
+@ToString
+@JsonTypeName("AlarmDaySettingsData")
+public class AlarmDaySettingsData implements RegisterData {
   private boolean top;
   private boolean date;
   private int day;

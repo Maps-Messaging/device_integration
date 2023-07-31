@@ -16,7 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import lombok.Getter;
 
@@ -70,11 +70,11 @@ public abstract class Register {
     return paddedName + "\t" + paddedHex + "\t [" + binaryString + "] " + paddedValHex;
   }
 
-  public AbstractRegisterData toData() throws IOException {
+  public RegisterData toData() throws IOException {
     return null;
   }
 
-  public boolean fromData(AbstractRegisterData input) throws IOException {
+  public boolean fromData(RegisterData input) throws IOException {
     return false;
   }
 

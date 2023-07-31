@@ -16,7 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.drivers.pca9685.registers;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
 import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.data.LedControlData;
@@ -46,7 +46,7 @@ public class LedControlRegister extends MultiByteRegister {
   }
 
   @Override
-  public boolean fromData(AbstractRegisterData input) throws IOException {
+  public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof LedControlData) {
       LedControlData data = (LedControlData) input;
       setOn(data.getOn());
@@ -57,7 +57,7 @@ public class LedControlRegister extends MultiByteRegister {
   }
 
   @Override
-  public AbstractRegisterData toData() throws IOException {
+  public RegisterData toData() throws IOException {
     return new LedControlData(getOn(), getOff());
   }
 

@@ -17,12 +17,14 @@
 package io.mapsmessaging.devices.i2c;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.mapsmessaging.devices.DeviceController;
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.impl.AddressableDevice;
+import io.mapsmessaging.devices.io.RegisterDataDeserializer;
+import io.mapsmessaging.devices.io.RegisterDataWrapper;
 import io.mapsmessaging.devices.sensorreadings.ComputationResult;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import lombok.Getter;
@@ -30,6 +32,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public abstract class I2CDeviceController implements DeviceController {
 
@@ -52,11 +55,15 @@ public abstract class I2CDeviceController implements DeviceController {
   public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
     I2CDevice device = getDevice();
     if (device != null) {
-      ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-      JavaType type = objectMapper.getTypeFactory().constructCollectionType(List.class, AbstractRegisterData.class);
-      List<AbstractRegisterData> data = objectMapper.readValue(new String(val), type);
-      device.getRegisterMap().setData(data);
+      ObjectMapper mapper = new ObjectMapper();
+      mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      SimpleModule module = new SimpleModule();
+      module.addDeserializer(RegisterData.class, new RegisterDataDeserializer());
+      mapper.registerModule(module);
+      RegisterDataWrapper wrapper2 = mapper.readValue(new String(val), RegisterDataWrapper.class);
+      Map<Integer, RegisterData> map2 = wrapper2.getMap();
+      System.err.println(map2);
+      //device.getRegisterMap().setData(data);
     }
     return ("{}").getBytes();
   }
@@ -66,8 +73,18 @@ public abstract class I2CDeviceController implements DeviceController {
     I2CDevice device = getDevice();
     JSONObject jsonObject = new JSONObject();
     if (device != null) {
-      ObjectMapper objectMapper = new ObjectMapper();
-      String json = objectMapper.writeValueAsString(device.getRegisterMap().getData());
+      ObjectMapper mapper = new ObjectMapper();
+      mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+      SimpleModule module = new SimpleModule();
+      module.addDeserializer(RegisterData.class, new RegisterDataDeserializer());
+      mapper.registerModule(module);
+      Map<Integer, RegisterData> map = device.getRegisterMap().getData();
+      RegisterDataWrapper wrapper = new RegisterDataWrapper(map);
+
+      // serialize
+      String json = mapper.writeValueAsString(wrapper);
+      System.err.println(json);
       return json.getBytes();
     }
     return jsonObject.toString(2).getBytes();

@@ -6,7 +6,7 @@ public enum InterruptControl {
 
   DISABLED(0b00),
   LEVEL(0b01),
-  SMBAlert(0b10),
+  SMB_ALERT(0b10),
   TEST(0b11);
 
   @Getter

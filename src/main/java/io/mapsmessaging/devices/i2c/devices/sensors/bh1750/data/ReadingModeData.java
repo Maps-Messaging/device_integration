@@ -16,7 +16,8 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.bh1750.data;
 
-import io.mapsmessaging.devices.deviceinterfaces.AbstractRegisterData;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.devices.sensors.bh1750.values.ResolutionMode;
 import io.mapsmessaging.devices.i2c.devices.sensors.bh1750.values.SensorReadingMode;
 import lombok.AllArgsConstructor;
@@ -24,11 +25,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "@class"
+)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class ReadingModeData implements AbstractRegisterData {
+public class ReadingModeData implements RegisterData {
   private ResolutionMode resolutionMode;
   private SensorReadingMode sensorReading;
 }
