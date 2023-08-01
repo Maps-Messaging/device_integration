@@ -1,7 +1,8 @@
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231.data;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
+import io.mapsmessaging.devices.io.TypeNameResolver;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +12,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@JsonTypeName("HourData")
+@JsonTypeIdResolver(value = TypeNameResolver.class)
 public class HourData implements RegisterData {
   private boolean topSet;
   private boolean clock24Mode;

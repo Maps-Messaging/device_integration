@@ -16,9 +16,6 @@
 
 package io.mapsmessaging.devices.io;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.RegisterMap;
@@ -33,12 +30,8 @@ import java.util.Map;
 public class Test {
 
   public static void main(String[] args) throws Exception {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    SerialisationHelper helper = new SerialisationHelper();
 
-    SimpleModule module = new SimpleModule();
-    module.addDeserializer(RegisterData.class, new RegisterDataDeserializer());
-    mapper.registerModule(module);
 
     TestDevice testDevice = new TestDevice(new Addressable(), LoggerFactory.getLogger(TestDevice.class));
     RegisterMap registerMap = new RegisterMap();
@@ -47,15 +40,12 @@ public class Test {
 
     Map<Integer, RegisterData> map = registerMap.getData();
 
-    RegisterDataWrapper wrapper = new RegisterDataWrapper(map);
-
     // serialize
-    String json = mapper.writeValueAsString(wrapper);
-    System.out.println(json);
+    byte[] json = helper.serialise(map);
+    System.out.println(new String(json));
 
     // deserialize
-    RegisterDataWrapper wrapper2 = mapper.readValue(json, RegisterDataWrapper.class);
-    Map<Integer, RegisterData> map2 = wrapper2.getMap();
+    Map<Integer, RegisterData> map2 = helper.deserialise(json);
     System.out.println(map2);
   }
 

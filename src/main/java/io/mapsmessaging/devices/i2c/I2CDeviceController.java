@@ -16,15 +16,11 @@
 
 package io.mapsmessaging.devices.i2c;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.mapsmessaging.devices.DeviceController;
 import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.impl.AddressableDevice;
-import io.mapsmessaging.devices.io.RegisterDataDeserializer;
-import io.mapsmessaging.devices.io.RegisterDataWrapper;
+import io.mapsmessaging.devices.io.SerialisationHelper;
 import io.mapsmessaging.devices.sensorreadings.ComputationResult;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import lombok.Getter;
@@ -38,6 +34,9 @@ public abstract class I2CDeviceController implements DeviceController {
 
   @Getter
   private final int mountedAddress;
+
+  private final SerialisationHelper serialisationHelper = new SerialisationHelper();
+
 
   protected I2CDeviceController() {
     this(null);
@@ -55,13 +54,7 @@ public abstract class I2CDeviceController implements DeviceController {
   public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
     I2CDevice device = getDevice();
     if (device != null) {
-      ObjectMapper mapper = new ObjectMapper();
-      mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-      SimpleModule module = new SimpleModule();
-      module.addDeserializer(RegisterData.class, new RegisterDataDeserializer());
-      mapper.registerModule(module);
-      RegisterDataWrapper wrapper2 = mapper.readValue(new String(val), RegisterDataWrapper.class);
-      Map<Integer, RegisterData> map2 = wrapper2.getMap();
+      Map<Integer, RegisterData> map2 = serialisationHelper.deserialise(val);
       System.err.println(map2);
       //device.getRegisterMap().setData(data);
     }
@@ -73,19 +66,7 @@ public abstract class I2CDeviceController implements DeviceController {
     I2CDevice device = getDevice();
     JSONObject jsonObject = new JSONObject();
     if (device != null) {
-      ObjectMapper mapper = new ObjectMapper();
-      mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-      SimpleModule module = new SimpleModule();
-      module.addDeserializer(RegisterData.class, new RegisterDataDeserializer());
-      mapper.registerModule(module);
-      Map<Integer, RegisterData> map = device.getRegisterMap().getData();
-      RegisterDataWrapper wrapper = new RegisterDataWrapper(map);
-
-      // serialize
-      String json = mapper.writeValueAsString(wrapper);
-      System.err.println(json);
-      return json.getBytes();
+      return serialisationHelper.serialise(device.getRegisterMap().getData());
     }
     return jsonObject.toString(2).getBytes();
   }

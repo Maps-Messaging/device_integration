@@ -28,14 +28,12 @@ import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import java.io.IOException;
 
 public class RegisterDataDeserializer extends StdDeserializer<RegisterData> {
-  private ObjectMapper mapper = new ObjectMapper();
 
-  public RegisterDataDeserializer() {
-    this(null);
-  }
+  private final ObjectMapper mapper;
 
-  public RegisterDataDeserializer(Class<?> vc) {
-    super(vc);
+  public RegisterDataDeserializer(ObjectMapper objectMapper) {
+    super(RegisterData.class);
+    mapper = objectMapper;
   }
 
   @Override
@@ -52,7 +50,7 @@ public class RegisterDataDeserializer extends StdDeserializer<RegisterData> {
   }
 
   private RegisterData deserialize(JsonNode node) {
-    String className = node.get("className").asText();
+    String className = PackageNameProcessor.getInstance().getPackage(node.get("className").asText());
     try {
       Class<?> cls = Class.forName(className);
       return (RegisterData) mapper.treeToValue(node, cls);
@@ -61,4 +59,3 @@ public class RegisterDataDeserializer extends StdDeserializer<RegisterData> {
     }
   }
 }
-

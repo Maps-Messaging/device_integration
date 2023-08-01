@@ -1,8 +1,9 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.data;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.TapActiveStatus;
+import io.mapsmessaging.devices.io.TypeNameResolver;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,11 +11,7 @@ import lombok.ToString;
 
 import java.util.List;
 
-@JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    include = JsonTypeInfo.As.PROPERTY,
-    property = "@class"
-)
+@JsonTypeIdResolver(value = TypeNameResolver.class)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

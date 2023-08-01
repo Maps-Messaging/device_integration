@@ -1,18 +1,15 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.data;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.devices.sensors.lps25.values.DataReadyInterrupt;
+import io.mapsmessaging.devices.io.TypeNameResolver;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    include = JsonTypeInfo.As.PROPERTY,
-    property = "@class"
-)
+@JsonTypeIdResolver(value = TypeNameResolver.class)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
