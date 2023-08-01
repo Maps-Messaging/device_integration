@@ -52,11 +52,10 @@ public class RegisterMap {
   }
 
   public void setData(Map<Integer, RegisterData> update) throws IOException {
-    for (RegisterData data : update.values()) {
-      for (Register register : map.values()) {
-        if (register.fromData(data)) {
-          break;
-        }
+    for (Map.Entry<Integer, RegisterData> entry : update.entrySet()) {
+      Register register = map.get(entry.getKey());
+      if (register != null) {
+        register.fromData(entry.getValue());
       }
     }
   }

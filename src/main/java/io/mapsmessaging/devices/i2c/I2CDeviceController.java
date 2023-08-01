@@ -55,8 +55,7 @@ public abstract class I2CDeviceController implements DeviceController {
     I2CDevice device = getDevice();
     if (device != null) {
       Map<Integer, RegisterData> map2 = serialisationHelper.deserialise(val);
-      System.err.println(map2);
-      //device.getRegisterMap().setData(data);
+      device.getRegisterMap().setData(map2);
     }
     return ("{}").getBytes();
   }
