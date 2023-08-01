@@ -20,10 +20,7 @@ import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
-import io.mapsmessaging.devices.i2c.devices.sensors.bno055.registers.AxisRegister;
-import io.mapsmessaging.devices.i2c.devices.sensors.bno055.registers.CalibrationStatusRegister;
-import io.mapsmessaging.devices.i2c.devices.sensors.bno055.registers.ErrorStatusRegister;
-import io.mapsmessaging.devices.i2c.devices.sensors.bno055.registers.SystemStatusRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.bno055.registers.*;
 import io.mapsmessaging.devices.i2c.devices.sensors.bno055.values.CalibrationStatus;
 import io.mapsmessaging.devices.i2c.devices.sensors.bno055.values.SystemErrorStatus;
 import io.mapsmessaging.devices.i2c.devices.sensors.bno055.values.SystemStatus;
@@ -115,7 +112,7 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
     systemStatusRegister = new SystemStatusRegister(this);
     errorStatusRegister = new ErrorStatusRegister(this);
 
-    chipId = new SingleByteRegister(this, 0x00, "CHIP_ID");
+    chipId = new ChipIdRegister(this);
     accelRevId = new SingleByteRegister(this, 0x01, "ACCEL_REV_ID");
     magRevId = new SingleByteRegister(this, 0x02, "MAG_REV_ID");
     gyroRevId = new SingleByteRegister(this, 0x03, "GYRO_REV_ID");
@@ -138,7 +135,6 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
     quaternionX = new AxisRegister(this, 0x22, "QUATERNION_X");
     quaternionY = new AxisRegister(this, 0x24, "QUATERNION_Y");
     quaternionZ = new AxisRegister(this, 0x26, "QUATERNION_Z");
-
 
     tempSource = new SingleByteRegister(this, 0x34, "TEMP_SOURCE");
     sysClkStatus = new SingleByteRegister(this, 0x38, "SYS_CLK_STATUS");

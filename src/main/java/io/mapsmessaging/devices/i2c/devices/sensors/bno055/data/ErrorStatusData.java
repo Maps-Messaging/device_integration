@@ -14,22 +14,22 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.bno055.registers;
+package io.mapsmessaging.devices.i2c.devices.sensors.bno055.data;
 
+import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
+import io.mapsmessaging.devices.i2c.devices.sensors.bno055.values.SystemErrorStatus;
+import io.mapsmessaging.devices.io.TypeNameResolver;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
-import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
-
-import java.io.IOException;
-
-public class AxisRegister extends MultiByteRegister {
-  public AxisRegister(I2CDevice sensor, int address, String name) throws IOException {
-    super(sensor, address, 2, name);
-  }
-
-  public int getValue() throws IOException {
-    reload();
-    return asInt();
-  }
-
+@JsonTypeIdResolver(value = TypeNameResolver.class)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+public class ErrorStatusData implements RegisterData {
+  private SystemErrorStatus systemErrorStatus;
 }

@@ -16,15 +16,26 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.bno055.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.bno055.data.ChipIdData;
 
 import java.io.IOException;
 
 public class ChipIdRegister extends SingleByteRegister {
 
   public ChipIdRegister(I2CDevice sensor) throws IOException {
-    super(sensor, 0x00, "BNO055_CHIP_ID");
+    super(sensor, 0x0, "CHIP_ID");
+    reload();
+  }
+
+  public int getChipId() {
+    return registerValue;
+  }
+
+  public RegisterData toData() throws IOException {
+    return new ChipIdData(getChipId());
   }
 
 }

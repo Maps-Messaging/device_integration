@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.bno055.registers;
 
+import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.bno055.data.CalibrationStatusDate;
 import io.mapsmessaging.devices.i2c.devices.sensors.bno055.values.CalibrationStatus;
 
 import java.io.IOException;
@@ -65,6 +67,17 @@ public class CalibrationStatusRegister extends SingleByteRegister {
       }
     }
     return CalibrationStatus.UNKNOWN;
+  }
+
+  public RegisterData toData() throws IOException {
+    return new CalibrationStatusDate(
+        getName(),
+        getSystem(),
+        getGryoscope(),
+        getAccelerometer(),
+        getMagnetometer(),
+        isCalibrated()
+    );
   }
 
   private void check() throws IOException {
