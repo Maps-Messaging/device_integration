@@ -33,24 +33,19 @@ public class LedControlRegister extends MultiByteRegister {
     return readVal(2);
   }
 
-  public void setOn(int on) throws IOException {
-    writeVal(0, on);
+  public void setRate(int on, int off) throws IOException {
+    writeVal(on, off);
   }
 
   public int getOff() throws IOException {
     return readVal(2);
   }
 
-  public void setOff(int off) throws IOException {
-    writeVal(2, off);
-  }
-
   @Override
   public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof LedControlData) {
       LedControlData data = (LedControlData) input;
-      setOn(data.getOn());
-      setOff(data.getOff());
+      setRate(data.getOn(), data.getOff());
       return true;
     }
     return false;
@@ -61,11 +56,13 @@ public class LedControlRegister extends MultiByteRegister {
     return new LedControlData(getOn(), getOff());
   }
 
-  protected void writeVal(int offset, int val) throws IOException {
-    byte[] b = new byte[2];
-    b[0] = (byte) (val & 0xff);
-    b[1] = (byte) ((val >> 8) & 0x0f);
-    sensor.write(address + offset, b);
+  protected void writeVal(int on, int off) throws IOException {
+    byte[] b = new byte[4];
+    b[0] = (byte) (on & 0xff);
+    b[1] = (byte) ((on >> 8) & 0x0f);
+    b[2] = (byte) (off & 0xff);
+    b[3] = (byte) ((off >> 8) & 0x0f);
+    sensor.write(address, b);
   }
 
   protected int readVal(int offset) throws IOException {

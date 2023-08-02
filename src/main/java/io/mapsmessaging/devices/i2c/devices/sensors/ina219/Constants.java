@@ -20,7 +20,7 @@ public class Constants {
   /*=========================================================================
   CONFIG REGISTER (R/W);
 -----------------------------------------------------------------------*/
-  public final static int INA219_ADDRESS = (0x40);
+  public final static int INA219_ADDRESS = (0x41);
   public final static int INA219_READ = (0x01);
   public final static int INA219_REG_CONFIG = (0x00);
 

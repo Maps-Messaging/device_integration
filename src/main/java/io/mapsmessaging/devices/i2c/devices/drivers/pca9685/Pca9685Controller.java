@@ -18,6 +18,7 @@ package io.mapsmessaging.devices.i2c.devices.drivers.pca9685;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
+import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -42,8 +43,9 @@ public class Pca9685Controller extends I2CDeviceController {
 
   public Pca9685Controller(AddressableDevice device) throws IOException {
     super(device);
-    this.device = new Pca9685Device(device);
-    this.device.setPWMFrequency(60);
+    synchronized (I2CDeviceScheduler.getI2cBusLock()) {
+      this.device = new Pca9685Device(device);
+    }
   }
 
   public I2CDevice getDevice() {
