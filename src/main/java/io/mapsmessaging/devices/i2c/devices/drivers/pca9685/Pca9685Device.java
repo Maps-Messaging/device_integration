@@ -90,6 +90,11 @@ public class Pca9685Device extends I2CDevice implements Output {
 
   private void initialise() throws IOException {
     mode1Register.reset();
+    mode1Register.setAutoIncrement(true);
+    mode1Register.setRespondToAddr1(false);
+    mode1Register.setRespondToAddr2(false);
+    mode1Register.setRespondToAddr3(false);
+    mode1Register.setExtClk(false);
     setAllPWM((byte) 0, (byte) 0); // Reset ALL servos
     mode2Register.setOutputTotemPole(true);
     mode1Register.enableAllCall(true);
@@ -99,13 +104,12 @@ public class Pca9685Device extends I2CDevice implements Output {
   }
 
   public void setPWM(int channel, int on, int off) throws IOException {
-    ledControlRegisters[channel].setOn(on);
-    ledControlRegisters[channel].setOff(off);
+    ledControlRegisters[channel].setRate(on, off);
   }
 
   public void setAllPWM(int on, int off) throws IOException {
-    allLedControlRegisters.setOn(on);
-    allLedControlRegisters.setOff(off);
+    allLedControlRegisters.setRate(on, off);
+    delay(1);
   }
 
   @Override
