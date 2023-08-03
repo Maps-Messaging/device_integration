@@ -24,13 +24,13 @@ import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.data.Mode1Data;
 import java.io.IOException;
 
 public class Mode1Register extends SingleByteRegister {
-  private static final int RESET   = 0b10000000;
-  private static final int EXTCLK  = 0b01000000;
-  private static final int AI      = 0b00100000;
-  private static final int SLEEP   = 0b00010000;
-  private static final int SUB1    = 0b00001000;
-  private static final int SUB2    = 0b00000100;
-  private static final int SUB3    = 0b00000010;
+  private static final int RESTART = 0b10000000;
+  private static final int EXTCLK = 0b01000000;
+  private static final int AI = 0b00100000;
+  private static final int SLEEP = 0b00010000;
+  private static final int SUB1 = 0b00001000;
+  private static final int SUB2 = 0b00000100;
+  private static final int SUB3 = 0b00000010;
   private static final int ALLCALL = 0b00000001;
 
   public Mode1Register(I2CDevice sensor) throws IOException {
@@ -38,10 +38,12 @@ public class Mode1Register extends SingleByteRegister {
     reload();
   }
 
-  public void reset() throws IOException {
-    byte t = registerValue;
-    setControlRegister(~RESET, RESET);
-    registerValue = t;
+  public boolean isRestart() {
+    return (registerValue & RESTART) != 0;
+  }
+
+  public void restart() throws IOException {
+    setControlRegister(~RESTART, RESTART);
   }
 
   public void setExtClk(boolean flag) throws IOException {

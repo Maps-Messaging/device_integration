@@ -45,14 +45,6 @@ public class Pca9685Controller extends I2CDeviceController {
     super(device);
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       this.device = new Pca9685Device(device);
-      this.device.getMode1Register().setSleep(false);
-      this.device.setPWMFrequency(60);
-      for(int x=1;x<10000;x++) {
-        this.device.setPWM(0, 1, x);
-        this.device.setPWM(1, 1, x);
-        this.device.setPWM(2, 1, x);
-        this.device.setPWM(3, 1, x);
-      }
     }
   }
 

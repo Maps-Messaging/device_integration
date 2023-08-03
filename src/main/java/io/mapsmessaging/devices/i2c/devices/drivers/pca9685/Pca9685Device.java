@@ -46,10 +46,8 @@ public class Pca9685Device extends I2CDevice implements Output {
     subAddressRegister3 = new SubAddressRegister(this, 4, "SUBADR3");
     allCallAddressRegister = new SubAddressRegister(this, 5, "ALLCALLADR");
     ledControlRegisters = new LedControlRegister[16];
-    int startRegister = 6;
     for (int x = 0; x < ledControlRegisters.length; x++) {
-      ledControlRegisters[x] = new LedControlRegister(this, startRegister, "LED_" + x);
-      startRegister += 4;
+      ledControlRegisters[x] = new LedControlRegister(this, (6 + (x * 4)), "LED_" + x);
     }
     allLedControlRegisters = new LedControlRegister(this, 0xFA, "ALL_LED");
     preScaleRegister = new PreScaleRegister(this);
@@ -60,7 +58,7 @@ public class Pca9685Device extends I2CDevice implements Output {
   public void close() {
     try {
       setAllPWM(0, 0);
-      mode1Register.reset();
+      mode1Register.restart();
       mode1Register.setSleep(true);
     } catch (IOException e) {
     }
@@ -71,36 +69,24 @@ public class Pca9685Device extends I2CDevice implements Output {
     return true;
   }
 
-  public void setPWMFrequency(double frequency) throws IOException {
-    mode1Register.reset();
-    delay(5);
+  public void setPWMFrequency(float frequency) throws IOException {
+    if (frequency < 40) {
+      frequency = 40;
+    }
+    if (frequency > 1200) {
+      frequency = 1200;
+    }
     mode1Register.setSleep(true);
     preScaleRegister.setPrescale(computePrescale(frequency));
     mode1Register.setSleep(false);
+    delay(1);
+    mode1Register.restart();
   }
 
-  protected int computePrescale(double frequency) {
-    double prescaleval = 25000000.0;//    # 25MHz
-    prescaleval /= 4096.0;       // 12-bit
-    prescaleval /= frequency;
-    prescaleval -= 1.0;
-    double prescale = Math.floor(prescaleval + 0.5);
-    return (int) (Math.floor(prescale));
-  }
-
-  private void initialise() throws IOException {
-    mode1Register.reset();
-    mode1Register.setAutoIncrement(true);
-    mode1Register.setRespondToAddr1(false);
-    mode1Register.setRespondToAddr2(false);
-    mode1Register.setRespondToAddr3(false);
-    mode1Register.setExtClk(false);
-    setAllPWM((byte) 0, (byte) 0); // Reset ALL servos
-    mode2Register.setOutputTotemPole(true);
-    mode1Register.enableAllCall(true);
-    delay(5);
-    mode1Register.setSleep(false);
-    delay(5);
+  protected int computePrescale(float frequency) {
+    int scale = (Math.round((25000000f / (4096f * frequency) - 0.5f)) & 0xff);
+    System.err.println("Scale:" + scale);
+    return scale;
   }
 
   public void setPWM(int channel, int on, int off) throws IOException {
@@ -109,7 +95,6 @@ public class Pca9685Device extends I2CDevice implements Output {
 
   public void setAllPWM(int on, int off) throws IOException {
     allLedControlRegisters.setRate(on, off);
-    delay(1);
   }
 
   @Override
@@ -120,5 +105,26 @@ public class Pca9685Device extends I2CDevice implements Output {
   @Override
   public String getDescription() {
     return "PCA9685 16 port PWM controller";
+  }
+
+  private void initialise() throws IOException {
+    if (mode1Register.isRestart()) {
+      mode1Register.setSleep(false);
+      delay(10);
+      mode1Register.restart();
+    } else {
+      mode1Register.setSleep(true);
+      mode1Register.setAutoIncrement(true);
+      mode1Register.setExtClk(false);
+      mode1Register.restart();
+      delay(10);
+      setAllPWM(0, 0);
+      setPWMFrequency(60);
+      mode2Register.setOutputTotemPole(true);
+      mode1Register.enableAllCall(true);
+      allLedControlRegisters.setRate(0, 0);
+      mode1Register.setSleep(false);
+      delay(10);
+    }
   }
 }
