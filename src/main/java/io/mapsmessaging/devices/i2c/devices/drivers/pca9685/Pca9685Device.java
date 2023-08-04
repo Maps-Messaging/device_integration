@@ -72,9 +72,7 @@ public class Pca9685Device extends I2CDevice implements Output {
 
   public void setPWMFrequency(float value) throws IOException {
     mode1Register.setSleep(true);
-    delay(5);
     preScaleRegister.setPWMFrequency(value);
-    delay(5);
     mode1Register.setSleep(false);
     delay(5);
     mode1Register.restart();
@@ -82,10 +80,12 @@ public class Pca9685Device extends I2CDevice implements Output {
 
   public void setPWM(int channel, int on, int off) throws IOException {
     ledControlRegisters[channel].setRate(on, off);
+    mode1Register.restart();
   }
 
   public void setAllPWM(int on, int off) throws IOException {
     allLedControlRegisters.setRate(on, off);
+    mode1Register.restart();
   }
 
   @Override
