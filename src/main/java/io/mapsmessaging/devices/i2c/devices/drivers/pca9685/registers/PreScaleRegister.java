@@ -62,9 +62,7 @@ public class PreScaleRegister extends SingleByteRegister {
     return new PreScaleData(getPrescale());
   }
   protected int computePrescale(float frequency) {
-    int scale = (Math.round((25000000f / (4096f * frequency) - 0.5f)) & 0xff);
-    System.err.println("Scale:" + scale);
-    return scale;
+    return (Math.round((25000000f / (4096f * frequency) - 0.5f)) & 0xff);
   }
 
 }
