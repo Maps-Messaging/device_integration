@@ -92,9 +92,7 @@ public class LedControlRegister extends MultiByteRegister {
     buffer[1] = (byte) ((on >> 8) & 0b00001111);
     buffer[2] = (byte) (off & 0xff);
     buffer[3] = (byte) ((off >> 8) & 0b00001111);
-    for(int x=0;x<buffer.length;x++){
-      sensor.write(address+x, buffer[x]);
-    }
+    sensor.write(address, buffer);
   }
 
   protected int readVal(int offset) {

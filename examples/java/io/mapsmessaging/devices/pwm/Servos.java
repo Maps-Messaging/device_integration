@@ -6,7 +6,6 @@ import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.Pca9685Device;
-import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.registers.LedControlRegister;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -17,13 +16,25 @@ public class Servos {
   public Servos(Pca9685Device device) throws IOException {
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       device.setPWMFrequency(60);
-      int[] val = {150, 590};
+      int[] val = {110, 590};
       int counter = 0;
-      while (counter < 10) {
-        for (LedControlRegister ledControlRegister : device.getLedControlRegisters()) {
-          ledControlRegister.setRate(0, val[(counter % 2)]);
+      while (counter < 5) {
+        int x=val[0];
+        while(x<val[1]) {
+          device.getLedControlRegisters()[0].setRate(0, x);
+          device.delay(5);
+          device.getLedControlRegisters()[4].setRate(0, x);
+          device.delay(50);
+          x += 10;
         }
-        device.delay(5000);
+        x=val[1];
+        while(x>val[0]) {
+          device.getLedControlRegisters()[0].setRate(0, x);
+          device.delay(5);
+          device.getLedControlRegisters()[4].setRate(0, x);
+          device.delay(50);
+          x -= 10;
+        }
         counter++;
       }
     }
