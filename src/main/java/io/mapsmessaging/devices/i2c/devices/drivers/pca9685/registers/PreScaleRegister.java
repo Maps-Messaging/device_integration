@@ -26,14 +26,24 @@ import java.io.IOException;
 public class PreScaleRegister extends SingleByteRegister {
   public PreScaleRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0xFE, "PRE_SCALE");
-    reload();
+  }
+
+  public void setPWMFrequency(float frequency) throws IOException {
+    if (frequency < 40) {
+      frequency = 40;
+    }
+    if (frequency > 1200) {
+      frequency = 1200;
+    }
+    setPrescale(computePrescale(frequency));
   }
 
   public void setPrescale(int val) throws IOException {
     setControlRegister(0xff, val);
   }
 
-  public int getPrescale() {
+  public int getPrescale() throws IOException {
+    reload();
     return registerValue;
   }
 
@@ -51,4 +61,10 @@ public class PreScaleRegister extends SingleByteRegister {
   public RegisterData toData() throws IOException {
     return new PreScaleData(getPrescale());
   }
+  protected int computePrescale(float frequency) {
+    int scale = (Math.round((25000000f / (4096f * frequency) - 0.5f)) & 0xff);
+    System.err.println("Scale:" + scale);
+    return scale;
+  }
+
 }

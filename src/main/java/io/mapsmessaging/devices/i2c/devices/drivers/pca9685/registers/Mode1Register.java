@@ -24,17 +24,28 @@ import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.data.Mode1Data;
 import java.io.IOException;
 
 public class Mode1Register extends SingleByteRegister {
-  private static final int RESTART = 0b10000000;
-  private static final int EXTCLK = 0b01000000;
-  private static final int AI = 0b00100000;
-  private static final int SLEEP = 0b00010000;
-  private static final int SUB1 = 0b00001000;
-  private static final int SUB2 = 0b00000100;
-  private static final int SUB3 = 0b00000010;
-  private static final int ALLCALL = 0b00000001;
+  public static final int ADDRESS_1 = 0b001;
+  public static final int ADDRESS_2 = 0b010;
+  public static final int ADDRESS_3 = 0b100;
+
+  private static final int RESTART  = 0b10000000;
+  private static final int EXTCLK   = 0b01000000;
+  private static final int AI       = 0b00100000;
+  private static final int SLEEP    = 0b00010000;
+  private static final int SUB1     = 0b00001000;
+  private static final int SUB2     = 0b00000100;
+  private static final int SUB3     = 0b00000010;
+  private static final int ALLCALL  = 0b00000001;
+
+  private static final int SUB_ADDR = 0b00001110;
 
   public Mode1Register(I2CDevice sensor) throws IOException {
-    super(sensor, 0x0, "PRE_SCALE");
+    super(sensor, 0x0, "MODE1");
+  }
+
+  public void reset() throws IOException {
+    registerValue = 0b0;
+    sensor.write(address, registerValue);
     reload();
   }
 
@@ -43,7 +54,9 @@ public class Mode1Register extends SingleByteRegister {
   }
 
   public void restart() throws IOException {
+    byte val = registerValue ;
     setControlRegister(~RESTART, RESTART);
+    registerValue = val;
   }
 
   public void setExtClk(boolean flag) throws IOException {
@@ -63,7 +76,7 @@ public class Mode1Register extends SingleByteRegister {
   }
 
   public void setSleep(boolean flag) throws IOException {
-    setControlRegister(~AI, flag ? SLEEP : 0);
+    setControlRegister(~SLEEP, flag ? SLEEP : 0);
   }
 
   public boolean isSleep() {
@@ -89,6 +102,11 @@ public class Mode1Register extends SingleByteRegister {
   public void setRespondToAddr3(boolean flag) throws IOException {
     setControlRegister(~SUB3, flag ? SUB3 : 0);
   }
+
+  public void setRespondToAddr(int val) throws IOException {
+    setControlRegister(~SUB_ADDR, (val << 1));
+  }
+
 
   public boolean isRespondToAddr3() {
     return (registerValue & SUB3) != 0;

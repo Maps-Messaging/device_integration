@@ -22,22 +22,47 @@ import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
 import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.data.LedControlData;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class LedControlRegister extends MultiByteRegister {
 
-  public LedControlRegister(I2CDevice sensor, int address, String name) {
+  private static final int FULL_ON = 0b00010000;
+  private static final int FULL_OFF = 0b00010000;
+
+  public LedControlRegister(I2CDevice sensor, int address, String name) throws IOException {
     super(sensor, address, 4, name);
+    reload();
   }
 
-  public int getOn() throws IOException {
-    return readVal(2);
+  public void setFullOn(boolean flag) throws IOException {
+    setFullFlag(1, ~FULL_ON, flag?FULL_ON:0);
   }
 
+  public boolean isFullOn(){
+    return (buffer[1] & FULL_ON) != 0;
+  }
+
+  public void setFullOff(boolean flag) throws IOException {
+    setFullFlag(3, ~FULL_OFF, flag?FULL_OFF:0);
+  }
+
+  public boolean isFullOff(){
+    return (buffer[3] & FULL_OFF) != 0;
+  }
+
+  public int getOn() {
+    return readVal(0);
+  }
+
+  public void reset() throws IOException {
+    Arrays.fill(buffer, (byte) 0);
+    sensor.write(address, buffer);
+  }
   public void setRate(int on, int off) throws IOException {
     writeVal(on, off);
   }
 
-  public int getOff() throws IOException {
+  public int getOff() {
     return readVal(2);
   }
 
@@ -56,18 +81,23 @@ public class LedControlRegister extends MultiByteRegister {
     return new LedControlData(getOn(), getOff());
   }
 
-  protected void writeVal(int on, int off) throws IOException {
-    byte[] b = new byte[4];
-    b[0] = (byte) (on & 0xff);
-    b[1] = (byte) ((on >> 8) & 0x0f);
-    b[2] = (byte) (off & 0xff);
-    b[3] = (byte) ((off >> 8) & 0x0f);
-    sensor.write(address, b);
+  protected void setFullFlag(int offset, int mask, int value) throws IOException {
+    buffer[offset] = (byte) ((buffer[offset] & mask) | value);
+    sensor.write(address+offset, buffer[offset]);
   }
 
-  protected int readVal(int offset) throws IOException {
-    byte[] b = new byte[2];
-    sensor.readRegister(address + offset, b);
-    return b[0] & 0xff | ((b[1] & 0xf) << 8);
+
+  protected void writeVal(int on, int off) throws IOException {
+    buffer[0] = (byte) (on & 0xff);
+    buffer[1] = (byte) ((on >> 8) & 0b00001111);
+    buffer[2] = (byte) (off & 0xff);
+    buffer[3] = (byte) ((off >> 8) & 0b00001111);
+    for(int x=0;x<buffer.length;x++){
+      sensor.write(address+x, buffer[x]);
+    }
+  }
+
+  protected int readVal(int offset) {
+    return buffer[offset] & 0xff | ((buffer[offset+1] & 0xf) << 8);
   }
 }

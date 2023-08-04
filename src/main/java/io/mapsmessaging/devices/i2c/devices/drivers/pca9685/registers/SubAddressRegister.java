@@ -29,7 +29,6 @@ public class SubAddressRegister extends SingleByteRegister {
 
   public SubAddressRegister(I2CDevice sensor, int address, String name) throws IOException {
     super(sensor, address, name);
-    reload();
   }
 
   public void setI2CAddress(int addr) throws IOException {
@@ -37,7 +36,8 @@ public class SubAddressRegister extends SingleByteRegister {
     setControlRegister(ADDRESS_MASK, add);
   }
 
-  public int getI2CAddress() {
+  public int getI2CAddress() throws IOException {
+    reload();
     return registerValue >> 1;
   }
 

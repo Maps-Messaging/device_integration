@@ -40,7 +40,9 @@ public class Pca9685Device extends I2CDevice implements Output {
   public Pca9685Device(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(Pca9685Device.class));
     mode1Register = new Mode1Register(this);
+    preScaleRegister = new PreScaleRegister(this);
     mode2Register = new Mode2Register(this);
+
     subAddressRegister1 = new SubAddressRegister(this, 2, "SUBADR1");
     subAddressRegister2 = new SubAddressRegister(this, 3, "SUBADR2");
     subAddressRegister3 = new SubAddressRegister(this, 4, "SUBADR3");
@@ -50,7 +52,6 @@ public class Pca9685Device extends I2CDevice implements Output {
       ledControlRegisters[x] = new LedControlRegister(this, (6 + (x * 4)), "LED_" + x);
     }
     allLedControlRegisters = new LedControlRegister(this, 0xFA, "ALL_LED");
-    preScaleRegister = new PreScaleRegister(this);
     initialise();
   }
 
@@ -69,24 +70,14 @@ public class Pca9685Device extends I2CDevice implements Output {
     return true;
   }
 
-  public void setPWMFrequency(float frequency) throws IOException {
-    if (frequency < 40) {
-      frequency = 40;
-    }
-    if (frequency > 1200) {
-      frequency = 1200;
-    }
+  public void setPWMFrequency(float value) throws IOException {
     mode1Register.setSleep(true);
-    preScaleRegister.setPrescale(computePrescale(frequency));
+    delay(5);
+    preScaleRegister.setPWMFrequency(value);
+    delay(5);
     mode1Register.setSleep(false);
-    delay(1);
+    delay(5);
     mode1Register.restart();
-  }
-
-  protected int computePrescale(float frequency) {
-    int scale = (Math.round((25000000f / (4096f * frequency) - 0.5f)) & 0xff);
-    System.err.println("Scale:" + scale);
-    return scale;
   }
 
   public void setPWM(int channel, int on, int off) throws IOException {
@@ -108,23 +99,7 @@ public class Pca9685Device extends I2CDevice implements Output {
   }
 
   private void initialise() throws IOException {
-    if (mode1Register.isRestart()) {
-      mode1Register.setSleep(false);
-      delay(10);
-      mode1Register.restart();
-    } else {
-      mode1Register.setSleep(true);
-      mode1Register.setAutoIncrement(true);
-      mode1Register.setExtClk(false);
-      mode1Register.restart();
-      delay(10);
-      setAllPWM(0, 0);
-      setPWMFrequency(60);
-      mode2Register.setOutputTotemPole(true);
-      mode1Register.enableAllCall(true);
-      allLedControlRegisters.setRate(0, 0);
-      mode1Register.setSleep(false);
-      delay(10);
-    }
+    mode1Register.reset();
+    mode1Register.setAutoIncrement(true);
   }
 }

@@ -32,7 +32,6 @@ public class Mode2Register extends SingleByteRegister {
 
   public Mode2Register(I2CDevice sensor) throws IOException {
     super(sensor, 1, "MODE2");
-    reload();
   }
 
   public void setInvertLogic(boolean flag) throws IOException {
