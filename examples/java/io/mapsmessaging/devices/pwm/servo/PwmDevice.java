@@ -38,10 +38,6 @@ public abstract class PwmDevice {
     setPosition(myResponse.getIdle()); // Set to idle position
   }
 
-  protected int getPort() {
-    return myServoPort;
-  }
-
   abstract void setPosition(float angle) throws IOException;
 
   public void close() throws IOException {
