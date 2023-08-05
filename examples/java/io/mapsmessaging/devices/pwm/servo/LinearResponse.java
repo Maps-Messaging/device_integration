@@ -21,9 +21,9 @@ public class LinearResponse implements AngleResponse {
   private final int myLowBound;
   private final int myServoRange;
 
-  private float myMinAngle;
-  private float myMaxAngle;
-  private float myRange;
+  private final float myMinAngle;
+  private final float myMaxAngle;
+  private final float myRange;
 
 
   public LinearResponse(int lowBound, int highBound, float minAngle, float maxAngle) {
@@ -44,7 +44,7 @@ public class LinearResponse implements AngleResponse {
   }
 
   public float getIdle() {
-    return (myMaxAngle - myMaxAngle) / 2.0f;
+    return (myMaxAngle - myMinAngle) / 2.0f;
   }
 
   @Override

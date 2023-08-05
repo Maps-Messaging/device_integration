@@ -24,17 +24,16 @@ import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.Pca9685Device;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
-public class Servos {
+public class ServoDemo {
 
   private static final int SERVO_PWM_FREQUENCY = 60;
   private static final int SERVO_COUNT = 16;
 
   private static final int SERVO_LOWER_BOUND = 110;
   private static final int SERVO_HIGHER_BOUND = 590;
-  public Servos(Pca9685Device device) throws IOException {
+
+  public ServoDemo(Pca9685Device device) throws IOException {
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       device.setPWMFrequency(SERVO_PWM_FREQUENCY);
       // Allocate the servos. This code simple manages the bounds that the servo can work within
@@ -69,15 +68,11 @@ public class Servos {
     }
 
     // Configure and mount a device on address 0x5D as a LPS25 pressure & temperature
-    Map<String, Object> map = new LinkedHashMap<>();
-    Map<String, Object> config = new LinkedHashMap<>();
-    config.put("deviceName", "PCA9685");
-    map.put(""+0x40, config);
-    I2CDeviceController deviceController = i2cBusManagers[bus].configureDevices(map);
+    I2CDeviceController deviceController = i2cBusManagers[bus].configureDevice(0x40, "PCA9685");
     if (deviceController != null) {
       I2CDevice sensor = deviceController.getDevice();
       if (sensor instanceof Pca9685Device) {
-        new Servos((Pca9685Device) sensor);
+        new ServoDemo((Pca9685Device) sensor);
       }
     }
 

@@ -12,8 +12,6 @@ import io.mapsmessaging.devices.sensorreadings.ComputationResult;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import static io.mapsmessaging.devices.util.AltitudeMonitor.calculateHeightDifference;
 import static io.mapsmessaging.devices.util.Constants.roundFloatToString;
@@ -85,13 +83,8 @@ public class PressureMonitor implements Runnable {
     if (args.length > 0) {
       bus = Integer.parseInt(args[0]);
     }
-
     // Configure and mount a device on address 0x5D as a LPS25 pressure & temperature
-    Map<String, Object> map = new LinkedHashMap<>();
-    Map<String, Object> config = new LinkedHashMap<>();
-    config.put("deviceName", "LPS25");
-    map.put("93", config);
-    I2CDeviceController deviceController = i2cBusManagers[bus].configureDevices(map);
+    I2CDeviceController deviceController = i2cBusManagers[bus].configureDevice(0x5D, "LPS25");
     if (deviceController != null) {
       I2CDevice sensor = deviceController.getDevice();
       if (sensor instanceof Lps25Sensor) {

@@ -71,6 +71,14 @@ public class I2CBusManager {
     }
   }
 
+  public I2CDeviceController configureDevice(int address, String name) throws IOException {
+    Map<String, Object> map = new LinkedHashMap<>();
+    Map<String, Object> config = new LinkedHashMap<>();
+    config.put("deviceName", name);
+    map.put("" + address, config);
+    return configureDevices(map);
+  }
+
   public I2CDeviceController configureDevices(Map<String, Object> configuration) throws IOException {
     for (Map.Entry<String, Object> entry : configuration.entrySet()) {
       int i2cAddress = Integer.parseInt(entry.getKey());

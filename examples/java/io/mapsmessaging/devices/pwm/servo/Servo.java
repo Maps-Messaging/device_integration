@@ -20,7 +20,7 @@ import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.Pca9685Device;
 
 import java.io.IOException;
 
-public class Servo extends PWM_Device {
+public class Servo extends PwmDevice {
 
   private float myPos;
 

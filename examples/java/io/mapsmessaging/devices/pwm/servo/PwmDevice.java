@@ -20,14 +20,14 @@ import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.Pca9685Device;
 
 import java.io.IOException;
 
-public abstract class PWM_Device {
+public abstract class PwmDevice {
 
-  protected Pca9685Device myPWMController;
+  protected final Pca9685Device myPWMController;
   protected final int myServoPort;
   protected final AngleResponse myResponse;
 
 
-  protected PWM_Device(Pca9685Device pwm, int servoId, AngleResponse response) throws IOException {
+  protected PwmDevice(Pca9685Device pwm, int servoId, AngleResponse response) throws IOException {
     myPWMController = pwm;
     myServoPort = servoId;
     myResponse = response;
