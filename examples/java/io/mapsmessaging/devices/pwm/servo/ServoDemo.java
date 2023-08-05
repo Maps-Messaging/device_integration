@@ -30,11 +30,12 @@ public class ServoDemo {
   private static final int SERVO_PWM_FREQUENCY = 60;
   private static final int SERVO_COUNT = 16;
 
-  private static final int SERVO_LOWER_BOUND = 110;
-  private static final int SERVO_HIGHER_BOUND = 590;
+  private static final int SERVO_LOWER_BOUND = 150;
+  private static final int SERVO_HIGHER_BOUND = 550;
 
   public ServoDemo(Pca9685Device device) throws IOException {
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
+      device.reset();
       device.setPWMFrequency(SERVO_PWM_FREQUENCY);
       // Allocate the servos. This code simple manages the bounds that the servo can work within
 
@@ -43,8 +44,18 @@ public class ServoDemo {
         servos[x] = new Servo(device, x, new LinearResponse(SERVO_LOWER_BOUND, SERVO_HIGHER_BOUND, 0f, 360f));
       }
 
-      for (Servo servo : servos) {
-        rotate(servo);
+      float pos = 0.0f;
+      while(pos < 360) {
+        servos[1].setPosition(pos);
+        servos[4].setPosition(pos);
+        device.delay(1000);
+        pos += 10f;
+      }
+      while(pos > 0.1f){
+        servos[1].setPosition(pos);
+        servos[4].setPosition(pos);
+        device.delay(1000);
+        pos -= 10f;
       }
     }
   }
@@ -52,11 +63,11 @@ public class ServoDemo {
   private void rotate(Servo servo) throws IOException {
     for (int x = 0; x < 360; x += 10) {
       servo.setPosition(x);
-      servo.myPWMController.delay(10);
+      servo.myPWMController.delay(50);
     }
     for (int x = 360; x > 0; x -= 10) {
       servo.setPosition(x);
-      servo.myPWMController.delay(10);
+      servo.myPWMController.delay(50);
     }
   }
 

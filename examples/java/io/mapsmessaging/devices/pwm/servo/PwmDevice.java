@@ -31,10 +31,6 @@ public abstract class PwmDevice {
     myPWMController = pwm;
     myServoPort = servoId;
     myResponse = response;
-    setPosition(myResponse.getMin());
-    pwm.delay(500); // allow the servo to get to min
-    setPosition(myResponse.getMax());
-    pwm.delay(500); // allow the servo to get to min
     setPosition(myResponse.getIdle()); // Set to idle position
   }
 
