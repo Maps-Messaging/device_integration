@@ -16,11 +16,9 @@
 
 package io.mapsmessaging.devices.deviceinterfaces;
 
-import java.io.IOException;
-
 public interface Display {
 
-  byte[] getFont() throws IOException;
+  byte[] getFont();
 
   void setFont(byte[] font);
 

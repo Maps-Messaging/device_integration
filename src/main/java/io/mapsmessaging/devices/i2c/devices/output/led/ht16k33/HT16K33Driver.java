@@ -23,7 +23,6 @@ import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Base64;
 
@@ -66,21 +65,18 @@ public abstract class HT16K33Driver extends I2CDevice implements Display {
   }
 
   public byte[] getFont() {
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(1024);
-    for (short c : font) {
-      byteArrayOutputStream.write(((byte) (c >> 8) & 0xff));
-      byteArrayOutputStream.write(((byte) (c) & 0xff));
+    byte[] buffer = new byte[font.length * 2];
+    for (int idx = 0; idx < font.length; idx++) {
+      buffer[idx * 2] = (byte) ((font[idx] >> 8) & 0xff);
+      buffer[(idx * 2) + 1] = (byte) (font[idx] & 0xff);
     }
-    return byteArrayOutputStream.toByteArray();
+    return buffer;
   }
 
   public void setFont(byte[] update) {
     font = new short[update.length / 2];
-    int idx = 0;
-    while (idx < font.length) {
-      int x = idx * 2;
-      font[idx] = (short) (update[x] << 8 | (update[x + 1] & 0xff));
-      idx++;
+    for (int idx = 0; idx < font.length; idx++) {
+      font[idx] = (short) (update[idx * 2] << 8 | (update[idx * 2 + 1] & 0xff));
     }
   }
 
