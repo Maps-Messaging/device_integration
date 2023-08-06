@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.drivers.pca9685;
 
 import io.mapsmessaging.devices.deviceinterfaces.Output;
+import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.drivers.pca9685.registers.*;
 import io.mapsmessaging.devices.impl.AddressableDevice;
@@ -26,7 +27,7 @@ import lombok.Getter;
 import java.io.IOException;
 
 @Getter
-public class Pca9685Device extends I2CDevice implements Output {
+public class Pca9685Device extends I2CDevice implements Resetable, Output {
   private final Mode1Register mode1Register;
   private final Mode2Register mode2Register;
   private final SubAddressRegister subAddressRegister1;
@@ -74,8 +75,6 @@ public class Pca9685Device extends I2CDevice implements Output {
     mode1Register.setSleep(true);
     preScaleRegister.setPWMFrequency(value);
     mode1Register.setSleep(false);
-    delay(5);
-    mode1Register.restart();
   }
 
   public void setPWM(int channel, int on, int off) throws IOException {
@@ -101,5 +100,23 @@ public class Pca9685Device extends I2CDevice implements Output {
   private void initialise() throws IOException {
     mode1Register.reset();
     mode1Register.setAutoIncrement(true);
+    mode1Register.restart();
+  }
+
+  @Override
+  public void reset() throws IOException {
+    initialise();
+    mode1Register.enableAllCall(true);
+    for(LedControlRegister ledControlRegister:ledControlRegisters){
+      ledControlRegister.setRate(0, 0);
+    }
+    setAllPWM(0,0);
+    mode1Register.restart();
+    delay(5);
+  }
+
+  @Override
+  public void softReset() throws IOException {
+    setAllPWM(0,0);
   }
 }
