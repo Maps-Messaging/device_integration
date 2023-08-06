@@ -6,9 +6,7 @@ import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.Logger;
 import io.mapsmessaging.logging.LoggerFactory;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.ServiceLoader;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SpiBusManager {
@@ -32,12 +30,18 @@ public class SpiBusManager {
     }
   }
 
-  public void configureDevices(Map<String, Object> configuration) {
+  public SpiDeviceController configureDevice(String spiName, Map<String, String> configuration) {
+    return mount(spiName, configuration);
+  }
+
+  public List<SpiDeviceController> configureDevices(Map<String, Object> configuration) {
+    List<SpiDeviceController> devices = new ArrayList<>();
     for (Map.Entry<String, Object> entry : configuration.entrySet()) {
       String spiName = entry.getKey();
       Map<String, String> deviceConfig = (Map<String, String>) entry.getValue();
-      mount(spiName, deviceConfig);
+      devices.add(configureDevice(spiName, deviceConfig));
     }
+    return devices;
   }
 
   public SpiDeviceController mount(String name, Map<String, String> config) {

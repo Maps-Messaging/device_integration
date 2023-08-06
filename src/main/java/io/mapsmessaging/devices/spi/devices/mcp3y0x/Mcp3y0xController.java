@@ -19,6 +19,7 @@ package io.mapsmessaging.devices.spi.devices.mcp3y0x;
 import com.pi4j.context.Context;
 import com.pi4j.io.spi.Spi;
 import io.mapsmessaging.devices.NamingConstants;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.devices.spi.SpiDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -28,6 +29,7 @@ import org.everit.json.schema.ObjectSchema;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.List;
 import java.util.Map;
 
 public class Mcp3y0xController extends SpiDeviceController {
@@ -67,6 +69,10 @@ public class Mcp3y0xController extends SpiDeviceController {
   public String getDescription() {
     if (device == null) return "Mcp3y0x";
     return device.getDescription();
+  }
+
+  public List<SensorReading<?>> getSensors() {
+    return device.getSensors();
   }
 
   public byte[] getDeviceConfiguration() {

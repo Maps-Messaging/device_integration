@@ -18,8 +18,15 @@ package io.mapsmessaging.devices.spi.devices.mcp3y0x;
 
 import com.pi4j.io.spi.Spi;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
+import io.mapsmessaging.devices.sensorreadings.IntegerSensorReading;
+import io.mapsmessaging.devices.sensorreadings.ReadingSupplier;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.devices.spi.SpiDevice;
 import lombok.Getter;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Mcp3y0xDevice extends SpiDevice implements Sensor {
 
@@ -32,12 +39,19 @@ public class Mcp3y0xDevice extends SpiDevice implements Sensor {
   protected final int dutyCycle = 100000;
 
   protected final String name;
+  @Getter
+  private final List<SensorReading<?>> sensors;
 
   public Mcp3y0xDevice(Spi spi, int bits, int channels) {
     super(spi);
     this.channels = channels;
     this.bits = bits;
     name = "MCP3" + (bits == 12 ? "2" : "0") + "0" + (channels == 8 ? "8" : "4");
+    sensors = new ArrayList<>();
+    int max = (1 << (bits + 1)) - 1;
+    for (short x = 0; x < channels; x++) {
+      sensors.add(new IntegerSensorReading("Channel-" + x, "", 0, max, new ReadFromChannel(x)));
+    }
   }
 
   /**
@@ -86,5 +100,20 @@ public class Mcp3y0xDevice extends SpiDevice implements Sensor {
   @Override
   public String getDescription() {
     return "Microchip Technology Analog to Digital " + channels + " channel " + bits + " bit convertor";
+  }
+
+
+  private class ReadFromChannel implements ReadingSupplier<Integer> {
+
+    private final short channel;
+
+    public ReadFromChannel(short channel) {
+      this.channel = channel;
+    }
+
+    @Override
+    public Integer get() throws IOException {
+      return readFromChannel(false, channel);
+    }
   }
 }
