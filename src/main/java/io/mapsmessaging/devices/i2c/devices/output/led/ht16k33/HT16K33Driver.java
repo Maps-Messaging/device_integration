@@ -16,17 +16,18 @@
 
 package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
-import io.mapsmessaging.devices.deviceinterfaces.Output;
+import io.mapsmessaging.devices.deviceinterfaces.Display;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Base64;
 
-public abstract class HT16K33Driver extends I2CDevice implements Output {
+public abstract class HT16K33Driver extends I2CDevice implements Display {
 
   private static final byte BRIGHTNESS_COMMAND = (byte) 0xE0;
 
@@ -42,8 +43,11 @@ public abstract class HT16K33Driver extends I2CDevice implements Output {
   @Getter
   private String current;
 
-  protected HT16K33Driver(AddressableDevice device) throws IOException {
+  protected short[] font;
+
+  protected HT16K33Driver(AddressableDevice device, short[] font) throws IOException {
     super(device, LoggerFactory.getLogger(HT16K33Driver.class));
+    this.font = font;
     isOn = false;
     rate = BlinkRate.OFF;
     current = "     ";
@@ -58,6 +62,25 @@ public abstract class HT16K33Driver extends I2CDevice implements Output {
       turnOff();
     } catch (IOException ex) {
       // we might have lost the device, so this will fail
+    }
+  }
+
+  public byte[] getFont() {
+    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(1024);
+    for (short c : font) {
+      byteArrayOutputStream.write(((byte) (c >> 8) & 0xff));
+      byteArrayOutputStream.write(((byte) (c) & 0xff));
+    }
+    return byteArrayOutputStream.toByteArray();
+  }
+
+  public void setFont(byte[] update) {
+    font = new short[update.length / 2];
+    int idx = 0;
+    while (idx < font.length) {
+      int x = idx * 2;
+      font[idx] = (short) (update[x] << 8 | (update[x + 1] & 0xff));
+      idx++;
     }
   }
 

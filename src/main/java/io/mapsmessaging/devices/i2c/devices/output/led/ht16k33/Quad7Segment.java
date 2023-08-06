@@ -25,7 +25,7 @@ public class Quad7Segment extends HT16K33Driver {
   private final byte[] buf = new byte[10];
 
   public Quad7Segment(AddressableDevice device) throws IOException {
-    super(device);
+    super(device, Constants.NUMERIC_MAPPING);
     write("     ");
   }
 
@@ -41,7 +41,7 @@ public class Quad7Segment extends HT16K33Driver {
           map = -1;
         } else {
           int index = (c - 0x30);
-          map = Constants.NUMERIC_MAPPING[index];
+          map = (byte) (font[index] & 0x7f);
         }
       }
       buf[bufIdx * 2] = (byte) (map & 0xff);

@@ -25,7 +25,7 @@ public class QuadAlphaNumeric extends HT16K33Driver {
   private final byte[] buf = new byte[8];
 
   public QuadAlphaNumeric(AddressableDevice device) throws IOException {
-    super(device);
+    super(device, Constants.ALPHA_NUMERIC_MAPPING);
   }
 
   public byte[] encode(String val) {
@@ -34,7 +34,7 @@ public class QuadAlphaNumeric extends HT16K33Driver {
     int len = val.length();
     int bufIdx = 0;
     for (int x = 0; x < len; x++) {
-      short map = Constants.ALPHA_NUMERIC_MAPPING[val.charAt(x)];
+      short map = font[val.charAt(x)];
       buf[bufIdx * 2] = (byte) (map & 0xff);
       buf[bufIdx * 2 + 1] = (byte) ((map >> 8) & 0xff);
       if (x + 1 < len && val.charAt(x + 1) == '.') {
