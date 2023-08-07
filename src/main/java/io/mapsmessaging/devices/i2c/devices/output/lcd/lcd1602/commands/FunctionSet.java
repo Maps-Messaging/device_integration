@@ -20,6 +20,6 @@ import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.C
 
 public class FunctionSet extends Command {
   public FunctionSet() {
-    super(CONTROL);
+    super(CONTROL, (byte)0);
   }
 }

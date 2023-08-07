@@ -20,6 +20,6 @@ import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.C
 
 public class SetCgramAddress extends Command {
   public SetCgramAddress() {
-    super(CONTROL);
+    super(CONTROL, (byte)0);
   }
 }
