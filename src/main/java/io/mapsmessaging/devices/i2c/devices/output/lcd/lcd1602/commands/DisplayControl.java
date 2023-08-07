@@ -17,9 +17,9 @@
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands;
 
 import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Constants.CONTROL;
-import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Constants.DISPLAY_CONTROL;
 
 public class DisplayControl extends Command {
+  private static final byte DISPLAY_CONTROL = 0x08;
 
   private static final byte DISPLAY_ON = 0x04;
   private static final byte CURSOR_ON = 0x02;

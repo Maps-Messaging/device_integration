@@ -21,13 +21,4 @@ public class Constants {
   public static final byte CONTROL = (byte) 0b10000000;
   public static final byte RS = (byte) 0b01000000;
 
-  public static final byte CLEAR_DISPLAY = 0x01;
-  public static final byte RETURN_HOME = 0x02;
-  public static final byte ENTRY_MODE_SET = 0x04;
-  public static final byte DISPLAY_CONTROL = 0x08;
-  public static final byte CURSOR_SHIFT = 0x10;
-  public static final byte FUNCTION_SET = 0x20;
-  public static final byte SET_CGRAM_ADDR = 0x40;
-  public static final byte SET_DDRAM_ADDR = (byte) 0x80;
-  
 }

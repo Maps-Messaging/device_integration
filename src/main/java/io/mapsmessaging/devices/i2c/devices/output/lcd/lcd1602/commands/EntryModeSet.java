@@ -17,28 +17,30 @@
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands;
 
 import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Constants.CONTROL;
-import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Constants.ENTRY_MODE_SET;
 
 public class EntryModeSet extends Command {
+
+  private static final byte ENTRY_MODE_SET = 0x04;
+  private static final byte ENTRY_LEFT = 0x02;
+  private static final byte ENTRY_SHIFT_INCREMENT = 0x01;
+
   public EntryModeSet() {
     super(CONTROL, ENTRY_MODE_SET);
   }
 
-  public void setIncrementByOne(boolean flag) {
-    if (flag) {
-      buffer[1] = (byte) (buffer[1] | 0b10);
-    } else {
-      buffer[1] = (byte) (buffer[1] & 0b101);
-    }
+  public void leftToRight() {
+    buffer[1] = (byte) (buffer[1] | ENTRY_LEFT);
   }
 
-  public void shitDisplay(boolean flag) {
-    if (flag) {
-      buffer[1] = (byte) (buffer[1] | 0b1);
-    } else {
-      buffer[1] = (byte) (buffer[1] & 0b110);
-    }
-
+  public void rightToLeft() {
+    buffer[1] = (byte) (buffer[1] & ~ENTRY_LEFT);
   }
 
+  public void noAutoScroll() {
+    buffer[1] = (byte) (buffer[1] & ~ENTRY_SHIFT_INCREMENT);
+  }
+
+  public void autoScroll() {
+    buffer[1] = (byte) (buffer[1] | ENTRY_SHIFT_INCREMENT);
+  }
 }

@@ -17,10 +17,16 @@
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands;
 
 import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Constants.CONTROL;
-import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Constants.RETURN_HOME;
 
-public class ReturnHome extends Command {
-  public ReturnHome() {
-    super(CONTROL, RETURN_HOME);
+public class CursorHome extends Command {
+  private static final byte CURSOR_HOME = 0x02;
+
+  public CursorHome() {
+    super(CONTROL, CURSOR_HOME);
   }
+
+  public int getCycleTime() {
+    return 2;
+  }
+
 }

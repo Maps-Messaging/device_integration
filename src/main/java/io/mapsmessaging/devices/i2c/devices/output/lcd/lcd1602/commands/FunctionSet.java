@@ -17,9 +17,11 @@
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands;
 
 import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Constants.CONTROL;
-import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Constants.FUNCTION_SET;
 
 public class FunctionSet extends Command {
+
+  private static final byte FUNCTION_SET = 0x20;
+
   public FunctionSet() {
     super(CONTROL, FUNCTION_SET);
   }

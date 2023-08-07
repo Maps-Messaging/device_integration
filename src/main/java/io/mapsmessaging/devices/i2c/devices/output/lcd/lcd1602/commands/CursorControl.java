@@ -17,11 +17,17 @@
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands;
 
 import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Constants.CONTROL;
-import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Constants.CURSOR_SHIFT;
 
 public class CursorControl extends Command {
 
-  protected CursorControl() {
+  private static final byte CURSOR_SHIFT = 0x10;
+
+  private static final byte DISPLAY_MOVE = 0x08;
+  private static final byte CURSOR_MOVE = 0x00;
+  private static final byte MOVE_RIGHT = 0x04;
+  private static final byte MOVE_LEFT = 0x00;
+
+  public CursorControl() {
     super(CONTROL, CURSOR_SHIFT);
   }
 
@@ -33,12 +39,20 @@ public class CursorControl extends Command {
     }
   }
 
-  public void setLeft(boolean flag) {
-    if (flag) {
-      buffer[1] = (byte) (buffer[1] | 0b00100);
-    } else {
-      buffer[1] = (byte) (buffer[1] | 0b11011);
-    }
+  public void moveCursorLeft() {
+    buffer[1] = CURSOR_SHIFT | CURSOR_MOVE | MOVE_LEFT;
+  }
+
+  public void moveCursorRight() {
+    buffer[1] = CURSOR_SHIFT | CURSOR_MOVE | MOVE_RIGHT;
+  }
+
+  public void scrollDisplayLeft() {
+    buffer[1] = CURSOR_SHIFT | DISPLAY_MOVE | MOVE_LEFT;
+  }
+
+  public void scrollDisplayRight() {
+    buffer[1] = CURSOR_SHIFT | DISPLAY_MOVE | MOVE_RIGHT;
   }
 
 }

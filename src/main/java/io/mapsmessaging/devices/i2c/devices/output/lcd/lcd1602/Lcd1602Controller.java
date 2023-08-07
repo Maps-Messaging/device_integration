@@ -18,6 +18,7 @@ package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
+import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -42,7 +43,10 @@ public class Lcd1602Controller extends I2CDeviceController {
 
   protected Lcd1602Controller(AddressableDevice device) throws IOException {
     super(device);
-    display = new Lcd1602Device(device);
+    synchronized (I2CDeviceScheduler.getI2cBusLock()) {
+      display = new Lcd1602Device(device);
+      display.setDisplay("Hello..123456789Second Line here!");
+    }
   }
 
   public I2CDevice getDevice() {
@@ -84,6 +88,6 @@ public class Lcd1602Controller extends I2CDeviceController {
 
   @Override
   public int[] getAddressRange() {
-    return new int[]{0X7C};
+    return new int[]{0x40};
   }
 }

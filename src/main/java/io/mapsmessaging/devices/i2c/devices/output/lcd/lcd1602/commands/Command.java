@@ -24,9 +24,13 @@ public class Command {
   protected byte[] buffer;
 
   protected Command(byte controlByte, byte data) {
-    buffer = new byte[3];
+    buffer = new byte[2];
     buffer[0] = controlByte;
     buffer[1] = data;
+  }
+
+  public int getCycleTime() {
+    return 1;
   }
 
 }
