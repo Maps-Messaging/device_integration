@@ -17,25 +17,26 @@
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands;
 
 import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Constants.CONTROL;
+import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Constants.ENTRY_MODE_SET;
 
 public class EntryModeSet extends Command {
   public EntryModeSet() {
-    super(CONTROL, (byte) 0b100);
+    super(CONTROL, ENTRY_MODE_SET);
   }
 
   public void setIncrementByOne(boolean flag) {
     if (flag) {
-      data = (byte) (data | 0b10);
+      buffer[1] = (byte) (buffer[1] | 0b10);
     } else {
-      data = (byte) (data & 0b101);
+      buffer[1] = (byte) (buffer[1] & 0b101);
     }
   }
 
   public void shitDisplay(boolean flag) {
     if (flag) {
-      data = (byte) (data | 0b1);
+      buffer[1] = (byte) (buffer[1] | 0b1);
     } else {
-      data = (byte) (data & 0b110);
+      buffer[1] = (byte) (buffer[1] & 0b110);
     }
 
   }

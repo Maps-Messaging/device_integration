@@ -17,25 +17,27 @@
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands;
 
 import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Constants.CONTROL;
+import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Constants.CURSOR_SHIFT;
 
 public class CursorControl extends Command {
+
   protected CursorControl() {
-    super(CONTROL, (byte) 0b10000);
+    super(CONTROL, CURSOR_SHIFT);
   }
 
   public void moveCursor(boolean flag) {
     if (flag) {
-      data = (byte) (data | 0b01000);
+      buffer[1] = (byte) (buffer[1] | 0b01000);
     } else {
-      data = (byte) (data & 0b10111);
+      buffer[1] = (byte) (buffer[1] & 0b10111);
     }
   }
 
   public void setLeft(boolean flag) {
     if (flag) {
-      data = (byte) (data | 0b00100);
+      buffer[1] = (byte) (buffer[1] | 0b00100);
     } else {
-      data = (byte) (data | 0b11011);
+      buffer[1] = (byte) (buffer[1] | 0b11011);
     }
   }
 

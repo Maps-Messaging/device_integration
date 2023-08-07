@@ -17,9 +17,10 @@
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands;
 
 import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Constants.CONTROL;
+import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Constants.RETURN_HOME;
 
 public class ReturnHome extends Command {
   public ReturnHome() {
-    super(CONTROL, (byte) 0b10);
+    super(CONTROL, RETURN_HOME);
   }
 }

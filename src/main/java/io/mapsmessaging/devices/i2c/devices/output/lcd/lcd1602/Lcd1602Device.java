@@ -18,13 +18,21 @@ package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602;
 
 import io.mapsmessaging.devices.deviceinterfaces.Output;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.ClearDisplay;
+import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Command;
+import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.DisplayControl;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.logging.LoggerFactory;
 
 public class Lcd1602Device extends I2CDevice implements Output {
 
+  private final ClearDisplay clearDisplay;
+  private final DisplayControl displayControl;
+
   protected Lcd1602Device(AddressableDevice device) {
     super(device, LoggerFactory.getLogger(Lcd1602Device.class));
+    displayControl = new DisplayControl();
+    clearDisplay = new ClearDisplay();
   }
 
   @Override
@@ -41,4 +49,29 @@ public class Lcd1602Device extends I2CDevice implements Output {
   public boolean isConnected() {
     return false;
   }
+
+  public void clearDisplay() {
+    sendCommand(clearDisplay);
+  }
+
+  public void setDisplayOn(boolean flag) {
+    displayControl.setDisplayOn(flag);
+    sendCommand(displayControl);
+  }
+
+  public void setCursorOn(boolean flag) {
+    displayControl.setCursorOn(flag);
+    sendCommand(displayControl);
+  }
+
+  public void setBlinkingOn(boolean flag) {
+    displayControl.setBlinkingOn(flag);
+    sendCommand(displayControl);
+  }
+
+  private void sendCommand(Command command) {
+    device.write(command.getBuffer());
+    delay(2);
+  }
+
 }

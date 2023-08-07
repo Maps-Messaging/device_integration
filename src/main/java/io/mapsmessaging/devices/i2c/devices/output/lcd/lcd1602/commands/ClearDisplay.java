@@ -16,10 +16,11 @@
 
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands;
 
+import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Constants.CLEAR_DISPLAY;
 import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Constants.CONTROL;
 
 public class ClearDisplay extends Command {
-  protected ClearDisplay() {
-    super(CONTROL, (byte) 0b1);
+  public ClearDisplay() {
+    super(CONTROL, CLEAR_DISPLAY);
   }
 }

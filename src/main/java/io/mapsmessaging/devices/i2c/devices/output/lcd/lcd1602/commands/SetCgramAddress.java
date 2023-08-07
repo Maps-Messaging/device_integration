@@ -17,9 +17,10 @@
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands;
 
 import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Constants.CONTROL;
+import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Constants.SET_CGRAM_ADDR;
 
 public class SetCgramAddress extends Command {
   public SetCgramAddress() {
-    super(CONTROL, (byte)0);
+    super(CONTROL, SET_CGRAM_ADDR);
   }
 }

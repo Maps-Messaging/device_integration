@@ -8,6 +8,10 @@ public interface AddressableDevice {
 
   int write(int val);
 
+  default int write(byte[] buffer) {
+    return write(buffer, 0, buffer.length);
+  }
+
   int write(byte[] buffer, int offset, int length);
 
   int writeRegister(int register, byte[] data);

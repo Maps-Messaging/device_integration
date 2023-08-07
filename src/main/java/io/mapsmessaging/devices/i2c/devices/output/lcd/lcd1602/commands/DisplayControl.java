@@ -17,33 +17,39 @@
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands;
 
 import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Constants.CONTROL;
+import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Constants.DISPLAY_CONTROL;
 
 public class DisplayControl extends Command {
+
+  private static final byte DISPLAY_ON = 0x04;
+  private static final byte CURSOR_ON = 0x02;
+  private static final byte BLINK_ON = 0x01;
+
   public DisplayControl() {
-    super(CONTROL, (byte) 0b1000);
+    super(CONTROL, DISPLAY_CONTROL);
   }
 
   public void setDisplayOn(boolean flag) {
     if (flag) {
-      data = (byte) (data | 0b0100);
+      buffer[1] = (byte) (buffer[1] | DISPLAY_ON);
     } else {
-      data = (byte) (data & 0b1011);
+      buffer[1] = (byte) (buffer[1] & ~DISPLAY_ON);
     }
   }
 
   public void setCursorOn(boolean flag) {
     if (flag) {
-      data = (byte) (data | 0b0010);
+      buffer[1] = (byte) (buffer[1] | CURSOR_ON);
     } else {
-      data = (byte) (data & 0b1101);
+      buffer[1] = (byte) (buffer[1] & ~CURSOR_ON);
     }
   }
 
   public void setBlinkingOn(boolean flag) {
     if (flag) {
-      data = (byte) (data | 0b0001);
+      buffer[1] = (byte) (buffer[1] | BLINK_ON);
     } else {
-      data = (byte) (data & 0b1110);
+      buffer[1] = (byte) (buffer[1] & ~BLINK_ON);
     }
   }
 }

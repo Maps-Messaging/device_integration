@@ -16,13 +16,17 @@
 
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands;
 
-public class Command {
-  private final byte controlByte;
-  protected byte data;
+import lombok.Getter;
 
+public class Command {
+
+  @Getter
+  protected byte[] buffer;
 
   protected Command(byte controlByte, byte data) {
-    this.controlByte = controlByte;
-    this.data = data;
+    buffer = new byte[3];
+    buffer[0] = controlByte;
+    buffer[1] = data;
   }
+
 }

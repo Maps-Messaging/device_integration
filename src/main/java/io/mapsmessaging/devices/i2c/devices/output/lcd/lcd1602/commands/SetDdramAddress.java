@@ -17,9 +17,10 @@
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands;
 
 import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Constants.CONTROL;
+import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.Constants.SET_DDRAM_ADDR;
 
 public class SetDdramAddress extends Command {
   public SetDdramAddress() {
-    super(CONTROL,(byte)0);
+    super(CONTROL, SET_DDRAM_ADDR);
   }
 }
