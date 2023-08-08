@@ -54,6 +54,7 @@ public class Lcd1602Device extends I2CDevice implements Output {
     sendCommand(displayControl);
     clearDisplay();
     cursorHome();
+    noAutoScroll();
   }
 
   @Override

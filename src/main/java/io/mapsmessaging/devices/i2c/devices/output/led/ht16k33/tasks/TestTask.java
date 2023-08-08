@@ -1,6 +1,7 @@
 package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks;
 
 import io.mapsmessaging.devices.DeviceBusManager;
+import io.mapsmessaging.devices.i2c.devices.output.Task;
 import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.HT16K33Controller;
 import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.Panel;
 import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.SevenSegmentLed;

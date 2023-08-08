@@ -18,8 +18,8 @@ package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
+import io.mapsmessaging.devices.i2c.devices.output.Task;
 import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks.Clock;
-import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks.Task;
 import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks.TestTask;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;

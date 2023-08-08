@@ -19,6 +19,7 @@ package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
+import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.task.Clock;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -26,9 +27,6 @@ import lombok.Getter;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.time.LocalDate;
-
-import static io.mapsmessaging.devices.i2c.devices.output.TimeHelper.getTime;
 
 public class Lcd1602Controller extends I2CDeviceController {
 
@@ -49,22 +47,7 @@ public class Lcd1602Controller extends I2CDeviceController {
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       display = new Lcd1602Device(device);
       display.clearDisplay();
-      Thread t = new Thread(() -> {
-        boolean hasColon = true;
-        while(true){
-          LocalDate date = LocalDate.now();
-
-          synchronized (I2CDeviceScheduler.getI2cBusLock()) {
-            display.delay(900);
-            String time = getTime(hasColon, true);
-            display.setCursor((byte)1, (byte)0);
-            display.setDisplay(time);
-            display.setCursor((byte)0, (byte)0);
-            display.setDisplay(date.toString());
-            hasColon = !hasColon;
-          }
-        }
-      });
+      Thread t = new Thread( new Clock(this));
       t.setDaemon(true);
       t.start();
     }
