@@ -48,11 +48,12 @@ public class Lcd1602Device extends I2CDevice implements Output {
     functionSet.set2LineDisplay();
     functionSet.set5by10Font();
     sendCommand(functionSet);
+    displayControl.setDisplayOn(true);
+    displayControl.setCursorOn(false);
+    displayControl.setBlinkingOn(false);
+    sendCommand(displayControl);
     clearDisplay();
     cursorHome();
-    setDisplayOn(true);
-    setCursorOn(false);
-    setBlinkingOn(false);
   }
 
   @Override
