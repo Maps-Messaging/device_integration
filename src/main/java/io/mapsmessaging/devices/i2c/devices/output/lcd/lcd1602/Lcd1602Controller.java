@@ -57,9 +57,9 @@ public class Lcd1602Controller extends I2CDeviceController {
           synchronized (I2CDeviceScheduler.getI2cBusLock()) {
             display.delay(900);
             String time = getTime(hasColon, true);
-            display.setCursor((byte)0, (byte)0);
-            display.setDisplay(time);
             display.setCursor((byte)1, (byte)0);
+            display.setDisplay(time);
+            display.setCursor((byte)0, (byte)0);
             display.setDisplay(date.toString());
             hasColon = !hasColon;
           }
