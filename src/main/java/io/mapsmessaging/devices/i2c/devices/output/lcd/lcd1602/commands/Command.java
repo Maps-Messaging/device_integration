@@ -33,4 +33,8 @@ public class Command {
     return 1;
   }
 
+  public int repeatCount(){
+    return 0;
+  }
+
 }

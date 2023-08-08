@@ -29,6 +29,8 @@ public class Lcd1602Device extends I2CDevice implements Output {
   private final CursorControl cursorControl;
   private final CursorHome cursorHome;
   private final EntryModeSet entryModeSet;
+  private final FunctionSet functionSet;
+  private final SetDdramAddress setDdramAddress;
 
   protected Lcd1602Device(AddressableDevice device) {
     super(device, LoggerFactory.getLogger(Lcd1602Device.class));
@@ -37,15 +39,20 @@ public class Lcd1602Device extends I2CDevice implements Output {
     cursorControl = new CursorControl();
     cursorHome = new CursorHome();
     entryModeSet = new EntryModeSet();
+    functionSet = new FunctionSet();
+    setDdramAddress = new SetDdramAddress();
     initialise();
   }
 
   public void initialise() {
+    functionSet.set2LineDisplay();
+    functionSet.set5by10Font();
+    sendCommand(functionSet);
     clearDisplay();
     cursorHome();
     setDisplayOn(true);
-    setCursorOn(true);
-    setBlinkingOn(true);
+    setCursorOn(false);
+    setBlinkingOn(false);
   }
 
   @Override
@@ -64,7 +71,6 @@ public class Lcd1602Device extends I2CDevice implements Output {
   }
 
   public void setDisplay(String text) {
-    cursorHome();
     byte[] buf = new byte[2];
     buf[0] = 0x40;
     byte[] str = text.getBytes();
@@ -81,6 +87,31 @@ public class Lcd1602Device extends I2CDevice implements Output {
 
   public void cursorHome() {
     sendCommand(cursorHome);
+  }
+
+  public void setCursor(byte row, byte col){
+    setDdramAddress.setCursor(row, col);
+    sendCommand(setDdramAddress);
+  }
+
+  public void set5by10Font(){
+    functionSet.set5by10Font();
+    sendCommand(functionSet);
+  }
+
+  public void set5by8Font(){
+    functionSet.set5by8Font();
+    sendCommand(functionSet);
+  }
+
+  public void set2LineDisplay(){
+    functionSet.set2LineDisplay();
+    sendCommand(functionSet);
+  }
+
+  public void set1LineDisplay(){
+    functionSet.set1LineDisplay();
+    sendCommand(functionSet);
   }
 
   public void setDisplayOn(boolean flag) {
@@ -129,8 +160,11 @@ public class Lcd1602Device extends I2CDevice implements Output {
   }
 
   private void sendCommand(Command command) {
-    device.write(command.getBuffer());
-    delay(command.getCycleTime());
+    int repeat = command.repeatCount()+1;
+    for(int x=0;x<repeat;x++) {
+      device.write(command.getBuffer());
+      delay(command.getCycleTime());
+    }
   }
 
 

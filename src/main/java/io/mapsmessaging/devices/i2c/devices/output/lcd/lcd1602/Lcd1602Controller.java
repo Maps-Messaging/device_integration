@@ -26,6 +26,7 @@ import lombok.Getter;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.time.LocalDate;
 
 import static io.mapsmessaging.devices.i2c.devices.output.TimeHelper.getTime;
 
@@ -51,10 +52,15 @@ public class Lcd1602Controller extends I2CDeviceController {
       Thread t = new Thread(() -> {
         boolean hasColon = true;
         while(true){
+          LocalDate date = LocalDate.now();
+
           synchronized (I2CDeviceScheduler.getI2cBusLock()) {
             display.delay(900);
-            display.cursorHome();
-            display.setDisplay(getTime(hasColon, true));
+            String time = getTime(hasColon, true);
+            display.setCursor((byte)0, (byte)0);
+            display.setDisplay(time);
+            display.setCursor((byte)1, (byte)0);
+            display.setDisplay(date.toString());
             hasColon = !hasColon;
           }
         }

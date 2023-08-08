@@ -25,4 +25,8 @@ public class SetDdramAddress extends Command {
   public SetDdramAddress() {
     super(CONTROL, SET_DDRAM_ADDR);
   }
+
+  public void setCursor(byte row, byte col){
+    buffer[1] = (byte) (SET_DDRAM_ADDR | (row == 0 ? col : col|0x40) );
+  }
 }
