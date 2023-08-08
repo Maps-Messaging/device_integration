@@ -24,6 +24,9 @@ import java.io.IOException;
 
 public class BacklightRGBV2PwmController extends BacklightPwmController {
 
+  public BacklightRGBV2PwmController() {
+  }
+
   protected BacklightRGBV2PwmController(AddressableDevice device) {
     super(device, new BacklightRGBV2Pwm(device));
   }

@@ -24,6 +24,9 @@ import java.io.IOException;
 
 public class BacklightV1_1PwmController extends BacklightPwmController {
 
+  public BacklightV1_1PwmController() {
+  }
+
   protected BacklightV1_1PwmController(AddressableDevice device) throws IOException {
     super(device, new BacklightV1_1Pwm(device));
   }

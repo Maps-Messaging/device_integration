@@ -23,6 +23,8 @@ import io.mapsmessaging.devices.impl.AddressableDevice;
 import java.io.IOException;
 
 public class BacklightRGBV1PwmController extends BacklightPwmController {
+  public BacklightRGBV1PwmController() {
+  }
 
   protected BacklightRGBV1PwmController(AddressableDevice device) {
     super(device, new BacklightRGBV1Pwm(device));
