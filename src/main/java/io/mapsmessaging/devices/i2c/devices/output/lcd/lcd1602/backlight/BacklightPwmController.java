@@ -1,8 +1,23 @@
-package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602;
+/*
+ *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
+ *
+ *      Licensed under the Apache License, Version 2.0 (the "License");
+ *      you may not use this file except in compliance with the License.
+ *      You may obtain a copy of the License at
+ *
+ *          http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *      Unless required by applicable law or agreed to in writing, software
+ *      distributed under the License is distributed on an "AS IS" BASIS,
+ *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *      See the License for the specific language governing permissions and
+ *      limitations under the License.
+ */
+
+package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.backlight;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
-import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -11,9 +26,9 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class BacklightPwmController  extends I2CDeviceController {
+public abstract class BacklightPwmController extends I2CDeviceController {
 
-  private final BacklightPwm pwmController;
+  protected final BacklightPwm pwmController;
 
   @Getter
   private final String name = "PwmController";
@@ -21,15 +36,13 @@ public class BacklightPwmController  extends I2CDeviceController {
   private final String description = "LCD1602 16*2 lcd display";
 
   // Used during ServiceLoading
-  public BacklightPwmController() {
+  protected BacklightPwmController() {
     pwmController = null;
   }
 
-  protected BacklightPwmController(AddressableDevice device) throws IOException {
+  protected BacklightPwmController(AddressableDevice device, BacklightPwm pwmController) {
     super(device);
-    synchronized (I2CDeviceScheduler.getI2cBusLock()) {
-      pwmController = new BacklightPwm(device);
-    }
+    this.pwmController = pwmController;
   }
 
   public I2CDevice getDevice() {
@@ -39,10 +52,6 @@ public class BacklightPwmController  extends I2CDeviceController {
   @Override
   public boolean detect(AddressableDevice i2cDevice) {
     return pwmController != null && pwmController.isConnected();
-  }
-
-  public I2CDeviceController mount(AddressableDevice device) throws IOException {
-    return new BacklightPwmController(device);
   }
 
   public byte[] getDeviceConfiguration() throws IOException {
@@ -67,10 +76,5 @@ public class BacklightPwmController  extends I2CDeviceController {
     config.setResourceType("sensor");
     config.setInterfaceDescription("temperature, humidity");
     return config;
-  }
-
-  @Override
-  public int[] getAddressRange() {
-    return new int[]{0x60};
   }
 }
