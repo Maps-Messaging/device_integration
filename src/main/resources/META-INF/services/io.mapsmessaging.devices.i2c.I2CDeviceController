@@ -51,3 +51,4 @@ io.mapsmessaging.devices.i2c.devices.drivers.pca9685.Pca9685Controller
 io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.Quad7SegmentController
 io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.QuadAlphaNumericController
 io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.Lcd1602Controller
+io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.BacklightPwmController

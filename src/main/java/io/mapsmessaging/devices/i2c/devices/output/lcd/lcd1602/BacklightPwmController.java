@@ -1,19 +1,3 @@
-/*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
- *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
- *
- *          http://www.apache.org/licenses/LICENSE-2.0
- *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
- */
-
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
@@ -27,66 +11,50 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-import static io.mapsmessaging.devices.i2c.devices.output.TimeHelper.getTime;
+public class BacklightPwmController  extends I2CDeviceController {
 
-public class Lcd1602Controller extends I2CDeviceController {
-
-  private final Lcd1602Device display;
+  private final BacklightPwm pwmController;
 
   @Getter
-  private final String name = "LCD1602";
+  private final String name = "PwmController";
   @Getter
   private final String description = "LCD1602 16*2 lcd display";
 
   // Used during ServiceLoading
-  public Lcd1602Controller() {
-    display = null;
+  public BacklightPwmController() {
+    pwmController = null;
   }
 
-  protected Lcd1602Controller(AddressableDevice device) throws IOException {
+  protected BacklightPwmController(AddressableDevice device) throws IOException {
     super(device);
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
-      display = new Lcd1602Device(device);
-      display.clearDisplay();
-      Thread t = new Thread(() -> {
-        boolean hasColon = true;
-        while(true){
-          synchronized (I2CDeviceScheduler.getI2cBusLock()) {
-            display.delay(900);
-            display.cursorHome();
-            display.setDisplay(getTime(hasColon, true));
-            hasColon = !hasColon;
-          }
-        }
-      });
-      t.setDaemon(true);
-      t.start();
+      pwmController = new BacklightPwm(device);
     }
   }
 
   public I2CDevice getDevice() {
-    return display;
+    return pwmController;
   }
 
   @Override
   public boolean detect(AddressableDevice i2cDevice) {
-    return display != null && display.isConnected();
+    return pwmController != null && pwmController.isConnected();
   }
 
   public I2CDeviceController mount(AddressableDevice device) throws IOException {
-    return new Lcd1602Controller(device);
+    return new BacklightPwmController(device);
   }
 
   public byte[] getDeviceConfiguration() throws IOException {
     JSONObject jsonObject = new JSONObject();
-    if (display != null) {
+    if (pwmController != null) {
     }
     return jsonObject.toString(2).getBytes();
   }
 
   public byte[] getDeviceState() throws IOException {
     JSONObject jsonObject = new JSONObject();
-    if (display != null) {
+    if (pwmController != null) {
     }
     return jsonObject.toString(2).getBytes();
   }
@@ -103,6 +71,6 @@ public class Lcd1602Controller extends I2CDeviceController {
 
   @Override
   public int[] getAddressRange() {
-    return new int[]{0x3e};
+    return new int[]{0x60};
   }
 }

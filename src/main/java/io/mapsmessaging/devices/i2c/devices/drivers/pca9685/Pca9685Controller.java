@@ -28,7 +28,7 @@ import java.io.IOException;
 
 public class Pca9685Controller extends I2CDeviceController {
 
-  private static final int i2cAddr = 0x41;
+  private static final int i2cAddr = 0x40;
   private final Pca9685Device device;
 
   @Getter
