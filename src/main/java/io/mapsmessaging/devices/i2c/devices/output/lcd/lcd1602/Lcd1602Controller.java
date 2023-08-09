@@ -99,7 +99,6 @@ public class Lcd1602Controller extends I2CDeviceController {
     return objectMapper2.writeValueAsString(response).getBytes();
   }
 
-
   public byte[] getDeviceConfiguration() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (display != null) {
@@ -111,6 +110,7 @@ public class Lcd1602Controller extends I2CDeviceController {
   public byte[] getDeviceState() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (display != null) {
+      //
     }
     return jsonObject.toString(2).getBytes();
   }

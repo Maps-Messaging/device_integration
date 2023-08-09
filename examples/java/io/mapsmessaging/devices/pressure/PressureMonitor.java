@@ -91,6 +91,5 @@ public class PressureMonitor implements Runnable {
         new PressureMonitor((Lps25Sensor) sensor);
       }
     }
-
   }
 }

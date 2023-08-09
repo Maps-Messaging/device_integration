@@ -25,4 +25,8 @@ public class SetCgramAddress extends Command {
   public SetCgramAddress() {
     super(CONTROL, SET_CGRAM_ADDR);
   }
+
+  public void setLocation(byte location) {
+    buffer[1] = (byte) ((SET_CGRAM_ADDR & 0xff) | (location & 0x7) << 3);
+  }
 }

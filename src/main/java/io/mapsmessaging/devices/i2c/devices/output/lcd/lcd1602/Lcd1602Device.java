@@ -35,6 +35,7 @@ public class Lcd1602Device extends I2CDevice implements Output, Storage {
   private final EntryModeSet entryModeSet;
   private final FunctionSet functionSet;
   private final SetDdramAddress setDdramAddress;
+  private final SetCgramAddress setCgramAddress;
 
   private byte[] buffer;
   private int cursorPos;
@@ -53,6 +54,8 @@ public class Lcd1602Device extends I2CDevice implements Output, Storage {
     entryModeSet = new EntryModeSet();
     functionSet = new FunctionSet();
     setDdramAddress = new SetDdramAddress();
+    setCgramAddress = new SetCgramAddress();
+
     rows = 2;
     columns = 16;
     cursorPos = 0;
@@ -118,6 +121,15 @@ public class Lcd1602Device extends I2CDevice implements Output, Storage {
     for (byte datum : data) {
       writeChar(datum);
     }
+  }
+
+  public void customFont(byte location, byte[] charmap) {
+    setCgramAddress.setLocation(location);
+    sendCommand(setCgramAddress);
+    byte[] data = new byte[9];
+    data[0] = 0x40;
+    System.arraycopy(charmap, 0, data, 1, 8);
+    device.write(data);
   }
 
   public void clearDisplay() {
