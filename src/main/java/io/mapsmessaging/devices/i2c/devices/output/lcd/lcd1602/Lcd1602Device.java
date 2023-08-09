@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602;
 
 import io.mapsmessaging.devices.deviceinterfaces.Output;
+import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Storage;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.*;
@@ -26,7 +27,7 @@ import lombok.Getter;
 
 import java.io.IOException;
 
-public class Lcd1602Device extends I2CDevice implements Output, Storage {
+public class Lcd1602Device extends I2CDevice implements Output, Storage, Resetable {
 
   private final ClearDisplay clearDisplay;
   private final DisplayControl displayControl;
@@ -68,10 +69,11 @@ public class Lcd1602Device extends I2CDevice implements Output, Storage {
       functionSet.set2LineDisplay();
     }
     functionSet.set5by10Font();
-    sendCommand(functionSet);
     displayControl.setDisplayOn(true);
     displayControl.setCursorOn(false);
     displayControl.setBlinkingOn(false);
+
+    sendCommand(functionSet);
     sendCommand(displayControl);
     clearDisplay();
     cursorHome();
@@ -267,5 +269,15 @@ public class Lcd1602Device extends I2CDevice implements Output, Storage {
       device.write(command.getBuffer());
       delay(command.getCycleTime());
     }
+  }
+
+  @Override
+  public void reset() throws IOException {
+    initialise();
+  }
+
+  @Override
+  public void softReset() throws IOException {
+    clearDisplay();
   }
 }
