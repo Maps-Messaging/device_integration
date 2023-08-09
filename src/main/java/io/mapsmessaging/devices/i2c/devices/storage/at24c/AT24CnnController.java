@@ -83,7 +83,6 @@ public class AT24CnnController extends I2CDeviceController {
     return objectMapper2.writeValueAsString(response).getBytes();
   }
 
-
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig();
     config.setComments("i2c device AT24C32/64 eeprom");

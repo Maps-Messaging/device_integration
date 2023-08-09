@@ -16,9 +16,15 @@
 
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
+import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.data.ActionType;
+import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.data.Lcd1602Command;
+import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.data.Lcd1602Response;
 import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.task.Clock;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
@@ -68,9 +74,36 @@ public class Lcd1602Controller extends I2CDeviceController {
     return new Lcd1602Controller(device);
   }
 
+  @Override
+  public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    JavaType type = objectMapper.getTypeFactory().constructType(Lcd1602Command.class);
+    Lcd1602Command command = objectMapper.readValue(new String(val), type);
+    Lcd1602Response response = null;
+    if (display != null) {
+      if (command.getAction() == ActionType.READ) {
+        byte[] data = display.readBlock(command.getAddress(), command.getLength());
+        response = new Lcd1602Response("Success", data);
+      } else if (command.getAction() == ActionType.WRITE) {
+        display.writeBlock(command.getAddress(), command.getData());
+        response = new Lcd1602Response("Success", new byte[0]);
+      } else if (command.getAction() == ActionType.CLEAR) {
+        display.clearDisplay();
+        response = new Lcd1602Response("Success", new byte[0]);
+      }
+    } else {
+      response = new Lcd1602Response("Error", new byte[0]);
+    }
+    ObjectMapper objectMapper2 = new ObjectMapper();
+    return objectMapper2.writeValueAsString(response).getBytes();
+  }
+
+
   public byte[] getDeviceConfiguration() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (display != null) {
+      //
     }
     return jsonObject.toString(2).getBytes();
   }
@@ -84,11 +117,11 @@ public class Lcd1602Controller extends I2CDeviceController {
 
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig();
-    config.setComments("i2c device AM2315 encased Temperature and Humidity Sensor https://www.adafruit.com/product/1293");
-    config.setSource("I2C bus address : 0x5C");
+    config.setComments("i2c device LCD1602 2x16 LCD display");
+    config.setSource("I2C bus address : 0x3e");
     config.setVersion("1.0");
     config.setResourceType("sensor");
-    config.setInterfaceDescription("temperature, humidity");
+    config.setInterfaceDescription("display");
     return config;
   }
 
