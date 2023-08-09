@@ -14,7 +14,10 @@
 #     See the License for the specific language governing permissions and
 #     limitations under the License.
 #
+
+#
 # Sensors
+#
 io.mapsmessaging.devices.i2c.devices.sensors.am2315.AM2315Controller
 io.mapsmessaging.devices.i2c.devices.sensors.am2320.AM2320Controller
 io.mapsmessaging.devices.i2c.devices.sensors.as3935.AS3935Controller
@@ -28,7 +31,9 @@ io.mapsmessaging.devices.i2c.devices.sensors.msa311.Msa311Controller
 io.mapsmessaging.devices.i2c.devices.sensors.pmsa003i.Pmsa003iController
 io.mapsmessaging.devices.i2c.devices.sensors.tsl2561.TSL2561Controller
 
-#Gravity Gas Sensors, support for all known sensors
+#
+# Gravity Gas Sensors, support for all known sensors
+#
 io.mapsmessaging.devices.i2c.devices.sensors.gravity.GasSensorController
 
 #
@@ -36,6 +41,7 @@ io.mapsmessaging.devices.i2c.devices.sensors.gravity.GasSensorController
 #
 io.mapsmessaging.devices.i2c.devices.storage.at24c.AT24CnnController
 
+#
 # Real Time Clocks
 #
 io.mapsmessaging.devices.i2c.devices.rtc.ds3231.Ds3231Controller
