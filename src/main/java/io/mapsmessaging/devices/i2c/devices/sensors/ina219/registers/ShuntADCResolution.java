@@ -1,5 +1,8 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers;
 
+import lombok.Getter;
+
+@Getter
 public enum ShuntADCResolution {
   RES_9BIT_1S_84US(0x0000),  // 1 x 9-bit shunt sample
   RES_10BIT_1S_148US(0x0008),  // 1 x 10-bit shunt sample
@@ -19,7 +22,4 @@ public enum ShuntADCResolution {
     this.value = value;
   }
 
-  public int getValue() {
-    return value;
-  }
 }

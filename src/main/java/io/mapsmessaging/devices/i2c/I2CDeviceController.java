@@ -30,9 +30,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+@Getter
 public abstract class I2CDeviceController implements DeviceController {
 
-  @Getter
   private final int mountedAddress;
 
   private final SerialisationHelper serialisationHelper = new SerialisationHelper();
@@ -75,7 +75,7 @@ public abstract class I2CDeviceController implements DeviceController {
     I2CDevice device = getDevice();
     JSONObject jsonObject = new JSONObject();
     if (device instanceof Sensor) {
-      List<SensorReading<?>> readings = ((Sensor)device).getReadings();
+      List<SensorReading<?>> readings = ((Sensor) device).getReadings();
       for (SensorReading<?> reading : readings) {
         ComputationResult<?> computationResult = reading.getValue();
         if (!computationResult.hasError()) {

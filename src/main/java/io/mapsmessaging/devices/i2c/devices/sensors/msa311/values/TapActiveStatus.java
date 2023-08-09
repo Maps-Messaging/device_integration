@@ -2,6 +2,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.msa311.values;
 
 import lombok.Getter;
 
+@Getter
 public enum TapActiveStatus {
 
   SIGN((byte) 0b10000000),
@@ -13,7 +14,6 @@ public enum TapActiveStatus {
   ACTIVE_FIRST_Y((byte) 0b00000010),
   ACTIVE_FIRST_Z((byte) 0b00000001);
 
-  @Getter
   private final byte mask;
 
   TapActiveStatus(byte mask) {

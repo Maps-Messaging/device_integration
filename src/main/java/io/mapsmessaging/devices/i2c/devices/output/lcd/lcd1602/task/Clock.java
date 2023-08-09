@@ -15,9 +15,9 @@ public class Clock implements Task {
   private final AtomicBoolean runFlag;
   private final Lcd1602Device display;
 
-  public Clock(Lcd1602Controller controller){
+  public Clock(Lcd1602Controller controller) {
     runFlag = new AtomicBoolean(true);
-    display = (Lcd1602Device)controller.getDevice();
+    display = (Lcd1602Device) controller.getDevice();
   }
 
   @Override
@@ -27,13 +27,13 @@ public class Clock implements Task {
 
   @Override
   public void run() {
-    while(runFlag.get()){
+    while (runFlag.get()) {
       LocalDate date = LocalDate.now();
       synchronized (I2CDeviceScheduler.getI2cBusLock()) {
-        display.setCursor((byte)0, (byte)0);
+        display.setCursor((byte) 0, (byte) 0);
         display.setDisplay(date.toString());
-        for(int x=0;x<60;x++) {
-          String time = getTime(true,true);
+        for (int x = 0; x < 60; x++) {
+          String time = getTime(true, true);
           display.setCursor((byte) 1, (byte) 0);
           display.setDisplay(time);
           display.delay(500);

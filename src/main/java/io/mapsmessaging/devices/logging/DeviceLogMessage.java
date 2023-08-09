@@ -5,6 +5,7 @@ import io.mapsmessaging.logging.LEVEL;
 import io.mapsmessaging.logging.LogMessage;
 import lombok.Getter;
 
+@Getter
 public enum DeviceLogMessage implements LogMessage {
 
   //<editor-fold desc="Bus Manager messages">
@@ -50,7 +51,6 @@ public enum DeviceLogMessage implements LogMessage {
   ONE_WIRE_BUS_MANAGER_SHUTDOWN(LEVEL.WARN, BUS.MANAGER, "1-Wire Bus Manager shutting down");
   //</editor-fold>
 
-  @Getter
   private final String message;
   @Getter
   private final LEVEL level;
@@ -74,6 +74,7 @@ public enum DeviceLogMessage implements LogMessage {
   }
 
 
+  @Getter
   public enum BUS implements Category {
     MANAGER("Manager"),
     I2C("I2C"),
@@ -81,7 +82,7 @@ public enum DeviceLogMessage implements LogMessage {
     SPI("SPI"),
     ONE_WIRE("1Wire");
 
-    private final @Getter String description;
+    private final String description;
 
     BUS(String description) {
       this.description = description;

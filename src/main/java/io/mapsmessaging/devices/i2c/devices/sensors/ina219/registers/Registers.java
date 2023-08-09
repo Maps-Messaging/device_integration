@@ -1,5 +1,8 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers;
 
+import lombok.Getter;
+
+@Getter
 public enum Registers {
   CONFIGURATION(0x00),
   SHUNT_VOLTAGE(0x01),
@@ -14,7 +17,4 @@ public enum Registers {
     this.address = address;
   }
 
-  public int getAddress() {
-    return address;
-  }
 }

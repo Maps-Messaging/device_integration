@@ -29,9 +29,9 @@ import lombok.Getter;
 import java.io.IOException;
 import java.util.List;
 
+@Getter
 public class GasSensor extends I2CDevice implements Sensor {
 
-  @Getter
   private final SensorType sensorType;
 
   @Getter

@@ -18,9 +18,9 @@ package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands;
 
 import lombok.Getter;
 
+@Getter
 public class Command {
 
-  @Getter
   protected byte[] buffer;
 
   protected Command(byte controlByte, byte data) {
@@ -33,7 +33,7 @@ public class Command {
     return 1;
   }
 
-  public int repeatCount(){
+  public int repeatCount() {
     return 0;
   }
 

@@ -4,7 +4,7 @@ import java.time.LocalTime;
 
 public class TimeHelper {
 
-  public static String getTime(boolean hasColon, boolean addSeconds){
+  public static String getTime(boolean hasColon, boolean addSeconds) {
     StringBuilder val = new StringBuilder();
     LocalTime dateTime = LocalTime.now();
     int hour = dateTime.getHour();
@@ -24,7 +24,7 @@ public class TimeHelper {
       val.append("0");
     }
     val.append(min);
-    if(addSeconds){
+    if (addSeconds) {
       if (hasColon) {
         val.append(" ");
       } else {

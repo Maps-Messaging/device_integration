@@ -32,9 +32,9 @@ import lombok.Getter;
 import java.io.IOException;
 import java.util.List;
 
+@Getter
 public class AS3935Sensor extends I2CDevice implements PowerManagement, Sensor, Resetable {
 
-  @Getter
   private final AfeRegister afeRegister;
   @Getter
   private final ThresholdRegister thresholdRegister;

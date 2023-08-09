@@ -4,5 +4,5 @@ public enum ClockFrequency {
   ONE_HZ,
   ONE_K_HZ,
   FOUR_K_HZ,
-  EIGHT_K_HZ;
+  EIGHT_K_HZ
 }

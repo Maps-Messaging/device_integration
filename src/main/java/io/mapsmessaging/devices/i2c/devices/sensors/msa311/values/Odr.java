@@ -2,6 +2,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.msa311.values;
 
 import lombok.Getter;
 
+@Getter
 public enum Odr {
   HERTZ_1(0b0000),
   HERTZ_1_95(0b0001),
@@ -15,7 +16,6 @@ public enum Odr {
   HERTZ_500(0b1001),
   HERTZ_1000(0b1010);
 
-  @Getter
   private final byte mask;
 
   Odr(int mask) {

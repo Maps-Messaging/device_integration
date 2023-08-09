@@ -31,14 +31,14 @@ public class SubAddressRegister extends SingleByteRegister {
     super(sensor, address, name);
   }
 
-  public void setI2CAddress(int addr) throws IOException {
-    int add = addr << 1;
-    setControlRegister(ADDRESS_MASK, add);
-  }
-
   public int getI2CAddress() throws IOException {
     reload();
     return registerValue >> 1;
+  }
+
+  public void setI2CAddress(int addr) throws IOException {
+    int add = addr << 1;
+    setControlRegister(ADDRESS_MASK, add);
   }
 
   @Override

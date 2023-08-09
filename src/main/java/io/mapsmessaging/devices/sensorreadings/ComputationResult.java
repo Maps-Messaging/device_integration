@@ -1,5 +1,8 @@
 package io.mapsmessaging.devices.sensorreadings;
 
+import lombok.Getter;
+
+@Getter
 public class ComputationResult<T> {
 
   private final T result;
@@ -22,11 +25,4 @@ public class ComputationResult<T> {
     return error != null;
   }
 
-  public T getResult() {
-    return result;
-  }
-
-  public Exception getError() {
-    return error;
-  }
 }

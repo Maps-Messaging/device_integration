@@ -18,6 +18,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.bno055.values;
 
 import lombok.Getter;
 
+@Getter
 public enum SystemErrorStatus {
   NO_ERROR("No error"),
   PERIPHERAL_INIT_ERROR("Peripheral initialization error"),
@@ -32,7 +33,6 @@ public enum SystemErrorStatus {
   SENSOR_CONFIG_ERROR("Sensor configuration error"),
   UNKNOWN_ERROR("Unknown error");
 
-  @Getter
   private final String description;
 
   SystemErrorStatus(String description) {

@@ -2,6 +2,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.msa311.values;
 
 import lombok.Getter;
 
+@Getter
 public enum LowPowerBandwidth {
 
   HERTZ_1_95(0b0000, 0b0010),
@@ -14,7 +15,6 @@ public enum LowPowerBandwidth {
   HERTZ_250(0b1001),
   HERTZ_500(0b1010, 0b1111);
 
-  @Getter
   private final byte start;
   @Getter
   private final byte end;

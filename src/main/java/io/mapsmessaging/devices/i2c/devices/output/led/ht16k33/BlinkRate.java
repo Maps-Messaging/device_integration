@@ -18,6 +18,7 @@ package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
 import lombok.Getter;
 
+@Getter
 public enum BlinkRate {
 
   OFF(0),
@@ -25,7 +26,6 @@ public enum BlinkRate {
   ONE_HZ(2),
   HALF_HZ(3);
 
-  @Getter
   private final int rate;
 
   BlinkRate(int rate) {

@@ -10,9 +10,9 @@ import java.util.Map;
 
 public class SerialisationHelper {
 
-  private final  ObjectMapper mapper;
+  private final ObjectMapper mapper;
 
-  public SerialisationHelper(){
+  public SerialisationHelper() {
     mapper = new ObjectMapper();
     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     SimpleModule module = new SimpleModule();

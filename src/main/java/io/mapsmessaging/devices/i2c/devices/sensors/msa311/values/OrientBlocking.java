@@ -16,6 +16,9 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.values;
 
+import lombok.Getter;
+
+@Getter
 public enum OrientBlocking {
   NO_BLOCKING(0b00),
   Z_AXIS_BLOCKING(0b01),
@@ -37,7 +40,4 @@ public enum OrientBlocking {
     throw new IllegalArgumentException("Invalid OrientBlocking value: " + value);
   }
 
-  public int getValue() {
-    return value;
-  }
 }

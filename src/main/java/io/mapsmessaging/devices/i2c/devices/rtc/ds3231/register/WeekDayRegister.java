@@ -19,9 +19,10 @@ public class WeekDayRegister extends SingleByteRegister {
     return registerValue & DAY;
   }
 
-  public void setDay(int day) throws IOException{
-    super.setControlRegister(~DAY, day&DAY);
+  public void setDay(int day) throws IOException {
+    super.setControlRegister(~DAY, day & DAY);
   }
+
   @Override
   public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof WeekDayData) {

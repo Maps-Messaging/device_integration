@@ -2,6 +2,7 @@ package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
 import lombok.Getter;
 
+@Getter
 public enum AlphaNumericLed {
   TOP(0b0000000000000001),
   TOP_RIGHT(0b0000000000000010),
@@ -19,7 +20,6 @@ public enum AlphaNumericLed {
   BOTTOM_RIGHT_DIAGONAL(0b0010000000000000),
   DECIMAL(0b0100000000000000);
 
-  @Getter
   private final int mask;
 
   AlphaNumericLed(int mask) {

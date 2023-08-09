@@ -28,6 +28,24 @@ public class Alarm1ModeRegister extends Register {
     this.dayRegister = dayRegister;
   }
 
+  public Alarm1Settings getAlarmSettings() throws IOException {
+    int mode = 0;
+    boolean setDay = !dayRegister.isDate();
+    if (secondsRegister.isTopSet()) {
+      mode = 0b0001;
+    }
+    if (minutesRegister.isTopSet()) {
+      mode = mode | 0b0010;
+    }
+    if (hourRegister.isTopSet()) {
+      mode = mode | 0b0100;
+    }
+    if (dayRegister.isTopSet()) {
+      mode = mode | 0b1000;
+    }
+    return Alarm1Settings.find(mode, setDay);
+  }
+
   public void setAlarmSettings(Alarm1Settings settings) throws IOException {
     int mode = settings.getMask();
     boolean setDay = settings.isDay();
@@ -37,25 +55,6 @@ public class Alarm1ModeRegister extends Register {
     dayRegister.setTop((mode & 0b1000) != 0);
     dayRegister.setDate(!setDay);
   }
-
-  public Alarm1Settings getAlarmSettings() throws IOException {
-    int mode = 0;
-    boolean setDay = !dayRegister.isDate();
-    if(secondsRegister.isTopSet()){
-      mode = 0b0001;
-    }
-    if(minutesRegister.isTopSet()){
-      mode = mode | 0b0010;
-    }
-    if(hourRegister.isTopSet()){
-      mode = mode | 0b0100;
-    }
-    if(dayRegister.isTopSet()){
-      mode = mode | 0b1000;
-    }
-    return Alarm1Settings.find(mode, setDay);
-  }
-
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {

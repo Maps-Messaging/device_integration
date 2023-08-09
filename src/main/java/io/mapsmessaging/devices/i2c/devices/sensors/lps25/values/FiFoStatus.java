@@ -2,9 +2,9 @@ package io.mapsmessaging.devices.i2c.devices.sensors.lps25.values;
 
 import lombok.Getter;
 
+@Getter
 public class FiFoStatus {
 
-  @Getter
   private final boolean hitThreshold;
 
   @Getter

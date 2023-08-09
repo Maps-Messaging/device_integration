@@ -17,10 +17,12 @@
 package io.mapsmessaging.devices.io;
 
 import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
+import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Getter
 public class RegisterDataWrapper {
   private Map<Integer, RegisterData> map;
 
@@ -30,10 +32,6 @@ public class RegisterDataWrapper {
 
   public RegisterDataWrapper(Map<Integer, RegisterData> map) {
     this.map = map;
-  }
-
-  public Map<Integer, RegisterData> getMap() {
-    return map;
   }
 
   public void setMap(Map<Integer, RegisterData> map) {

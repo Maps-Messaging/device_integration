@@ -18,63 +18,42 @@ import java.util.List;
  * Original CPP source <a href="https://github.com/adafruit/Adafruit_LPS35HW/blob/master/Adafruit_LPS35HW.cpp">...</a>
  */
 
+@Getter
 public class Lps35Sensor extends I2CDevice implements Sensor, Resetable {
 
-  public static int getId(AddressableDevice device) {
-    return device.readRegister(WHO_AM_I);
-  }
-
-
   public static final byte WHO_AM_I = 0x0F;
-
-  @Getter
   private final InterruptConfigRegister interruptConfigRegister;
-
   @Getter
   private final ReferencePressureRegister referencePressureRegister;
-
   @Getter
   private final PressureOffsetRegister pressureOffsetRegister;
-
   @Getter
   private final ThresholdPressureRegister thresholdPressureRegister;
-
   @Getter
   private final TemperatureRegister temperatureRegister;
-
   @Getter
   private final PressureRegister pressureRegister;
-
   @Getter
   private final InterruptSourceRegister interruptSourceRegister;
-
   @Getter
   private final FiFoStatusRegister fiFoStatusRegister;
-
   @Getter
   private final StatusRegister statusRegister;
-
   @Getter
   private final WhoAmIRegister whoAmIRegister;
-
   @Getter
   private final FiFoControlRegister fiFoControlRegister;
-
   @Getter
   private final LowPowerModeRegister lowPowerModeRegister;
-
   @Getter
   private final Control1Register control1Register;
-
   @Getter
   private final Control2Register control2Register;
-
   @Getter
   private final Control3Register control3Register;
-
-
   @Getter
   private final List<SensorReading<?>> readings;
+
 
   public Lps35Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(Lps35Sensor.class));
@@ -98,6 +77,10 @@ public class Lps35Sensor extends I2CDevice implements Sensor, Resetable {
     FloatSensorReading temperatureReading = new FloatSensorReading("temperature", "C", -30, 70, this::getTemperature);
     readings = List.of(pressureReading, temperatureReading);
     initialise();
+  }
+
+  public static int getId(AddressableDevice device) {
+    return device.readRegister(WHO_AM_I);
   }
 
   private void initialise() throws IOException {

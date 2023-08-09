@@ -25,17 +25,20 @@ public interface Clock {
 
   LocalDate getDate() throws IOException;
 
+  void setDate(LocalDate date) throws IOException;
+
   LocalTime getTime() throws IOException;
+
+  void setTime(LocalTime time) throws IOException;
 
   LocalDateTime getDateTime() throws IOException;
 
   void setDateTime(LocalDateTime dateTime) throws IOException;
 
-  void setDate(LocalDate date) throws IOException;
+  default void setAlarm(int alarmNumber, LocalDateTime dateTime) throws IOException {
+  }
 
-  void setTime(LocalTime time) throws IOException;
-
-  default void setAlarm(int alarmNumber, LocalDateTime dateTime) throws IOException{}
-  default void setAlarm(int alarmNumber, LocalTime time) throws IOException{}
+  default void setAlarm(int alarmNumber, LocalTime time) throws IOException {
+  }
 
 }

@@ -23,9 +23,9 @@ import lombok.Getter;
 import java.io.File;
 import java.util.List;
 
+@Getter
 public class DS18B20Device extends OneWireDevice implements Sensor {
 
-  @Getter
   private float myCurrent;
   @Getter
   private float myDif;

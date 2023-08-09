@@ -37,6 +37,21 @@ public class PressureMonitor implements Runnable {
     t.start();
   }
 
+  public static void main(String[] args) throws IOException {
+    I2CBusManager[] i2cBusManagers = DeviceBusManager.getInstance().getI2cBusManager();
+    int bus = 1;
+    if (args.length > 0) {
+      bus = Integer.parseInt(args[0]);
+    }
+    // Configure and mount a device on address 0x5D as a LPS25 pressure & temperature
+    I2CDeviceController deviceController = i2cBusManagers[bus].configureDevice(0x5D, "LPS25");
+    if (deviceController != null) {
+      I2CDevice sensor = deviceController.getDevice();
+      if (sensor instanceof Lps25Sensor) {
+        new PressureMonitor((Lps25Sensor) sensor);
+      }
+    }
+  }
 
   public void run() {
     SensorReading<?> pressure = null;
@@ -70,25 +85,8 @@ public class PressureMonitor implements Runnable {
           String pre = roundFloatToString(pRes, 2);
           String tmp = roundFloatToString(tRes, 1);
           String dis = roundFloatToString(dist, 3);
-          System.err.println(pre + " hPa\t" + tmp + " C\t" + dis + "mm\t"+altitude+"mm");
+          System.err.println(pre + " hPa\t" + tmp + " C\t" + dis + "mm\t" + altitude + "mm");
         }
-      }
-    }
-  }
-
-
-  public static void main(String[] args) throws IOException {
-    I2CBusManager[] i2cBusManagers = DeviceBusManager.getInstance().getI2cBusManager();
-    int bus = 1;
-    if (args.length > 0) {
-      bus = Integer.parseInt(args[0]);
-    }
-    // Configure and mount a device on address 0x5D as a LPS25 pressure & temperature
-    I2CDeviceController deviceController = i2cBusManagers[bus].configureDevice(0x5D, "LPS25");
-    if (deviceController != null) {
-      I2CDevice sensor = deviceController.getDevice();
-      if (sensor instanceof Lps25Sensor) {
-        new PressureMonitor((Lps25Sensor) sensor);
       }
     }
   }

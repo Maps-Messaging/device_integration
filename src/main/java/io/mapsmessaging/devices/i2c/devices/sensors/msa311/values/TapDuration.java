@@ -16,6 +16,9 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.values;
 
+import lombok.Getter;
+
+@Getter
 public enum TapDuration {
   TAP_QUIET_20MS(20),
   TAP_QUIET_30MS(30),
@@ -45,7 +48,4 @@ public enum TapDuration {
     throw new IllegalArgumentException("Invalid TapDuration value: " + value);
   }
 
-  public int getValue() {
-    return value;
-  }
 }

@@ -45,29 +45,18 @@ public class ServoDemo {
       }
 
       float pos = 0.0f;
-      while(pos < 360) {
+      while (pos < 360) {
         servos[1].setPosition(pos);
         servos[4].setPosition(pos);
         device.delay(1000);
         pos += 10f;
       }
-      while(pos > 0.1f){
+      while (pos > 0.1f) {
         servos[1].setPosition(pos);
         servos[4].setPosition(pos);
         device.delay(1000);
         pos -= 10f;
       }
-    }
-  }
-
-  private void rotate(Servo servo) throws IOException {
-    for (int x = 0; x < 360; x += 10) {
-      servo.setPosition(x);
-      servo.myPWMController.delay(50);
-    }
-    for (int x = 360; x > 0; x -= 10) {
-      servo.setPosition(x);
-      servo.myPWMController.delay(50);
     }
   }
 
@@ -87,5 +76,16 @@ public class ServoDemo {
       }
     }
 
+  }
+
+  private void rotate(Servo servo) throws IOException {
+    for (int x = 0; x < 360; x += 10) {
+      servo.setPosition(x);
+      servo.myPWMController.delay(50);
+    }
+    for (int x = 360; x > 0; x -= 10) {
+      servo.setPosition(x);
+      servo.myPWMController.delay(50);
+    }
   }
 }

@@ -18,6 +18,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.bno055.values;
 
 import lombok.Getter;
 
+@Getter
 public enum SystemStatus {
   IDLE("System idle"),
   ERROR("System Error"),
@@ -27,7 +28,6 @@ public enum SystemStatus {
   SENSOR_FUSION_RUNNING("Sensor fusion algorithm running"),
   SYSTEM_RUNNING_WITHOUT_FUSION("System running without fusion algorithm");
 
-  @Getter
   private final String description;
 
   SystemStatus(String description) {

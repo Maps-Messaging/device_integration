@@ -16,6 +16,9 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311.values;
 
+import lombok.Getter;
+
+@Getter
 public enum OrientMode {
   SYMMETRICAL(0b00),
   HIGH_ASYMMETRICAL(0b01),
@@ -37,7 +40,4 @@ public enum OrientMode {
     throw new IllegalArgumentException("Invalid OrientMode value: " + value);
   }
 
-  public int getValue() {
-    return value;
-  }
 }

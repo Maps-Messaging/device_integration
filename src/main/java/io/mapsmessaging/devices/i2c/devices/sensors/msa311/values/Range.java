@@ -18,13 +18,13 @@ package io.mapsmessaging.devices.i2c.devices.sensors.msa311.values;
 
 import lombok.Getter;
 
+@Getter
 public enum Range {
   RANGE_2G(62.5, 4096f, 3.9f),
   RANGE_4G(125, 2048f, 7.8f),
   RANGE_8G(250, 1024f, 15.6f),
   RANGE_16G(500, 512f, 31.3f);
 
-  @Getter
   private final double lsbMultiplier;
 
   @Getter

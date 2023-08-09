@@ -18,6 +18,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.bmp280.values;
 
 import lombok.Getter;
 
+@Getter
 public enum OversamplingRate {
 
   D1_OSR_256((byte) 0x40),
@@ -31,7 +32,6 @@ public enum OversamplingRate {
   D2_OSR_2048((byte) 0x56),
   D2_OSR_4096((byte) 0x58);
 
-  @Getter
   private final byte value;
 
   OversamplingRate(byte value) {

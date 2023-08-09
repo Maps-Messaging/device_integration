@@ -1,5 +1,8 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers;
 
+import lombok.Getter;
+
+@Getter
 public enum GainMask {
   GAIN_1_40MV(0x0000),  // Gain 1, 40mV Range
   GAIN_2_80MV(0x0800),  // Gain 2, 80mV Range
@@ -12,7 +15,4 @@ public enum GainMask {
     this.value = value;
   }
 
-  public int getValue() {
-    return value;
-  }
 }

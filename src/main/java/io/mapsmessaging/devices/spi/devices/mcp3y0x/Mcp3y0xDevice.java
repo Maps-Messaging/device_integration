@@ -28,10 +28,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class Mcp3y0xDevice extends SpiDevice implements Sensor {
 
   // SPI device
-  @Getter
   protected final int channels;
   @Getter
   protected final int bits;

@@ -18,13 +18,13 @@ package io.mapsmessaging.devices.i2c.devices.sensors.bh1750.values;
 
 import lombok.Getter;
 
+@Getter
 public enum ResolutionMode {
 
   H_RESOLUTION_MODE(0b00000000, 1f, 120),
   H_RESOLUTION_MODE_2(0B00000001, 2f, 16),
   L_RESOLUTION_MODE(0b00000011, 1f, 120);
 
-  @Getter
   private final int mask;
 
   @Getter

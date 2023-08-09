@@ -18,13 +18,13 @@ package io.mapsmessaging.devices.i2c.devices.sensors.as3935.values;
 
 import lombok.Getter;
 
+@Getter
 public enum InterruptReason {
   NONE(0b0000, "None"),
   NT_NH(0b0001, "Noise level too high"),
   INT_D(0b0100, "Disturber detected"),
   INT_L(0b1000, "Lightning interrupt");
 
-  @Getter
   private final int mask;
   @Getter
   private final String description;

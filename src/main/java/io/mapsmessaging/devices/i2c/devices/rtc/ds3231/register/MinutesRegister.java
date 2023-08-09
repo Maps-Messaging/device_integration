@@ -10,7 +10,7 @@ public class MinutesRegister extends BcdRegister {
 
 
   public MinutesRegister(I2CDevice sensor, int address, String name) throws IOException {
-    super(sensor,address, name, false);
+    super(sensor, address, name, false);
   }
 
   public int getMinutes() throws IOException {

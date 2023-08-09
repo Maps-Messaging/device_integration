@@ -10,15 +10,15 @@ public class YearRegister extends BcdRegister {
 
 
   public YearRegister(I2CDevice sensor) throws IOException {
-    super(sensor,0x6, "YEAR", true);
+    super(sensor, 0x6, "YEAR", true);
   }
 
   public int getYear() throws IOException {
-    return 2000+getValue();
+    return 2000 + getValue();
   }
 
   public void setYear(int year) throws IOException {
-    setValue(year-2000);
+    setValue(year - 2000);
   }
 
   @Override

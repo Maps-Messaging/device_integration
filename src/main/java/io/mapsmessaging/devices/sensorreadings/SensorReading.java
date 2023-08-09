@@ -5,9 +5,9 @@ import lombok.Getter;
 import java.io.IOException;
 
 
+@Getter
 public class SensorReading<T> {
 
-  @Getter
   private final String name;
 
   @Getter

@@ -26,9 +26,9 @@ import lombok.Getter;
 
 import java.io.IOException;
 
+@Getter
 public class ReadingModeRegister extends Register {
 
-  @Getter
   private ResolutionMode resolutionMode;
 
   @Getter

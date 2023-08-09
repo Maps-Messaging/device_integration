@@ -32,7 +32,7 @@ public abstract class HT16K33Driver extends I2CDevice implements Display {
 
   private static final byte BLINK_COMMAND = (byte) 0x80;
   private static final byte BLINK_DISPLAYON = 0x01;
-
+  protected short[] font;
   @Getter
   private byte brightness;
   @Getter
@@ -41,8 +41,6 @@ public abstract class HT16K33Driver extends I2CDevice implements Display {
   private BlinkRate rate;
   @Getter
   private String current;
-
-  protected short[] font;
 
   protected HT16K33Driver(AddressableDevice device, short[] font) throws IOException {
     super(device, LoggerFactory.getLogger(HT16K33Driver.class));

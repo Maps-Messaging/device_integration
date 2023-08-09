@@ -20,7 +20,7 @@ import com.pi4j.io.gpio.digital.DigitalOutput;
 
 public class RotaryEncoder {
   // based on [lastEncoded][encoded] lookup
-  private static final int stateTable[][] = {
+  private static final int[][] stateTable = {
 
       {0, 1, 1, -1},
       {-1, 0, 1, -1},

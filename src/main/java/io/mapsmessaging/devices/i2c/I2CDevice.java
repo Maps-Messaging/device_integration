@@ -29,9 +29,9 @@ import java.io.IOException;
 
 import static io.mapsmessaging.devices.logging.DeviceLogMessage.*;
 
+@Getter
 public abstract class I2CDevice implements Device, AutoCloseable {
 
-  @Getter
   public final RegisterMap registerMap;
   protected final Logger logger;
   protected final AddressableDevice device;

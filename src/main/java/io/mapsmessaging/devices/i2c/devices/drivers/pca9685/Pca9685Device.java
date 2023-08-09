@@ -107,16 +107,16 @@ public class Pca9685Device extends I2CDevice implements Resetable, Output {
   public void reset() throws IOException {
     initialise();
     mode1Register.enableAllCall(true);
-    for(LedControlRegister ledControlRegister:ledControlRegisters){
+    for (LedControlRegister ledControlRegister : ledControlRegisters) {
       ledControlRegister.setRate(0, 0);
     }
-    setAllPWM(0,0);
+    setAllPWM(0, 0);
     mode1Register.restart();
     delay(5);
   }
 
   @Override
   public void softReset() throws IOException {
-    setAllPWM(0,0);
+    setAllPWM(0, 0);
   }
 }

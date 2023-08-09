@@ -20,6 +20,7 @@ import com.pi4j.io.gpio.digital.DigitalOutput;
 import io.mapsmessaging.devices.Device;
 import io.mapsmessaging.devices.DeviceBusManager;
 import io.mapsmessaging.devices.direct.PinManagement;
+import lombok.Getter;
 
 import java.util.BitSet;
 
@@ -33,6 +34,7 @@ public class ShiftRegisterDevice implements Device {
   private final DigitalOutput clockPort;
   private final DigitalOutput latchPort;
   private final DigitalOutput clearPort;
+  @Getter
   private final int totalBits;
 
   public ShiftRegisterDevice(int numberOfRegisters, int sizeOfRegister, int dataPin, int clockPin, int latchPin, int clearPin) {
@@ -53,10 +55,6 @@ public class ShiftRegisterDevice implements Device {
     clockPort.low();
     latchPort.low();
     clearAll();
-  }
-
-  public int getTotalBits() {
-    return totalBits;
   }
 
   public void setBit(int bit) {

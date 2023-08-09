@@ -28,7 +28,7 @@ public class StatusRegister extends SingleByteRegister {
   private static final int OSC_STOPPED = 0b10000000;
   private static final int ENABLE_32_K = 0b00001000;
 
-  private static final int BUSY          = 0b00000100;
+  private static final int BUSY = 0b00000100;
   private static final int ALARM2_ACTIVE = 0b00000010;
   private static final int ALARM1_ACTIVE = 0b00000001;
 
@@ -47,7 +47,7 @@ public class StatusRegister extends SingleByteRegister {
   }
 
   public void setEnable32K(boolean flag) throws IOException {
-    setControlRegister(~ENABLE_32_K, flag?ENABLE_32_K:0);
+    setControlRegister(~ENABLE_32_K, flag ? ENABLE_32_K : 0);
   }
 
   public boolean isBusy() throws IOException {
@@ -72,15 +72,16 @@ public class StatusRegister extends SingleByteRegister {
   public void clearAlarm1Flag() throws IOException {
     setControlRegister(~ALARM1_ACTIVE, 0);
   }
+
   @Override
   public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof StatusData) {
       StatusData data = (StatusData) input;
       setEnable32K(data.isEnable32K());
-      if(data.isAlarm2FlagSet()) {
+      if (data.isAlarm2FlagSet()) {
         clearAlarm2Flag();
       }
-      if(data.isAlarm1FlagSet()) {
+      if (data.isAlarm1FlagSet()) {
         clearAlarm1Flag();
       }
       return true;

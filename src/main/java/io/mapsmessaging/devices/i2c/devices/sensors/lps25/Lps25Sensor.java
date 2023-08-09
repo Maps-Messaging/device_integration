@@ -14,9 +14,9 @@ import lombok.Getter;
 import java.io.IOException;
 import java.util.List;
 
+@Getter
 public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
   private static final int WHO_AM_I = 0xf;
-  @Getter
   private final ResolutionRegister resolutionRegister;
   @Getter
   private final Control1 control1;

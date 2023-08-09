@@ -9,31 +9,31 @@ import java.io.IOException;
 
 public class HourRegister extends SingleByteRegister {
 
-  private static final int TOP           = 0b10000000;
+  private static final int TOP = 0b10000000;
   private static final int CLOCK_24_MODE = 0b01000000;
-  private static final int AM_PM         = 0b00100000;
-  private static final int TEN_HOURS     = 0b00010000;
-  private static final int HOURS         = 0b00001111;
+  private static final int AM_PM = 0b00100000;
+  private static final int TEN_HOURS = 0b00010000;
+  private static final int HOURS = 0b00001111;
 
   public HourRegister(I2CDevice sensor, int address, String name) throws IOException {
     super(sensor, address, name);
     reload();
   }
 
-  public boolean isTopSet(){
+  public boolean isTopSet() {
     return (registerValue & TOP) != 0;
   }
 
   public void setTop(boolean flag) throws IOException {
-    setControlRegister(~TOP, flag?TOP: 0);
+    setControlRegister(~TOP, flag ? TOP : 0);
   }
 
-  public boolean getClock24Mode(){
+  public boolean getClock24Mode() {
     return (registerValue & CLOCK_24_MODE) != 0;
   }
 
   public void setClock24Mode(boolean flag) throws IOException {
-    setControlRegister(~CLOCK_24_MODE, flag?CLOCK_24_MODE: 0);
+    setControlRegister(~CLOCK_24_MODE, flag ? CLOCK_24_MODE : 0);
   }
 
   public boolean isPM() throws IOException {
@@ -42,35 +42,35 @@ public class HourRegister extends SingleByteRegister {
   }
 
   public void setPM(boolean flag) throws IOException {
-    setControlRegister(~AM_PM, flag?AM_PM: 0);
+    setControlRegister(~AM_PM, flag ? AM_PM : 0);
   }
 
   public int getHours() throws IOException {
     reload();
     int hours = registerValue & HOURS;
-    if((registerValue & TEN_HOURS) != 0){
+    if ((registerValue & TEN_HOURS) != 0) {
       hours += 10;
     }
-    if(isPM() && getClock24Mode()){
+    if (isPM() && getClock24Mode()) {
       hours += 12;
     }
     return hours;
   }
 
   public void setHours(int val) throws IOException {
-    if(val > 12){
+    if (val > 12) {
       setPM(true);
-      val -=12;
+      val -= 12;
     }
-    if(val > 9){
+    if (val > 9) {
       setControlRegister(~TEN_HOURS, TEN_HOURS);
       val -= 10;
-    }
-    else{
+    } else {
       setControlRegister(~TEN_HOURS, 0);
     }
     setControlRegister(~HOURS, val);
   }
+
   @Override
   public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof HourData) {

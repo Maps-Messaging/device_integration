@@ -36,6 +36,7 @@ public class DeviceBusManager {
 
   private static final String[] PROVIDERS = {"pigpio-i2c", "linuxfs-i2c"};
 
+  @Getter
   private static final DeviceBusManager instance = new DeviceBusManager();
   private final Logger logger = LoggerFactory.getLogger(DeviceBusManager.class);
   private final Context pi4j;
@@ -68,10 +69,6 @@ public class DeviceBusManager {
     interruptFactory = new InterruptFactory(pi4j);
     spiBusManager = new SpiBusManager(pi4j);
     pinManagement = new PinManagement(pi4j);
-  }
-
-  public static DeviceBusManager getInstance() {
-    return instance;
   }
 
   private static String getProvider() {

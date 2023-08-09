@@ -15,7 +15,7 @@ public class InterruptSourceRegister extends SingleByteRegister {
 
   private static final byte INTERRUPT_SOURCE = 0x25;
 
-  private static final byte BOOT_PHASE = (byte)0b10000000;
+  private static final byte BOOT_PHASE = (byte) 0b10000000;
   private static final byte INTERRUPT_ACTIVE = 0b00000100;
   private static final byte PRESSURE_LOW = 0b00000010;
   private static final byte PRESSURE_HIGH = 0b00000001;

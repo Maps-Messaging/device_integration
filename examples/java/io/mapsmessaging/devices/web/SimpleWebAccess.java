@@ -37,12 +37,17 @@ import java.util.Map;
 
 public class SimpleWebAccess {
 
-  private Javalin app;
   private final DeviceBusManager deviceBusManager;
+  private Javalin app;
 
   public SimpleWebAccess() {
     deviceBusManager = DeviceBusManager.getInstance();
     scan();
+  }
+
+  public static void main(String[] args) {
+    SimpleWebAccess simpleWebAccess = new SimpleWebAccess();
+    simpleWebAccess.startServer();
   }
 
   protected void scan() {
@@ -51,17 +56,12 @@ public class SimpleWebAccess {
     }
   }
 
-  public static void main(String[] args) {
-    SimpleWebAccess simpleWebAccess = new SimpleWebAccess();
-    simpleWebAccess.startServer();
-  }
-
   private void startServer() {
     app = Javalin.create().start(7001);
     app.get("/device/exit", ctx -> {
       app.stop();
       System.exit(0);
-        });
+    });
     app.get("/device/list", ctx -> {
       JSONObject jsonObject = new JSONObject();
 
@@ -79,7 +79,7 @@ public class SimpleWebAccess {
       List<Integer> found = deviceBusManager.getI2cBusManager()[bus].findDevicesOnBus();
       List<String> map = deviceBusManager.getI2cBusManager()[bus].listDetected(found);
       JSONArray jsonArray = new JSONArray();
-      for(String line:map){
+      for (String line : map) {
         jsonArray.put(line);
       }
       JSONObject json = new JSONObject();
@@ -250,15 +250,15 @@ public class SimpleWebAccess {
 
 
   private void handleGetRegisters(Context ctx, DeviceController deviceController) throws IOException {
-    String res = deviceController.getName()+" - "+deviceController.getDescription()+"\n";
-    if(deviceController instanceof I2CDeviceController){
-      res += ((I2CDeviceController)deviceController).getDevice().registerMap.toString();
+    String res = deviceController.getName() + " - " + deviceController.getDescription() + "\n";
+    if (deviceController instanceof I2CDeviceController) {
+      res += ((I2CDeviceController) deviceController).getDevice().registerMap.toString();
     }
     ctx.result(res);
   }
 
   private void handleFunction(Context ctx, DeviceController deviceController, String function) throws IOException {
-    if(deviceController instanceof I2CDeviceController) {
+    if (deviceController instanceof I2CDeviceController) {
       I2CDevice device = ((I2CDeviceController) deviceController).getDevice();
       synchronized (I2CDeviceScheduler.getI2cBusLock()) {
         if (device instanceof PowerManagement) {
@@ -287,19 +287,19 @@ public class SimpleWebAccess {
         }
       }
     }
-    ctx.result("unknown or unhandled function received "+function);
+    ctx.result("unknown or unhandled function received " + function);
   }
 
-  private void handleGetFunctions(Context ctx, DeviceController deviceController)  {
+  private void handleGetFunctions(Context ctx, DeviceController deviceController) {
     JSONObject schemaObject = new JSONObject();
     JSONArray functionList = new JSONArray();
-    if(deviceController instanceof I2CDeviceController){
+    if (deviceController instanceof I2CDeviceController) {
       I2CDevice device = ((I2CDeviceController) deviceController).getDevice();
-      if(device instanceof PowerManagement){
+      if (device instanceof PowerManagement) {
         functionList.put("powerOn");
         functionList.put("powerOff");
       }
-      if(device instanceof Resetable){
+      if (device instanceof Resetable) {
         functionList.put("reset");
         functionList.put("softReset");
       }

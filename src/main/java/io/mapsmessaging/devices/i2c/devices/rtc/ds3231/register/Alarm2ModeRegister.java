@@ -10,43 +10,43 @@ import java.io.IOException;
 
 public class Alarm2ModeRegister extends Register {
 
-    private final MinutesRegister minutesRegister;
-    private final HourRegister hourRegister;
-    private final AlarmDayRegister dayRegister;
+  private final MinutesRegister minutesRegister;
+  private final HourRegister hourRegister;
+  private final AlarmDayRegister dayRegister;
 
-    public Alarm2ModeRegister(
-        I2CDevice sensor,
-        MinutesRegister minutesRegister,
-        HourRegister hourRegister,
-        AlarmDayRegister dayRegister) {
-      super(sensor, 0x81, "");
-      this.minutesRegister = minutesRegister;
-      this.hourRegister = hourRegister;
-      this.dayRegister = dayRegister;
-    }
-
-    public void setAlarmSettings(Alarm2Settings settings) throws IOException {
-      int mode = settings.getMask();
-      boolean setDay = settings.isDay();
-      minutesRegister.setTop((mode & 0b001) != 0);
-      hourRegister.setTop((mode & 0b010) != 0);
-      dayRegister.setTop((mode & 0b100) != 0);
-      dayRegister.setDate(!setDay);
-    }
+  public Alarm2ModeRegister(
+      I2CDevice sensor,
+      MinutesRegister minutesRegister,
+      HourRegister hourRegister,
+      AlarmDayRegister dayRegister) {
+    super(sensor, 0x81, "");
+    this.minutesRegister = minutesRegister;
+    this.hourRegister = hourRegister;
+    this.dayRegister = dayRegister;
+  }
 
   public Alarm2Settings getAlarmSettings() throws IOException {
     int mode = 0;
     boolean setDay = !dayRegister.isDate();
-    if(minutesRegister.isTopSet()){
+    if (minutesRegister.isTopSet()) {
       mode = mode | 0b001;
     }
-    if(hourRegister.isTopSet()){
+    if (hourRegister.isTopSet()) {
       mode = mode | 0b010;
     }
-    if(dayRegister.isTopSet()){
+    if (dayRegister.isTopSet()) {
       mode = mode | 0b100;
     }
     return Alarm2Settings.find(mode, setDay);
+  }
+
+  public void setAlarmSettings(Alarm2Settings settings) throws IOException {
+    int mode = settings.getMask();
+    boolean setDay = settings.isDay();
+    minutesRegister.setTop((mode & 0b001) != 0);
+    hourRegister.setTop((mode & 0b010) != 0);
+    dayRegister.setTop((mode & 0b100) != 0);
+    dayRegister.setDate(!setDay);
   }
 
   @Override

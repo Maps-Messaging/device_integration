@@ -28,14 +28,14 @@ public class Mode1Register extends SingleByteRegister {
   public static final int ADDRESS_2 = 0b010;
   public static final int ADDRESS_3 = 0b100;
 
-  private static final int RESTART  = 0b10000000;
-  private static final int EXTCLK   = 0b01000000;
-  private static final int AI       = 0b00100000;
-  private static final int SLEEP    = 0b00010000;
-  private static final int SUB1     = 0b00001000;
-  private static final int SUB2     = 0b00000100;
-  private static final int SUB3     = 0b00000010;
-  private static final int ALLCALL  = 0b00000001;
+  private static final int RESTART = 0b10000000;
+  private static final int EXTCLK = 0b01000000;
+  private static final int AI = 0b00100000;
+  private static final int SLEEP = 0b00010000;
+  private static final int SUB1 = 0b00001000;
+  private static final int SUB2 = 0b00000100;
+  private static final int SUB3 = 0b00000010;
+  private static final int ALLCALL = 0b00000001;
 
   private static final int SUB_ADDR = 0b00001110;
 
@@ -54,7 +54,7 @@ public class Mode1Register extends SingleByteRegister {
   }
 
   public void restart() throws IOException {
-    byte val = registerValue ;
+    byte val = registerValue;
     setControlRegister(~RESTART, RESTART);
     registerValue = val;
   }
@@ -67,49 +67,48 @@ public class Mode1Register extends SingleByteRegister {
     return (registerValue & EXTCLK) != 0;
   }
 
-  public void setAutoIncrement(boolean flag) throws IOException {
-    setControlRegister(~AI, flag ? AI : 0);
-  }
-
   public boolean isAutoIncrement() {
     return (registerValue & AI) != 0;
   }
 
-  public void setSleep(boolean flag) throws IOException {
-    setControlRegister(~SLEEP, flag ? SLEEP : 0);
+  public void setAutoIncrement(boolean flag) throws IOException {
+    setControlRegister(~AI, flag ? AI : 0);
   }
 
   public boolean isSleep() {
     return (registerValue & SLEEP) != 0;
   }
 
-  public void setRespondToAddr1(boolean flag) throws IOException {
-    setControlRegister(~SUB1, flag ? SUB1 : 0);
+  public void setSleep(boolean flag) throws IOException {
+    setControlRegister(~SLEEP, flag ? SLEEP : 0);
   }
 
   public boolean isRespondToAddr1() {
     return (registerValue & SUB1) != 0;
   }
 
-  public void setRespondToAddr2(boolean flag) throws IOException {
-    setControlRegister(~SUB2, flag ? SUB2 : 0);
+  public void setRespondToAddr1(boolean flag) throws IOException {
+    setControlRegister(~SUB1, flag ? SUB1 : 0);
   }
 
   public boolean isRespondToAddr2() {
     return (registerValue & SUB2) != 0;
   }
 
-  public void setRespondToAddr3(boolean flag) throws IOException {
-    setControlRegister(~SUB3, flag ? SUB3 : 0);
+  public void setRespondToAddr2(boolean flag) throws IOException {
+    setControlRegister(~SUB2, flag ? SUB2 : 0);
   }
 
   public void setRespondToAddr(int val) throws IOException {
     setControlRegister(~SUB_ADDR, (val << 1));
   }
 
-
   public boolean isRespondToAddr3() {
     return (registerValue & SUB3) != 0;
+  }
+
+  public void setRespondToAddr3(boolean flag) throws IOException {
+    setControlRegister(~SUB3, flag ? SUB3 : 0);
   }
 
   public void enableAllCall(boolean flag) throws IOException {

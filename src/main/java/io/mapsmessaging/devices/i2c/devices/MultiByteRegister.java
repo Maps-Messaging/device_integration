@@ -21,9 +21,9 @@ import lombok.Getter;
 
 import java.io.IOException;
 
+@Getter
 public class MultiByteRegister extends Register {
 
-  @Getter
   protected final byte[] buffer;
 
   public MultiByteRegister(I2CDevice sensor, int address, int size, String name) {

@@ -2,6 +2,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.gravity.config;
 
 import lombok.Getter;
 
+@Getter
 public enum Command {
   CHANGE_GET_METHOD(0X78, ""),
   GET_GAS_CONCENTRATION(0x86, "Get the current gas concentration"),
@@ -12,7 +13,6 @@ public enum Command {
   SENSOR_VOLTAGE(0x91, "Read the raw ADC voltage sensor"),
   CHANGE_I2C_ADDR(0x92, "Change the devices I2C address, reboot is required after setting");
 
-  @Getter
   private final byte commandValue;
 
   @Getter

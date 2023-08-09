@@ -33,9 +33,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
+@Getter
 public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
 
-  @Getter
   private final SecondsRegister secondsRegister;
   @Getter
   private final MinutesRegister minutesRegister;
@@ -81,7 +81,7 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
   public Ds3231Rtc(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(Ds3231Rtc.class));
     secondsRegister = new SecondsRegister(this, 0x0, "SECONDS");
-    minutesRegister = new MinutesRegister(this,  0x1, "MINUTES");
+    minutesRegister = new MinutesRegister(this, 0x1, "MINUTES");
     hourRegister = new HourRegister(this, 0x2, "HOURS");
     weekDayRegister = new WeekDayRegister(this); //3
     monthDayRegister = new MonthDayRegister(this); //4
@@ -91,11 +91,11 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
     alarm1Seconds = new SecondsRegister(this, 0x7, "ALARM1_SECONDS");
     alarm1Minutes = new MinutesRegister(this, 0x8, "ALARM1_MINUTES");
     alarm1Hours = new HourRegister(this, 0x9, "ALARM1_HOURS");
-    alarm1DayRegister = new AlarmDayRegister(this,0xA, "ALARM1_DAY");
+    alarm1DayRegister = new AlarmDayRegister(this, 0xA, "ALARM1_DAY");
 
     alarm2Minutes = new MinutesRegister(this, 0xB, "ALARM2_MINUTES");
     alarm2Hours = new HourRegister(this, 0xC, "ALARM2_HOURS");
-    alarm2DayRegister = new AlarmDayRegister(this,0xD, "ALARM2_DAY");
+    alarm2DayRegister = new AlarmDayRegister(this, 0xD, "ALARM2_DAY");
 
     controlRegister = new ControlRegister(this);
     statusRegister = new StatusRegister(this);
@@ -135,7 +135,7 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
   @Override
   public void setDateTime(LocalDateTime dateTime) throws IOException {
     if (logger.isDebugEnabled()) {
-      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "setDateTime("+dateTime+")");
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "setDateTime(" + dateTime + ")");
     }
     secondsRegister.setSeconds(dateTime.getSecond());
     minutesRegister.setMinutes(dateTime.getMinute());
@@ -147,30 +147,8 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
   }
 
   @Override
-  public void setDate(LocalDate date) throws IOException {
-    if (logger.isDebugEnabled()) {
-      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "setDate("+date+")");
-    }
-    monthDayRegister.setDate(date.getDayOfMonth());
-    monthRegister.setMonth(date.getMonth().getValue());
-    yearRegister.setYear(date.getYear());
-
-  }
-
-  @Override
-  public void setTime(LocalTime time) throws IOException {
-    if (logger.isDebugEnabled()) {
-      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "setTime("+time+")");
-    }
-    secondsRegister.setSeconds(time.getSecond());
-    minutesRegister.setMinutes(time.getMinute());
-    hourRegister.setClock24Mode(true);
-    hourRegister.setHours(time.getHour());
-  }
-
-  @Override
   public void setAlarm(int alarmNumber, LocalDateTime dateTime) throws IOException {
-    if(alarmNumber == 1){
+    if (alarmNumber == 1) {
       alarm1Seconds.setSeconds(dateTime.getSecond());
       alarm1Minutes.setMinutes(dateTime.getMinute());
       alarm1Hours.setClock24Mode(true);
@@ -178,7 +156,7 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
       alarm1DayRegister.setDate(true);
       alarm1DayRegister.setDay(dateTime.getDayOfMonth());
     }
-    if(alarmNumber == 2){
+    if (alarmNumber == 2) {
       alarm2Minutes.setMinutes(dateTime.getMinute());
       alarm2Hours.setClock24Mode(true);
       alarm2Hours.setHours(dateTime.getHour());
@@ -189,7 +167,7 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
 
   @Override
   public void setAlarm(int alarmNumber, LocalTime time) throws IOException {
-    if(alarmNumber == 1){
+    if (alarmNumber == 1) {
       alarm1Seconds.setSeconds(time.getSecond());
       alarm1Minutes.setMinutes(time.getMinute());
       alarm1Hours.setClock24Mode(true);
@@ -197,7 +175,7 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
       alarm1DayRegister.setDate(false);
       alarm1DayRegister.setDay(0);
     }
-    if(alarmNumber == 2){
+    if (alarmNumber == 2) {
       alarm2Minutes.setMinutes(time.getMinute());
       alarm2Hours.setClock24Mode(true);
       alarm2Hours.setHours(time.getHour());
@@ -214,6 +192,16 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
     return localDate;
   }
 
+  @Override
+  public void setDate(LocalDate date) throws IOException {
+    if (logger.isDebugEnabled()) {
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "setDate(" + date + ")");
+    }
+    monthDayRegister.setDate(date.getDayOfMonth());
+    monthRegister.setMonth(date.getMonth().getValue());
+    yearRegister.setYear(date.getYear());
+
+  }
 
   public LocalTime getTime() throws IOException {
     LocalTime localTime = LocalTime.of(hourRegister.getHours(), minutesRegister.getMinutes(), secondsRegister.getSeconds());
@@ -221,6 +209,17 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), localTime + " = getTime()");
     }
     return localTime;
+  }
+
+  @Override
+  public void setTime(LocalTime time) throws IOException {
+    if (logger.isDebugEnabled()) {
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "setTime(" + time + ")");
+    }
+    secondsRegister.setSeconds(time.getSecond());
+    minutesRegister.setMinutes(time.getMinute());
+    hourRegister.setClock24Mode(true);
+    hourRegister.setHours(time.getHour());
   }
 
   @Override

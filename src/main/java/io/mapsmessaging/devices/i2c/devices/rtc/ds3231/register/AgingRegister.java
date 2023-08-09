@@ -13,7 +13,7 @@ public class AgingRegister extends SingleByteRegister {
     super(sensor, 0x10, "AGING");
   }
 
-  public int getAging() throws IOException{
+  public int getAging() throws IOException {
     reload();
     return registerValue;
   }

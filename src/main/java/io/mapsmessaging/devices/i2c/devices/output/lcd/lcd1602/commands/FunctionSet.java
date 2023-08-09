@@ -21,34 +21,34 @@ import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.C
 public class FunctionSet extends Command {
 
   private static final byte FUNCTION_SET = 0b00100000;
-  private static final byte SET_2_LINES  = 0b00001000;
-  private static final byte SET_5_BY_10  = 0b00000100;
+  private static final byte SET_2_LINES = 0b00001000;
+  private static final byte SET_5_BY_10 = 0b00000100;
 
   public FunctionSet() {
     super(CONTROL, FUNCTION_SET);
   }
 
-  public void set5by10Font(){
-    buffer[1] = (byte)(buffer[1] | SET_5_BY_10);
+  public void set5by10Font() {
+    buffer[1] = (byte) (buffer[1] | SET_5_BY_10);
   }
 
-  public void set5by8Font(){
-    buffer[1] = (byte)(buffer[1] & ~SET_5_BY_10);
+  public void set5by8Font() {
+    buffer[1] = (byte) (buffer[1] & ~SET_5_BY_10);
   }
 
-  public void set2LineDisplay(){
-    buffer[1] = (byte)(buffer[1] | SET_2_LINES);
+  public void set2LineDisplay() {
+    buffer[1] = (byte) (buffer[1] | SET_2_LINES);
   }
 
-  public void set1LineDisplay(){
-    buffer[1] = (byte)(buffer[1] & ~SET_2_LINES);
+  public void set1LineDisplay() {
+    buffer[1] = (byte) (buffer[1] & ~SET_2_LINES);
   }
 
   public int getCycleTime() {
     return 5;
   }
 
-  public int repeatCount(){
+  public int repeatCount() {
     return 2;
   }
 

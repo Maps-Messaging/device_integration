@@ -8,9 +8,9 @@ import lombok.Getter;
 
 import java.io.IOException;
 
+@Getter
 public class AT24CnnDevice extends I2CDevice implements Storage {
 
-  @Getter
   private final int memorySize;
 
   protected AT24CnnDevice(AddressableDevice device) {

@@ -26,9 +26,9 @@ import lombok.Setter;
 
 import java.io.IOException;
 
+@Getter
 public class Ina219Sensor extends I2CDevice implements Sensor {
 
-  @Getter
   @Setter
   private ADCResolution adcResolution;
 

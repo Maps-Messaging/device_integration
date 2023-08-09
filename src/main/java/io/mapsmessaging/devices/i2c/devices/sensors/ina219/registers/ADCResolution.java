@@ -1,5 +1,8 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers;
 
+import lombok.Getter;
+
+@Getter
 public enum ADCResolution {
   RES_9BIT(0x0080),  // 9-bit bus res = 0..511
   RES_10BIT(0x0100),  // 10-bit bus res = 0..1023
@@ -12,7 +15,4 @@ public enum ADCResolution {
     this.value = value;
   }
 
-  public int getValue() {
-    return value;
-  }
 }

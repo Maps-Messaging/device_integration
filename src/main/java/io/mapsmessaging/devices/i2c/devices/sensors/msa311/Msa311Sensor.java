@@ -36,9 +36,9 @@ import java.util.List;
 
 import static io.mapsmessaging.devices.util.Constants.EARTH_GRAVITY_FLOAT;
 
+@Getter
 public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, Resetable {
   private static final int PART_ID = 0x1;
-  @Getter
   private final ResetRegister resetRegister;
   @Getter
   private final PartIdRegister partIdRegister;

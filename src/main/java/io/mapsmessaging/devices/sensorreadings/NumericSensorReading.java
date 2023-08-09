@@ -2,10 +2,10 @@ package io.mapsmessaging.devices.sensorreadings;
 
 import lombok.Getter;
 
+@Getter
 public abstract class NumericSensorReading<T> extends SensorReading<T> {
 
 
-  @Getter
   private final T minimum;
 
   @Getter

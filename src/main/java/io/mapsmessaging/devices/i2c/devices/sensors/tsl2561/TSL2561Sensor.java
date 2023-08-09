@@ -35,9 +35,9 @@ import lombok.Getter;
 import java.io.IOException;
 import java.util.List;
 
+@Getter
 public class TSL2561Sensor extends I2CDevice implements PowerManagement, Sensor {
 
-  @Getter
   private final ControlRegister controlRegister;
   @Getter
   private final TimingRegister timingRegister;

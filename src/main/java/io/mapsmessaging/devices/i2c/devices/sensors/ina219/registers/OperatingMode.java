@@ -1,5 +1,8 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers;
 
+import lombok.Getter;
+
+@Getter
 public enum OperatingMode {
   POWERDOWN(0x0000),
   SVOLT_TRIGGERED(0x0001),
@@ -16,7 +19,4 @@ public enum OperatingMode {
     this.value = value;
   }
 
-  public int getValue() {
-    return value;
-  }
 }

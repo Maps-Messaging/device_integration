@@ -42,9 +42,9 @@ public abstract class BacklightPwm extends I2CDevice implements Output {
   }
 
   public void initialise() {
-    sendCommand(REG_MODE1, (byte)0);
-    sendCommand(REG_OUTPUT, (byte)0xFF);
-    sendCommand(REG_MODE2, (byte)0x20);
+    sendCommand(REG_MODE1, (byte) 0);
+    sendCommand(REG_OUTPUT, (byte) 0xFF);
+    sendCommand(REG_MODE2, (byte) 0x20);
     sendCommand(regRed, (byte) 0x77);
     sendCommand(regGreen, (byte) 0x77);
     sendCommand(regBlue, (byte) 0x77);
@@ -66,7 +66,7 @@ public abstract class BacklightPwm extends I2CDevice implements Output {
     return "Backlight control";
   }
 
-  protected void sendCommand(byte addr, byte val){
+  protected void sendCommand(byte addr, byte val) {
     device.writeRegister(addr, new byte[]{val});
   }
 

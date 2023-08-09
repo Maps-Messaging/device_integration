@@ -21,6 +21,6 @@ import static io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.C
 
 public class WriteData extends Command {
   public WriteData() {
-    super((byte) (CONTROL | RS),(byte)0);
+    super((byte) (CONTROL | RS), (byte) 0);
   }
 }

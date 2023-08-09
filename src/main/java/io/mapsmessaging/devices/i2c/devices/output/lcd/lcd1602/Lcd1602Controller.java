@@ -55,7 +55,7 @@ public class Lcd1602Controller extends I2CDeviceController {
       display.clearDisplay();
       display.setRows(2);
       display.setColumns(16);
-      Thread t = new Thread( new Clock(this));
+      Thread t = new Thread(new Clock(this));
       t.setDaemon(true);
       t.start();
     }

@@ -25,9 +25,9 @@ import lombok.Getter;
 
 import java.io.IOException;
 
+@Getter
 public class Bh1750Controller extends I2CDeviceController {
 
-  @Getter
   private final String name = "BH1750";
 
   @Getter

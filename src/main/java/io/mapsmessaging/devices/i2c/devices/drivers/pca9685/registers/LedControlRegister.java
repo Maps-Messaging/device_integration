@@ -34,20 +34,20 @@ public class LedControlRegister extends MultiByteRegister {
     reload();
   }
 
-  public void setFullOn(boolean flag) throws IOException {
-    setFullFlag(1, ~FULL_ON, flag?FULL_ON:0);
-  }
-
-  public boolean isFullOn(){
+  public boolean isFullOn() {
     return (buffer[1] & FULL_ON) != 0;
   }
 
-  public void setFullOff(boolean flag) throws IOException {
-    setFullFlag(3, ~FULL_OFF, flag?FULL_OFF:0);
+  public void setFullOn(boolean flag) throws IOException {
+    setFullFlag(1, ~FULL_ON, flag ? FULL_ON : 0);
   }
 
-  public boolean isFullOff(){
+  public boolean isFullOff() {
     return (buffer[3] & FULL_OFF) != 0;
+  }
+
+  public void setFullOff(boolean flag) throws IOException {
+    setFullFlag(3, ~FULL_OFF, flag ? FULL_OFF : 0);
   }
 
   public int getOn() {
@@ -58,6 +58,7 @@ public class LedControlRegister extends MultiByteRegister {
     Arrays.fill(buffer, (byte) 0);
     sensor.write(address, buffer);
   }
+
   public void setRate(int on, int off) throws IOException {
     writeVal(on, off);
   }
@@ -83,7 +84,7 @@ public class LedControlRegister extends MultiByteRegister {
 
   protected void setFullFlag(int offset, int mask, int value) throws IOException {
     buffer[offset] = (byte) ((buffer[offset] & mask) | value);
-    sensor.write(address+offset, buffer[offset]);
+    sensor.write(address + offset, buffer[offset]);
   }
 
 
@@ -96,6 +97,6 @@ public class LedControlRegister extends MultiByteRegister {
   }
 
   protected int readVal(int offset) {
-    return buffer[offset] & 0xff | ((buffer[offset+1] & 0xf) << 8);
+    return buffer[offset] & 0xff | ((buffer[offset + 1] & 0xf) << 8);
   }
 }

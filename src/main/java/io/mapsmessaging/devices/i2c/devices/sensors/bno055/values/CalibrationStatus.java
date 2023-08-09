@@ -18,12 +18,12 @@ package io.mapsmessaging.devices.i2c.devices.sensors.bno055.values;
 
 import lombok.Getter;
 
+@Getter
 public enum CalibrationStatus {
   NOT_CALIBRATED((byte) 0b00),
   FULLY_CALIBRATED((byte) 0b11),
   UNKNOWN((byte) 0b10);
 
-  @Getter
   private final byte mask;
 
   CalibrationStatus(byte mask) {

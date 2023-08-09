@@ -34,36 +34,36 @@ public class Mode2Register extends SingleByteRegister {
     super(sensor, 1, "MODE2");
   }
 
-  public void setInvertLogic(boolean flag) throws IOException {
-    setControlRegister(~INVRT, flag ? INVRT : 0);
-  }
-
   public boolean isInvertLogic() {
     return (registerValue & INVRT) != 0;
   }
 
-  public void setOutputChangeOnAck(boolean flag) throws IOException {
-    setControlRegister(~OCH, flag ? OCH : 0);
+  public void setInvertLogic(boolean flag) throws IOException {
+    setControlRegister(~INVRT, flag ? INVRT : 0);
   }
 
   public boolean getOutputChangeOnAck() {
     return (registerValue & OCH) != 0;
   }
 
-  public void setOutputTotemPole(boolean flag) throws IOException {
-    setControlRegister(~OUTDRV, flag ? OUTDRV : 0);
+  public void setOutputChangeOnAck(boolean flag) throws IOException {
+    setControlRegister(~OCH, flag ? OCH : 0);
   }
 
   public boolean getOutputTotemPole() {
     return (registerValue & OUTDRV) != 0;
   }
 
-  public void setOutputDriver(int flag) throws IOException {
-    setControlRegister(~OUTNE, flag & OUTNE);
+  public void setOutputTotemPole(boolean flag) throws IOException {
+    setControlRegister(~OUTDRV, flag ? OUTDRV : 0);
   }
 
   public int getOutputDriver() {
     return (registerValue & OUTNE);
+  }
+
+  public void setOutputDriver(int flag) throws IOException {
+    setControlRegister(~OUTNE, flag & OUTNE);
   }
 
   @Override

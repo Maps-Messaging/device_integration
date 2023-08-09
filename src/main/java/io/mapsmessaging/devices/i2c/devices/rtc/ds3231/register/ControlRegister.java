@@ -26,13 +26,13 @@ import java.io.IOException;
 
 public class ControlRegister extends SingleByteRegister {
 
-  private static final int ENABLE_OSC   = 0b10000000;
+  private static final int ENABLE_OSC = 0b10000000;
   private static final int ENABLE_BB_SQ = 0b01000000;
-  private static final int CONV         = 0b00100000;
-  private static final int CLOCK_FREQ   = 0b00011000;
-  private static final int INT_ENABLE   = 0b00000100;
-  private static final int ALARM2_INT   = 0b00000010;
-  private static final int ALARM1_INT   = 0b00000001;
+  private static final int CONV = 0b00100000;
+  private static final int CLOCK_FREQ = 0b00011000;
+  private static final int INT_ENABLE = 0b00000100;
+  private static final int ALARM2_INT = 0b00000010;
+  private static final int ALARM1_INT = 0b00000001;
 
 
   public ControlRegister(I2CDevice device) throws IOException {
@@ -44,7 +44,7 @@ public class ControlRegister extends SingleByteRegister {
   }
 
   public void setOscillatorEnabled(boolean enabled) throws IOException {
-    setControlRegister(~ENABLE_OSC, enabled?ENABLE_OSC:0);
+    setControlRegister(~ENABLE_OSC, enabled ? ENABLE_OSC : 0);
   }
 
   public boolean isSquareWaveEnabled() {
@@ -52,7 +52,7 @@ public class ControlRegister extends SingleByteRegister {
   }
 
   public void setSquareWaveEnabled(boolean enabled) throws IOException {
-    setControlRegister(~ENABLE_BB_SQ, enabled?ENABLE_BB_SQ:0);
+    setControlRegister(~ENABLE_BB_SQ, enabled ? ENABLE_BB_SQ : 0);
   }
 
   public boolean isConvertTemperatureEnabled() {
@@ -60,16 +60,16 @@ public class ControlRegister extends SingleByteRegister {
   }
 
   public void setConvertTemperature(boolean enabled) throws IOException {
-    setControlRegister(~CONV, enabled?CONV:0);
+    setControlRegister(~CONV, enabled ? CONV : 0);
   }
 
   public ClockFrequency getSquareWaveFrequency() {
-    int frequencyBits = (registerValue &CLOCK_FREQ)>>3;
+    int frequencyBits = (registerValue & CLOCK_FREQ) >> 3;
     return ClockFrequency.values()[frequencyBits];
   }
 
   public void setSquareWaveFrequency(ClockFrequency frequency) throws IOException {
-    setControlRegister(~CLOCK_FREQ, frequency.ordinal()<<3);
+    setControlRegister(~CLOCK_FREQ, frequency.ordinal() << 3);
   }
 
   public boolean isSquareWaveInterruptEnabled() {
@@ -77,7 +77,7 @@ public class ControlRegister extends SingleByteRegister {
   }
 
   public void setSquareWaveInterruptEnabled(boolean enabled) throws IOException {
-    setControlRegister(~INT_ENABLE, enabled?INT_ENABLE:0);
+    setControlRegister(~INT_ENABLE, enabled ? INT_ENABLE : 0);
   }
 
   public boolean isAlarm1InterruptEnabled() throws IOException {
@@ -86,7 +86,7 @@ public class ControlRegister extends SingleByteRegister {
   }
 
   public void setAlarm1InterruptEnabled(boolean enabled) throws IOException {
-    setControlRegister(~ALARM1_INT, enabled?ALARM1_INT:0);
+    setControlRegister(~ALARM1_INT, enabled ? ALARM1_INT : 0);
   }
 
   public boolean isAlarm2InterruptEnabled() throws IOException {
@@ -95,7 +95,7 @@ public class ControlRegister extends SingleByteRegister {
   }
 
   public void setAlarm2InterruptEnabled(boolean enabled) throws IOException {
-    setControlRegister(~ALARM2_INT, enabled?ALARM2_INT:0);
+    setControlRegister(~ALARM2_INT, enabled ? ALARM2_INT : 0);
   }
 
   @Override

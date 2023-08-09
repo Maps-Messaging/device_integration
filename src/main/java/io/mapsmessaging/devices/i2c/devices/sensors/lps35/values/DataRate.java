@@ -2,6 +2,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.lps35.values;
 
 import lombok.Getter;
 
+@Getter
 public enum DataRate {
   RATE_ONE_SHOT(0b0000000),
   RATE_1_HZ(0b0010000),
@@ -10,7 +11,6 @@ public enum DataRate {
   RATE_50_HZ(0b1000000),
   RATE_75_HZ(0b1010000);
 
-  @Getter
   private final int mask;
 
   DataRate(int mask) {

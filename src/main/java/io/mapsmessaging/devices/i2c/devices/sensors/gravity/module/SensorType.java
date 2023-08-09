@@ -2,6 +2,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.gravity.module;
 
 import lombok.Getter;
 
+@Getter
 public enum SensorType {
 
   NH3(0x2, "SEN0469", 0, 100, "ppm", 1, 150, new NH3Module(), 10),
@@ -18,7 +19,6 @@ public enum SensorType {
   PH3(0x45, "SEN0476", 0, 1000, "ppm", 0.1f, 30, new PH3Module(), 50),
   UNKNOWN(0x0, "Unknown", 0, 0, "", 0.0f, 0, null, 0);
 
-  @Getter
   private final int type;
 
   @Getter

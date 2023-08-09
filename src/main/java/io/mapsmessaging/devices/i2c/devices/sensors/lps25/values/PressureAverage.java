@@ -1,5 +1,8 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.values;
 
+import lombok.Getter;
+
+@Getter
 public enum PressureAverage {
   AVERAGE_8(0b00),
   AVERAGE_32(0b01),
@@ -12,7 +15,4 @@ public enum PressureAverage {
     this.mask = mask;
   }
 
-  public int getMask() {
-    return mask;
-  }
 }

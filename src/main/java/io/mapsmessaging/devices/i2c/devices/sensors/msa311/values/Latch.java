@@ -18,6 +18,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.msa311.values;
 
 import lombok.Getter;
 
+@Getter
 public enum Latch {
   NON_LATCHED(0b0000),
   TEMP_250MS(0b0001),
@@ -34,7 +35,6 @@ public enum Latch {
   TEMP_50MS(0b1101),
   TEMP_100MS(0b1110);
 
-  @Getter
   private final byte mask;
 
   Latch(int mask) {

@@ -141,28 +141,28 @@ public class Lcd1602Device extends I2CDevice implements Output, Storage {
     cursorPos = 0;
   }
 
-  public void setCursor(byte row, byte col){
+  public void setCursor(byte row, byte col) {
     setDdramAddress.setCursor(row, col);
     sendCommand(setDdramAddress);
     cursorPos = row * columns + col;
   }
 
-  public void set5by10Font(){
+  public void set5by10Font() {
     functionSet.set5by10Font();
     sendCommand(functionSet);
   }
 
-  public void set5by8Font(){
+  public void set5by8Font() {
     functionSet.set5by8Font();
     sendCommand(functionSet);
   }
 
-  public void set2LineDisplay(){
+  public void set2LineDisplay() {
     functionSet.set2LineDisplay();
     sendCommand(functionSet);
   }
 
-  public void set1LineDisplay(){
+  public void set1LineDisplay() {
     functionSet.set1LineDisplay();
     sendCommand(functionSet);
   }

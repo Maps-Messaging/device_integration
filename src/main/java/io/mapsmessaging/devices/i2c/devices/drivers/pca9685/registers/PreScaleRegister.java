@@ -38,13 +38,13 @@ public class PreScaleRegister extends SingleByteRegister {
     setPrescale(computePrescale(frequency));
   }
 
-  public void setPrescale(int val) throws IOException {
-    setControlRegister(0xff, val);
-  }
-
   public int getPrescale() throws IOException {
     reload();
     return registerValue;
+  }
+
+  public void setPrescale(int val) throws IOException {
+    setControlRegister(0xff, val);
   }
 
   @Override
@@ -61,6 +61,7 @@ public class PreScaleRegister extends SingleByteRegister {
   public RegisterData toData() throws IOException {
     return new PreScaleData(getPrescale());
   }
+
   protected int computePrescale(float frequency) {
     return (Math.round((25000000f / (4096f * frequency) - 0.5f)) & 0xff);
   }
