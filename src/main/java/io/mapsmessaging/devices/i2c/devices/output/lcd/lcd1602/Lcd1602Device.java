@@ -38,6 +38,7 @@ public class Lcd1602Device extends I2CDevice implements Output, Storage {
 
   private byte[] buffer;
 
+  private int cursorPos;
   @Getter
   private int rows;
   @Getter
@@ -54,6 +55,7 @@ public class Lcd1602Device extends I2CDevice implements Output, Storage {
     setDdramAddress = new SetDdramAddress();
     rows = 2;
     columns = 16;
+    cursorPos = 0;
     buffer = new byte[rows * columns];
     initialise();
   }
@@ -119,6 +121,8 @@ public class Lcd1602Device extends I2CDevice implements Output, Storage {
     for (int x = 0; x < data.length; x++) {
       buf[1] = data[idx];
       idx++;
+      buffer[cursorPos] = data[idx];
+      cursorPos++;
       device.write(buf);
     }
   }
@@ -129,11 +133,13 @@ public class Lcd1602Device extends I2CDevice implements Output, Storage {
 
   public void cursorHome() {
     sendCommand(cursorHome);
+    cursorPos = 0;
   }
 
   public void setCursor(byte row, byte col){
     setDdramAddress.setCursor(row, col);
     sendCommand(setDdramAddress);
+    cursorPos = row * columns + col;
   }
 
   public void set5by10Font(){
@@ -212,13 +218,11 @@ public class Lcd1602Device extends I2CDevice implements Output, Storage {
 
   @Override
   public void writeBlock(int address, byte[] data) throws IOException {
-    int x = address;
-    int y = 0;
-    while (x < buffer.length && y < data.length) {
-      buffer[x] = data[y];
-      x++;
-      y++;
-    }
+    byte row = (byte) (address / columns);
+    byte col = (byte) (address % columns);
+    setCursor(row, col);
+
+
     byte[] t = new byte[columns];
     for (int idx = 0; idx < rows; idx++) {
       int pos = idx * columns;
