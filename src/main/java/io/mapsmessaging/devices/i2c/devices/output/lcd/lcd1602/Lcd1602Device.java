@@ -17,12 +17,16 @@
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602;
 
 import io.mapsmessaging.devices.deviceinterfaces.Output;
+import io.mapsmessaging.devices.deviceinterfaces.Storage;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.commands.*;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.logging.LoggerFactory;
+import lombok.Getter;
 
-public class Lcd1602Device extends I2CDevice implements Output {
+import java.io.IOException;
+
+public class Lcd1602Device extends I2CDevice implements Output, Storage {
 
   private final ClearDisplay clearDisplay;
   private final DisplayControl displayControl;
@@ -31,6 +35,13 @@ public class Lcd1602Device extends I2CDevice implements Output {
   private final EntryModeSet entryModeSet;
   private final FunctionSet functionSet;
   private final SetDdramAddress setDdramAddress;
+
+  private byte[] buffer;
+
+  @Getter
+  private int rows;
+  @Getter
+  private int columns;
 
   protected Lcd1602Device(AddressableDevice device) {
     super(device, LoggerFactory.getLogger(Lcd1602Device.class));
@@ -41,11 +52,16 @@ public class Lcd1602Device extends I2CDevice implements Output {
     entryModeSet = new EntryModeSet();
     functionSet = new FunctionSet();
     setDdramAddress = new SetDdramAddress();
+    rows = 2;
+    columns = 16;
+    buffer = new byte[rows * columns];
     initialise();
   }
 
   public void initialise() {
-    functionSet.set2LineDisplay();
+    if (rows == 2) {
+      functionSet.set2LineDisplay();
+    }
     functionSet.set5by10Font();
     sendCommand(functionSet);
     displayControl.setDisplayOn(true);
@@ -55,6 +71,26 @@ public class Lcd1602Device extends I2CDevice implements Output {
     clearDisplay();
     cursorHome();
     noAutoScroll();
+  }
+
+  public void setRows(int rows) {
+    if (rows != this.rows) {
+      this.rows = rows;
+      buffer = new byte[rows * columns];
+      if (rows == 2) {
+        functionSet.set2LineDisplay();
+      }
+      if (rows == 1) {
+        functionSet.set1LineDisplay();
+      }
+    }
+  }
+
+  public void setColumns(int columns) {
+    if (columns != this.columns) {
+      this.columns = columns;
+      buffer = new byte[rows * columns];
+    }
   }
 
   @Override
@@ -73,16 +109,20 @@ public class Lcd1602Device extends I2CDevice implements Output {
   }
 
   public void setDisplay(String text) {
+    setDisplay(text.getBytes());
+  }
+
+  public void setDisplay(byte[] data) {
     byte[] buf = new byte[2];
     buf[0] = 0x40;
-    byte[] str = text.getBytes();
     int idx = 0;
-    for (int x = 0; x < str.length; x++) {
-      buf[1] = str[idx];
+    for (int x = 0; x < data.length; x++) {
+      buf[1] = data[idx];
       idx++;
       device.write(buf);
     }
   }
+
   public void clearDisplay() {
     sendCommand(clearDisplay);
   }
@@ -170,4 +210,35 @@ public class Lcd1602Device extends I2CDevice implements Output {
   }
 
 
+  @Override
+  public void writeBlock(int address, byte[] data) throws IOException {
+    int x = address;
+    int y = 0;
+    while (x < buffer.length && y < data.length) {
+      buffer[x] = data[y];
+      x++;
+      y++;
+    }
+    byte[] t = new byte[columns];
+    for (int idx = 0; idx < rows; idx++) {
+      int pos = idx * columns;
+      System.arraycopy(buffer, pos, t, 0, t.length);
+      setCursor((byte) idx, (byte) 0);
+      setDisplay(t);
+    }
+  }
+
+  @Override
+  public byte[] readBlock(int address, int length) {
+    int len = Math.min(buffer.length - address, length);
+    byte[] data = new byte[len];
+    int x = address;
+    int y = 0;
+    while (x < buffer.length && y < data.length) {
+      data[y] = buffer[x];
+      x++;
+      y++;
+    }
+    return data;
+  }
 }
