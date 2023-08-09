@@ -25,7 +25,6 @@ import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 public class Lcd1602Device extends I2CDevice implements Output, Storage {
 
@@ -38,8 +37,8 @@ public class Lcd1602Device extends I2CDevice implements Output, Storage {
   private final SetDdramAddress setDdramAddress;
 
   private byte[] buffer;
-
   private int cursorPos;
+
   @Getter
   private int rows;
   @Getter
@@ -116,13 +115,8 @@ public class Lcd1602Device extends I2CDevice implements Output, Storage {
   }
 
   public void setDisplay(byte[] data) {
-    byte[] buf = new byte[2];
-    buf[0] = 0x40;
-    for (int x = 0; x < data.length; x++) {
-      buf[1] = data[x];
-      buffer[cursorPos] = data[x];
-      cursorPos++;
-      device.write(buf);
+    for (byte datum : data) {
+      writeChar(datum);
     }
   }
 
@@ -206,48 +200,40 @@ public class Lcd1602Device extends I2CDevice implements Output, Storage {
     sendCommand(entryModeSet);
   }
 
-  private void sendCommand(Command command) {
-    int repeat = command.repeatCount()+1;
-    for(int x=0;x<repeat;x++) {
-      device.write(command.getBuffer());
-      delay(command.getCycleTime());
-    }
+  private void writeChar(byte data) {
+    byte[] buf = new byte[2];
+    buf[0] = 0x40;
+    buf[1] = data;
+    buffer[cursorPos] = data;
+    cursorPos++;
+    device.write(buf);
   }
-
 
   @Override
   public void writeBlock(int address, byte[] data) throws IOException {
-    byte row = (byte) (address / columns);
-    byte col = (byte) (address % columns);
-    setCursor(row, col);
-
-    byte[] t = new byte[columns];
-    for (int idx = 0; idx < rows; idx++) {
-      int pos = idx * columns;
-      System.arraycopy(buffer, pos, t, 0, t.length);
-      setCursor((byte) idx, (byte) 0);
-      setDisplay(t);
-    }
+    update(address, data, 0);
   }
 
-  public static void update(int startPos, byte[] data, int offset) {
+  public void update(int startPos, byte[] data, int offset) {
     int pos = startPos;
     int remainingData = data.length - offset;
-
-    while (remainingData > 0) {
+    while (remainingData > 0 && pos < buffer.length) {
       byte row = (byte) (pos / 16);
       byte col = (byte) (pos % 16);
       int bufEnd = (row + 1) * 16;
       int end = Math.min(bufEnd - pos, remainingData);
-      //setCursor(row, col);
-
-      System.arraycopy(data, offset, buffer1, pos, end);
+      setCursor(row, col);
+      int idx = offset;
+      for (int x = pos; x < pos + end; x++) {
+        buffer[x] = data[idx];
+        idx++;
+        writeChar(data[idx]);
+      }
       pos = bufEnd;
       offset += end;
       remainingData -= end;
     }
   }
-
 
   @Override
   public byte[] readBlock(int address, int length) {
@@ -263,16 +249,11 @@ public class Lcd1602Device extends I2CDevice implements Output, Storage {
     return data;
   }
 
-  private static byte[] buffer1 = new byte[32];
-  public static void main(String[] args){
-    byte[] buf = new byte[32];
-    Arrays.fill(buf, (byte) 0xff);
-    update(0, buf, 0);
-    buf = new byte[8];
-    for(int x=0;x<buffer1.length;x++){
-      Arrays.fill(buf, (byte) x);
-      update(x, buf, 0);
+  private void sendCommand(Command command) {
+    int repeat = command.repeatCount() + 1;
+    for (int x = 0; x < repeat; x++) {
+      device.write(command.getBuffer());
+      delay(command.getCycleTime());
     }
-    System.err.println(buffer1);
   }
 }

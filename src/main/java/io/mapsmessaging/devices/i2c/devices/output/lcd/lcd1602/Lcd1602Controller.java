@@ -47,6 +47,8 @@ public class Lcd1602Controller extends I2CDeviceController {
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       display = new Lcd1602Device(device);
       display.clearDisplay();
+      display.setRows(2);
+      display.setColumns(16);
       Thread t = new Thread( new Clock(this));
       t.setDaemon(true);
       t.start();
