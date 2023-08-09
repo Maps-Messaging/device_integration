@@ -21,6 +21,7 @@ import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.i2c.devices.sensors.bno055.values.SystemStatus;
 import io.mapsmessaging.devices.impl.AddressableDevice;
+import io.mapsmessaging.devices.sensorreadings.Orientation;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -71,10 +72,10 @@ public class BNO055Controller extends I2CDeviceController {
   public byte[] getDeviceState() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (sensor != null) {
-      double[] orientation = sensor.getOrientation();
-      jsonObject.put("heading", orientation[0]);
-      jsonObject.put("roll", orientation[1]);
-      jsonObject.put("pitch", orientation[2]);
+      Orientation orientation = sensor.getOrientation();
+      jsonObject.put("heading", orientation.getX());
+      jsonObject.put("roll", orientation.getY());
+      jsonObject.put("pitch", orientation.getZ());
     }
     return jsonObject.toString(2).getBytes();
   }
@@ -89,7 +90,7 @@ public class BNO055Controller extends I2CDeviceController {
       callibrationStatus.put("system", sensor.getSystemCalibration().name());
       callibrationStatus.put("gyroscope", sensor.getGryoscopeCalibration().name());
       JSONArray statusArray = new JSONArray();
-      for (SystemStatus status : sensor.getStatus(false)) {
+      for (SystemStatus status : sensor.getSystemStatusRegister().getStatus()) {
         statusArray.put(status.getDescription());
       }
       jsonObject.put("systemStatus", statusArray);

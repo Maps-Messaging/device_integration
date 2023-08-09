@@ -20,23 +20,29 @@ import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
+import io.mapsmessaging.devices.i2c.devices.sensors.bno055.data.Version;
 import io.mapsmessaging.devices.i2c.devices.sensors.bno055.registers.*;
 import io.mapsmessaging.devices.i2c.devices.sensors.bno055.values.CalibrationStatus;
 import io.mapsmessaging.devices.i2c.devices.sensors.bno055.values.SystemErrorStatus;
-import io.mapsmessaging.devices.i2c.devices.sensors.bno055.values.SystemStatus;
 import io.mapsmessaging.devices.impl.AddressableDevice;
+import io.mapsmessaging.devices.sensorreadings.Orientation;
+import io.mapsmessaging.devices.sensorreadings.OrientationSensorReading;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
-import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class BNO055Sensor extends I2CDevice implements Sensor {
 
-  private final float[] myEuler = new float[3];
+  @Getter
   private final CalibrationStatusRegister calibrationStatusRegister;
+
+  @Getter
   private final SystemStatusRegister systemStatusRegister;
+  @Getter
   private final ErrorStatusRegister errorStatusRegister;
   // Configuration Registers
   @Getter
@@ -101,10 +107,8 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
   private final SingleByteRegister sysTrigger;
   @Getter
   private final SingleByteRegister sysClkStatus;
-
-  private long lastRead;
   @Getter
-  private String version;
+  private final List<SensorReading<?>> readings;
 
   public BNO055Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(BNO055Sensor.class));
@@ -146,11 +150,15 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
     axisMapConfig = new MultiByteRegister(this, 0x41, 2, "AXIS_MAP_CONFIG");
     axisMapSign = new SingleByteRegister(this, 0x42, "AXIS_MAP_SIGN");
 
-    // Axis Registers
-
-
-    // Status Registers
     initialise();
+    readings = new ArrayList<>();
+    readings.add(new OrientationSensorReading("Heading", "degrees", this::getOrientation));
+    readings.add(new OrientationSensorReading("Euler", "", this::getEuler));
+    readings.add(new OrientationSensorReading("Gravity", "m/s^2", this::getGravity));
+    readings.add(new OrientationSensorReading("Gyroscope", "", this::getGyroscope));
+    readings.add(new OrientationSensorReading("Linear_Accel", "", this::getLinearAcceleration));
+    readings.add(new OrientationSensorReading("Magnetometer", "", this::getMagnetometer));
+    readings.add(new OrientationSensorReading("Accelerometer", "m/s^2", this::getAccelerometer));
   }
 
   public static int getId(AddressableDevice device) {
@@ -171,21 +179,11 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
     write(BNO055Constants.BNO055_PWR_MODE_ADDR, BNO055Constants.POWER_MODE_NORMAL);
     write(BNO055Constants.BNO055_SYS_TRIGGER_ADDR, (byte) 0x0);
     setOperationalMode();
-    version = computeVersion();
   }
 
   @Override
   public boolean isConnected() {
     return false;
-  }
-
-  public void initialize() throws IOException {
-    int chipId = readRegister(BNO055Constants.BNO055_CHIP_ID_ADDR);
-    if (chipId != BNO055Constants.BNO055_ID) {
-      throw new IOException("BNO055 not detected!");
-    }
-    setOperationalMode();
-    version = computeVersion();
   }
 
   public void setConfigMode() throws IOException {
@@ -200,7 +198,6 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
     write(BNO055Constants.BNO055_OPR_MODE_ADDR, mode);
     delay(30);
   }
-
 
   public boolean isSystemCalibration() throws IOException {
     return calibrationStatusRegister.isCalibrated();
@@ -222,63 +219,37 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
     return calibrationStatusRegister.getMagnetometer();
   }
 
-  public float[] readEuler() throws IOException {
-    if (lastRead < System.currentTimeMillis()) {
-      int[] res = readVector(BNO055Constants.BNO055_EULER_H_LSB_ADDR, 3);
-      for (int x = 0; x < res.length; x++) {
-        myEuler[x] = res[x] / 16.0f;
-      }
-      lastRead = System.currentTimeMillis() + 20;
-    }
-    return myEuler;
+  public Orientation getEuler() throws IOException {
+    int[] res = readVector(BNO055Constants.BNO055_EULER_H_LSB_ADDR, 3);
+    return new Orientation((res[0] / 16.0f), (res[1] / 16.0f), (res[2] / 16.0f));
   }
 
-  public float[] readMagnetometer() throws IOException {
+  public Orientation getMagnetometer() throws IOException {
     int[] res = readVector(BNO055Constants.BNO055_MAG_DATA_X_LSB_ADDR, 3);
-    float[] ret = new float[res.length];
-    for (int x = 0; x < res.length; x++) {
-      ret[x] = res[x] / 16.0f;
-    }
-    return ret;
+    return new Orientation((res[0] / 16.0f), (res[1] / 16.0f), (res[2] / 16.0f));
   }
 
-  public float[] readGyroscope() throws IOException {
+  public Orientation getGyroscope() throws IOException {
     int[] res = readVector(BNO055Constants.BNO055_GYRO_DATA_X_LSB_ADDR, 3);
-    float[] ret = new float[res.length];
-    for (int x = 0; x < res.length; x++) {
-      ret[x] = res[x] / 900.0f;
-    }
-    return ret;
+    return new Orientation((res[0] / 900.0f), (res[1] / 900.0f), (res[2] / 900.0f));
   }
 
-  public float[] readAccelerometer() throws IOException {
+  public Orientation getAccelerometer() throws IOException {
     int[] res = readVector(BNO055Constants.BNO055_ACCEL_DATA_X_LSB_ADDR, 3);
-    float[] ret = new float[res.length];
-    for (int x = 0; x < res.length; x++) {
-      ret[x] = res[x] / 100.0f;
-    }
-    return ret;
+    return new Orientation((res[0] / 100.0f), (res[1] / 100.0f), (res[2] / 100.0f));
   }
 
-  public float[] readLinearAcceleration() throws IOException {
+  public Orientation getLinearAcceleration() throws IOException {
     int[] res = readVector(BNO055Constants.BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR, 3);
-    float[] ret = new float[res.length];
-    for (int x = 0; x < res.length; x++) {
-      ret[x] = res[x] / 100.0f;
-    }
-    return ret;
+    return new Orientation((res[0] / 100.0f), (res[1] / 100.0f), (res[2] / 100.0f));
   }
 
-  public float[] readGravity() throws IOException {
+  public Orientation getGravity() throws IOException {
     int[] res = readVector(BNO055Constants.BNO055_GRAVITY_DATA_X_LSB_ADDR, 3);
-    float[] ret = new float[res.length];
-    for (int x = 0; x < res.length; x++) {
-      ret[x] = res[x] / 100.0f;
-    }
-    return ret;
+    return new Orientation((res[0] / 100.0f), (res[1] / 100.0f), (res[2] / 100.0f));
   }
 
-  public float[] readQuaternion() throws IOException {
+  public float[] getQuaternion() throws IOException {
     int[] res = readVector(BNO055Constants.BNO055_QUATERNION_DATA_W_LSB_ADDR, 4);
     float[] ret = new float[res.length];
     float scale = 1.0f / (1 << 14);
@@ -287,7 +258,6 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
     }
     return ret;
   }
-
 
   private int[] readVector(byte address, int size) throws IOException {
     byte[] buffer = new byte[size * 2];
@@ -304,45 +274,23 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
     return errorStatusRegister.getErrorStatus();
   }
 
-  public List<SystemStatus> getStatus(boolean selfTest) throws IOException {
-    int results = 0x0f;
-    if (selfTest) {
-      setConfigMode();
-      int sysTrigger = readRegister(BNO055Constants.BNO055_SYS_TRIGGER_ADDR);
-      write(BNO055Constants.BNO055_SYS_TRIGGER_ADDR, (byte) (sysTrigger | 0x1));
-      delay(1000);
-      results = readRegister(BNO055Constants.BNO055_SELFTEST_RESULT_ADDR);
-      setOperationalMode();
-    }
-    return systemStatusRegister.getStatus();
-//    int status = readRegister(BNO055Constants.BNO055_SYS_STAT_ADDR);
-//    int error = readRegister(BNO055Constants.BNO055_SYS_ERR_ADDR);
-//    return new SystemStatusError(status, results, error);
-  }
-
-  public String computeVersion() throws IOException {
+  public Version getVersion() throws IOException {
     int accel = readRegister(BNO055Constants.BNO055_ACCEL_REV_ID_ADDR);
     int mag = readRegister(BNO055Constants.BNO055_MAG_REV_ID_ADDR);
     int gyro = readRegister(BNO055Constants.BNO055_GYRO_REV_ID_ADDR);
     int bl = readRegister(BNO055Constants.BNO055_BL_REV_ID_ADDR);
     int swLsb = readRegister(BNO055Constants.BNO055_SW_REV_ID_LSB_ADDR);
     int swMsb = readRegister(BNO055Constants.BNO055_SW_REV_ID_MSB_ADDR);
-    JSONObject versionObject = new JSONObject();
-    versionObject.put("software", Float.parseFloat(swMsb + "." + swLsb));
-    versionObject.put("bootLoader", Integer.toHexString(bl));
-    versionObject.put("accelerometer", Integer.toHexString(accel));
-    versionObject.put("magnetometer", Integer.toHexString(mag));
-    versionObject.put("gyroscope", Integer.toHexString(gyro));
-    return versionObject.toString(2);
+    return new Version(Float.parseFloat(swMsb + "." + swLsb), bl, accel, mag, gyro);
   }
 
-  public double[] getOrientation() throws IOException {
+  public Orientation getOrientation() throws IOException {
     byte[] buffer = new byte[6];
     readRegister(BNO055Constants.BNO055_EULER_H_LSB_ADDR, buffer, 0, 6);
     double heading = convert(buffer[0], buffer[1]) / 16.0;
     double roll = convert(buffer[2], buffer[3]) / 16.0;
     double pitch = convert(buffer[4], buffer[5]) / 16.0;
-    return new double[]{heading, roll, pitch};
+    return new Orientation(heading, roll, pitch);
   }
 
   private int convert(byte lsb, byte msb) {
