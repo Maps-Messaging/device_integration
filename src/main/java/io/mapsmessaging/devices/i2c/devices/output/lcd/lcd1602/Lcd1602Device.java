@@ -117,11 +117,9 @@ public class Lcd1602Device extends I2CDevice implements Output, Storage {
   public void setDisplay(byte[] data) {
     byte[] buf = new byte[2];
     buf[0] = 0x40;
-    int idx = 0;
     for (int x = 0; x < data.length; x++) {
-      buf[1] = data[idx];
-      idx++;
-      buffer[cursorPos] = data[idx];
+      buf[1] = data[x];
+      buffer[cursorPos] = data[x];
       cursorPos++;
       device.write(buf);
     }
