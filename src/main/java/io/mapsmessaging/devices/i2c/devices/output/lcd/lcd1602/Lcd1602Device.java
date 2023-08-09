@@ -218,9 +218,9 @@ public class Lcd1602Device extends I2CDevice implements Output, Storage {
     int pos = startPos;
     int remainingData = data.length - offset;
     while (remainingData > 0 && pos < buffer.length) {
-      byte row = (byte) (pos / 16);
-      byte col = (byte) (pos % 16);
-      int bufEnd = (row + 1) * 16;
+      byte row = (byte) (pos / columns);
+      byte col = (byte) (pos % columns);
+      int bufEnd = (row + 1) * columns;
       int end = Math.min(bufEnd - pos, remainingData);
       setCursor(row, col);
       int idx = offset;
