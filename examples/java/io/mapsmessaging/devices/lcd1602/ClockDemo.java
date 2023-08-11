@@ -18,7 +18,7 @@ package io.mapsmessaging.devices.lcd1602;
 
 import io.mapsmessaging.devices.DeviceBusManager;
 import io.mapsmessaging.devices.i2c.I2CBusManager;
-import io.mapsmessaging.devices.i2c.I2CDeviceController;
+import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.Lcd1602Controller;
 import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.task.Clock;
 
@@ -33,10 +33,10 @@ public class ClockDemo {
       bus = Integer.parseInt(args[0]);
     }
     // Configure and mount a device on address 0x5D as a LPS25 pressure & temperature
-    I2CDeviceController deviceController = i2cBusManagers[bus].configureDevice(0x3e, "LCD1602");
-    if (deviceController instanceof Lcd1602Controller) {
-      Thread t = new Thread(new Clock((Lcd1602Controller) deviceController));
-      t.start();
+    I2CDeviceScheduler deviceController = (I2CDeviceScheduler) i2cBusManagers[bus].configureDevice(0x3e, "LCD1602");
+    if (deviceController.getDeviceController() instanceof Lcd1602Controller) {
+      Clock clock = new Clock((Lcd1602Controller) deviceController.getDeviceController());
+      clock.run();
     }
   }
 

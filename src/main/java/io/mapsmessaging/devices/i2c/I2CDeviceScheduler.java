@@ -2,6 +2,7 @@ package io.mapsmessaging.devices.i2c;
 
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
+import lombok.Getter;
 
 import java.io.IOException;
 
@@ -14,6 +15,7 @@ import java.io.IOException;
 public class I2CDeviceScheduler extends I2CDeviceController {
 
   private static final Object I2C_BUS_LOCK = new Object();
+  @Getter
   private final I2CDeviceController deviceController;
 
   public I2CDeviceScheduler(I2CDeviceController deviceController) {
