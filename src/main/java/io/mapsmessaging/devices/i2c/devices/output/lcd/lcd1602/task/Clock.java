@@ -27,9 +27,10 @@ public class Clock implements Task {
 
   @Override
   public void run() {
-    while (runFlag.get()) {
+    synchronized (I2CDeviceScheduler.getI2cBusLock()) {
+      display.clearDisplay();
       LocalDate date = LocalDate.now();
-      synchronized (I2CDeviceScheduler.getI2cBusLock()) {
+      while (runFlag.get()) {
         display.setCursor((byte) 0, (byte) 0);
         display.setDisplay(date.toString());
         for (int x = 0; x < 60; x++) {
