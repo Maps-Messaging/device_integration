@@ -25,7 +25,6 @@ public abstract class GenericPinConfigRegister extends BitsetRegister {
 
   protected GenericPinConfigRegister(I2CDevice sensor, int address, String name) throws IOException {
     super(sensor, address, 2, name);
-    reload();
   }
 
 }

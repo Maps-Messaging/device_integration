@@ -16,7 +16,6 @@
 
 package io.mapsmessaging.devices.i2c.devices.gpio.mcp23017.register;
 
-import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 
 import java.io.IOException;
@@ -25,10 +24,5 @@ public class InputPolarityRegister extends GenericPinConfigRegister {
 
   public InputPolarityRegister(I2CDevice sensor) throws IOException {
     super(sensor, (byte) 2, "IPOL");
-    reload();
-  }
-
-  public RegisterData toData() throws IOException {
-    return null;
   }
 }

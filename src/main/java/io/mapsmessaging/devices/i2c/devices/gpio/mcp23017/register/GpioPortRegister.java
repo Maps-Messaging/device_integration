@@ -24,7 +24,6 @@ public class GpioPortRegister extends GenericPinConfigRegister {
 
   public GpioPortRegister(I2CDevice sensor) throws IOException {
     super(sensor, (byte) 0x12, "GPIO");
-    reload();
   }
 
 }

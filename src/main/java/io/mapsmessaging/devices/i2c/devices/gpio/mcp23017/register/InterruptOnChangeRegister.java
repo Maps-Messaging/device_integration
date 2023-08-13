@@ -24,7 +24,6 @@ public class InterruptOnChangeRegister extends GenericPinConfigRegister {
 
   public InterruptOnChangeRegister(I2CDevice sensor) throws IOException {
     super(sensor, (byte) 0x8, "INTCON");
-    reload();
   }
 
 }

@@ -24,7 +24,6 @@ public class OutputLatchRegister extends GenericPinConfigRegister {
 
   public OutputLatchRegister(I2CDevice sensor) throws IOException {
     super(sensor, (byte) 0x14, "OLAT");
-    reload();
   }
 
 }

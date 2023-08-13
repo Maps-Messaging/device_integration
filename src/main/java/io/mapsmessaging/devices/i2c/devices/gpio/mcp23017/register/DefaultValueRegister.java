@@ -24,7 +24,6 @@ public class DefaultValueRegister extends GenericPinConfigRegister {
 
   public DefaultValueRegister(I2CDevice sensor) throws IOException {
     super(sensor, (byte) 0x6, "DEFVAL");
-    reload();
   }
 
 }

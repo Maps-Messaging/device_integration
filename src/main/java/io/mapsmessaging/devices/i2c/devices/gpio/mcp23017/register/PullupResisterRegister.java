@@ -24,7 +24,6 @@ public class PullupResisterRegister extends GenericPinConfigRegister {
 
   public PullupResisterRegister(I2CDevice sensor) throws IOException {
     super(sensor, (byte) 0xC, "GPPU");
-    reload();
   }
 
 }

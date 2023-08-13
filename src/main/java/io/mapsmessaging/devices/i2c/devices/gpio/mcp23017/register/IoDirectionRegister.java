@@ -24,7 +24,6 @@ public class IoDirectionRegister extends GenericPinConfigRegister {
 
   public IoDirectionRegister(I2CDevice sensor) throws IOException {
     super(sensor, (byte) 0, "IODIR");
-    reload();
   }
 
 }

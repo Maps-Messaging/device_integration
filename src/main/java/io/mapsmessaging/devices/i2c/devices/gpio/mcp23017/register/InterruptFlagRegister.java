@@ -24,7 +24,6 @@ public class InterruptFlagRegister extends GenericPinConfigRegister {
 
   public InterruptFlagRegister(I2CDevice sensor) throws IOException {
     super(sensor, (byte) 0xE, "INTF");
-    reload();
   }
 
 }

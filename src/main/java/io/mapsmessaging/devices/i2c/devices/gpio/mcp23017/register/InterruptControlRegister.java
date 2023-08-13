@@ -24,6 +24,5 @@ public class InterruptControlRegister extends GenericPinConfigRegister {
 
   public InterruptControlRegister(I2CDevice sensor) throws IOException {
     super(sensor, (byte) 4, "GPINTEN");
-    reload();
   }
 }

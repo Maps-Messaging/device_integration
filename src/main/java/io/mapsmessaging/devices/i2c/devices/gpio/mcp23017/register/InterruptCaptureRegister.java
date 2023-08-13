@@ -24,7 +24,6 @@ public class InterruptCaptureRegister extends GenericPinConfigRegister {
 
   public InterruptCaptureRegister(I2CDevice sensor) throws IOException {
     super(sensor, (byte) 0x10, "INTCAP");
-    reload();
   }
 
 }
