@@ -26,9 +26,9 @@ import lombok.Getter;
 
 import java.io.IOException;
 
+@Getter
 public class Mcp23017Device extends I2CDevice implements Sensor, Resetable {
 
-  @Getter
   private final IoDirectionRegister ioDir;
   @Getter
   private final InputPolarityRegister ipol;

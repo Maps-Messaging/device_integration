@@ -36,36 +36,36 @@ public class ExpanderConfigurationRegister extends SingleByteRegister {
     reload();
   }
 
-  public void setMirror(boolean flag) throws IOException {
-    super.setControlRegister(~MIRROR, flag ? MIRROR : 0);
-  }
-
   public boolean isMirror() {
     return (registerValue & MIRROR) != 0;
   }
 
-  public void setSequential(boolean flag) throws IOException {
-    super.setControlRegister(~SEQOP, flag ? SEQOP : 0);
+  public void setMirror(boolean flag) throws IOException {
+    super.setControlRegister(~MIRROR, flag ? MIRROR : 0);
   }
 
   public boolean isSequential() {
     return (registerValue & SEQOP) != 0;
   }
 
-  public void setOpenDrain(boolean flag) throws IOException {
-    super.setControlRegister(~ODR, flag ? ODR : 0);
+  public void setSequential(boolean flag) throws IOException {
+    super.setControlRegister(~SEQOP, flag ? SEQOP : 0);
   }
 
   public boolean isOpenDrain() {
     return (registerValue & ODR) != 0;
   }
 
-  public void setPolarity(boolean flag) throws IOException {
-    super.setControlRegister(~INTPOL, flag ? INTPOL : 0);
+  public void setOpenDrain(boolean flag) throws IOException {
+    super.setControlRegister(~ODR, flag ? ODR : 0);
   }
 
   public boolean getPolarity() {
     return (registerValue & INTPOL) != 0;
+  }
+
+  public void setPolarity(boolean flag) throws IOException {
+    super.setControlRegister(~INTPOL, flag ? INTPOL : 0);
   }
 
 }
