@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.gpio.mcp23017;
 
+import io.mapsmessaging.devices.deviceinterfaces.Gpio;
 import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
@@ -27,30 +28,19 @@ import lombok.Getter;
 import java.io.IOException;
 
 @Getter
-public class Mcp23017Device extends I2CDevice implements Sensor, Resetable {
+public class Mcp23017Device extends I2CDevice implements Sensor, Resetable, Gpio {
 
   private final IoDirectionRegister ioDir;
-  @Getter
   private final InputPolarityRegister ipol;
-  @Getter
   private final InterruptControlRegister gpIntEn;
-  @Getter
   private final DefaultValueRegister defVal;
-  @Getter
   private final InterruptOnChangeRegister intCon;
-  @Getter
   private final PullupResisterRegister gppu;
-  @Getter
   private final InterruptFlagRegister intf;
-  @Getter
   private final InterruptCaptureRegister intCap;
-  @Getter
   private final GpioPortRegister gpio;
-  @Getter
   private final OutputLatchRegister olat;
-  @Getter
   private final ExpanderConfigurationRegister ioconA;
-  @Getter
   private final ExpanderConfigurationRegister ioconB;
 
   public Mcp23017Device(AddressableDevice device) throws IOException {
@@ -71,6 +61,14 @@ public class Mcp23017Device extends I2CDevice implements Sensor, Resetable {
   }
 
   public void reset() throws IOException {
+    ioconA.clear();
+    ioconB.clear();
+    ioDir.setAll();
+    ipol.clearAll();
+    gpIntEn.clearAll();
+    intCon.clearAll();
+    gppu.clearAll();
+    intf.clearAll();
     softReset();
   }
 
@@ -96,4 +94,58 @@ public class Mcp23017Device extends I2CDevice implements Sensor, Resetable {
   }
 
 
+  @Override
+  public int getPins() {
+    return 16; // hardwired since this is what it is
+  }
+
+  @Override
+  public boolean isOutput(int pin) {
+    return ioDir.get(pin);
+  }
+
+  @Override
+  public void setOutput(int pin) throws IOException {
+    ioDir.set(pin);
+  }
+
+  @Override
+  public void setInput(int pin) throws IOException {
+    ioDir.clear(pin);
+  }
+
+  @Override
+  public void setUp(int pin) throws IOException {
+    olat.set(pin);
+  }
+
+  @Override
+  public void setDown(int pin) throws IOException {
+    olat.clear(pin);
+  }
+
+  @Override
+  public void enableInterrupt(int pin) throws IOException {
+    gpIntEn.set(pin);
+  }
+
+  @Override
+  public void disableInterrupt(int pin) throws IOException {
+    gpIntEn.clear(pin);
+  }
+
+  @Override
+  public int[] getInterrupted() throws IOException {
+    return intf.getAllSet();
+  }
+
+  @Override
+  public void enablePullUp(int pin) throws IOException {
+    gppu.set(pin);
+  }
+
+  @Override
+  public void disablePullUp(int pin) throws IOException {
+    gppu.clear(pin);
+  }
 }

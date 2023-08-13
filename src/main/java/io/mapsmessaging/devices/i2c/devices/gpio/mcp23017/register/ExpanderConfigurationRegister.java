@@ -36,6 +36,10 @@ public class ExpanderConfigurationRegister extends SingleByteRegister {
     reload();
   }
 
+  public void clear() throws IOException {
+    registerValue = (byte) 0x0;
+    sensor.write(address, registerValue);
+  }
   public boolean isMirror() {
     return (registerValue & MIRROR) != 0;
   }

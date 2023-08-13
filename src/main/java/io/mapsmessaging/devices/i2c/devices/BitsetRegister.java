@@ -19,6 +19,8 @@ package io.mapsmessaging.devices.i2c.devices;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class BitsetRegister extends Register {
 
@@ -34,6 +36,33 @@ public class BitsetRegister extends Register {
   @Override
   protected void reload() throws IOException {
     sensor.readRegister(address, buffer);
+  }
+
+  public int[] getAllSet() throws IOException {
+    reload();
+    return getAllBits(buffer, true);
+  }
+
+  public int[] getAllClear() throws IOException {
+    reload();
+    return getAllBits(buffer, false);
+  }
+
+  public void setAll() throws IOException {
+    Arrays.fill(buffer, (byte) 0xff);
+    sensor.write(address, buffer);
+  }
+
+  public void clearAll() throws IOException {
+    Arrays.fill(buffer, (byte) 0x0);
+    sensor.write(address, buffer);
+  }
+
+  public void flipAll() throws IOException {
+    for (int i = 0; i < buffer.length; i++) {
+      buffer[i] = (byte) ~buffer[i];
+    }
+    sensor.write(address, buffer);
   }
 
   public void set(int bitIndex) throws IOException {
@@ -59,7 +88,7 @@ public class BitsetRegister extends Register {
       throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
 
     int wordIndex = wordIndex(bitIndex);
-    buffer[wordIndex] ^= (1L << bitIndex);
+    buffer[wordIndex] ^= (byte) (1 << bitIndex);
     sensor.write(address, buffer);
   }
 
@@ -94,6 +123,26 @@ public class BitsetRegister extends Register {
       if (c < buffer.length) stringBuilder.append("\n");
     }
     return stringBuilder.toString();
+  }
+
+  public static int[] getAllBits(byte[] bytes, boolean set) {
+    ArrayList<Integer> bitsList = new ArrayList<>();
+    for (int i = 0; i < bytes.length; i++) {
+      for (int j = 0; j < 8; j++) {
+        boolean isSet = ((bytes[i] & 0xff) & (1 << j)) != 0;
+        if (isSet == set) {
+          bitsList.add(i * 8 + j);
+        }
+      }
+    }
+
+    // Convert ArrayList to array
+    int[] bits = new int[bitsList.size()];
+    for (int i = 0; i < bitsList.size(); i++) {
+      bits[i] = bitsList.get(i);
+    }
+
+    return bits;
   }
 }
 
