@@ -92,9 +92,10 @@ public class BitsetRegister extends Register {
     sensor.write(address, buffer);
   }
 
-  public boolean get(int bitIndex) {
+  public boolean get(int bitIndex) throws IOException {
     if (bitIndex < 0)
       throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
+    reload();
     int wordIndex = wordIndex(bitIndex);
     return (wordIndex < buffer.length) && ((buffer[wordIndex] & (byte) (1 << bitIndex)) != 0);
   }

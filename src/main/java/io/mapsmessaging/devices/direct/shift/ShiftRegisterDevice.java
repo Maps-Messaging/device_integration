@@ -16,12 +16,13 @@
 
 package io.mapsmessaging.devices.direct.shift;
 
-import com.pi4j.io.gpio.digital.DigitalOutput;
 import io.mapsmessaging.devices.Device;
 import io.mapsmessaging.devices.DeviceBusManager;
-import io.mapsmessaging.devices.direct.PinManagement;
+import io.mapsmessaging.devices.gpio.PiPinManagement;
+import io.mapsmessaging.devices.gpio.pin.BaseDigitalOutput;
 import lombok.Getter;
 
+import java.io.IOException;
 import java.util.BitSet;
 
 public class ShiftRegisterDevice implements Device {
@@ -30,30 +31,30 @@ public class ShiftRegisterDevice implements Device {
   private static final String NAME = "Shift-Register";
 
   private final BitSet individualBits;
-  private final DigitalOutput dataPort;
-  private final DigitalOutput clockPort;
-  private final DigitalOutput latchPort;
-  private final DigitalOutput clearPort;
+  private final BaseDigitalOutput dataPort;
+  private final BaseDigitalOutput clockPort;
+  private final BaseDigitalOutput latchPort;
+  private final BaseDigitalOutput clearPort;
   @Getter
   private final int totalBits;
 
-  public ShiftRegisterDevice(int numberOfRegisters, int sizeOfRegister, int dataPin, int clockPin, int latchPin, int clearPin) {
+  public ShiftRegisterDevice(int numberOfRegisters, int sizeOfRegister, int dataPin, int clockPin, int latchPin, int clearPin) throws IOException {
     totalBits = sizeOfRegister * numberOfRegisters;
     individualBits = new BitSet(totalBits);
 
-    PinManagement pinManagement = DeviceBusManager.getInstance().getPinManagement();
-    dataPort = pinManagement.allocateGPIOPin(NAME + "-data", "data", dataPin, "DOWN");
-    clockPort = pinManagement.allocateGPIOPin(NAME + "-clock", "clock", clockPin, "DOWN");
-    latchPort = pinManagement.allocateGPIOPin(NAME + "-latch", "latch", latchPin, "DOWN");
+    PiPinManagement pinManagement = DeviceBusManager.getInstance().getPinManagement();
+    dataPort = pinManagement.allocateOutPin(NAME + "-data", "data", dataPin, false);
+    clockPort = pinManagement.allocateOutPin(NAME + "-clock", "clock", clockPin, false);
+    latchPort = pinManagement.allocateOutPin(NAME + "-latch", "latch", latchPin, false);
     if (clearPin > 0) {
-      clearPort = pinManagement.allocateGPIOPin(NAME + "-clear", "clear", clearPin, "DOWN");
-      clearPort.low();
+      clearPort = pinManagement.allocateOutPin(NAME + "-clear", "clear", clearPin, false);
+      clearPort.setDown();
     } else {
       clearPort = null;
     }
-    dataPort.low();
-    clockPort.low();
-    latchPort.low();
+    dataPort.setDown();
+    clockPort.setDown();
+    latchPort.setDown();
     clearAll();
   }
 
@@ -65,17 +66,17 @@ public class ShiftRegisterDevice implements Device {
     individualBits.set(bit, false);
   }
 
-  public void clearAll() {
+  public void clearAll() throws IOException {
     individualBits.clear();
     if (clearPort != null) {
-      clearPort.low();
+      clearPort.setDown();
       delay(10);
-      clearPort.high();
+      clearPort.setUp();
     }
     write();
   }
 
-  public void setAll() {
+  public void setAll() throws IOException {
     individualBits.set(0, totalBits);
     write();
   }
@@ -89,29 +90,29 @@ public class ShiftRegisterDevice implements Device {
     }
   }
 
-  public void write() {
-    latchPort.low();
+  public void write() throws IOException {
+    latchPort.setDown();
     boolean dataState = false;
     for (int x = totalBits - 1; x >= 0; x--) {
       delay(10);
       if (individualBits.get(x)) {
         if (!dataState) {
-          dataPort.high();
+          dataPort.setUp();
           dataState = true;
         } else {
-          dataPort.low();
+          dataPort.setDown();
           dataState = false;
         }
       }
       delay(10);
-      clockPort.high();
+      clockPort.setUp();
       delay(10);
-      clockPort.low();
+      clockPort.setDown();
     }
-    dataPort.low();
-    latchPort.high();
+    dataPort.setDown();
+    latchPort.setUp();
     delay(10);
-    latchPort.low();
+    latchPort.setDown();
   }
 
   @Override

@@ -14,31 +14,27 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.direct;
+package io.mapsmessaging.devices.gpio.pin;
 
-import com.pi4j.context.Context;
 import com.pi4j.io.gpio.digital.DigitalOutput;
 
-import java.util.Properties;
+import java.io.IOException;
 
-public class PinManagement {
+public class Pi4JDigitalOutput implements BaseDigitalOutput {
 
-  private final Context pi4j;
+  private final DigitalOutput output;
 
-  public PinManagement(Context pi4J) {
-    this.pi4j = pi4J;
+  public Pi4JDigitalOutput(DigitalOutput output) {
+    this.output = output;
   }
 
-  public DigitalOutput allocateGPIOPin(String id, String name, int pin, String pullDirection) {
-    Properties properties = new Properties();
-    properties.put("id", id);
-    properties.put("address", pin);
-    properties.put("pull", pullDirection);
-    properties.put("name", name);
+  @Override
+  public void setUp() throws IOException {
+    output.high();
+  }
 
-    var config = DigitalOutput.newConfigBuilder(pi4j)
-        .load(properties)
-        .build();
-    return pi4j.dout().create(config);
+  @Override
+  public void setDown() throws IOException {
+    output.low();
   }
 }

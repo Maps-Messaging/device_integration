@@ -14,35 +14,13 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.deviceinterfaces;
+package io.mapsmessaging.devices.gpio.pin;
 
 import java.io.IOException;
 
-public interface Gpio {
+public interface BaseDigitalOutput {
 
-  int getPins();
+  void setUp() throws IOException;
 
-  boolean isOutput(int pin) throws IOException;
-
-  void setOutput(int pin) throws IOException;
-
-  void enableInterrupt(int pin) throws IOException;
-
-  void disableInterrupt(int pin) throws IOException;
-
-  int[] getInterrupted() throws IOException;
-
-  void setUp(int pin) throws IOException;
-
-  void setDown(int pin) throws IOException;
-
-
-  void setInput(int pin) throws IOException;
-
-  void enablePullUp(int pin) throws IOException;
-
-  void disablePullUp(int pin) throws IOException;
-
-  boolean isSet(int pin) throws IOException;
-
+  void setDown() throws IOException;
 }

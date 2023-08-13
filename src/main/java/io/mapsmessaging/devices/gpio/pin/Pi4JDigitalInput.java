@@ -14,35 +14,23 @@
  *      limitations under the License.
  */
 
-package io.mapsmessaging.devices.deviceinterfaces;
+package io.mapsmessaging.devices.gpio.pin;
+
+import com.pi4j.io.gpio.digital.DigitalInput;
+import com.pi4j.io.gpio.digital.DigitalState;
 
 import java.io.IOException;
 
-public interface Gpio {
+public class Pi4JDigitalInput implements BaseDigitalInput {
 
-  int getPins();
+  private final DigitalInput input;
 
-  boolean isOutput(int pin) throws IOException;
+  public Pi4JDigitalInput(DigitalInput input) {
+    this.input = input;
+  }
 
-  void setOutput(int pin) throws IOException;
-
-  void enableInterrupt(int pin) throws IOException;
-
-  void disableInterrupt(int pin) throws IOException;
-
-  int[] getInterrupted() throws IOException;
-
-  void setUp(int pin) throws IOException;
-
-  void setDown(int pin) throws IOException;
-
-
-  void setInput(int pin) throws IOException;
-
-  void enablePullUp(int pin) throws IOException;
-
-  void disablePullUp(int pin) throws IOException;
-
-  boolean isSet(int pin) throws IOException;
-
+  @Override
+  public DigitalState getState() throws IOException {
+    return input.state();
+  }
 }

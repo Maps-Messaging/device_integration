@@ -100,7 +100,7 @@ public class Mcp23017Device extends I2CDevice implements Sensor, Resetable, Gpio
   }
 
   @Override
-  public boolean isOutput(int pin) {
+  public boolean isOutput(int pin) throws IOException {
     return ioDir.get(pin);
   }
 
@@ -147,5 +147,10 @@ public class Mcp23017Device extends I2CDevice implements Sensor, Resetable, Gpio
   @Override
   public void disablePullUp(int pin) throws IOException {
     gppu.clear(pin);
+  }
+
+  @Override
+  public boolean isSet(int pin) throws IOException {
+    return gppu.get(pin);
   }
 }
