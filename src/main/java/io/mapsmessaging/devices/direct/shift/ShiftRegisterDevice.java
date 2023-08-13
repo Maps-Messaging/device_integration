@@ -18,7 +18,7 @@ package io.mapsmessaging.devices.direct.shift;
 
 import io.mapsmessaging.devices.Device;
 import io.mapsmessaging.devices.DeviceBusManager;
-import io.mapsmessaging.devices.gpio.PiPinManagement;
+import io.mapsmessaging.devices.gpio.Pi4JPinManagement;
 import io.mapsmessaging.devices.gpio.pin.BaseDigitalOutput;
 import lombok.Getter;
 
@@ -42,7 +42,7 @@ public class ShiftRegisterDevice implements Device {
     totalBits = sizeOfRegister * numberOfRegisters;
     individualBits = new BitSet(totalBits);
 
-    PiPinManagement pinManagement = DeviceBusManager.getInstance().getPinManagement();
+    Pi4JPinManagement pinManagement = DeviceBusManager.getInstance().getPinManagement();
     dataPort = pinManagement.allocateOutPin(NAME + "-data", "data", dataPin, false);
     clockPort = pinManagement.allocateOutPin(NAME + "-clock", "clock", clockPin, false);
     latchPort = pinManagement.allocateOutPin(NAME + "-latch", "latch", latchPin, false);
