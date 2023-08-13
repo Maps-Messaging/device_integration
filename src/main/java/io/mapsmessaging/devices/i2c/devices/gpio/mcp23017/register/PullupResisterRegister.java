@@ -20,10 +20,10 @@ import io.mapsmessaging.devices.i2c.I2CDevice;
 
 import java.io.IOException;
 
-public class IoDirectionRegister extends GenericPinConfigRegister {
+public class PullupResisterRegister extends GenericPinConfigRegister {
 
-  public IoDirectionRegister(I2CDevice sensor) throws IOException {
-    super(sensor, (byte) 0, "IODIR");
+  public PullupResisterRegister(I2CDevice sensor) throws IOException {
+    super(sensor, (byte) 0xC, "GPPU");
     reload();
   }
 

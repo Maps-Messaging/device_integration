@@ -16,20 +16,15 @@
 
 package io.mapsmessaging.devices.i2c.devices.gpio.mcp23017.register;
 
-import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.DualByteRegister;
 
 import java.io.IOException;
 
-public class InterruptOnChangeRegister extends DualByteRegister {
+public class InterruptOnChangeRegister extends GenericPinConfigRegister {
 
   public InterruptOnChangeRegister(I2CDevice sensor) throws IOException {
-    super(sensor, (byte) 8, "INTCON");
+    super(sensor, (byte) 0x8, "INTCON");
     reload();
   }
 
-  public RegisterData toData() throws IOException {
-    return null;
-  }
 }

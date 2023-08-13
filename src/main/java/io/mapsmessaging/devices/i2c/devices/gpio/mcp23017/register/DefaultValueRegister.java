@@ -16,7 +16,6 @@
 
 package io.mapsmessaging.devices.i2c.devices.gpio.mcp23017.register;
 
-import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 
 import java.io.IOException;
@@ -24,20 +23,8 @@ import java.io.IOException;
 public class DefaultValueRegister extends GenericPinConfigRegister {
 
   public DefaultValueRegister(I2CDevice sensor) throws IOException {
-    super(sensor, (byte) 6, "DEFVAL");
+    super(sensor, (byte) 0x6, "DEFVAL");
     reload();
   }
 
-  public void setDefault(int pin, boolean value) {
-    int reg = 1 << pin;
-    registerValue = (byte) (registerValue & (value ? reg : ~reg));
-  }
-
-  public boolean getDefault(int pin) {
-    return (registerValue & (1 << pin)) != 0;
-  }
-
-  public RegisterData toData() throws IOException {
-    return null;
-  }
 }

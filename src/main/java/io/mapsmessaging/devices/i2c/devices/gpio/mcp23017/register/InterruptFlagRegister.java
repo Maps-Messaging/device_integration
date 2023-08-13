@@ -20,10 +20,10 @@ import io.mapsmessaging.devices.i2c.I2CDevice;
 
 import java.io.IOException;
 
-public class IoDirectionRegister extends GenericPinConfigRegister {
+public class InterruptFlagRegister extends GenericPinConfigRegister {
 
-  public IoDirectionRegister(I2CDevice sensor) throws IOException {
-    super(sensor, (byte) 0, "IODIR");
+  public InterruptFlagRegister(I2CDevice sensor) throws IOException {
+    super(sensor, (byte) 0xE, "INTF");
     reload();
   }
 

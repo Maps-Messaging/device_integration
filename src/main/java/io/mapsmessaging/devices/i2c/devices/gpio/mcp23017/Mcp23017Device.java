@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.gpio.mcp23017;
 
+import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.gpio.mcp23017.register.*;
@@ -25,7 +26,7 @@ import lombok.Getter;
 
 import java.io.IOException;
 
-public class Mcp23017Device extends I2CDevice implements Sensor {
+public class Mcp23017Device extends I2CDevice implements Sensor, Resetable {
 
   @Getter
   private final IoDirectionRegister ioDir;
@@ -37,7 +38,20 @@ public class Mcp23017Device extends I2CDevice implements Sensor {
   private final DefaultValueRegister defVal;
   @Getter
   private final InterruptOnChangeRegister intCon;
-
+  @Getter
+  private final PullupResisterRegister gppu;
+  @Getter
+  private final InterruptFlagRegister intf;
+  @Getter
+  private final InterruptCaptureRegister intCap;
+  @Getter
+  private final GpioPortRegister gpio;
+  @Getter
+  private final OutputLatchRegister olat;
+  @Getter
+  private final ExpanderConfigurationRegister ioconA;
+  @Getter
+  private final ExpanderConfigurationRegister ioconB;
 
   public Mcp23017Device(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(Mcp23017Device.class));
@@ -46,7 +60,24 @@ public class Mcp23017Device extends I2CDevice implements Sensor {
     gpIntEn = new InterruptControlRegister(this);
     defVal = new DefaultValueRegister(this);
     intCon = new InterruptOnChangeRegister(this);
+    ioconA = new ExpanderConfigurationRegister(this, (byte) 0xA);
+    ioconB = new ExpanderConfigurationRegister(this, (byte) 0xB);
+    gppu = new PullupResisterRegister(this);
+    intf = new InterruptFlagRegister(this);
+    intCap = new InterruptCaptureRegister(this);
+    gpio = new GpioPortRegister(this);
+    olat = new OutputLatchRegister(this);
+    reset();
+  }
 
+  public void reset() throws IOException {
+    softReset();
+  }
+
+  @Override
+  public void softReset() throws IOException {
+    ioconA.setSequential(true);
+    ioconB.setSequential(true);
   }
 
   @Override

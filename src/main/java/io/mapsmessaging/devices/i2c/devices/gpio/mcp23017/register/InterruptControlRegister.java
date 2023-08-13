@@ -16,29 +16,14 @@
 
 package io.mapsmessaging.devices.i2c.devices.gpio.mcp23017.register;
 
-import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.DualByteRegister;
 
 import java.io.IOException;
 
-public class InterruptControlRegister extends DualByteRegister {
+public class InterruptControlRegister extends GenericPinConfigRegister {
 
   public InterruptControlRegister(I2CDevice sensor) throws IOException {
     super(sensor, (byte) 4, "GPINTEN");
     reload();
-  }
-
-  public void interruptEnable(int pin, boolean enable) {
-    int reg = 1 << pin;
-    registerValue = (byte) (registerValue & (enable ? reg : ~reg));
-  }
-
-  public boolean isEnabled(int pin) {
-    return (registerValue & (1 << pin) & 0xff) != 0;
-  }
-
-  public RegisterData toData() throws IOException {
-    return null;
   }
 }

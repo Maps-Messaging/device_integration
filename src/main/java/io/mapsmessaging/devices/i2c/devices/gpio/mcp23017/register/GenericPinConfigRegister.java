@@ -17,26 +17,15 @@
 package io.mapsmessaging.devices.i2c.devices.gpio.mcp23017.register;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.DualByteRegister;
+import io.mapsmessaging.devices.i2c.devices.BitsetRegister;
 
 import java.io.IOException;
 
-public abstract class GenericPinConfigRegister extends DualByteRegister {
+public abstract class GenericPinConfigRegister extends BitsetRegister {
 
-  public GenericPinConfigRegister(I2CDevice sensor, int address, String name) throws IOException {
-    super(sensor, address, name);
+  protected GenericPinConfigRegister(I2CDevice sensor, int address, String name) throws IOException {
+    super(sensor, address, 2, name);
     reload();
   }
 
-  public void change(int pin, boolean set) throws IOException {
-    if (pin < 0 || pin > 16) {
-      throw new IOException("Outside range");
-    }
-    int reg = 1 << pin;
-    registerValue = (byte) (registerValue & (set ? reg : ~reg));
-  }
-
-  public boolean isSet(int pin) {
-    return (registerValue & (1 << pin)) != 0;
-  }
 }

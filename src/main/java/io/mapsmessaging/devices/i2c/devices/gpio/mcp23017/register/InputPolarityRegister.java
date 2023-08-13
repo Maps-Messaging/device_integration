@@ -18,11 +18,10 @@ package io.mapsmessaging.devices.i2c.devices.gpio.mcp23017.register;
 
 import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.DualByteRegister;
 
 import java.io.IOException;
 
-public class InputPolarityRegister extends DualByteRegister {
+public class InputPolarityRegister extends GenericPinConfigRegister {
 
   public InputPolarityRegister(I2CDevice sensor) throws IOException {
     super(sensor, (byte) 2, "IPOL");
