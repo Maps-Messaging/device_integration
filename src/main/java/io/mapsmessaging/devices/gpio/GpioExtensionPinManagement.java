@@ -24,7 +24,7 @@ import io.mapsmessaging.devices.gpio.pin.GpioDigitalOutput;
 
 import java.io.IOException;
 
-public class GpioExtensionPinManagement implements PinManagement {
+public class GpioExtensionPinManagement extends PinManagement {
 
   private final Gpio gpio;
 

@@ -26,7 +26,7 @@ import io.mapsmessaging.devices.gpio.pin.Pi4JDigitalOutput;
 
 import java.util.Properties;
 
-public class Pi4JPinManagement implements PinManagement {
+public class Pi4JPinManagement extends PinManagement {
 
   private final Context pi4j;
 

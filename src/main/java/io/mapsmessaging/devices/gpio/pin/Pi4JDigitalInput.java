@@ -21,11 +21,12 @@ import com.pi4j.io.gpio.digital.DigitalState;
 
 import java.io.IOException;
 
-public class Pi4JDigitalInput implements BaseDigitalInput {
+public class Pi4JDigitalInput extends BaseDigitalInput {
 
   private final DigitalInput input;
 
   public Pi4JDigitalInput(DigitalInput input) {
+    super(input.getAddress().intValue(), input.id(), input.name());
     this.input = input;
   }
 

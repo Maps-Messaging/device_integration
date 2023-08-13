@@ -16,15 +16,15 @@
 
 package io.mapsmessaging.devices.gpio.pin;
 
-import java.io.IOException;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.ToString;
 
-public abstract class BaseDigitalOutput extends BaseDigital {
-
-  public BaseDigitalOutput(int pin, String id, String name) {
-    super(pin, id, name);
-  }
-
-  public abstract void setUp() throws IOException;
-
-  public abstract void setDown() throws IOException;
+@Data
+@AllArgsConstructor
+@ToString
+public class BaseDigital {
+  protected final int pin;
+  protected final String id;
+  protected final String name;
 }

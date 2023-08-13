@@ -70,7 +70,7 @@ public class BitsetRegister extends Register {
       throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
 
     int wordIndex = wordIndex(bitIndex);
-    buffer[wordIndex] |= (byte) ((1 << bitIndex) & 0xff); // Restores invariants
+    buffer[wordIndex] |= (byte) ((1 << (bitIndex % 8)) & 0xff); // Restores invariants
     sensor.write(address, buffer);
   }
 

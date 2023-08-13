@@ -20,18 +20,13 @@ import io.mapsmessaging.devices.deviceinterfaces.Gpio;
 
 import java.io.IOException;
 
-public class GpioDigitalOutput implements BaseDigitalOutput {
+public class GpioDigitalOutput extends BaseDigitalOutput {
 
   private final Gpio gpio;
-  private final int pin;
-  private final String id;
-  private final String name;
 
   public GpioDigitalOutput(String id, String name, Gpio gpio, int pin, boolean pullUp) throws IOException {
+    super(pin, id, name);
     this.gpio = gpio;
-    this.pin = pin;
-    this.id = id;
-    this.name = name;
     gpio.disableInterrupt(pin);
     gpio.setOutput(pin);
     if (pullUp) {

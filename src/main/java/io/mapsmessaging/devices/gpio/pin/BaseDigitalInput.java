@@ -20,6 +20,11 @@ import com.pi4j.io.gpio.digital.DigitalState;
 
 import java.io.IOException;
 
-public interface BaseDigitalInput {
-  DigitalState getState() throws IOException;
+public abstract class BaseDigitalInput extends BaseDigital {
+
+  public BaseDigitalInput(int pin, String id, String name) {
+    super(pin, id, name);
+  }
+
+  public abstract DigitalState getState() throws IOException;
 }

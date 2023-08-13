@@ -20,11 +20,12 @@ import com.pi4j.io.gpio.digital.DigitalOutput;
 
 import java.io.IOException;
 
-public class Pi4JDigitalOutput implements BaseDigitalOutput {
+public class Pi4JDigitalOutput extends BaseDigitalOutput {
 
   private final DigitalOutput output;
 
   public Pi4JDigitalOutput(DigitalOutput output) {
+    super(output.getAddress().intValue(), output.id(), output.name());
     this.output = output;
   }
 

@@ -21,8 +21,11 @@ import io.mapsmessaging.devices.gpio.pin.BaseDigitalOutput;
 
 import java.io.IOException;
 
-public interface PinManagement {
-  BaseDigitalOutput allocateOutPin(String id, String name, int pin, boolean pullUp) throws IOException;
+public abstract class PinManagement {
 
-  BaseDigitalInput allocateInPin(String id, String name, int pin, boolean pullUp) throws IOException;
+  public abstract BaseDigitalOutput allocateOutPin(String id, String name, int pin, boolean pullUp) throws IOException;
+
+  public abstract BaseDigitalInput allocateInPin(String id, String name, int pin, boolean pullUp) throws IOException;
+
+
 }
