@@ -40,8 +40,7 @@ public class Mcp23017Device extends I2CDevice implements Sensor, Resetable, Gpio
   private final InterruptCaptureRegister intCap;
   private final GpioPortRegister gpio;
   private final OutputLatchRegister olat;
-  private final ExpanderConfigurationRegister ioconA;
-  private final ExpanderConfigurationRegister ioconB;
+  private final ExpanderConfigurationRegister iocon;
 
   public Mcp23017Device(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(Mcp23017Device.class));
@@ -50,8 +49,7 @@ public class Mcp23017Device extends I2CDevice implements Sensor, Resetable, Gpio
     gpIntEn = new InterruptControlRegister(this);
     defVal = new DefaultValueRegister(this);
     intCon = new InterruptOnChangeRegister(this);
-    ioconA = new ExpanderConfigurationRegister(this, (byte) 0xA);
-    ioconB = new ExpanderConfigurationRegister(this, (byte) 0xB);
+    iocon = new ExpanderConfigurationRegister(this, (byte) 0xA);
     gppu = new PullupResisterRegister(this);
     intf = new InterruptFlagRegister(this);
     intCap = new InterruptCaptureRegister(this);
@@ -61,8 +59,7 @@ public class Mcp23017Device extends I2CDevice implements Sensor, Resetable, Gpio
   }
 
   public void reset() throws IOException {
-    ioconA.clear();
-    ioconB.clear();
+    iocon.clear();
     ioDir.setAll();
     ipol.clearAll();
     gpIntEn.clearAll();
@@ -74,8 +71,7 @@ public class Mcp23017Device extends I2CDevice implements Sensor, Resetable, Gpio
 
   @Override
   public void softReset() throws IOException {
-    ioconA.setSequential(true);
-    ioconB.setSequential(true);
+    iocon.setSequential(true);
   }
 
   @Override
@@ -101,27 +97,27 @@ public class Mcp23017Device extends I2CDevice implements Sensor, Resetable, Gpio
 
   @Override
   public boolean isOutput(int pin) throws IOException {
-    return ioDir.get(pin);
+    return !ioDir.get(pin);
   }
 
   @Override
   public void setOutput(int pin) throws IOException {
-    ioDir.set(pin);
-  }
-
-  @Override
-  public void setInput(int pin) throws IOException {
     ioDir.clear(pin);
   }
 
   @Override
+  public void setInput(int pin) throws IOException {
+    ioDir.set(pin);
+  }
+
+  @Override
   public void setUp(int pin) throws IOException {
-    olat.set(pin);
+    gpio.set(pin);
   }
 
   @Override
   public void setDown(int pin) throws IOException {
-    olat.clear(pin);
+    gpio.clear(pin);
   }
 
   @Override

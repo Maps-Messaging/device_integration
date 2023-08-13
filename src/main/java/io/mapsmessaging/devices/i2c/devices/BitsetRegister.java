@@ -70,7 +70,8 @@ public class BitsetRegister extends Register {
       throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
 
     int wordIndex = wordIndex(bitIndex);
-    buffer[wordIndex] |= (byte) ((1 << (bitIndex % 8)) & 0xff); // Restores invariants
+    int bit = bitIndex % 8;
+    buffer[wordIndex] |= (byte) ((1 << bit) & 0xff); // Restores invariants
     sensor.write(address, buffer);
   }
 
@@ -79,7 +80,8 @@ public class BitsetRegister extends Register {
       throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
 
     int wordIndex = wordIndex(bitIndex);
-    buffer[wordIndex] &= (byte) (~(1 << bitIndex) & 0xff);
+    int bit = bitIndex % 8;
+    buffer[wordIndex] &=(byte) ((1 << bit) & 0xff);
     sensor.write(address, buffer);
   }
 
@@ -88,7 +90,8 @@ public class BitsetRegister extends Register {
       throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
 
     int wordIndex = wordIndex(bitIndex);
-    buffer[wordIndex] ^= (byte) (1 << bitIndex);
+    int bit = bitIndex % 8;
+    buffer[wordIndex] ^= (byte) (1 << bit);
     sensor.write(address, buffer);
   }
 
@@ -97,7 +100,8 @@ public class BitsetRegister extends Register {
       throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
     reload();
     int wordIndex = wordIndex(bitIndex);
-    return (wordIndex < buffer.length) && ((buffer[wordIndex] & (byte) (1 << bitIndex)) != 0);
+    int bit = bitIndex % 8;
+    return (wordIndex < buffer.length) && ((buffer[wordIndex] & (byte) (1 << bit)) != 0);
   }
 
   @Override

@@ -49,11 +49,11 @@ public class ExpanderConfigurationRegister extends SingleByteRegister {
   }
 
   public boolean isSequential() {
-    return (registerValue & SEQOP) != 0;
+    return (registerValue & SEQOP) == 0;
   }
 
   public void setSequential(boolean flag) throws IOException {
-    super.setControlRegister(~SEQOP, flag ? SEQOP : 0);
+    super.setControlRegister(~SEQOP, flag ? 0 : SEQOP);
   }
 
   public boolean isOpenDrain() {
