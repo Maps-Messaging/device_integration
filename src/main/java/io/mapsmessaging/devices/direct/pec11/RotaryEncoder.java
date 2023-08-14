@@ -16,20 +16,19 @@
 
 package io.mapsmessaging.devices.direct.pec11;
 
-import com.pi4j.io.gpio.digital.DigitalOutput;
+import io.mapsmessaging.devices.gpio.pin.BaseDigitalInput;
 
 public class RotaryEncoder {
   // based on [lastEncoded][encoded] lookup
   private static final int[][] stateTable = {
-
       {0, 1, 1, -1},
       {-1, 0, 1, -1},
       {-1, 1, 0, -1},
       {-1, 1, 1, 0}
   };
 
-  private final DigitalOutput inputA;
-  private final DigitalOutput inputB;
+  private final BaseDigitalInput inputA;
+  private final BaseDigitalInput inputB;
   private final RotaryEncoderListener listener;
 
   private long encoderValue = 0;
@@ -37,14 +36,14 @@ public class RotaryEncoder {
   private boolean firstPass = true;
 
 
-  public RotaryEncoder(DigitalOutput inA, DigitalOutput inB, RotaryEncoderListener listener, long initalValue) {
+  public RotaryEncoder(BaseDigitalInput inA, BaseDigitalInput inB, RotaryEncoderListener listener, long initalValue) {
     this.listener = listener;
     encoderValue = initalValue;
     inputA = inA;
     inputB = inB;
     inputA.addListener(digitalStateChangeEvent -> {
       int stateA = digitalStateChangeEvent.state().getValue().intValue();
-      int stateB = inputB.state().getValue().intValue();
+      int stateB = inputB.getState().getValue().intValue();
       calcEncoderValue(stateA, stateB);
     });
   }
