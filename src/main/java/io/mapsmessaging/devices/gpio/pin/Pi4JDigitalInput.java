@@ -32,7 +32,7 @@ public class Pi4JDigitalInput extends BaseDigitalInput {
   }
 
   @Override
-  public DigitalState getState() throws IOException {
+  public DigitalState getState() {
     return input.state();
   }
 

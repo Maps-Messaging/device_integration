@@ -44,24 +44,38 @@ public class GpioDigitalInput extends BaseDigitalInput {
   }
 
   @Override
-  public DigitalState getState() throws IOException {
-    if (gpio.isSet(pin)) {
-      return DigitalState.HIGH;
+  public DigitalState getState() {
+    try {
+      if (gpio.isSet(pin)) {
+        return DigitalState.HIGH;
+      }
+    } catch (IOException e) {
+      //
     }
     return DigitalState.LOW;
   }
 
   @Override
-  public void addListener(DigitalStateChangeListener... var1) throws IOException {
-    gpio.enableInterrupt(pin);
+  public void addListener(DigitalStateChangeListener... var1) {
+    if (listenerList.isEmpty()) {
+      try {
+        gpio.enableInterrupt(pin);
+      } catch (IOException e) {
+        //
+      }
+    }
     listenerList.addAll(Arrays.asList(var1));
   }
 
   @Override
-  public void removeListener(DigitalStateChangeListener... var1) throws IOException {
+  public void removeListener(DigitalStateChangeListener... var1) {
     listenerList.removeAll(Arrays.asList(var1));
     if(listenerList.isEmpty()){
-      gpio.disableInterrupt(pin);
+      try {
+        gpio.disableInterrupt(pin);
+      } catch (IOException e) {
+        //
+      }
     }
   }
 
