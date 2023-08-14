@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.gpio.pin;
 
+import com.pi4j.io.gpio.digital.DigitalState;
 import io.mapsmessaging.devices.deviceinterfaces.Gpio;
 
 import java.io.IOException;
@@ -37,13 +38,27 @@ public class GpioDigitalOutput extends BaseDigitalOutput {
   }
 
   @Override
-  public void setUp() throws IOException {
-    gpio.setUp(pin);
+  public void setState(DigitalState state) throws IOException {
+    switch(state){
+      case HIGH:
+        gpio.setHigh(pin);
+        break;
+
+      case LOW:
+      default:
+        gpio.setLow(pin);
+        break;
+    }
   }
 
   @Override
-  public void setDown() throws IOException {
-    gpio.setDown(pin);
+  public void setHigh() throws IOException {
+    gpio.setHigh(pin);
+  }
+
+  @Override
+  public void setLow() throws IOException {
+    gpio.setLow(pin);
   }
 
   @Override

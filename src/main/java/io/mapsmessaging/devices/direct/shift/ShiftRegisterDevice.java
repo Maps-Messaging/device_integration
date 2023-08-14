@@ -48,13 +48,13 @@ public class ShiftRegisterDevice implements Device {
     latchPort = pinManagement.allocateOutPin(NAME + "-latch", "latch", latchPin, false);
     if (clearPin > 0) {
       clearPort = pinManagement.allocateOutPin(NAME + "-clear", "clear", clearPin, false);
-      clearPort.setDown();
+      clearPort.setLow();
     } else {
       clearPort = null;
     }
-    dataPort.setDown();
-    clockPort.setDown();
-    latchPort.setDown();
+    dataPort.setLow();
+    clockPort.setLow();
+    latchPort.setLow();
     clearAll();
   }
 
@@ -69,9 +69,9 @@ public class ShiftRegisterDevice implements Device {
   public void clearAll() throws IOException {
     individualBits.clear();
     if (clearPort != null) {
-      clearPort.setDown();
+      clearPort.setLow();
       delay(10);
-      clearPort.setUp();
+      clearPort.setHigh();
     }
     write();
   }
@@ -91,28 +91,28 @@ public class ShiftRegisterDevice implements Device {
   }
 
   public void write() throws IOException {
-    latchPort.setDown();
+    latchPort.setLow();
     boolean dataState = false;
     for (int x = totalBits - 1; x >= 0; x--) {
       delay(10);
       if (individualBits.get(x)) {
         if (!dataState) {
-          dataPort.setUp();
+          dataPort.setHigh();
           dataState = true;
         } else {
-          dataPort.setDown();
+          dataPort.setLow();
           dataState = false;
         }
       }
       delay(10);
-      clockPort.setUp();
+      clockPort.setHigh();
       delay(10);
-      clockPort.setDown();
+      clockPort.setLow();
     }
-    dataPort.setDown();
-    latchPort.setUp();
+    dataPort.setLow();
+    latchPort.setHigh();
     delay(10);
-    latchPort.setDown();
+    latchPort.setLow();
   }
 
   @Override

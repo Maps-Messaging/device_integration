@@ -17,14 +17,21 @@
 package io.mapsmessaging.devices.gpio.pin;
 
 import com.pi4j.io.gpio.digital.DigitalState;
+import com.pi4j.io.gpio.digital.DigitalStateChangeListener;
 
 import java.io.IOException;
 
 public abstract class BaseDigitalInput extends BaseDigital {
 
-  public BaseDigitalInput(int pin, String id, String name) {
+  protected BaseDigitalInput(int pin, String id, String name) {
     super(pin, id, name);
   }
 
   public abstract DigitalState getState() throws IOException;
+
+  public abstract void addListener(DigitalStateChangeListener... var1);
+
+  public abstract void removeListener(DigitalStateChangeListener... var1);
+
+
 }

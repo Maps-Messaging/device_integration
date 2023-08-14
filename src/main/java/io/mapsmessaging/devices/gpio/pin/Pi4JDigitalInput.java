@@ -18,6 +18,7 @@ package io.mapsmessaging.devices.gpio.pin;
 
 import com.pi4j.io.gpio.digital.DigitalInput;
 import com.pi4j.io.gpio.digital.DigitalState;
+import com.pi4j.io.gpio.digital.DigitalStateChangeListener;
 
 import java.io.IOException;
 
@@ -33,5 +34,15 @@ public class Pi4JDigitalInput extends BaseDigitalInput {
   @Override
   public DigitalState getState() throws IOException {
     return input.state();
+  }
+
+  @Override
+  public void addListener(DigitalStateChangeListener... var1) {
+    input.addListener(var1);
+  }
+
+  @Override
+  public void removeListener(DigitalStateChangeListener... var1) {
+    input.removeListener(var1);
   }
 }

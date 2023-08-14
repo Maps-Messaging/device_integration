@@ -16,8 +16,10 @@
 
 package io.mapsmessaging.devices.gpio;
 
+import com.pi4j.io.gpio.digital.DigitalState;
 import io.mapsmessaging.devices.DeviceBusManager;
 import io.mapsmessaging.devices.deviceinterfaces.Gpio;
+import io.mapsmessaging.devices.gpio.pin.BaseDigitalInput;
 import io.mapsmessaging.devices.gpio.pin.BaseDigitalOutput;
 import io.mapsmessaging.devices.i2c.I2CBusManager;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
@@ -37,23 +39,61 @@ public class GpioExtension {
     }
     I2CDeviceScheduler deviceController = (I2CDeviceScheduler) i2cBusManagers[bus].configureDevice(0x27, "MCP23017");
     if (deviceController.getDeviceController() instanceof Mcp23017Controller) {
+
+      Pi4JPinManagement pi4JPinManagement = DeviceBusManager.getInstance().getPinManagement();
+      BaseDigitalInput piInterrupt0 = pi4JPinManagement.allocateInPin("piInterrupt0", "TestPiIn0", 17, true);
+      BaseDigitalInput piInterrupt1 = pi4JPinManagement.allocateInPin("piInterrupt1", "TestPiIn2", 27, true);
+
+      BaseDigitalInput[] piTest = new BaseDigitalInput[2];
+
+      piTest[0] = pi4JPinManagement.allocateInPin("piIn0", "TestPiIn23", 23, false);
+      piTest[1] = pi4JPinManagement.allocateInPin("piIn1", "TestPiIn24", 24, false);
+
+
       Gpio gpio = (Mcp23017Device) deviceController.getDeviceController().getDevice();
       GpioExtensionPinManagement pinManagement = new GpioExtensionPinManagement(gpio);
-      BaseDigitalOutput[] outputs = new BaseDigitalOutput[gpio.getPins()];
-      for (int x = 0; x < gpio.getPins(); x++) {
-        outputs[x] = pinManagement.allocateOutPin("ID:" + x, "Name:" + x, x, false);
-        outputs[x].setDown();
+      BaseDigitalOutput[] outputs = new BaseDigitalOutput[gpio.getPins()/2];
+      BaseDigitalInput[] inputs = new BaseDigitalInput[gpio.getPins()/2];
+      for (int x = 0; x < gpio.getPins()/2; x++) {
+        outputs[x] = pinManagement.allocateOutPin("ID:" + x, "Out-Name:" + x, x, false);
+        outputs[x].setLow();
+      }
+      for(int x=0;x<gpio.getPins()/2;x++){
+        inputs[x] = pinManagement.allocateInPin("ID:" + x, "In-Name:" + x, x+ gpio.getPins()/2, false);
       }
       while (true) {
         for (BaseDigitalOutput out : outputs) {
-          out.setUp();
+          out.setHigh();
+        }
+        Thread.sleep(1000);
+        for (BaseDigitalInput in : inputs) {
+          if(!in.getState().equals(DigitalState.HIGH)){
+            System.err.println("This isn't right!! !High "+in);
+          }
           Thread.sleep(100);
+        }
+        for(BaseDigitalInput in:piTest){
+          if(!in.getState().equals(DigitalState.HIGH)){
+            System.err.println("Pi Pin not high "+in);
+          }
         }
         Thread.sleep(2000);
         for (BaseDigitalOutput out : outputs) {
-          out.setDown();
+          out.setLow();
+        }
+        Thread.sleep(1000);
+        for (BaseDigitalInput in : inputs) {
+          if(!in.getState().equals(DigitalState.LOW)){
+            System.err.println("This isn't right!! !Low"+in);
+          }
           Thread.sleep(100);
         }
+        for(BaseDigitalInput in:piTest){
+          if(!in.getState().equals(DigitalState.LOW)){
+            System.err.println("Pi Pin not low "+in);
+          }
+        }
+
         Thread.sleep(2000);
       }
     }

@@ -16,15 +16,19 @@
 
 package io.mapsmessaging.devices.gpio.pin;
 
+import com.pi4j.io.gpio.digital.DigitalState;
+
 import java.io.IOException;
 
 public abstract class BaseDigitalOutput extends BaseDigital {
 
-  public BaseDigitalOutput(int pin, String id, String name) {
+  protected BaseDigitalOutput(int pin, String id, String name) {
     super(pin, id, name);
   }
 
-  public abstract void setUp() throws IOException;
+  public abstract void setState(DigitalState state) throws IOException;
 
-  public abstract void setDown() throws IOException;
+  public abstract void setHigh() throws IOException;
+
+  public abstract void setLow() throws IOException;
 }

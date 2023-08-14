@@ -18,7 +18,9 @@ package io.mapsmessaging.devices.gpio;
 
 import com.pi4j.context.Context;
 import com.pi4j.io.gpio.digital.DigitalInput;
+import com.pi4j.io.gpio.digital.DigitalInputProvider;
 import com.pi4j.io.gpio.digital.DigitalOutput;
+import com.pi4j.io.gpio.digital.DigitalOutputProvider;
 import io.mapsmessaging.devices.gpio.pin.BaseDigitalInput;
 import io.mapsmessaging.devices.gpio.pin.BaseDigitalOutput;
 import io.mapsmessaging.devices.gpio.pin.Pi4JDigitalInput;
@@ -29,9 +31,13 @@ import java.util.Properties;
 public class Pi4JPinManagement extends PinManagement {
 
   private final Context pi4j;
+  private final DigitalInputProvider inputProvider;
+  private final DigitalOutputProvider outputProvider;
 
   public Pi4JPinManagement(Context pi4J) {
     this.pi4j = pi4J;
+    inputProvider = pi4j.provider("pigpio-digital-input");
+    outputProvider = pi4j.provider("pigpio-digital-output");
   }
 
   @Override
@@ -39,15 +45,12 @@ public class Pi4JPinManagement extends PinManagement {
     Properties properties = new Properties();
     properties.put("id", id);
     properties.put("address", pin);
-    if (pullUp) {
-      properties.put("pull", "UP");
-    }
     properties.put("name", name);
 
     var config = DigitalOutput.newConfigBuilder(pi4j)
         .load(properties)
         .build();
-    return new Pi4JDigitalOutput(pi4j.dout().create(config));
+    return new Pi4JDigitalOutput(outputProvider.create(config));
   }
 
   @Override
@@ -58,12 +61,15 @@ public class Pi4JPinManagement extends PinManagement {
     if (pullUp) {
       properties.put("pull", "UP");
     }
+    else{
+      properties.put("pull", "DOWN");
+    }
     properties.put("name", name);
 
     var config = DigitalInput.newConfigBuilder(pi4j)
         .load(properties)
         .build();
-    return new Pi4JDigitalInput(pi4j.din().create(config));
+    return new Pi4JDigitalInput(inputProvider.create(config));
   }
 
 }

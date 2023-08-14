@@ -32,9 +32,9 @@ public interface Gpio {
 
   int[] getInterrupted() throws IOException;
 
-  void setUp(int pin) throws IOException;
+  void setHigh(int pin) throws IOException;
 
-  void setDown(int pin) throws IOException;
+  void setLow(int pin) throws IOException;
 
 
   void setInput(int pin) throws IOException;
