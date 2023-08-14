@@ -26,6 +26,7 @@ import java.util.BitSet;
 
 public class ShiftRegisterDevice implements Device {
 
+  private static final int BIT_DELAY_TIME_MS = 1;
 
   private static final String NAME = "Shift-Register";
 
@@ -97,28 +98,24 @@ public class ShiftRegisterDevice implements Device {
 
   public void write() throws IOException {
     latchPort.setLow();
-    boolean dataState = false;
     for (int x = totalBits - 1; x >= 0; x--) {
-      delay(10);
+      delay(BIT_DELAY_TIME_MS);
       if (individualBits.get(x)) {
-        if (!dataState) {
-          dataPort.setHigh();
-          dataState = true;
-        } else {
-          dataPort.setLow();
-          dataState = false;
-        }
+        dataPort.setHigh();
+      } else {
+        dataPort.setLow();
       }
-      delay(10);
+      delay(BIT_DELAY_TIME_MS);
       clockPort.setHigh();
-      delay(10);
+      delay(BIT_DELAY_TIME_MS);
       clockPort.setLow();
     }
     dataPort.setLow();
     latchPort.setHigh();
-    delay(10);
+    delay(BIT_DELAY_TIME_MS);
     latchPort.setLow();
   }
+
 
   @Override
   public String getName() {
