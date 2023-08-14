@@ -23,7 +23,7 @@ import lombok.ToString;
 @Data
 @AllArgsConstructor
 @ToString
-public class BaseDigital {
+public class BaseDigital{
   protected final int pin;
   protected final String id;
   protected final String name;

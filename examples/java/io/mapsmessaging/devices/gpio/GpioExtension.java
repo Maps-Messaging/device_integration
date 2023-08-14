@@ -16,7 +16,6 @@
 
 package io.mapsmessaging.devices.gpio;
 
-import com.pi4j.io.gpio.digital.DigitalState;
 import io.mapsmessaging.devices.DeviceBusManager;
 import io.mapsmessaging.devices.deviceinterfaces.Gpio;
 import io.mapsmessaging.devices.gpio.pin.BaseDigitalInput;
@@ -41,17 +40,9 @@ public class GpioExtension {
     if (deviceController.getDeviceController() instanceof Mcp23017Controller) {
 
       Pi4JPinManagement pi4JPinManagement = DeviceBusManager.getInstance().getPinManagement();
-      BaseDigitalInput piInterrupt0 = pi4JPinManagement.allocateInPin("piInterrupt0", "TestPiIn0", 17, true);
-      BaseDigitalInput piInterrupt1 = pi4JPinManagement.allocateInPin("piInterrupt1", "TestPiIn2", 27, true);
-
-      BaseDigitalInput[] piTest = new BaseDigitalInput[2];
-
-      piTest[0] = pi4JPinManagement.allocateInPin("piIn0", "TestPiIn23", 23, false);
-      piTest[1] = pi4JPinManagement.allocateInPin("piIn1", "TestPiIn24", 24, false);
-
-
+      BaseDigitalInput piInterrupt0 = pi4JPinManagement.allocateInPin("piInterrupt0", "TestPiIn0", 17, false);
       Gpio gpio = (Mcp23017Device) deviceController.getDeviceController().getDevice();
-      GpioExtensionPinManagement pinManagement = new GpioExtensionPinManagement(gpio);
+      GpioExtensionPinManagement pinManagement = new GpioExtensionPinManagement(gpio);//, piInterrupt0);
       BaseDigitalOutput[] outputs = new BaseDigitalOutput[gpio.getPins()/2];
       BaseDigitalInput[] inputs = new BaseDigitalInput[gpio.getPins()/2];
       for (int x = 0; x < gpio.getPins()/2; x++) {
@@ -60,41 +51,19 @@ public class GpioExtension {
       }
       for(int x=0;x<gpio.getPins()/2;x++){
         inputs[x] = pinManagement.allocateInPin("ID:" + x, "In-Name:" + x, x+ gpio.getPins()/2, false);
+        BaseDigitalInput input = inputs[x];
+        inputs[x].addListener(digitalStateChangeEvent -> System.err.println("Received state change for "+digitalStateChangeEvent.state()+" "+input));
       }
-      while (true) {
+      long time = System.currentTimeMillis() + 60000;
+      while (time > System.currentTimeMillis()) {
         for (BaseDigitalOutput out : outputs) {
           out.setHigh();
         }
         Thread.sleep(1000);
-        for (BaseDigitalInput in : inputs) {
-          if(!in.getState().equals(DigitalState.HIGH)){
-            System.err.println("This isn't right!! !High "+in);
-          }
-          Thread.sleep(100);
-        }
-        for(BaseDigitalInput in:piTest){
-          if(!in.getState().equals(DigitalState.HIGH)){
-            System.err.println("Pi Pin not high "+in);
-          }
-        }
-        Thread.sleep(2000);
         for (BaseDigitalOutput out : outputs) {
           out.setLow();
         }
-        Thread.sleep(1000);
-        for (BaseDigitalInput in : inputs) {
-          if(!in.getState().equals(DigitalState.LOW)){
-            System.err.println("This isn't right!! !Low"+in);
-          }
-          Thread.sleep(100);
-        }
-        for(BaseDigitalInput in:piTest){
-          if(!in.getState().equals(DigitalState.LOW)){
-            System.err.println("Pi Pin not low "+in);
-          }
-        }
-
-        Thread.sleep(2000);
+        Thread.sleep(3000);
       }
     }
   }

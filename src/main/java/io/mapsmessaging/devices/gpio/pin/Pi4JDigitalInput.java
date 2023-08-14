@@ -45,4 +45,9 @@ public class Pi4JDigitalInput extends BaseDigitalInput {
   public void removeListener(DigitalStateChangeListener... var1) {
     input.removeListener(var1);
   }
+
+  @Override
+  public void stateChange() throws IOException {
+
+  }
 }

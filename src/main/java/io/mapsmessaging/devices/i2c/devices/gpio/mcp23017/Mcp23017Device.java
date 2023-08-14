@@ -64,6 +64,7 @@ public class Mcp23017Device extends I2CDevice implements Sensor, Resetable, Gpio
     ipol.clearAll();
     gpIntEn.clearAll();
     intCon.clearAll();
+    defVal.clearAll();
     gppu.clearAll();
     intf.clearAll();
     softReset();
@@ -72,6 +73,7 @@ public class Mcp23017Device extends I2CDevice implements Sensor, Resetable, Gpio
   @Override
   public void softReset() throws IOException {
     iocon.setSequential(true);
+    iocon.setMirror(true);
   }
 
   @Override

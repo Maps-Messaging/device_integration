@@ -17,17 +17,23 @@
 package io.mapsmessaging.devices.gpio.pin;
 
 import com.pi4j.io.gpio.digital.DigitalState;
+import com.pi4j.io.gpio.digital.DigitalStateChangeEvent;
 import com.pi4j.io.gpio.digital.DigitalStateChangeListener;
 import io.mapsmessaging.devices.deviceinterfaces.Gpio;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class GpioDigitalInput extends BaseDigitalInput {
 
   private final Gpio gpio;
+  private final List<DigitalStateChangeListener> listenerList;
 
   public GpioDigitalInput(String id, String name, Gpio gpio, int pin, boolean pullUp) throws IOException {
     super(pin, id, name);
+    listenerList = new CopyOnWriteArrayList<>();
     this.gpio = gpio;
     gpio.setInput(pin);
     if (pullUp) {
@@ -46,13 +52,17 @@ public class GpioDigitalInput extends BaseDigitalInput {
   }
 
   @Override
-  public void addListener(DigitalStateChangeListener... var1) {
-
+  public void addListener(DigitalStateChangeListener... var1) throws IOException {
+    gpio.enableInterrupt(pin);
+    listenerList.addAll(Arrays.asList(var1));
   }
 
   @Override
-  public void removeListener(DigitalStateChangeListener... var1) {
-
+  public void removeListener(DigitalStateChangeListener... var1) throws IOException {
+    listenerList.removeAll(Arrays.asList(var1));
+    if(listenerList.isEmpty()){
+      gpio.disableInterrupt(pin);
+    }
   }
 
   @Override
@@ -60,5 +70,11 @@ public class GpioDigitalInput extends BaseDigitalInput {
     return id + " " + name;
   }
 
+  public void stateChange() throws IOException {
+    DigitalStateChangeEvent event = new DigitalStateChangeEvent(null, getState());
+    for(DigitalStateChangeListener listener: listenerList){
+      listener.onDigitalStateChange(event);
+    }
+  }
 }
 

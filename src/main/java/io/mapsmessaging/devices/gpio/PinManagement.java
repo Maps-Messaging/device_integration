@@ -19,9 +19,10 @@ package io.mapsmessaging.devices.gpio;
 import io.mapsmessaging.devices.gpio.pin.BaseDigitalInput;
 import io.mapsmessaging.devices.gpio.pin.BaseDigitalOutput;
 
+import java.io.Closeable;
 import java.io.IOException;
 
-public abstract class PinManagement {
+public abstract class PinManagement implements Closeable {
 
   public abstract BaseDigitalOutput allocateOutPin(String id, String name, int pin, boolean pullUp) throws IOException;
 

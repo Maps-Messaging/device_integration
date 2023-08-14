@@ -29,9 +29,10 @@ public abstract class BaseDigitalInput extends BaseDigital {
 
   public abstract DigitalState getState() throws IOException;
 
-  public abstract void addListener(DigitalStateChangeListener... var1);
+  public abstract void addListener(DigitalStateChangeListener... var1) throws IOException;
 
-  public abstract void removeListener(DigitalStateChangeListener... var1);
+  public abstract void removeListener(DigitalStateChangeListener... var1) throws IOException;
 
+  public abstract void stateChange() throws IOException;
 
 }

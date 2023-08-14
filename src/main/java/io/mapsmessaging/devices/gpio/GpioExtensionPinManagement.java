@@ -23,13 +23,36 @@ import io.mapsmessaging.devices.gpio.pin.GpioDigitalInput;
 import io.mapsmessaging.devices.gpio.pin.GpioDigitalOutput;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class GpioExtensionPinManagement extends PinManagement {
+public class GpioExtensionPinManagement extends PinManagement implements InterruptHandler {
 
   private final Gpio gpio;
+  private final Map<Integer, BaseDigitalInput> interruptMap;
+  private final InterruptExecutor interruptExecutor;
 
   public GpioExtensionPinManagement(Gpio gpio) {
     this.gpio = gpio;
+    interruptMap = new ConcurrentHashMap<>();
+    interruptExecutor = new ThreadInterruptExecutor(this);
+  }
+
+  public GpioExtensionPinManagement(Gpio gpio, BaseDigitalInput interruptInput) throws IOException {
+    this.gpio = gpio;
+    interruptMap = new ConcurrentHashMap<>();
+    interruptInput.addListener(digitalStateChangeEvent -> {
+      try {
+        interruptFired();
+      } catch (IOException e) {
+        // Ignore
+      }
+    });
+    interruptExecutor = new ThreadInterruptExecutor(this);
+  }
+
+  public void close() throws IOException {
+    interruptExecutor.close();
   }
 
   public BaseDigitalOutput allocateOutPin(String id, String name, int pin, boolean pullUp) throws IOException {
@@ -37,7 +60,18 @@ public class GpioExtensionPinManagement extends PinManagement {
   }
 
   public BaseDigitalInput allocateInPin(String id, String name, int pin, boolean pullUp) throws IOException {
-    return new GpioDigitalInput(id, name, gpio, pin, pullUp);
+    BaseDigitalInput input = new GpioDigitalInput(id, name, gpio, pin, pullUp);
+    interruptMap.put(pin, input);
+    return input;
   }
 
+  public void interruptFired() throws IOException {
+    int[] list = gpio.getInterrupted();
+    for(int port:list){
+      BaseDigitalInput input = interruptMap.get(port);
+      if(input != null){
+        input.stateChange();
+      }
+    }
+  }
 }

@@ -26,6 +26,7 @@ import io.mapsmessaging.devices.gpio.pin.BaseDigitalOutput;
 import io.mapsmessaging.devices.gpio.pin.Pi4JDigitalInput;
 import io.mapsmessaging.devices.gpio.pin.Pi4JDigitalOutput;
 
+import java.io.IOException;
 import java.util.Properties;
 
 public class Pi4JPinManagement extends PinManagement {
@@ -72,4 +73,9 @@ public class Pi4JPinManagement extends PinManagement {
     return new Pi4JDigitalInput(inputProvider.create(config));
   }
 
+  @Override
+  public void close() throws IOException {
+    outputProvider.shutdown(pi4j);
+    inputProvider.shutdown(pi4j);
+  }
 }
