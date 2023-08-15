@@ -24,29 +24,39 @@ import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks.TestTask;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import org.everit.json.schema.*;
 import org.json.JSONObject;
 
 import java.io.IOException;
 
 public abstract class HT16K33Controller extends I2CDeviceController {
 
-  protected final HT16K33Driver display;
+  private static final String BRIGHTNESS = "brightness";
+  private static final String BLINK = "blink";
+  private static final String ENABLED = "enabled";
+  private static final String DISPLAY = "display";
+  private static final String CLOCK = "clock";
+  private static final String TEST = "test";
+
+  private static final String TASK = "task";
+  private static final String RAW = "raw";
+
+
+  protected final HT16K33Driver driver;
 
   private Task currentTask;
 
   protected HT16K33Controller() {
-    this.display = null;
+    this.driver = null;
     currentTask = null;
   }
 
   protected HT16K33Controller(HT16K33Driver display, AddressableDevice device) {
     super(device);
-    this.display = display;
+    this.driver = display;
   }
 
   public I2CDevice getDevice() {
-    return display;
+    return driver;
   }
 
   @Override
@@ -56,171 +66,130 @@ public abstract class HT16K33Controller extends I2CDeviceController {
 
   @Override
   public boolean detect(AddressableDevice i2cDevice) {
-    return display != null && display.isConnected();
+    return driver != null && driver.isConnected();
   }
 
+  @Override
   public byte[] getDeviceConfiguration() {
     return "{}".getBytes();
   }
 
+  @Override
   public byte[] getDeviceState() {
     JSONObject jsonObject = new JSONObject();
-    if (display != null) {
-      jsonObject.put("display", display.getCurrent());
-      jsonObject.put("blink", display.getRate().name());
-      jsonObject.put("enabled", display.isOn());
-      jsonObject.put("brightness", display.getBrightness());
+    if (driver != null) {
+      jsonObject.put(DISPLAY, driver.getCurrent());
+      jsonObject.put(BLINK, driver.getRate().name());
+      jsonObject.put(ENABLED, driver.isOn());
+      jsonObject.put(BRIGHTNESS, driver.getBrightness());
     }
     return jsonObject.toString(2).getBytes();
   }
 
   public void rawWrite(String value) throws IOException {
-    if (display != null) {
-      display.writeRaw(value);
+    if (driver != null) {
+      driver.writeRaw(value);
     }
   }
 
   public void write(String value) throws IOException {
-    if (display != null) {
-      display.write(value);
+    if (driver != null) {
+      driver.write(value);
+    }
+  }
+
+  private void processBrightness(JSONObject jsonObject, JSONObject response) throws IOException {
+    if (jsonObject.has(BRIGHTNESS)) {
+      int brightness = jsonObject.getInt(BRIGHTNESS);
+      if (brightness != driver.getBrightness()) {
+        driver.setBrightness((byte) (brightness & 0xf));
+        response.put(BRIGHTNESS, brightness);
+      }
+    }
+  }
+
+  private void processBlink(JSONObject jsonObject, JSONObject response) throws IOException {
+    if (jsonObject.has(BLINK)) {
+      String blink = jsonObject.optString(BLINK, "OFF");
+      BlinkRate rate = BlinkRate.valueOf(blink);
+      driver.setBlinkRate(rate);
+      response.put(BLINK, rate.name());
+    }
+  }
+
+  private void processEnabled(JSONObject jsonObject, JSONObject response) throws IOException {
+    if (jsonObject.has(ENABLED)) {
+      boolean isOn = jsonObject.optBoolean(ENABLED, driver.isOn());
+      if (isOn != driver.isOn()) {
+        if (isOn) {
+          response.put(ENABLED, isOn);
+          driver.turnOn();
+        } else {
+          response.put(ENABLED, isOn);
+          driver.turnOff();
+        }
+      }
+    }
+  }
+
+  private void processDisplay(JSONObject jsonObject, JSONObject response) throws IOException {
+    if (jsonObject.has(DISPLAY)) {
+      cancelCurrentTask();
+      String text = jsonObject.getString(DISPLAY);
+      if (text.length() <= 5) {
+        driver.write(text);
+        response.put(DISPLAY, text);
+      }
+    }
+  }
+
+  private void processRaw(JSONObject jsonObject, JSONObject response) throws IOException {
+    if (jsonObject.has(RAW)) {
+      cancelCurrentTask();
+      String text = jsonObject.getString(RAW);
+      driver.writeRaw(text);
+      response.put(RAW, text);
+    }
+  }
+
+  private void processTask(JSONObject jsonObject, JSONObject response) throws IOException {
+    if (jsonObject.has(TASK)) {
+      cancelCurrentTask();
+      driver.write("    ");
+      String task = jsonObject.getString(TASK);
+      if (task.equalsIgnoreCase(CLOCK)) {
+        setTask(new Clock(this));
+        response.put(TASK, CLOCK);
+      }
+      if (task.equalsIgnoreCase(TEST)) {
+        setTask(new TestTask(this));
+        response.put(TASK, TEST);
+      }
     }
   }
 
   @Override
   public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
-    JSONObject jsonObject = new JSONObject(new String(val));
     JSONObject response = new JSONObject();
-
-    if (display == null) return response.toString(2).getBytes();
-    if (jsonObject.has("brightness")) {
-      int brightness = jsonObject.getInt("brightness");
-      if (brightness != display.getBrightness()) {
-        display.setBrightness((byte) (brightness & 0xf));
-        response.put("brightness", brightness);
-      }
-    }
-    if (jsonObject.has("blink")) {
-      String blink = jsonObject.optString("blink", "OFF");
-      BlinkRate rate = BlinkRate.valueOf(blink);
-      display.setBlinkRate(rate);
-      response.put("blink", rate.name());
-
-    }
-    if (jsonObject.has("enabled")) {
-      boolean isOn = jsonObject.optBoolean("enabled", display.isOn());
-      if (isOn != display.isOn()) {
-        if (isOn) {
-          response.put("enabled", isOn);
-          display.turnOn();
-        } else {
-          response.put("enabled", isOn);
-          display.turnOff();
-        }
-      }
-    }
-    if (jsonObject.has("display")) {
-      cancelCurrentTask();
-      String text = jsonObject.getString("display");
-      if (text.length() <= 5) {
-        display.write(text);
-        response.put("display", text);
-      }
-    } else if (jsonObject.has("raw")) {
-      cancelCurrentTask();
-      String text = jsonObject.getString("raw");
-      display.writeRaw(text);
-      response.put("raw", text);
-    } else if (jsonObject.has("task")) {
-      cancelCurrentTask();
-      display.write("    ");
-      String task = jsonObject.getString("task");
-      if (task.equalsIgnoreCase("clock")) {
-        setTask(new Clock(this));
-        response.put("task", "clock");
-      }
-      if (task.equalsIgnoreCase("test")) {
-        setTask(new TestTask(this));
-        response.put("task", "test");
-      }
+    if (driver != null) {
+      JSONObject jsonObject = new JSONObject(new String(val));
+      processBrightness(jsonObject, response);
+      processBlink(jsonObject, response);
+      processEnabled(jsonObject, response);
+      processDisplay(jsonObject, response);
+      processRaw(jsonObject, response);
+      processTask(jsonObject, response);
     }
     return response.toString(2).getBytes();
   }
 
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
+    JsonSchemaConfig config = new JsonSchemaConfig();
     config.setSource("I2C bus address configurable from 0x70 to 0x77");
     config.setVersion("1.0");
     config.setResourceType("LED");
     config.setInterfaceDescription("Controls the LED segments");
     return config;
-  }
-
-  protected abstract String buildSchema();
-
-  protected Schema buildWritablePayload(String pattern) {
-    ObjectSchema.Builder updateSchema = ObjectSchema.builder()
-        .addPropertySchema("display",
-            StringSchema.builder()
-                .pattern(pattern)
-                .description("Update the LED display with the supplied string")
-                .build()
-        )
-        .addPropertySchema("task", EnumSchema.builder()
-            .possibleValue("clock")
-            .possibleValue("test")
-            .description("This is an optional server side task")
-            .build())
-        .addPropertySchema("blink",
-            BooleanSchema.builder()
-                .description("If the LED is blinking or not")
-                .build()
-        )
-        .addPropertySchema("blink-fast",
-            BooleanSchema.builder()
-                .description("If the fast blink cycle is enabled")
-                .build())
-        .addPropertySchema("enabled",
-            BooleanSchema.builder()
-                .description("If the LED is actually on")
-                .build())
-        .addPropertySchema("brightness",
-            NumberSchema.builder()
-                .maximum(16)
-                .minimum(0)
-                .description("Brightness of the LED")
-                .build());
-
-    return updateSchema.build();
-  }
-
-  protected Schema buildUpdateSchema() {
-    ObjectSchema.Builder updateSchema = ObjectSchema.builder()
-        .addPropertySchema("display",
-            StringSchema.builder()
-                .description("What is currently being displayed on the LED")
-                .build()
-        )
-        .addPropertySchema("blink",
-            BooleanSchema.builder()
-                .description("If the LED is blinking or not")
-                .build()
-        )
-        .addPropertySchema("blink-fast",
-            BooleanSchema.builder()
-                .description("If the fast blink cycle is enabled")
-                .build())
-        .addPropertySchema("enabled",
-            BooleanSchema.builder()
-                .description("If the LED is actually on")
-                .build())
-        .addPropertySchema("brightness",
-            NumberSchema.builder()
-                .maximum(16)
-                .minimum(0)
-                .description("Brightness of the LED")
-                .build());
-
-    return updateSchema.build();
   }
 
   private synchronized void setTask(Task task) {

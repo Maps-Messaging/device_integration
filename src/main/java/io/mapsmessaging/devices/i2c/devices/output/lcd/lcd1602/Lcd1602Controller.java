@@ -29,19 +29,18 @@ import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.task.Clock;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 import org.json.JSONObject;
 
 import java.io.IOException;
 
 public class Lcd1602Controller extends I2CDeviceController {
 
-  private final Lcd1602Device display;
+  private static final String SUCCESS = "success";
+  private static final String ERROR = "error";
+  private static final String NAME = "LCD1602";
+  private static final String DESCRIPTION = "LCD1602 16*2 lcd display";
 
-  @Getter
-  private final String name = "LCD1602";
-  @Getter
-  private final String description = "LCD1602 16*2 lcd display";
+  private final Lcd1602Device display;
 
   // Used during ServiceLoading
   public Lcd1602Controller() {
@@ -84,21 +83,22 @@ public class Lcd1602Controller extends I2CDeviceController {
     if (display != null) {
       if (command.getAction() == ActionType.READ) {
         byte[] data = display.readBlock(command.getAddress(), command.getLength());
-        response = new Lcd1602Response("Success", data);
+        response = new Lcd1602Response(SUCCESS, data);
       } else if (command.getAction() == ActionType.WRITE) {
         display.writeBlock(command.getAddress(), command.getData());
-        response = new Lcd1602Response("Success", new byte[0]);
+        response = new Lcd1602Response(SUCCESS, new byte[0]);
       } else if (command.getAction() == ActionType.CLEAR) {
         display.clearDisplay();
-        response = new Lcd1602Response("Success", new byte[0]);
+        response = new Lcd1602Response(SUCCESS, new byte[0]);
       }
     } else {
-      response = new Lcd1602Response("Error", new byte[0]);
+      response = new Lcd1602Response(ERROR, new byte[0]);
     }
     ObjectMapper objectMapper2 = new ObjectMapper();
     return objectMapper2.writeValueAsString(response).getBytes();
   }
 
+  @Override
   public byte[] getDeviceConfiguration() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (display != null) {
@@ -107,6 +107,7 @@ public class Lcd1602Controller extends I2CDeviceController {
     return jsonObject.toString(2).getBytes();
   }
 
+  @Override
   public byte[] getDeviceState() throws IOException {
     JSONObject jsonObject = new JSONObject();
     if (display != null) {
@@ -115,9 +116,19 @@ public class Lcd1602Controller extends I2CDeviceController {
     return jsonObject.toString(2).getBytes();
   }
 
+  @Override
+  public String getName() {
+    return NAME;
+  }
+
+  @Override
+  public String getDescription() {
+    return DESCRIPTION;
+  }
+
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig();
-    config.setComments("i2c device LCD1602 2x16 LCD display");
+    config.setComments(DESCRIPTION);
     config.setSource("I2C bus address : 0x3e");
     config.setVersion("1.0");
     config.setResourceType("sensor");

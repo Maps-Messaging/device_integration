@@ -20,8 +20,6 @@ import com.pi4j.io.gpio.digital.DigitalInput;
 import com.pi4j.io.gpio.digital.DigitalState;
 import com.pi4j.io.gpio.digital.DigitalStateChangeListener;
 
-import java.io.IOException;
-
 public class Pi4JDigitalInput extends BaseDigitalInput {
 
   private final DigitalInput input;
@@ -46,8 +44,5 @@ public class Pi4JDigitalInput extends BaseDigitalInput {
     input.removeListener(var1);
   }
 
-  @Override
-  public void stateChange() throws IOException {
 
-  }
 }

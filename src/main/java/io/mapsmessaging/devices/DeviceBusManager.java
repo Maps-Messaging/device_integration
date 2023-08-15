@@ -30,28 +30,29 @@ import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
+@Getter
 public class DeviceBusManager {
+  // Inner static class responsible for holding the Singleton instance
+  private static class Holder {
+    private static final DeviceBusManager INSTANCE = new DeviceBusManager();
+  }
 
+  // Global access point to get the Singleton instance
+  public static DeviceBusManager getInstance() {
+    return Holder.INSTANCE;
+  }
   private static final String[] PROVIDERS = {"pigpio-i2c", "linuxfs-i2c"};
 
-  @Getter
-  private static final DeviceBusManager instance = new DeviceBusManager();
   private final Logger logger = LoggerFactory.getLogger(DeviceBusManager.class);
   private final Context pi4j;
-  @Getter
   private final I2CBusManager[] i2cBusManager;
-  @Getter
   private final OneWireBusManager oneWireBusManager;
-  @Getter
   private final SpiBusManager spiBusManager;
-  @Getter
   private final InterruptFactory interruptFactory;
-  @Getter
   private final Pi4JPinManagement pinManagement;
-
-  @Getter
   private final boolean supportsLengthResponse;
 
   private DeviceBusManager() {
@@ -89,15 +90,23 @@ public class DeviceBusManager {
   public void configureDevices(Map<String, Object> config) throws IOException {
     // Note: 1-Wire autoconfigures within the filesystem
     logger.log(DeviceLogMessage.BUS_MANAGER_CONFIGURE_DEVICES);
-    if (config.containsKey("i2c")) {
-      Map<String, Object> i2c = (Map) config.get("i2c");
+    Map<String, Object> i2c = getConfig("i2c", config);
+    if (!i2c.isEmpty()) {
       int bus = Integer.parseInt(i2c.get("bus").toString());
       i2cBusManager[bus].configureDevices(i2c);
     }
-    if (config.containsKey("spi")) {
-      Map<String, Object> spi = (Map) config.get("spi");
+    Map<String, Object> spi = getConfig("spi", config);
+    if (!spi.isEmpty()) {
       spiBusManager.configureDevices(spi);
     }
+  }
+
+  private Map<String, Object> getConfig(String bus, Map<String, Object> config) {
+    Object object = config.get(bus);
+    if (object instanceof Map) {
+      return (Map<String, Object>) object;
+    }
+    return new LinkedHashMap<>();
   }
 
   public void close() {

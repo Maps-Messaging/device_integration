@@ -16,12 +16,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
-import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import lombok.Getter;
-import org.everit.json.schema.ObjectSchema;
 
 import java.io.IOException;
 
@@ -46,24 +44,11 @@ public class QuadAlphaNumericController extends HT16K33Controller {
     return new QuadAlphaNumericController(device);
   }
 
-
   @Override
   public SchemaConfig getSchema() {
     SchemaConfig config = super.getSchema();
     config.setComments("I2C HT16K33 device drives 4 Alpha Numeric segment LEDs with a ':' in the center");
     return config;
-  }
-
-  @Override
-  protected String buildSchema() {
-    ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
-    schemaBuilder
-        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, buildUpdateSchema())
-        .addPropertySchema(NamingConstants.DEVICE_WRITE_SCHEMA, buildWritablePayload("^[A-Za-z0-9]{1,4}(\\.[A-Za-z0-9]{1,4})*$"))
-        .description("Quad Alpha Numeric Segment LED")
-        .title("HT16K33");
-
-    return schemaToString(schemaBuilder.build());
   }
 
   @Override

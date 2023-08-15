@@ -22,20 +22,16 @@ import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 
 public class Pca9685Controller extends I2CDeviceController {
 
-  private static final int i2cAddr = 0x40;
+  private static final int I2C_ADDRESS = 0x40;
+  private static final String NAME = "PCA9685";
+  private static final String DESCRIPTION = "i2c device PCA9685 supports 16 PWM devices like servos or LEDs";
+
   private final Pca9685Device device;
-
-  @Getter
-  private final String name = "PCA9685";
-
-  @Getter
-  private final String description = "i2c device PCA9685 supports 16 PWM devices like servos or LEDs";
 
   public Pca9685Controller() {
     device = null;
@@ -62,9 +58,19 @@ public class Pca9685Controller extends I2CDeviceController {
     return device != null && device.isConnected();
   }
 
+  @Override
+  public String getName() {
+    return NAME;
+  }
+
+  @Override
+  public String getDescription() {
+    return DESCRIPTION;
+  }
+
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig();
-    config.setComments("i2c device PCA9685 supports 16 PWM devices like servos or LEDs");
+    config.setComments(DESCRIPTION);
     config.setSource("I2C bus address : 0x40");
     config.setVersion("1.0");
     config.setResourceType("driver");
@@ -74,6 +80,6 @@ public class Pca9685Controller extends I2CDeviceController {
 
   @Override
   public int[] getAddressRange() {
-    return new int[]{i2cAddr};
+    return new int[]{I2C_ADDRESS};
   }
 }

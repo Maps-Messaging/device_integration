@@ -24,6 +24,8 @@ import java.util.Arrays;
 
 public class BitsetRegister extends Register {
 
+  private static final String EXCEPTION_NAME = "bitIndex < 0: ";
+
   private static final int ADDRESS_BITS_PER_WORD = 3; // byte array
   protected byte[] buffer;
 
@@ -77,7 +79,7 @@ public class BitsetRegister extends Register {
 
   public void set(int bitIndex) throws IOException {
     if (bitIndex < 0)
-      throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
+      throw new IndexOutOfBoundsException(EXCEPTION_NAME + bitIndex);
 
     int wordIndex = wordIndex(bitIndex);
     int bit = bitIndex % 8;
@@ -87,7 +89,7 @@ public class BitsetRegister extends Register {
 
   public void clear(int bitIndex) throws IOException {
     if (bitIndex < 0)
-      throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
+      throw new IndexOutOfBoundsException(EXCEPTION_NAME + bitIndex);
 
     int wordIndex = wordIndex(bitIndex);
     int bit = bitIndex % 8;
@@ -97,7 +99,7 @@ public class BitsetRegister extends Register {
 
   public void flip(int bitIndex) throws IOException {
     if (bitIndex < 0)
-      throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
+      throw new IndexOutOfBoundsException(EXCEPTION_NAME + bitIndex);
 
     int wordIndex = wordIndex(bitIndex);
     int bit = bitIndex % 8;
@@ -107,7 +109,7 @@ public class BitsetRegister extends Register {
 
   public boolean get(int bitIndex) throws IOException {
     if (bitIndex < 0)
-      throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
+      throw new IndexOutOfBoundsException(EXCEPTION_NAME + bitIndex);
     reload();
     int wordIndex = wordIndex(bitIndex);
     int bit = bitIndex % 8;
@@ -116,6 +118,7 @@ public class BitsetRegister extends Register {
 
   @Override
   protected void setControlRegister(int mask, int value) throws IOException {
+    throw new IOException("Function not applicable");
   }
 
   private static int wordIndex(int bitIndex) {
@@ -127,7 +130,7 @@ public class BitsetRegister extends Register {
     try {
       reload();
     } catch (IOException e) {
-
+      // ignore
     }
     StringBuilder stringBuilder = new StringBuilder();
     int c = 0;

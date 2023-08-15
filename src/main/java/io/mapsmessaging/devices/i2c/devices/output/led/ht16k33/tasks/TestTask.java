@@ -34,6 +34,83 @@ public class TestTask implements Task {
 
   }
 
+  private void marchUpDown(Panel panel) throws IOException {
+    for (int x = 0; x < 10; x++) {
+      displayMask(panel, SevenSegmentLed.BOTTOM.getMask(), 200);
+      displayMask(panel, SevenSegmentLed.MIDDLE.getMask(), 200);
+      displayMask(panel, SevenSegmentLed.TOP.getMask(), 200);
+      displayMask(panel, SevenSegmentLed.MIDDLE.getMask(), 200);
+      displayMask(panel, SevenSegmentLed.BOTTOM.getMask(), 200);
+    }
+  }
+
+  private void marchLeftRight(Panel panel) throws IOException {
+    for (int x = 0; x < 4; x++) {
+      panel.setDisplay(x, SevenSegmentLed.TOP_LEFT.getMask() | SevenSegmentLed.BOTTOM_LEFT.getMask());
+      controller.rawWrite(panel.pack());
+      if (!runFlag.get()) return;
+      Delay.pause(200);
+      panel.clear();
+      panel.setDisplay(x, SevenSegmentLed.TOP_RIGHT.getMask() | SevenSegmentLed.BOTTOM_RIGHT.getMask());
+      controller.rawWrite(panel.pack());
+      if (!runFlag.get()) return;
+      Delay.pause(200);
+      panel.clear();
+    }
+    for (int x = 3; x >= 0; x--) {
+      panel.setDisplay(x, SevenSegmentLed.TOP_RIGHT.getMask() | SevenSegmentLed.BOTTOM_RIGHT.getMask());
+      controller.rawWrite(panel.pack());
+      if (!runFlag.get()) return;
+      Delay.pause(200);
+      panel.clear();
+      panel.setDisplay(x, SevenSegmentLed.TOP_LEFT.getMask() | SevenSegmentLed.BOTTOM_LEFT.getMask());
+      controller.rawWrite(panel.pack());
+      if (!runFlag.get()) return;
+      Delay.pause(200);
+      panel.clear();
+    }
+  }
+
+  private void circle(Panel panel) throws IOException {
+    for (int x = 0; x < 40; x++) {
+      panel.setDisplay(x, SevenSegmentLed.TOP_LEFT.getMask());
+      panel.setDisplay(3 - x, SevenSegmentLed.BOTTOM_RIGHT.getMask());
+      controller.rawWrite(panel.pack());
+      if (!runFlag.get()) return;
+      Delay.pause(200);
+      panel.clear();
+      panel.setDisplay(x, SevenSegmentLed.TOP_RIGHT.getMask());
+      panel.setDisplay(3 - x, SevenSegmentLed.BOTTOM_LEFT.getMask());
+      controller.rawWrite(panel.pack());
+      if (!runFlag.get()) return;
+      Delay.pause(200);
+      panel.clear();
+    }
+  }
+
+  private void displayDecimal(Panel panel) throws IOException {
+    for (int x = 0; x < 4; x++) {
+      panel.setDisplay(x, SevenSegmentLed.DECIMAL.getMask());
+      controller.rawWrite(panel.pack());
+      if (!runFlag.get()) return;
+      Delay.pause(200);
+      panel.clear();
+    }
+  }
+
+  private void blinkColon(Panel panel) throws IOException {
+    for (int x = 0; x < 4; x++) {
+      panel.enableColon(true);
+      controller.rawWrite(panel.pack());
+      if (!runFlag.get()) return;
+      Delay.pause(200);
+      panel.enableColon(false);
+      controller.rawWrite(panel.pack());
+      if (!runFlag.get()) return;
+      Delay.pause(200);
+    }
+  }
+
   @Override
   public void run() {
     Panel panel = new Panel(4, true);
@@ -42,74 +119,18 @@ public class TestTask implements Task {
       while (runFlag.get()) {
         panel.enableColon(hasColon);
         hasColon = !hasColon;
-        for (int x = 0; x < 10; x++) {
-          displayMask(panel, SevenSegmentLed.BOTTOM.getMask(), 200);
-          displayMask(panel, SevenSegmentLed.MIDDLE.getMask(), 200);
-          displayMask(panel, SevenSegmentLed.TOP.getMask(), 200);
-          displayMask(panel, SevenSegmentLed.MIDDLE.getMask(), 200);
-          displayMask(panel, SevenSegmentLed.BOTTOM.getMask(), 200);
-        }
+        marchUpDown(panel);
         panel.clear();
         for (int y = 0; y < 10; y++) {
-          for (int x = 0; x < 4; x++) {
-            panel.setDisplay(x, SevenSegmentLed.TOP_LEFT.getMask() | SevenSegmentLed.BOTTOM_LEFT.getMask());
-            controller.rawWrite(panel.pack());
-            if (!runFlag.get()) return;
-            Delay.pause(200);
-            panel.clear();
-            panel.setDisplay(x, SevenSegmentLed.TOP_RIGHT.getMask() | SevenSegmentLed.BOTTOM_RIGHT.getMask());
-            controller.rawWrite(panel.pack());
-            if (!runFlag.get()) return;
-            Delay.pause(200);
-            panel.clear();
-          }
-          for (int x = 3; x >= 0; x--) {
-            panel.setDisplay(x, SevenSegmentLed.TOP_RIGHT.getMask() | SevenSegmentLed.BOTTOM_RIGHT.getMask());
-            controller.rawWrite(panel.pack());
-            if (!runFlag.get()) return;
-            Delay.pause(200);
-            panel.clear();
-            panel.setDisplay(x, SevenSegmentLed.TOP_LEFT.getMask() | SevenSegmentLed.BOTTOM_LEFT.getMask());
-            controller.rawWrite(panel.pack());
-            if (!runFlag.get()) return;
-            Delay.pause(200);
-            panel.clear();
-          }
-        }
-        for (int y = 0; y < 10; y++) {
-          for (int x = 0; x < 4; x++) {
-            panel.setDisplay(x, SevenSegmentLed.TOP_LEFT.getMask());
-            panel.setDisplay(3 - x, SevenSegmentLed.BOTTOM_RIGHT.getMask());
-            controller.rawWrite(panel.pack());
-            if (!runFlag.get()) return;
-            Delay.pause(200);
-            panel.clear();
-            panel.setDisplay(x, SevenSegmentLed.TOP_RIGHT.getMask());
-            panel.setDisplay(3 - x, SevenSegmentLed.BOTTOM_LEFT.getMask());
-            controller.rawWrite(panel.pack());
-            if (!runFlag.get()) return;
-            Delay.pause(200);
-            panel.clear();
-          }
-        }
-        for (int x = 0; x < 4; x++) {
-          panel.setDisplay(x, SevenSegmentLed.DECIMAL.getMask());
-          controller.rawWrite(panel.pack());
-          if (!runFlag.get()) return;
-          Delay.pause(200);
-          panel.clear();
+          marchLeftRight(panel);
         }
         panel.clear();
-        for (int x = 0; x < 4; x++) {
-          panel.enableColon(true);
-          controller.rawWrite(panel.pack());
-          if (!runFlag.get()) return;
-          Delay.pause(200);
-          panel.enableColon(false);
-          controller.rawWrite(panel.pack());
-          if (!runFlag.get()) return;
-          Delay.pause(200);
-        }
+        circle(panel);
+        panel.clear();
+        displayDecimal(panel);
+        panel.clear();
+        blinkColon(panel);
+        panel.clear();
       }
     } catch (IOException e) {
       int bus = controller.getDevice().getBus();

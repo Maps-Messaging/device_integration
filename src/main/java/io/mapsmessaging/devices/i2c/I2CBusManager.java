@@ -35,6 +35,7 @@ import static io.mapsmessaging.devices.logging.DeviceLogMessage.I2C_BUS_SCAN;
 import static io.mapsmessaging.devices.logging.DeviceLogMessage.I2C_BUS_SCAN_MULTIPLE_DEVICES;
 
 public class I2CBusManager {
+
   private final Logger logger = LoggerFactory.getLogger(I2CBusManager.class);
 
   private final Map<String, I2CDeviceController> knownDevices;
@@ -46,7 +47,6 @@ public class I2CBusManager {
   private final I2CProvider i2cProvider;
   private final int i2cBus;
   private final boolean active;
-
 
   public I2CBusManager(Context pi4j, I2CProvider i2cProvider, int bus) {
     logger.log(DeviceLogMessage.I2C_BUS_MANAGER_STARTUP);
@@ -117,34 +117,42 @@ public class I2CBusManager {
     for (Integer addr : foundDevices) {
       List<I2CDeviceController> devices = mappedDevices.get(addr);
       if (devices != null && !devices.isEmpty()) {
-        if (devices.size() == 1) {
-          try {
-            createAndMountDevice(addr, devices.get(0));
-          } catch (IOException e) {
-            // Log here
-          }
-        } else {
-          boolean located = false;
-          for (I2CDeviceController device : devices) {
-            I2CDeviceImpl i2CDevice = new I2CDeviceImpl(physicalDevices.get(addr));
-            if (device.canDetect() && device.detect(i2CDevice)) {
-              try {
-                createAndMountDevice(addr, device);
-                located = true;
-              } catch (IOException e) {
-                // Log here
-              }
-            }
-          }
-          if (!located) {
-            StringBuilder sb = new StringBuilder();
-            for (I2CDeviceController controller : devices) {
-              sb.append(controller.getName()).append(" ");
-            }
-            logger.log(I2C_BUS_SCAN_MULTIPLE_DEVICES, sb.toString());
-          }
+        processDeviceList(addr, devices);
+      }
+    }
+  }
+
+  private void processDeviceList(int addr, List<I2CDeviceController> devices) {
+    if (devices.size() == 1) {
+      try {
+        createAndMountDevice(addr, devices.get(0));
+      } catch (IOException e) {
+        // Log here
+      }
+    } else {
+      scanAddrCollisions(addr, devices);
+    }
+  }
+
+  private void scanAddrCollisions(int addr, List<I2CDeviceController> devices) {
+    boolean located = false;
+    for (I2CDeviceController device : devices) {
+      I2CDeviceImpl i2CDevice = new I2CDeviceImpl(physicalDevices.get(addr));
+      if (device.canDetect() && device.detect(i2CDevice)) {
+        try {
+          createAndMountDevice(addr, device);
+          located = true;
+        } catch (IOException e) {
+          // Log here
         }
       }
+    }
+    if (!located) {
+      StringBuilder sb = new StringBuilder();
+      for (I2CDeviceController controller : devices) {
+        sb.append(controller.getName()).append(" ");
+      }
+      logger.log(I2C_BUS_SCAN_MULTIPLE_DEVICES, sb.toString());
     }
   }
 

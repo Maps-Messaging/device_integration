@@ -33,6 +33,8 @@ public abstract class BaseDigitalInput extends BaseDigital {
 
   public abstract void removeListener(DigitalStateChangeListener... var1);
 
-  public abstract void stateChange() throws IOException;
+  public void stateChange() throws IOException {
+    // No Operation required, only used by none native GPIO pins
+  }
 
 }

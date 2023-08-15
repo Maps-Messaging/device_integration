@@ -32,7 +32,9 @@ public abstract class HT16K33Driver extends I2CDevice implements Display {
 
   private static final byte BLINK_COMMAND = (byte) 0x80;
   private static final byte BLINK_DISPLAYON = 0x01;
+
   protected short[] font;
+
   @Getter
   private byte brightness;
   @Getter
@@ -110,7 +112,6 @@ public abstract class HT16K33Driver extends I2CDevice implements Display {
 
     writeCommand((byte) (BRIGHTNESS_COMMAND | (brightness & 0xf)));
   }
-
 
   public void writeRaw(String val) throws IOException {
     byte[] data = Base64.getDecoder().decode(val);
