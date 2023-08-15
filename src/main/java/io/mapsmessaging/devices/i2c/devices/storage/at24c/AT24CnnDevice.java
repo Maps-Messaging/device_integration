@@ -80,7 +80,7 @@ public class AT24CnnDevice extends I2CDevice implements Storage {
   private void waitForReady() {
     int count = 0;
     boolean cont = true;
-    while (cont & count < 10) {
+    while (cont && count < 10) {
       try {
         cont = device.read() < 0;
       } catch (Exception e) {
