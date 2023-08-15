@@ -21,11 +21,6 @@ import java.text.DecimalFormat;
 public class Constants {
 
   public static final float EARTH_GRAVITY_FLOAT = 9.80665f;   // m/s^2
-  public static final double EARTH_GRAVITY = 9.80665;         // m/s^2
-  public static final double GAS_CONSTANTS_PER_KG = 287.05;   // (J/(kg·K))
-  public static final double GAS_CONSTANTS_PER_MOL = 8.31432; // (J/(mol·K))
-  public static final double MOLAR_MASS = 0.02896;            // Molar mass of air (kg/mol)
-  public static final double ZERO_CELSIUS_KELVIN = 273.15;
 
   public static String roundFloatToString(float number, int decimalPlaces) {
     // Create the pattern for DecimalFormat based on the specified decimalPlaces

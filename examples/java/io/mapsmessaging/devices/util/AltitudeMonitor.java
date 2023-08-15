@@ -1,8 +1,12 @@
 package io.mapsmessaging.devices.util;
 
-import static io.mapsmessaging.devices.util.Constants.*;
-
 public class AltitudeMonitor {
+
+  private static final double EARTH_GRAVITY = 9.80665;         // m/s^2
+  private static final double GAS_CONSTANTS_PER_KG = 287.05;   // (J/(kg·K))
+  private static final double GAS_CONSTANTS_PER_MOL = 8.31432; // (J/(mol·K))
+  private static final double MOLAR_MASS = 0.02896;            // Molar mass of air (kg/mol)
+  private static final double ZERO_CELSIUS_KELVIN = 273.15;
 
   private final boolean update;
   private float temperature;
@@ -26,7 +30,11 @@ public class AltitudeMonitor {
 
     double pressure1Pa = pressure1 * 100;  // Convert pressure from hPa to Pa
     double pressure2Pa = pressure2 * 100;
-    return ((GAS_CONSTANTS_PER_KG * (temp1K + temp2K) / (2 * EARTH_GRAVITY * MOLAR_MASS)) * Math.log(pressure1Pa / pressure2Pa) / 1000.0);
+    double val = (2 * EARTH_GRAVITY * MOLAR_MASS);
+    if(val != 0.0){
+      return ((GAS_CONSTANTS_PER_KG * (temp1K + temp2K) / val) * Math.log(pressure1Pa / pressure2Pa) / 1000.0);
+    }
+    return 0;
   }
 
   /**
