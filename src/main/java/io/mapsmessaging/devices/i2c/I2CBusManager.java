@@ -121,7 +121,7 @@ public class I2CBusManager {
           try {
             createAndMountDevice(addr, devices.get(0));
           } catch (IOException e) {
-            e.printStackTrace();
+            // Log here
           }
         } else {
           boolean located = false;
@@ -132,7 +132,7 @@ public class I2CBusManager {
                 createAndMountDevice(addr, device);
                 located = true;
               } catch (IOException e) {
-                e.printStackTrace();
+                // Log here
               }
             }
           }
