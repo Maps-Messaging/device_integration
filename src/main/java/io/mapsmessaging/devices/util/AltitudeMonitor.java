@@ -21,17 +21,12 @@ public class AltitudeMonitor {
   }
 
   public static double computeHeightDifference(double pressure1, double pressure2, double temperature1, double temperature2) {
-    double R = GAS_CONSTANTS_PER_KG;       // Specific gas constant for dry air (J/(kg·K))
-    double g = EARTH_GRAVITY; // Acceleration due to gravity (m/s²)
-    double M = MOLAR_MASS;       // Molar mass of air (kg/mol)
-
     double temp1K = temperature1 + ZERO_CELSIUS_KELVIN;  // Convert temperature to Kelvin
     double temp2K = temperature2 + ZERO_CELSIUS_KELVIN;
 
-    double P0 = pressure1 * 100;  // Convert pressure from hPa to Pa
-    double P1 = pressure2 * 100;
-
-    return ((R * (temp1K + temp2K) / (2 * g * M)) * Math.log(P0 / P1) / 1000.0);
+    double pressure1Pa = pressure1 * 100;  // Convert pressure from hPa to Pa
+    double pressure2Pa = pressure2 * 100;
+    return ((GAS_CONSTANTS_PER_KG * (temp1K + temp2K) / (2 * EARTH_GRAVITY * MOLAR_MASS)) * Math.log(pressure1Pa / pressure2Pa) / 1000.0);
   }
 
   /**
@@ -47,13 +42,9 @@ public class AltitudeMonitor {
     double deltaT = temperature + 273.15; // Convert temperature to Kelvin
 
     // Constants for the International Standard Atmosphere (ISA) model
-    final double g = GAS_CONSTANTS_PER_KG; // Acceleration due to gravity (m/s^2)
-    final double M = MOLAR_MASS; // Molar mass of Earth's air (kg/mol)
-    final double R = GAS_CONSTANTS_PER_MOL; // Universal gas constant (J/(mol·K))
-    final double P0 = 1013.25; // Standard pressure at sea level (hPa)
-
+    final double pressure = 1013.25; // Standard pressure at sea level (hPa)
     // Calculate the height difference using the barometric formula
-    return (R * deltaT) / (M * g) * Math.log((P0 - deltaP) / P0);
+    return (GAS_CONSTANTS_PER_MOL * deltaT) / (MOLAR_MASS * GAS_CONSTANTS_PER_KG) * Math.log((pressure - deltaP) / pressure);
   }
 
   public double compute(float pressureReading, float temperatureReading) {

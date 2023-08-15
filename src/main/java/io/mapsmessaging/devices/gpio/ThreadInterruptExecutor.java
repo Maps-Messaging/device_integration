@@ -23,7 +23,10 @@ public class ThreadInterruptExecutor implements InterruptExecutor, Runnable {
       try {
         Thread.sleep(2);
         handler.interruptFired();
-      } catch (Exception e) {
+      } catch (IOException e) {
+        flag.set(false);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
         flag.set(false);
       }
     }

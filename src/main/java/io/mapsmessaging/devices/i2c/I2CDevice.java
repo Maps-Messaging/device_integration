@@ -170,7 +170,9 @@ public abstract class I2CDevice implements Device, AutoCloseable {
     try {
       log(I2C_BUS_DEVICE_DELAY, ms);
       //this will allow other devices access to the I2C bus
-      I2CDeviceScheduler.getI2cBusLock().wait(ms);
+      synchronized (I2CDeviceScheduler.getI2cBusLock()) {
+        I2CDeviceScheduler.getI2cBusLock().wait(ms);
+      }
     } catch (InterruptedException e) {
       // Ignore the interrupt
       Thread.currentThread().interrupt(); // Pass it up
