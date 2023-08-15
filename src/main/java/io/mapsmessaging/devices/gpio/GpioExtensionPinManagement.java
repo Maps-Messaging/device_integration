@@ -38,16 +38,10 @@ public class GpioExtensionPinManagement extends PinManagement implements Interru
     interruptExecutor = new ThreadInterruptExecutor(this);
   }
 
-  public GpioExtensionPinManagement(Gpio gpio, BaseDigitalInput interruptInput) throws IOException {
+  public GpioExtensionPinManagement(Gpio gpio, BaseDigitalInput interruptInput) {
     this.gpio = gpio;
     interruptMap = new ConcurrentHashMap<>();
-    interruptInput.addListener(digitalStateChangeEvent -> {
-      try {
-        interruptFired();
-      } catch (IOException e) {
-        // Ignore
-      }
-    });
+    interruptInput.addListener(digitalStateChangeEvent -> interruptFired());
     interruptExecutor = new ThreadInterruptExecutor(this);
   }
 
@@ -65,13 +59,17 @@ public class GpioExtensionPinManagement extends PinManagement implements Interru
     return input;
   }
 
-  public void interruptFired() throws IOException {
-    int[] list = gpio.getInterrupted();
-    for(int port:list){
-      BaseDigitalInput input = interruptMap.get(port);
-      if(input != null){
-        input.stateChange();
+  public void interruptFired()  {
+    try {
+      int[] list = gpio.getInterrupted();
+      for(int port:list){
+        BaseDigitalInput input = interruptMap.get(port);
+        if(input != null){
+          input.stateChange();
+        }
       }
+    } catch (IOException e) {
+      //
     }
   }
 }

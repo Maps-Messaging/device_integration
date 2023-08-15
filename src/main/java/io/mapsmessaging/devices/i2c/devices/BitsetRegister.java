@@ -40,6 +40,16 @@ public class BitsetRegister extends Register {
 
   public int[] getAllSet() throws IOException {
     reload();
+    boolean hasSet = false;
+    for(byte b:buffer){
+      if(b != 0){
+        hasSet = true;
+        break;
+      }
+    }
+    if(!hasSet){
+      return new int[0];
+    }
     return getAllBits(buffer, true);
   }
 
