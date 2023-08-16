@@ -47,10 +47,20 @@ public class Ds3231Controller extends I2CDeviceController {
     return rtc;
   }
 
+  @Override
+  public boolean canDetect() {
+    return true;
+  }
+
 
   @Override
   public boolean detect(AddressableDevice i2cDevice) {
-    return rtc != null && rtc.isConnected();
+    try {
+      return Ds3231Rtc.detect(i2cDevice);
+    } catch (IOException e) {
+
+    }
+    return false;
   }
 
   public I2CDeviceController mount(AddressableDevice device) throws IOException {

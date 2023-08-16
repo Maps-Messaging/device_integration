@@ -36,6 +36,11 @@ import java.util.List;
 @Getter
 public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
 
+  public static boolean detect(AddressableDevice i2cDevice) throws IOException {
+    Ds3231Rtc t = new Ds3231Rtc(i2cDevice);
+    return t.isConnected();
+  }
+
   private final SecondsRegister secondsRegister;
   @Getter
   private final MinutesRegister minutesRegister;
@@ -113,7 +118,20 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
 
   @Override
   public boolean isConnected() {
-    return true;
+
+    try {
+      int t = (secondsRegister.getSeconds()+1) % 60;
+      long end = System.currentTimeMillis() + 1000;
+      while(end > System.currentTimeMillis()){
+        int next = secondsRegister.getSeconds();
+        if(t == next){
+          return true;
+        }
+      }
+    } catch (IOException e) {
+      // ignore
+    }
+    return false;
   }
 
   protected float getTemperature() throws IOException {
