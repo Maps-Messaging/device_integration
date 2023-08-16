@@ -7,7 +7,14 @@ public class TimeHelper {
 
   public static String getTime(boolean useSpace, boolean addSeconds) {
     // Define format patterns based on the parameters
-    String formatPattern = useSpace ? (addSeconds ? "HH mm ss" : "HH mm") : (addSeconds ? "HH:mm:ss" : "HH:mm");
+    String separator = useSpace ? " " : ":";
+    String formatPattern;
+
+    if (addSeconds) {
+      formatPattern = "HH" + separator + "mm" + separator + "ss";
+    } else {
+      formatPattern = "HH" + separator + "mm";
+    }
 
     // Get the current time
     LocalTime currentTime = LocalTime.now();
@@ -16,4 +23,6 @@ public class TimeHelper {
     return currentTime.format(DateTimeFormatter.ofPattern(formatPattern));
   }
 
+  private TimeHelper() {
+  }
 }
