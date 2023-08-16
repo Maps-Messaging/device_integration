@@ -196,6 +196,7 @@ public class I2CBusManager {
         device.read(buf, 0, 1);
         TimeUnit.MILLISECONDS.sleep(20);
       }
+      TimeUnit.MILLISECONDS.sleep(1);
       return device.read(buf, 0, 1) == 1;
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
