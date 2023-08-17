@@ -16,9 +16,6 @@
 
 package io.mapsmessaging.devices;
 
-import io.mapsmessaging.devices.util.ProxyDeviceConfiguration;
-import io.mapsmessaging.devices.util.ProxyDeviceRequest;
-import io.mapsmessaging.devices.util.ProxyDeviceValue;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import org.everit.json.schema.ObjectSchema;
 import org.everit.json.schema.internal.JSONPrinter;
@@ -34,23 +31,6 @@ public interface DeviceController {
   String getDescription();
 
   SchemaConfig getSchema();
-
-  default DeviceValue getValue() throws IOException {
-    return new ProxyDeviceValue(getDeviceState());
-  }
-
-  default DeviceConfiguration getConfiguration() throws IOException {
-    return new ProxyDeviceConfiguration(getDeviceConfiguration());
-  }
-
-
-  default DeviceRequest updateDeviceConfiguration(DeviceRequest request) throws IOException {
-    if (request instanceof ProxyDeviceRequest) {
-      return new ProxyDeviceRequest(updateDeviceConfiguration(((ProxyDeviceRequest) request).getBuf()));
-    }
-    return new ProxyDeviceRequest(new byte[0]);
-  }
-
 
   byte[] getDeviceConfiguration() throws IOException;
 

@@ -21,7 +21,6 @@ import com.pi4j.context.Context;
 import com.pi4j.io.i2c.I2CProvider;
 import io.mapsmessaging.devices.gpio.Pi4JPinManagement;
 import io.mapsmessaging.devices.i2c.I2CBusManager;
-import io.mapsmessaging.devices.interrupts.InterruptFactory;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.devices.onewire.OneWireBusManager;
 import io.mapsmessaging.devices.spi.SpiBusManager;
@@ -51,7 +50,6 @@ public class DeviceBusManager {
   private final I2CBusManager[] i2cBusManager;
   private final OneWireBusManager oneWireBusManager;
   private final SpiBusManager spiBusManager;
-  private final InterruptFactory interruptFactory;
   private final Pi4JPinManagement pinManagement;
   private final boolean supportsLengthResponse;
 
@@ -67,7 +65,6 @@ public class DeviceBusManager {
       i2cBusManager[x] = new I2CBusManager(pi4j, i2cProvider, x);
     }
     oneWireBusManager = new OneWireBusManager();
-    interruptFactory = new InterruptFactory(pi4j);
     spiBusManager = new SpiBusManager(pi4j);
     pinManagement = new Pi4JPinManagement(pi4j);
   }
