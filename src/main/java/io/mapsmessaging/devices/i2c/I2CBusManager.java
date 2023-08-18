@@ -111,9 +111,9 @@ public class I2CBusManager {
     return activeDevices;
   }
 
-  public void scanForDevices() {
+  public void scanForDevices(long pollDelay) throws InterruptedException {
     if (!active) return;
-    List<Integer> foundDevices = findDevicesOnBus();
+    List<Integer> foundDevices = findDevicesOnBus(pollDelay);
     for (Integer addr : foundDevices) {
       List<I2CDeviceController> devices = mappedDevices.get(addr);
       if (devices != null && !devices.isEmpty()) {
@@ -156,7 +156,7 @@ public class I2CBusManager {
     }
   }
 
-  public List<Integer> findDevicesOnBus() {
+  public List<Integer> findDevicesOnBus(long pollDelay) throws InterruptedException {
     List<Integer> found = new ArrayList<>();
     for (int x = 0; x < 0x78; x++) {
       if (!activeDevices.containsKey(Integer.toHexString(x))) {
@@ -165,13 +165,16 @@ public class I2CBusManager {
           if (device == null) {
             device = createi2cDevice(x);
           }
-          if (isOnBus(x, device)) {
-            found.add(x);
+          synchronized (I2CDeviceScheduler.getI2cBusLock()) {
+            if (isOnBus(x, device)) {
+              found.add(x);
+            }
           }
         } catch (Exception e) {
           // Ignore since we are simply looking for devices
         }
       }
+      if(pollDelay>0) TimeUnit.MILLISECONDS.sleep(pollDelay);
     }
     listDetected(found);
     return found;

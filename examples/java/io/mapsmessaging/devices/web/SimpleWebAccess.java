@@ -34,6 +34,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class SimpleWebAccess {
 
@@ -42,17 +44,27 @@ public class SimpleWebAccess {
 
   public SimpleWebAccess() {
     deviceBusManager = DeviceBusManager.getInstance();
-    scan();
+    Timer timer = new Timer();
+    timer.scheduleAtFixedRate(new TimerTask() {
+      @Override
+      public void run() {
+        try {
+          scan();
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        }
+      }
+    }, 2000, 120000);
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws InterruptedException {
     SimpleWebAccess simpleWebAccess = new SimpleWebAccess();
     simpleWebAccess.startServer();
   }
 
-  protected void scan() {
+  public void scan() throws InterruptedException {
     for (I2CBusManager manager : deviceBusManager.getI2cBusManager()) {
-      manager.scanForDevices();
+      manager.scanForDevices(500);
     }
   }
 
@@ -76,7 +88,7 @@ public class SimpleWebAccess {
     // Add the I2C bus
     app.get("/device/i2c/{bus}/scan", ctx -> {
       int bus = Integer.parseInt(ctx.pathParam("bus"));
-      List<Integer> found = deviceBusManager.getI2cBusManager()[bus].findDevicesOnBus();
+      List<Integer> found = deviceBusManager.getI2cBusManager()[bus].findDevicesOnBus(0);
       List<String> map = deviceBusManager.getI2cBusManager()[bus].listDetected(found);
       JSONArray jsonArray = new JSONArray();
       for (String line : map) {

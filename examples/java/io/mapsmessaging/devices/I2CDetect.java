@@ -22,13 +22,13 @@ import java.util.List;
 
 public class I2CDetect {
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws InterruptedException {
     I2CBusManager[] i2CBusManagers = DeviceBusManager.getInstance().getI2cBusManager();
     int bus = 1;
     if (args.length > 0) {
       bus = Integer.parseInt(args[0]);
     }
-    List<Integer> list = i2CBusManagers[bus].findDevicesOnBus();
+    List<Integer> list = i2CBusManagers[bus].findDevicesOnBus(0);
     for (String line : i2CBusManagers[bus].listDetected(list)) {
       System.err.println(line);
     }
