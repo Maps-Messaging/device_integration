@@ -15,15 +15,20 @@ public class InterruptPin implements DigitalStateChangeListener {
   public InterruptPin(BaseDigitalInput pin){
     this.pin = pin;
     listeners = new CopyOnWriteArrayList<>();
-    pin.addListener(this);
   }
 
   public void addListener(InterruptListener listener){
+    if(listeners.isEmpty()){
+      pin.addListener(this);
+    }
     listeners.add(listener);
   }
 
   public void removeListener(InterruptListener listener){
     listeners.remove(listener);
+    if(listeners.isEmpty()){
+      pin.removeListener(this);
+    }
   }
 
   public void close() {
