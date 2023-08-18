@@ -49,8 +49,35 @@ public class GpioExtensionPinManagement extends PinManagement implements Interru
     interruptExecutor.close();
   }
 
+  @Override
+  public BaseDigitalOutput allocateOutPin(Map<String, String> config) throws IOException {
+    String id = config.get("id");
+    String name = config.get("name");
+    int pin = Integer.parseInt(config.get("pin").trim());
+    boolean pullUp = config.get("pull").equalsIgnoreCase("up");
+    return new GpioDigitalOutput(id, name, gpio, pin, pullUp);
+  }
+
   public BaseDigitalOutput allocateOutPin(String id, String name, int pin, boolean pullUp) throws IOException {
     return new GpioDigitalOutput(id, name, gpio, pin, pullUp);
+  }
+
+  @Override
+  public BaseDigitalInput allocateInPin(Map<String, String> config) throws IOException {
+    String id = config.get("id");
+    String name = config.get("name");
+    int pin = Integer.parseInt(config.get("pin").trim());
+    boolean pullUp = config.get("pull").equalsIgnoreCase("up");
+    GpioDigitalInput input = new GpioDigitalInput(id, name, gpio, pin, pullUp);
+    if(config.containsKey("on") && config.get("on").equalsIgnoreCase("up")){
+      gpio.setOnHigh(pin);
+    }
+    else{
+      gpio.setOnLow(pin);
+    }
+    interruptMap.put(pin, input);
+
+    return input;
   }
 
   public BaseDigitalInput allocateInPin(String id, String name, int pin, boolean pullUp) throws IOException {

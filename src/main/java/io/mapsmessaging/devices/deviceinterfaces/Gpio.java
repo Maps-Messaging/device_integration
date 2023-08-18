@@ -36,6 +36,9 @@ public interface Gpio {
 
   void setLow(int pin) throws IOException;
 
+  void setOnHigh(int pin) throws IOException;
+
+  void setOnLow(int pin) throws IOException;
 
   void setInput(int pin) throws IOException;
 

@@ -19,6 +19,7 @@ package io.mapsmessaging.devices;
 import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
 import com.pi4j.io.i2c.I2CProvider;
+import io.mapsmessaging.devices.gpio.InterruptFactory;
 import io.mapsmessaging.devices.gpio.Pi4JPinManagement;
 import io.mapsmessaging.devices.i2c.I2CBusManager;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
@@ -51,6 +52,7 @@ public class DeviceBusManager {
   private final OneWireBusManager oneWireBusManager;
   private final SpiBusManager spiBusManager;
   private final Pi4JPinManagement pinManagement;
+  private final InterruptFactory interruptFactory;
   private final boolean supportsLengthResponse;
 
   private DeviceBusManager() {
@@ -67,6 +69,7 @@ public class DeviceBusManager {
     oneWireBusManager = new OneWireBusManager();
     spiBusManager = new SpiBusManager(pi4j);
     pinManagement = new Pi4JPinManagement(pi4j);
+    interruptFactory = new InterruptFactory(pi4j);
   }
 
   private static String getProvider() {
