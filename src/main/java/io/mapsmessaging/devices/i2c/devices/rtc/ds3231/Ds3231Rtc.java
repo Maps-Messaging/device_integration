@@ -37,8 +37,9 @@ import java.util.List;
 public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
 
   public static boolean detect(AddressableDevice i2cDevice) throws IOException {
-    Ds3231Rtc t = new Ds3231Rtc(i2cDevice);
-    return t.isConnected();
+    try (Ds3231Rtc t = new Ds3231Rtc(i2cDevice)){
+      return t.isConnected();
+    }
   }
 
   private final SecondsRegister secondsRegister;
