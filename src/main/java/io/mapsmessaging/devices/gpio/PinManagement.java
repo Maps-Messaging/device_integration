@@ -27,11 +27,6 @@ public abstract class PinManagement implements Closeable {
 
   public abstract BaseDigitalOutput allocateOutPin(Map<String, String> config) throws IOException;
 
-  public abstract BaseDigitalOutput allocateOutPin(String id, String name, int pin, boolean pullUp) throws IOException;
-
   public abstract BaseDigitalInput allocateInPin(Map<String, String> config) throws IOException;
-
-  public abstract BaseDigitalInput allocateInPin(String id, String name, int pin, boolean pullUp) throws IOException;
-
 
 }

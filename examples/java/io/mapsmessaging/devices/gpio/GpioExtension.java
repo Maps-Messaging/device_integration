@@ -26,6 +26,8 @@ import io.mapsmessaging.devices.i2c.devices.gpio.mcp23017.Mcp23017Controller;
 import io.mapsmessaging.devices.i2c.devices.gpio.mcp23017.Mcp23017Device;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class GpioExtension {
 
@@ -40,17 +42,29 @@ public class GpioExtension {
     if (deviceController.getDeviceController() instanceof Mcp23017Controller) {
 
       Pi4JPinManagement pi4JPinManagement = DeviceBusManager.getInstance().getPinManagement();
-      BaseDigitalInput piInterrupt0 = pi4JPinManagement.allocateInPin("piInterrupt0", "TestPiIn0", 17, false);
+      Map<String, String> config = new LinkedHashMap<>();
+      config.put("id", "piInterrupt0");
+      config.put("name", "TestPiIn0");
+      config.put("pin", "17");
+      BaseDigitalInput piInterrupt0 = pi4JPinManagement.allocateInPin(config);
       Gpio gpio = (Mcp23017Device) deviceController.getDeviceController().getDevice();
       GpioExtensionPinManagement pinManagement = new GpioExtensionPinManagement(gpio);//, piInterrupt0);
       BaseDigitalOutput[] outputs = new BaseDigitalOutput[gpio.getPins()/2];
       BaseDigitalInput[] inputs = new BaseDigitalInput[gpio.getPins()/2];
       for (int x = 0; x < gpio.getPins()/2; x++) {
-        outputs[x] = pinManagement.allocateOutPin("ID:" + x, "Out-Name:" + x, x, false);
+        config = new LinkedHashMap<>();
+        config.put("id", "ID:" + x);
+        config.put("name",  "Out-Name:" + x);
+        config.put("pin", ""+x);
+        outputs[x] = pinManagement.allocateOutPin(config);
         outputs[x].setLow();
       }
       for(int x=0;x<gpio.getPins()/2;x++){
-        inputs[x] = pinManagement.allocateInPin("ID:" + x, "In-Name:" + x, x+ gpio.getPins()/2, false);
+        config = new LinkedHashMap<>();
+        config.put("id", "ID:" + x);
+        config.put("name",  "Out-Name:" + x);
+        config.put("pin", ""+x+ gpio.getPins()/2);
+        inputs[x] = pinManagement.allocateInPin(config);
         BaseDigitalInput input = inputs[x];
         inputs[x].addListener(digitalStateChangeEvent -> System.err.println("Received state change for "+digitalStateChangeEvent.state()+" "+input));
       }

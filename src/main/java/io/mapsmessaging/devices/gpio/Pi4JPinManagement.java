@@ -28,7 +28,6 @@ import io.mapsmessaging.devices.gpio.pin.Pi4JDigitalOutput;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Properties;
 
 public class Pi4JPinManagement extends PinManagement {
 
@@ -51,38 +50,7 @@ public class Pi4JPinManagement extends PinManagement {
   }
 
   @Override
-  public BaseDigitalOutput allocateOutPin(String id, String name, int pin, boolean pullUp) {
-    Properties properties = new Properties();
-    properties.put("id", id);
-    properties.put("address", pin);
-    properties.put("name", name);
-    var config = DigitalOutput.newConfigBuilder(pi4j)
-        .load(properties)
-        .build();
-    return new Pi4JDigitalOutput(outputProvider.create(config));
-  }
-
-  @Override
   public BaseDigitalInput allocateInPin(Map<String, String> properties) {
-    var config = DigitalInput.newConfigBuilder(pi4j)
-        .load(properties)
-        .build();
-    return new Pi4JDigitalInput(inputProvider.create(config));
-  }
-
-  @Override
-  public BaseDigitalInput allocateInPin(String id, String name, int pin, boolean pullUp) {
-    Properties properties = new Properties();
-    properties.put("id", id);
-    properties.put("address", pin);
-    if (pullUp) {
-      properties.put("pull", "UP");
-    }
-    else{
-      properties.put("pull", "DOWN");
-    }
-    properties.put("name", name);
-
     var config = DigitalInput.newConfigBuilder(pi4j)
         .load(properties)
         .build();

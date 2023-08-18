@@ -23,6 +23,8 @@ import lombok.Getter;
 
 import java.io.IOException;
 import java.util.BitSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class ShiftRegisterDevice implements Device {
 
@@ -49,11 +51,13 @@ public class ShiftRegisterDevice implements Device {
   ) throws IOException {
     totalBits = sizeOfRegister * numberOfRegisters;
     individualBits = new BitSet(totalBits);
-    dataPort = pinManagement.allocateOutPin(NAME + "-data", "data", dataPin, false);
-    clockPort = pinManagement.allocateOutPin(NAME + "-clock", "clock", clockPin, false);
-    latchPort = pinManagement.allocateOutPin(NAME + "-latch", "latch", latchPin, false);
+
+
+    dataPort = pinManagement.allocateOutPin(buildConfig(NAME + "-data", "data", dataPin, false));
+    clockPort = pinManagement.allocateOutPin(buildConfig(NAME + "-clock", "clock", clockPin, false));
+    latchPort = pinManagement.allocateOutPin(buildConfig(NAME + "-latch", "latch", latchPin, false));
     if (clearPin > 0) {
-      clearPort = pinManagement.allocateOutPin(NAME + "-clear", "clear", clearPin, false);
+      clearPort = pinManagement.allocateOutPin(buildConfig(NAME + "-clear", "clear", clearPin, false));
       clearPort.setLow();
     } else {
       clearPort = null;
@@ -62,6 +66,17 @@ public class ShiftRegisterDevice implements Device {
     clockPort.setLow();
     latchPort.setLow();
     clearAll();
+  }
+
+  private Map<String, String> buildConfig(String id, String name, int pin, boolean pullup){
+    Map<String, String> config = new LinkedHashMap<>();
+    config.put("id",id);
+    config.put("name", name);
+    config.put("pin", ""+pin);
+    if(pullup){
+      config.put("pull", "UP");
+    }
+    return config;
   }
 
   public void setBit(int bit) {
