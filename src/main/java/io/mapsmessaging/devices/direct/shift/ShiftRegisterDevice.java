@@ -112,25 +112,34 @@ public class ShiftRegisterDevice implements Device {
   }
 
   public void write() throws IOException {
-    latchPort.setLow();
+    sendData();
+    sequenceLatch();
+  }
+
+  private void sendData() throws IOException {
     for (int x = totalBits - 1; x >= 0; x--) {
-      delay(BIT_DELAY_TIME_MS);
       if (individualBits.get(x)) {
         dataPort.setHigh();
       } else {
         dataPort.setLow();
       }
-      delay(BIT_DELAY_TIME_MS);
-      clockPort.setHigh();
-      delay(BIT_DELAY_TIME_MS);
-      clockPort.setLow();
+      sequenceClock();
     }
     dataPort.setLow();
+  }
+
+  private void sequenceLatch() throws IOException{
     latchPort.setHigh();
     delay(BIT_DELAY_TIME_MS);
     latchPort.setLow();
   }
 
+  private void sequenceClock() throws IOException {
+    delay(BIT_DELAY_TIME_MS);
+    clockPort.setHigh();
+    delay(BIT_DELAY_TIME_MS);
+    clockPort.setLow();
+  }
 
   @Override
   public String getName() {
