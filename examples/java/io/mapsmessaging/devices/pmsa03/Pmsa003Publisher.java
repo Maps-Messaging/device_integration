@@ -24,12 +24,11 @@ import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.i2c.devices.sensors.pmsa003i.Pmsa003iSensor;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import lombok.SneakyThrows;
-import org.json.JSONObject;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
+import java.io.OutputStream;
 import java.util.List;
-import java.util.Map;
 
 public class Pmsa003Publisher implements Runnable {
 
@@ -60,18 +59,25 @@ public class Pmsa003Publisher implements Runnable {
   @SneakyThrows
   public void run() {
     List<SensorReading<?>> readings = device.getReadings();
+    OutputStream outputStream = new FileOutputStream("/home/pi/pmsa003.csv", false);
+    String header = "time,";
+    for(SensorReading<?> sensor:readings){
+      header += sensor.getName()+",";
+    }
+    header +="\n";
+    outputStream.write(header.getBytes());
+    outputStream.flush();
+
     while (!readings.isEmpty()) {
-      Map<String, Object> values = new HashMap<>();
+      StringBuilder sb = new StringBuilder(""+System.currentTimeMillis()+",");
       synchronized (I2CDeviceScheduler.getI2cBusLock()) {
         for (SensorReading<?> reading : readings) {
-          Map<String, Object> sensor = new HashMap<>();
-          sensor.put("unit", reading.getUnit());
-          sensor.put("value", reading.getValue().getResult());
-          values.put(reading.getName(), sensor);
+          sb.append(""+ reading.getValue().getResult()).append(",");
         }
       }
-      JSONObject jsonObject = new JSONObject(values);
-      System.err.println(jsonObject.toString(2));
+      sb.append("\n");
+      outputStream.write(sb.toString().getBytes());
+      outputStream.flush();
       Thread.sleep(30000);
     }
   }
