@@ -23,6 +23,7 @@ import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.i2c.devices.sensors.pmsa003i.Pmsa003iSensor;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
+import lombok.SneakyThrows;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -56,6 +57,7 @@ public class Pmsa003Publisher implements Runnable {
     }
   }
 
+  @SneakyThrows
   public void run() {
     List<SensorReading<?>> readings = device.getReadings();
     while (!readings.isEmpty()) {
@@ -64,12 +66,13 @@ public class Pmsa003Publisher implements Runnable {
         for (SensorReading<?> reading : readings) {
           Map<String, Object> sensor = new HashMap<>();
           sensor.put("unit", reading.getUnit());
-          sensor.put("value", reading.getValue());
+          sensor.put("value", reading.getValue().getResult());
           values.put(reading.getName(), sensor);
         }
       }
       JSONObject jsonObject = new JSONObject(values);
       System.err.println(jsonObject.toString(2));
+      Thread.sleep(30000);
     }
   }
 }

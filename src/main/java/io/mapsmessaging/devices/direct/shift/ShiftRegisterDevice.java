@@ -51,13 +51,11 @@ public class ShiftRegisterDevice implements Device {
   ) throws IOException {
     totalBits = sizeOfRegister * numberOfRegisters;
     individualBits = new BitSet(totalBits);
-
-
-    dataPort = pinManagement.allocateOutPin(buildConfig(NAME + "-data", "data", dataPin, false));
-    clockPort = pinManagement.allocateOutPin(buildConfig(NAME + "-clock", "clock", clockPin, false));
-    latchPort = pinManagement.allocateOutPin(buildConfig(NAME + "-latch", "latch", latchPin, false));
+    dataPort = pinManagement.allocateOutPin(buildConfig(NAME + "-data", "data", dataPin));
+    clockPort = pinManagement.allocateOutPin(buildConfig(NAME + "-clock", "clock", clockPin));
+    latchPort = pinManagement.allocateOutPin(buildConfig(NAME + "-latch", "latch", latchPin));
     if (clearPin > 0) {
-      clearPort = pinManagement.allocateOutPin(buildConfig(NAME + "-clear", "clear", clearPin, false));
+      clearPort = pinManagement.allocateOutPin(buildConfig(NAME + "-clear", "clear", clearPin));
       clearPort.setLow();
     } else {
       clearPort = null;
@@ -68,14 +66,12 @@ public class ShiftRegisterDevice implements Device {
     clearAll();
   }
 
-  private Map<String, String> buildConfig(String id, String name, int pin, boolean pullup){
+  private Map<String, String> buildConfig(String id, String name, int pin) {
     Map<String, String> config = new LinkedHashMap<>();
     config.put("id",id);
     config.put("name", name);
     config.put("pin", ""+pin);
-    if(pullup){
-      config.put("pull", "UP");
-    }
+
     return config;
   }
 
