@@ -34,6 +34,8 @@ import java.util.Map;
 
 public class Mcp3y0xController extends SpiDeviceController {
 
+  private static final String NAME = "Mcp3y0x";
+
   private final Mcp3y0xDevice device;
 
   public Mcp3y0xController() {
@@ -61,13 +63,13 @@ public class Mcp3y0xController extends SpiDeviceController {
 
   @Override
   public String getName() {
-    if (device == null) return "Mcp3y0x";
+    if (device == null) return NAME;
     return device.getName();
   }
 
   @Override
   public String getDescription() {
-    if (device == null) return "Mcp3y0x";
+    if (device == null) return NAME;
     return device.getDescription();
   }
 
@@ -139,7 +141,7 @@ public class Mcp3y0xController extends SpiDeviceController {
         .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, updateSchema.build())
         .addPropertySchema(NamingConstants.DEVICE_STATIC_DATA_SCHEMA, staticSchema.build())
         .description("Analog to digital convertor")
-        .title("Mcp3y0x");
+        .title(NAME);
     return schemaToString(schemaBuilder.build());
   }
 

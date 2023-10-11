@@ -57,6 +57,7 @@ public class Mcp3y0xDevice extends SpiDevice implements Sensor {
   /**
    * Communicate to the ADC chip via SPI to get single-ended conversion value for a specified channel.
    *
+   * @param differential, use the differential between the 2 pins
    * @param channel analog input channel on ADC chip
    * @return conversion value for specified analog input channel
    */

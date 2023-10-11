@@ -165,11 +165,12 @@ public abstract class I2CDevice implements Device, AutoCloseable {
     return read;
   }
 
+  @SuppressWarnings("java:S2274") // The delay here is for a specific I2C device. We release the bus lock which allows other devices access
   @Override
   public void delay(int ms) {
     try {
       log(I2C_BUS_DEVICE_DELAY, ms);
-      //this will allow other devices access to the I2C bus
+      //this will allow other devices access to the I2C bus while the device waits
       synchronized (I2CDeviceScheduler.getI2cBusLock()) {
         I2CDeviceScheduler.getI2cBusLock().wait(ms);
       }
