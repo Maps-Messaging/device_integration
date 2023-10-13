@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.tsl2561;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.PowerManagement;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
@@ -167,5 +168,9 @@ public class TSL2561Sensor extends I2CDevice implements PowerManagement, Sensor 
     return "Light sensor and Lux computation";
   }
 
+  @Override
+  public DeviceType getType() {
+    return DeviceType.SENSOR;
+  }
 
 }

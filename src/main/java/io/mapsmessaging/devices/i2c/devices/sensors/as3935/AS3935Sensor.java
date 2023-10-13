@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.PowerManagement;
 import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
@@ -147,4 +148,10 @@ public class AS3935Sensor extends I2CDevice implements PowerManagement, Sensor, 
   public String toString() {
     return registerMap.toString();
   }
+
+  @Override
+  public DeviceType getType() {
+    return DeviceType.SENSOR;
+  }
+
 }

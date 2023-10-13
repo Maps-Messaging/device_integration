@@ -24,6 +24,8 @@ public interface Device {
 
   String getDescription();
 
+  DeviceType getType();
+
   default void delay(int ms) {
     try {
       TimeUnit.MILLISECONDS.sleep(ms);

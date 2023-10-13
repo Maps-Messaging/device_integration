@@ -1,5 +1,6 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
@@ -141,5 +142,9 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
     return temperatureRegister.getTemperature();
   }
   //endregion
+  @Override
+  public DeviceType getType() {
+    return DeviceType.SENSOR;
+  }
 
 }

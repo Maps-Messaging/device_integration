@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.gravity;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.gravity.module.SensorType;
@@ -114,4 +115,9 @@ public class GasSensor extends I2CDevice implements Sensor {
     }
     return "Generic Gas Sensor";
   }
+  @Override
+  public DeviceType getType() {
+    return DeviceType.SENSOR;
+  }
+
 }

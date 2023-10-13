@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.bh1750;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.PowerManagement;
 import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
@@ -132,6 +133,10 @@ public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor, 
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), lux + " = getCurrentValue()");
     }
     return (lux / 1.2f) / readingModeRegister.getResolutionMode().getAdjustment();
+  }
+  @Override
+  public DeviceType getType() {
+    return DeviceType.SENSOR;
   }
 
 }

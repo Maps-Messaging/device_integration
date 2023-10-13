@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.Clock;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
@@ -249,5 +250,11 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
   @Override
   public String getDescription() {
     return "Real Time Clock";
+  }
+
+
+  @Override
+  public DeviceType getType() {
+    return DeviceType.CLOCK;
   }
 }

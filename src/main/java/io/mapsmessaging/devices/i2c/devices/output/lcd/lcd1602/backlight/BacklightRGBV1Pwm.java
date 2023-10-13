@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.backlight;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 
 public class BacklightRGBV1Pwm extends BacklightPwm {
@@ -29,4 +30,8 @@ public class BacklightRGBV1Pwm extends BacklightPwm {
     super(device, REG_RED, REG_GREEN, REG_BLUE, REG_ONLY);
   }
 
+  @Override
+  public DeviceType getType() {
+    return DeviceType.PWM;
+  }
 }

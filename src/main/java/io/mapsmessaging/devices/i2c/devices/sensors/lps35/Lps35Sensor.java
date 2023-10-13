@@ -1,5 +1,6 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps35;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
@@ -120,4 +121,10 @@ public class Lps35Sensor extends I2CDevice implements Sensor, Resetable {
   protected float getTemperature() throws IOException {
     return temperatureRegister.getTemperature();
   }
+
+  @Override
+  public DeviceType getType() {
+    return DeviceType.SENSOR;
+  }
+
 }

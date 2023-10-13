@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.Output;
 import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Storage;
@@ -279,5 +280,11 @@ public class Lcd1602Device extends I2CDevice implements Output, Storage, Resetab
   @Override
   public void softReset() throws IOException {
     clearDisplay();
+  }
+
+
+  @Override
+  public DeviceType getType() {
+    return DeviceType.DISPLAY;
   }
 }

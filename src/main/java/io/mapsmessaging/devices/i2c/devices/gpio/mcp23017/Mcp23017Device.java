@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.gpio.mcp23017;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.Gpio;
 import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
@@ -162,4 +163,8 @@ public class Mcp23017Device extends I2CDevice implements Sensor, Resetable, Gpio
     gppu.clear(pin);
   }
 
+  @Override
+  public DeviceType getType() {
+    return DeviceType.GPIO;
+  }
 }

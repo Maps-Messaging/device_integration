@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.ina219;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.*;
@@ -125,6 +126,10 @@ public class Ina219Sensor extends I2CDevice implements Sensor {
   @Override
   public String getDescription() {
     return "Zero-Drift, Bidirectional Current/Power Monitor";
+  }
+  @Override
+  public DeviceType getType() {
+    return DeviceType.SENSOR;
   }
 
 }

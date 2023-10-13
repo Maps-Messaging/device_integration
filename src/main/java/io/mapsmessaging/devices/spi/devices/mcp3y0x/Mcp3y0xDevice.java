@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.spi.devices.mcp3y0x;
 
 import com.pi4j.io.spi.Spi;
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.sensorreadings.IntegerSensorReading;
 import io.mapsmessaging.devices.sensorreadings.ReadingSupplier;
@@ -117,4 +118,10 @@ public class Mcp3y0xDevice extends SpiDevice implements Sensor {
       return readFromChannel(false, channel);
     }
   }
+
+  @Override
+  public DeviceType getType() {
+    return DeviceType.SENSOR;
+  }
+
 }

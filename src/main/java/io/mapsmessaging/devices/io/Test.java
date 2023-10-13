@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.io;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.RegisterMap;
@@ -122,5 +123,11 @@ public class Test {
     public boolean isConnected() {
       return true;
     }
+
+    @Override
+    public DeviceType getType() {
+      return DeviceType.SENSOR;
+    }
+
   }
 }

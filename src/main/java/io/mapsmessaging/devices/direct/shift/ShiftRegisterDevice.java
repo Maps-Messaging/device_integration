@@ -17,6 +17,7 @@
 package io.mapsmessaging.devices.direct.shift;
 
 import io.mapsmessaging.devices.Device;
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.gpio.PinManagement;
 import io.mapsmessaging.devices.gpio.pin.BaseDigitalOutput;
 import lombok.Getter;
@@ -145,5 +146,10 @@ public class ShiftRegisterDevice implements Device {
   @Override
   public String getDescription() {
     return "SNx4HC595 8-Bit Shift Registers";
+  }
+
+  @Override
+  public DeviceType getType() {
+    return DeviceType.STREAM;
   }
 }

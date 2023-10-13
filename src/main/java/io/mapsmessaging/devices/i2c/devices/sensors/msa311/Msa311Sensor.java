@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.PowerManagement;
 import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
@@ -223,6 +224,10 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
 
   private Range getRange() {
     return rangeRegister.getRange();
+  }
+  @Override
+  public DeviceType getType() {
+    return DeviceType.SENSOR;
   }
 
 }

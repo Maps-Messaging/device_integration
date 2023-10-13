@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.pmsa003i;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.BufferedRegister;
@@ -179,5 +180,9 @@ public class Pmsa003iSensor extends I2CDevice implements Sensor {
     return "Air Quality Breakout";
   }
 
+  @Override
+  public DeviceType getType() {
+    return DeviceType.SENSOR;
+  }
 
 }

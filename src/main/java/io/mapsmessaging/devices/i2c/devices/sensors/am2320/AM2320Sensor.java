@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.am2320;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.impl.AddressableDevice;
@@ -118,4 +119,10 @@ public class AM2320Sensor extends I2CDevice implements Sensor {
   public String getDescription() {
     return "Temperature and Humidity sensor";
   }
+
+  @Override
+  public DeviceType getType() {
+    return DeviceType.SENSOR;
+  }
+
 }

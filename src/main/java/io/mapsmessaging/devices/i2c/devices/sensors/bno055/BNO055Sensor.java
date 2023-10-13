@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.bno055;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.MultiByteRegister;
@@ -270,4 +271,10 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
   public String getDescription() {
     return "3 Axis orientation sensor";
   }
+
+  @Override
+  public DeviceType getType() {
+    return DeviceType.SENSOR;
+  }
+
 }

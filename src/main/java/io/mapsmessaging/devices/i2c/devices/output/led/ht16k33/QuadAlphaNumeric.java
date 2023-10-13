@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 
 import java.io.IOException;
@@ -56,6 +57,12 @@ public class QuadAlphaNumeric extends HT16K33Driver {
   @Override
   public String getDescription() {
     return "Quad Alpha-Numeric LED";
+  }
+
+
+  @Override
+  public DeviceType getType() {
+    return DeviceType.DISPLAY;
   }
 
 }

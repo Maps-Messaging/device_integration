@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.drivers.pca9685;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.Output;
 import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.i2c.I2CDevice;
@@ -118,5 +119,11 @@ public class Pca9685Device extends I2CDevice implements Resetable, Output {
   @Override
   public void softReset() throws IOException {
     setAllPWM(0, 0);
+  }
+
+
+  @Override
+  public DeviceType getType() {
+    return DeviceType.PWM;
   }
 }

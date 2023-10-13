@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.bmp280;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.PowerManagement;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
@@ -190,4 +191,9 @@ public class BMP280Sensor extends I2CDevice implements PowerManagement, Sensor {
     prom[7] = crcRead; // restore the crc_read to its original place
     return (byte) (nRem);
   }
+  @Override
+  public DeviceType getType() {
+    return DeviceType.SENSOR;
+  }
+
 }

@@ -1,5 +1,6 @@
 package io.mapsmessaging.devices.i2c.devices.storage.at24c;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.Storage;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.impl.AddressableDevice;
@@ -116,6 +117,10 @@ public class AT24CnnDevice extends I2CDevice implements Storage {
     buffer[1] = (byte) (address & 0xFF);
     System.arraycopy(data, offset, buffer, 2, len);
     write(buffer, 0, buffer.length);
+  }
+  @Override
+  public DeviceType getType() {
+    return DeviceType.STORAGE;
   }
 
 }
