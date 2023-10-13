@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.bmp280;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
@@ -66,6 +67,9 @@ public class BMP280Controller extends I2CDeviceController {
 
   public byte[] getDeviceConfiguration() {
     return "{}".getBytes();
+  }
+  public DeviceType getType(){
+    return getDevice().getType();
   }
 
 

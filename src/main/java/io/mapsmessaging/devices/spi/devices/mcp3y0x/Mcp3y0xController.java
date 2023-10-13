@@ -18,6 +18,7 @@ package io.mapsmessaging.devices.spi.devices.mcp3y0x;
 
 import com.pi4j.context.Context;
 import com.pi4j.io.spi.Spi;
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.devices.spi.SpiDeviceController;
@@ -60,6 +61,9 @@ public class Mcp3y0xController extends SpiDeviceController {
     return new Mcp3y0xController(new Mcp3y0xDevice(spi, resolution, channels));
   }
 
+  public DeviceType getType(){
+    return device.getType();
+  }
 
   @Override
   public String getName() {

@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.am2320;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
@@ -60,6 +61,9 @@ public class AM2320Controller extends I2CDeviceController {
     return "{}".getBytes();
   }
 
+  public DeviceType getType(){
+    return getDevice().getType();
+  }
 
   public byte[] getDeviceState() throws IOException {
     JSONObject jsonObject = new JSONObject();

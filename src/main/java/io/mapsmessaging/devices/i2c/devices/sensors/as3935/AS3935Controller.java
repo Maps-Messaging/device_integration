@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
@@ -56,6 +57,9 @@ public class AS3935Controller extends I2CDeviceController {
 
   public I2CDeviceController mount(AddressableDevice device) throws IOException {
     return new AS3935Controller(device);
+  }
+  public DeviceType getType(){
+    return getDevice().getType();
   }
 
   public SchemaConfig getSchema() {

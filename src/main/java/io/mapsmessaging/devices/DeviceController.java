@@ -34,6 +34,7 @@ public interface DeviceController {
 
   byte[] getDeviceConfiguration() throws IOException;
 
+  DeviceType getType();
 
   byte[] getDeviceState() throws IOException;
 

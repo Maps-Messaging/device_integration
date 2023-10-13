@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.devices.output.Task;
@@ -57,6 +58,10 @@ public abstract class HT16K33Controller extends I2CDeviceController {
 
   public I2CDevice getDevice() {
     return driver;
+  }
+
+  public DeviceType getType(){
+    return getDevice().getType();
   }
 
   @Override

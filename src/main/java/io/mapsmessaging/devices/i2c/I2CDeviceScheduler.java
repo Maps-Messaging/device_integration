@@ -1,5 +1,6 @@
 package io.mapsmessaging.devices.i2c;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import lombok.Getter;
@@ -38,6 +39,9 @@ public class I2CDeviceScheduler extends I2CDeviceController {
 
   public I2CDevice getDevice() {
     return deviceController.getDevice();
+  }
+  public DeviceType getType(){
+    return getDevice().getType();
   }
 
   @Override

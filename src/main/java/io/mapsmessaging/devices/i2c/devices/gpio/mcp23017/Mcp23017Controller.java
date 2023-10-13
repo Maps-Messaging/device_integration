@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.gpio.mcp23017;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
@@ -43,6 +44,10 @@ public class Mcp23017Controller extends I2CDeviceController {
   protected Mcp23017Controller(AddressableDevice device) throws IOException {
     super(device);
     sensor = new Mcp23017Device(device);
+  }
+
+  public DeviceType getType(){
+    return sensor.getType();
   }
 
   public I2CDevice getDevice() {

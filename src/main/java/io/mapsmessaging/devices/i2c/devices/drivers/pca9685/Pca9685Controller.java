@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.drivers.pca9685;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
@@ -48,6 +49,9 @@ public class Pca9685Controller extends I2CDeviceController {
     return device;
   }
 
+  public DeviceType getType(){
+    return device.getType();
+  }
 
   public I2CDeviceController mount(AddressableDevice device) throws IOException {
     return new Pca9685Controller(device);

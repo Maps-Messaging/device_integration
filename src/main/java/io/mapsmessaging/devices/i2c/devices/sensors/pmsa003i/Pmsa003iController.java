@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.pmsa003i;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
@@ -48,6 +49,9 @@ public class Pmsa003iController extends I2CDeviceController {
 
   public I2CDevice getDevice() {
     return sensor;
+  }
+  public DeviceType getType(){
+    return getDevice().getType();
   }
 
   @Override

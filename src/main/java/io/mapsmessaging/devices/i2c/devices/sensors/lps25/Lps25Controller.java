@@ -1,5 +1,6 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
@@ -33,6 +34,9 @@ public class Lps25Controller extends I2CDeviceController {
       sensor.setPowerDownMode(true);
       sensor.getControl1().setDataRate(DataRate.RATE_7_HZ);
     }
+  }
+  public DeviceType getType(){
+    return getDevice().getType();
   }
 
   public I2CDevice getDevice() {

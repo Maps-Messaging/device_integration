@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
@@ -52,6 +53,9 @@ public class Ds3231Controller extends I2CDeviceController {
     return true;
   }
 
+  public DeviceType getType(){
+    return getDevice().getType();
+  }
 
   @Override
   public boolean detect(AddressableDevice i2cDevice) {

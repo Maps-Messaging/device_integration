@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.tsl2561;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
@@ -45,6 +46,9 @@ public class TSL2561Controller extends I2CDeviceController {
 
   public I2CDevice getDevice() {
     return sensor;
+  }
+  public DeviceType getType(){
+    return getDevice().getType();
   }
 
   @Override

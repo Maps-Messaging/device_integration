@@ -3,6 +3,7 @@ package io.mapsmessaging.devices.i2c.devices.storage.at24c;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.devices.storage.at24c.data.AT24CnnCommand;
@@ -37,6 +38,9 @@ public class AT24CnnController extends I2CDeviceController {
 
   public I2CDevice getDevice() {
     return sensor;
+  }
+  public DeviceType getType(){
+    return getDevice().getType();
   }
 
   @Override

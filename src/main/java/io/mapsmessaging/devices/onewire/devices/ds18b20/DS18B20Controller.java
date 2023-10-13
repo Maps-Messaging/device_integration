@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.onewire.devices.ds18b20;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.onewire.OneWireDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
@@ -51,6 +52,9 @@ public class DS18B20Controller implements OneWireDeviceController {
   @Override
   public OneWireDeviceController mount(File path) {
     return new DS18B20Controller(path);
+  }
+  public DeviceType getType(){
+    return DeviceType.SENSOR;
   }
 
   public SchemaConfig getSchema() {

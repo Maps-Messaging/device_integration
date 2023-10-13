@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.backlight;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
@@ -43,6 +44,10 @@ public abstract class BacklightPwmController extends I2CDeviceController {
   protected BacklightPwmController(AddressableDevice device, BacklightPwm pwmController) {
     super(device);
     this.pwmController = pwmController;
+  }
+
+  public DeviceType getType(){
+    return pwmController.getType();
   }
 
   public I2CDevice getDevice() {

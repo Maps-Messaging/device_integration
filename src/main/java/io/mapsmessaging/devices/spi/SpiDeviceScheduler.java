@@ -1,6 +1,7 @@
 package io.mapsmessaging.devices.spi;
 
 import com.pi4j.context.Context;
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 
 import java.io.IOException;
@@ -40,6 +41,9 @@ public class SpiDeviceScheduler extends SpiDeviceController {
     } finally {
       SPI_BUS_SEMAPHORE.release();
     }
+  }
+  public DeviceType getType(){
+    return deviceController.getType();
   }
 
   @Override

@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
@@ -50,6 +51,9 @@ public class Msa311Controller extends I2CDeviceController {
 
   public I2CDevice getDevice() {
     return sensor;
+  }
+  public DeviceType getType(){
+    return getDevice().getType();
   }
 
 

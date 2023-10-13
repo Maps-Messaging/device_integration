@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.am2315;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
@@ -61,6 +62,10 @@ public class AM2315Controller extends I2CDeviceController {
 
   public I2CDeviceController mount(AddressableDevice device) throws IOException {
     return new AM2315Controller(device);
+  }
+
+  public DeviceType getType(){
+    return getDevice().getType();
   }
 
   public byte[] getDeviceConfiguration() throws IOException {

@@ -19,6 +19,7 @@ package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
@@ -63,6 +64,11 @@ public class Lcd1602Controller extends I2CDeviceController {
   public I2CDevice getDevice() {
     return display;
   }
+
+  public DeviceType getType(){
+    return getDevice().getType();
+  }
+
 
   @Override
   public boolean detect(AddressableDevice i2cDevice) {

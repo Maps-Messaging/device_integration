@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.gravity;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
@@ -61,6 +62,9 @@ public class GasSensorController extends I2CDeviceController {
     return sensor.getName();
   }
 
+  public DeviceType getType(){
+    return getDevice().getType();
+  }
 
   public String getDescription() {
     if (sensor == null) {

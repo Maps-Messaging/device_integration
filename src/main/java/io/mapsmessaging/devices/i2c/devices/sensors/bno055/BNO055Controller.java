@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.bno055;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
@@ -63,6 +64,9 @@ public class BNO055Controller extends I2CDeviceController {
   @Override
   public boolean detect(AddressableDevice i2cDevice) {
     return (BNO055Sensor.getId(i2cDevice) == BNO055Constants.BNO055_CHIP_ID_ADDR);
+  }
+  public DeviceType getType(){
+    return getDevice().getType();
   }
 
   public I2CDeviceController mount(AddressableDevice device) throws IOException {
