@@ -23,10 +23,15 @@ import com.pi4j.io.spi.Spi;
 import com.pi4j.io.spi.SpiChipSelect;
 import com.pi4j.io.spi.SpiMode;
 import io.mapsmessaging.devices.DeviceController;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Map;
 
+@Getter
+@Setter
 public abstract class SpiDeviceController implements DeviceController {
+  private boolean raiseExceptionOnError = false;
 
   public abstract SpiDeviceController mount(Context pi4j, Map<String, String> config);
 

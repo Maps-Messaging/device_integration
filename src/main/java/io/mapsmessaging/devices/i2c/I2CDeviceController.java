@@ -24,6 +24,7 @@ import io.mapsmessaging.devices.io.SerialisationHelper;
 import io.mapsmessaging.devices.sensorreadings.ComputationResult;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import lombok.Getter;
+import lombok.Setter;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -31,12 +32,13 @@ import java.util.List;
 import java.util.Map;
 
 @Getter
+@Setter
 public abstract class I2CDeviceController implements DeviceController {
 
   private final int mountedAddress;
-
   private final SerialisationHelper serialisationHelper = new SerialisationHelper();
 
+  private boolean raiseExceptionOnError = false;
 
   protected I2CDeviceController() {
     this(null);
@@ -81,12 +83,16 @@ public abstract class I2CDeviceController implements DeviceController {
         if (!computationResult.hasError()) {
           jsonObject.put(reading.getName(), computationResult.getResult());
         } else {
+          if(raiseExceptionOnError){
+            throw new IOException(computationResult.getError());
+          }
           jsonObject.put(reading.getName(), computationResult.getError().getMessage());
         }
       }
     }
     return jsonObject.toString(2).getBytes();
   }
+
 
   public boolean canDetect() {
     return false;

@@ -17,14 +17,24 @@
 package io.mapsmessaging.devices.onewire;
 
 import io.mapsmessaging.devices.DeviceController;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.File;
 
-public interface OneWireDeviceController extends DeviceController {
+@Getter
+@Setter
+public abstract class OneWireDeviceController implements DeviceController {
 
-  String getId();
+  private boolean raiseExceptionOnError = false;
 
-  OneWireDeviceController mount(File path);
+  public abstract String getId();
 
+  public abstract OneWireDeviceController mount(File path);
+
+  @Override
+  public void setRaiseExceptionOnError(boolean flag) {
+
+  }
 
 }

@@ -24,6 +24,8 @@ import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.devices.spi.SpiDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
+import lombok.Getter;
+import lombok.Setter;
 import org.everit.json.schema.ArraySchema;
 import org.everit.json.schema.NumberSchema;
 import org.everit.json.schema.ObjectSchema;
@@ -33,11 +35,13 @@ import org.json.JSONObject;
 import java.util.List;
 import java.util.Map;
 
+@Getter
+@Setter
 public class Mcp3y0xController extends SpiDeviceController {
-
   private static final String NAME = "Mcp3y0x";
 
   private final Mcp3y0xDevice device;
+  private boolean raiseExceptionOnError = false;
 
   public Mcp3y0xController() {
     device = null;

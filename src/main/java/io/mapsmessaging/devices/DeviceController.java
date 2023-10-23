@@ -38,6 +38,13 @@ public interface DeviceController {
 
   byte[] getDeviceState() throws IOException;
 
+
+  void setRaiseExceptionOnError(boolean flag);
+
+  default boolean getRaiseExceptionOnError(){
+    return true;
+  }
+
   default byte[] updateDeviceConfiguration(byte[] val) throws IOException {
     return new byte[0];
   }

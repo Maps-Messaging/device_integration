@@ -28,7 +28,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 
-public class DS18B20Controller implements OneWireDeviceController {
+public class DS18B20Controller extends OneWireDeviceController {
 
   private final DS18B20Device sensor;
 
