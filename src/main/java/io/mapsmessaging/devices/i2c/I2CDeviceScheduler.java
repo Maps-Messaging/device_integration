@@ -28,6 +28,16 @@ public class I2CDeviceScheduler extends I2CDeviceController {
   }
 
   @Override
+  public void setRaiseExceptionOnError(boolean flag){
+    deviceController.setRaiseExceptionOnError(flag);
+  }
+
+  @Override
+  public boolean getRaiseExceptionOnError(){
+    return deviceController.getRaiseExceptionOnError();
+  }
+
+  @Override
   public int getMountedAddress() {
     return deviceController.getMountedAddress();
   }
