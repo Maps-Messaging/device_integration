@@ -132,8 +132,10 @@ public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor, 
     if (logger.isDebugEnabled()) {
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), lux + " = getCurrentValue()");
     }
-    return (lux / 1.2f) / readingModeRegister.getResolutionMode().getAdjustment();
+    float val = (lux / 1.2f) / readingModeRegister.getResolutionMode().getAdjustment();
+    return FloatSensorReading.roundToDecimalPlaces(val, readingModeRegister.getResolutionMode().getPrecision());
   }
+
   @Override
   public DeviceType getType() {
     return DeviceType.SENSOR;

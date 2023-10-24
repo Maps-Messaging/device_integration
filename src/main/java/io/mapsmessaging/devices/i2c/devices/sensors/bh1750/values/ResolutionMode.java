@@ -21,9 +21,9 @@ import lombok.Getter;
 @Getter
 public enum ResolutionMode {
 
-  H_RESOLUTION_MODE(0b00000000, 1f, 120),
-  H_RESOLUTION_MODE_2(0B00000001, 2f, 16),
-  L_RESOLUTION_MODE(0b00000011, 1f, 120);
+  H_RESOLUTION_MODE(0b00000000, 1f, 120, 1),
+  H_RESOLUTION_MODE_2(0B00000001, 2f, 120, 0),
+  L_RESOLUTION_MODE(0b00000011, 1f, 16, 0);
 
   private final int mask;
 
@@ -31,11 +31,15 @@ public enum ResolutionMode {
   private final float adjustment;
 
   @Getter
+  private final int precision;
+
+  @Getter
   private final int delay;
 
-  ResolutionMode(int mask, float adjustment, int delay) {
+  ResolutionMode(int mask, float adjustment, int delay, int precision) {
     this.mask = mask;
     this.adjustment = adjustment;
     this.delay = delay;
+    this.precision = precision;
   }
 }
