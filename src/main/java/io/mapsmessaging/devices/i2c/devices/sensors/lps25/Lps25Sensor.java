@@ -70,8 +70,8 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
     whoAmIRegister = new WhoAmIRegister(this);
     pressureOffset = new PressureOffset(this);
     resolutionRegister = new ResolutionRegister(this);
-    FloatSensorReading pressureReading = new FloatSensorReading("pressure", "hPa", 260, 1260, this::getPressure);
-    FloatSensorReading temperatureReading = new FloatSensorReading("temperature", "C", -30, 70, this::getTemperature);
+    FloatSensorReading pressureReading = new FloatSensorReading("pressure", "hPa", 260, 1260, 0, this::getPressure);
+    FloatSensorReading temperatureReading = new FloatSensorReading("temperature", "C", -30, 70, 1, this::getTemperature);
     readings = List.of(pressureReading, temperatureReading);
   }
 

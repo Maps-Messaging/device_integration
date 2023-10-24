@@ -23,9 +23,13 @@ public class SensorReading<T> {
 
   public ComputationResult<T> getValue() {
     try {
-      return ComputationResult.success(supplier.get());
+      return ComputationResult.success(format(supplier.get()));
     } catch (IOException ioException) {
       return ComputationResult.failure(ioException);
     }
+  }
+
+  protected T format(T val){
+    return val;
   }
 }
