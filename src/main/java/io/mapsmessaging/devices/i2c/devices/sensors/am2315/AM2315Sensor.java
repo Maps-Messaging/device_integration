@@ -20,9 +20,13 @@ import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.impl.AddressableDevice;
+import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
+import lombok.Getter;
 
 import java.io.IOException;
+import java.util.List;
 
 import static io.mapsmessaging.devices.logging.DeviceLogMessage.I2C_BUS_DEVICE_READ_REQUEST;
 
@@ -33,6 +37,9 @@ public class AM2315Sensor extends I2CDevice implements Sensor {
   //
   private static final byte READ_REGISTER = 0x03; // Read data from one or more registers
   private static final byte WRITE_REGISTER = 0x10; // Multiple sets of binary data is written to mutliple registers
+
+  @Getter
+  private final List<SensorReading<?>> readings;
   //
   // Registers
   //
@@ -51,6 +58,9 @@ public class AM2315Sensor extends I2CDevice implements Sensor {
   public AM2315Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(AM2315Sensor.class));
     lastRead = 0;
+    FloatSensorReading temperatureReading = new FloatSensorReading("temperature", "C", -40, 80, 1, this::getTemperature);
+    FloatSensorReading humidityReading = new FloatSensorReading("humidity", "%", 0, 100, 0, this::getHumidity);
+    readings = List.of(temperatureReading, humidityReading);
     loadValues();
   }
 

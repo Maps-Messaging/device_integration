@@ -20,9 +20,13 @@ import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.impl.AddressableDevice;
+import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
+import lombok.Getter;
 
 import java.io.IOException;
+import java.util.List;
 
 import static io.mapsmessaging.devices.logging.DeviceLogMessage.I2C_BUS_DEVICE_READ_REQUEST;
 
@@ -32,7 +36,8 @@ public class AM2320Sensor extends I2CDevice implements Sensor {
   private static final int AM2320_CMD_READREG = 0x03; ///< read register command
   private static final int AM2320_REG_TEMP_H = 0x02;  ///< temp register address
   private static final int AM2320_REG_HUM_H = 0x00;   ///< humidity register address
-
+  @Getter
+  private final List<SensorReading<?>> readings;
   private float temperature;
   private float humidity;
   private long lastRead;
@@ -40,6 +45,10 @@ public class AM2320Sensor extends I2CDevice implements Sensor {
   public AM2320Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(AM2320Sensor.class));
     lastRead = 0;
+    FloatSensorReading temperatureReading = new FloatSensorReading("temperature", "C", -40, 80, 1, this::getTemperature);
+    FloatSensorReading humidityReading = new FloatSensorReading("humidity", "%", 0, 100, 0, this::getHumidity);
+    readings = List.of(temperatureReading, humidityReading);
+
     loadValues();
   }
 
