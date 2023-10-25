@@ -112,7 +112,7 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
     alarm1ModeRegister = new Alarm1ModeRegister(this, alarm1Seconds, alarm1Minutes, alarm1Hours, alarm1DayRegister);
     alarm2ModeRegister = new Alarm2ModeRegister(this, alarm2Minutes, alarm2Hours, alarm2DayRegister);
 
-    SensorReading<Float> temperature = new FloatSensorReading("Temperature", "C", -10, 60, this::getTemperature);
+    SensorReading<Float> temperature = new FloatSensorReading("Temperature", "C", -10, 60, 1, this::getTemperature);
     SensorReading<LocalDateTime> dateTime = new LocalDateTimeSensorReading("Date", "", this::getDateTime);
 
     readings = List.of(temperature, dateTime);

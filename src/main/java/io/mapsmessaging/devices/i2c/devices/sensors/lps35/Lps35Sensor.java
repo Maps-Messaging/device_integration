@@ -74,8 +74,8 @@ public class Lps35Sensor extends I2CDevice implements Sensor, Resetable {
     control2Register = new Control2Register(this);
     control3Register = new Control3Register(this);
 
-    FloatSensorReading pressureReading = new FloatSensorReading("pressure", "hPa", 260, 1260, this::getPressure);
-    FloatSensorReading temperatureReading = new FloatSensorReading("temperature", "C", -30, 70, this::getTemperature);
+    FloatSensorReading pressureReading = new FloatSensorReading("pressure", "hPa", 260, 1260, 0, this::getPressure);
+    FloatSensorReading temperatureReading = new FloatSensorReading("temperature", "C", -30, 70, 1, this::getTemperature);
     readings = List.of(pressureReading, temperatureReading);
     initialise();
   }

@@ -75,7 +75,7 @@ public class TSL2561Sensor extends I2CDevice implements PowerManagement, Sensor 
 
     IntegerSensorReading full = new IntegerSensorReading("full", "", 0, 0xffff, this::getFull);
     IntegerSensorReading ir = new IntegerSensorReading("in", "", 0, 0xffff, this::getIr);
-    FloatSensorReading lux = new FloatSensorReading("lux", "lx", 0, 0xffff, this::calculateLux);
+    FloatSensorReading lux = new FloatSensorReading("lux", "lx", 0, 0xffff, 1, this::calculateLux);
     readings = List.of(full, ir, lux);
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       initialise();

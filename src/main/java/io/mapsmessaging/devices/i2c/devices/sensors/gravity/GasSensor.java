@@ -69,9 +69,9 @@ public class GasSensor extends I2CDevice implements Sensor {
     temperatureRegister = new TemperatureRegister(this);
     sensorReadingRegister = new SensorReadingRegister(this);
     voltageRegister = new VoltageRegister(this);
-    FloatSensorReading concentration = new FloatSensorReading("concentration", sensorType.getUnits(), sensorType.getMinimumRange(), sensorType.getMaximumRange(), this::getConcentration);
-    FloatSensorReading concentrationTempAdj = new FloatSensorReading("concentrationTempAdj", sensorType.getUnits(), sensorType.getMinimumRange(), sensorType.getMaximumRange(), this::getConcentration);
-    FloatSensorReading temperature = new FloatSensorReading("temperature", "C", -30, 70, this::getTemperature);
+    FloatSensorReading concentration = new FloatSensorReading("concentration", sensorType.getUnits(), sensorType.getMinimumRange(), sensorType.getMaximumRange(), sensorType.getResolution(), this::getConcentration);
+    FloatSensorReading concentrationTempAdj = new FloatSensorReading("concentrationTempAdj", sensorType.getUnits(), sensorType.getMinimumRange(), sensorType.getMaximumRange(), sensorType.getResolution(), this::getConcentration);
+    FloatSensorReading temperature = new FloatSensorReading("temperature", "C", -30, 70, 1, this::getTemperature);
     readings = List.of(temperature, concentration, concentrationTempAdj);
   }
 

@@ -140,9 +140,9 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
     zOffsetCompensation = new OffsetCompensationRegister(this, 0x3A, "Z offset compensation");
 
 
-    FloatSensorReading xOrientation = new FloatSensorReading("x_orientation", "m/s^2", -100, 100, this::getX);
-    FloatSensorReading yOrientation = new FloatSensorReading("y_orientation", "m/s^2", -100, 100, this::getY);
-    FloatSensorReading zOrientation = new FloatSensorReading("z_orientation", "m/s^2", -100, 100, this::getZ);
+    FloatSensorReading xOrientation = new FloatSensorReading("x_orientation", "m/s^2", -100, 100, 2, this::getX);
+    FloatSensorReading yOrientation = new FloatSensorReading("y_orientation", "m/s^2", -100, 100, 2, this::getY);
+    FloatSensorReading zOrientation = new FloatSensorReading("z_orientation", "m/s^2", -100, 100, 2, this::getZ);
 
     readings = List.of(xOrientation, yOrientation, zOrientation);
     initialise();

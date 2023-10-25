@@ -57,7 +57,7 @@ public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor, 
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       initialise();
     }
-    FloatSensorReading luxReading = new FloatSensorReading("lux", "lx", 0, 0xffff, this::getLux);
+    FloatSensorReading luxReading = new FloatSensorReading("lux", "lx", 0, 0xffff, 1, this::getLux);
     readings = List.of(luxReading);
   }
 
