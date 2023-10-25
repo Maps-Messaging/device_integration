@@ -25,6 +25,7 @@ import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks.TestTask;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -177,13 +178,27 @@ public abstract class HT16K33Controller extends I2CDeviceController {
   public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
     JSONObject response = new JSONObject();
     if (driver != null) {
-      JSONObject jsonObject = new JSONObject(new String(val));
-      processBrightness(jsonObject, response);
-      processBlink(jsonObject, response);
-      processEnabled(jsonObject, response);
-      processDisplay(jsonObject, response);
-      processRaw(jsonObject, response);
-      processTask(jsonObject, response);
+      JSONObject jsonObject = null;
+      try {
+        jsonObject = new JSONObject(new String(val));
+      }
+      catch (JSONException jsonException){
+        //
+      }
+      if(jsonObject != null) {
+        processBrightness(jsonObject, response);
+        processBlink(jsonObject, response);
+        processEnabled(jsonObject, response);
+        processDisplay(jsonObject, response);
+        processRaw(jsonObject, response);
+        processTask(jsonObject, response);
+      }
+      else{
+        cancelCurrentTask();
+        String text = new String(val);
+        driver.writeRaw(text);
+        response.put(RAW, text);
+      }
     }
     return response.toString(2).getBytes();
   }

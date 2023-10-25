@@ -16,6 +16,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
+import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.Display;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.impl.AddressableDevice;
@@ -133,4 +134,8 @@ public abstract class HT16K33Driver extends I2CDevice implements Display {
     write(new byte[]{command});
   }
 
+  @Override
+  public DeviceType getType() {
+    return DeviceType.DISPLAY;
+  }
 }

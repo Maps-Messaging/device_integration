@@ -84,21 +84,33 @@ public class Lcd1602Controller extends I2CDeviceController {
     ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     JavaType type = objectMapper.getTypeFactory().constructType(Lcd1602Command.class);
-    Lcd1602Command command = objectMapper.readValue(new String(val), type);
     Lcd1602Response response = null;
-    if (display != null) {
-      if (command.getAction() == ActionType.READ) {
-        byte[] data = display.readBlock(command.getAddress(), command.getLength());
-        response = new Lcd1602Response(SUCCESS, data);
-      } else if (command.getAction() == ActionType.WRITE) {
-        display.writeBlock(command.getAddress(), command.getData());
-        response = new Lcd1602Response(SUCCESS, new byte[0]);
-      } else if (command.getAction() == ActionType.CLEAR) {
-        display.clearDisplay();
-        response = new Lcd1602Response(SUCCESS, new byte[0]);
+    Lcd1602Command command = null;
+
+    try {
+      command = objectMapper.readValue(new String(val), type);
+    } catch (IOException e) {
+      // todo
+    }
+    if(command != null) {
+      if (display != null) {
+        if (command.getAction() == ActionType.READ) {
+          byte[] data = display.readBlock(command.getAddress(), command.getLength());
+          response = new Lcd1602Response(SUCCESS, data);
+        } else if (command.getAction() == ActionType.WRITE) {
+          display.writeBlock(command.getAddress(), command.getData());
+          response = new Lcd1602Response(SUCCESS, new byte[0]);
+        } else if (command.getAction() == ActionType.CLEAR) {
+          display.clearDisplay();
+          response = new Lcd1602Response(SUCCESS, new byte[0]);
+        }
+      } else {
+        response = new Lcd1602Response(ERROR, new byte[0]);
       }
-    } else {
-      response = new Lcd1602Response(ERROR, new byte[0]);
+    }
+    else{
+      display.writeBlock(0, val);
+      response = new Lcd1602Response(SUCCESS, new byte[0]);
     }
     ObjectMapper objectMapper2 = new ObjectMapper();
     return objectMapper2.writeValueAsString(response).getBytes();
@@ -137,7 +149,7 @@ public class Lcd1602Controller extends I2CDeviceController {
     config.setComments(DESCRIPTION);
     config.setSource("I2C bus address : 0x3e");
     config.setVersion("1.0");
-    config.setResourceType("sensor");
+    config.setResourceType("display");
     config.setInterfaceDescription("display");
     return config;
   }

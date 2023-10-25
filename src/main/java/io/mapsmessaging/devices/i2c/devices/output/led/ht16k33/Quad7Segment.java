@@ -16,7 +16,6 @@
 
 package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
-import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 
 import java.io.IOException;
@@ -65,11 +64,6 @@ public class Quad7Segment extends HT16K33Driver {
   @Override
   public String getDescription() {
     return "Quad 7 segment numeric LED";
-  }
-
-  @Override
-  public DeviceType getType() {
-    return DeviceType.DISPLAY;
   }
 
 }
