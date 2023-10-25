@@ -44,7 +44,6 @@ public abstract class SpiDeviceController implements DeviceController {
         .mode(mode)
         .provider("pigpio-spi")
         .build();
-    System.err.println("Creating new device " + id);
     return pi4j.create(spiConfig);
   }
 
