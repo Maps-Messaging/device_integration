@@ -26,7 +26,6 @@ import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.data.ActionType;
 import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.data.Lcd1602Command;
 import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.data.Lcd1602Response;
-import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.task.Clock;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -48,16 +47,13 @@ public class Lcd1602Controller extends I2CDeviceController {
     display = null;
   }
 
-  protected Lcd1602Controller(AddressableDevice device) throws IOException {
+  protected Lcd1602Controller(AddressableDevice device) {
     super(device);
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       display = new Lcd1602Device(device);
       display.clearDisplay();
       display.setRows(2);
       display.setColumns(16);
-      Thread t = new Thread(new Clock(this));
-      t.setDaemon(true);
-      t.start();
     }
   }
 

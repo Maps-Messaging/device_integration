@@ -241,8 +241,8 @@ public class Lcd1602Device extends I2CDevice implements Output, Storage, Resetab
       int idx = offset;
       for (int x = pos; x < pos + end; x++) {
         buffer[x] = data[idx];
+        writeChar(buffer[x]);
         idx++;
-        writeChar(data[idx]);
       }
       pos = bufEnd;
       offset += end;
