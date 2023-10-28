@@ -105,6 +105,7 @@ public class Lcd1602Controller extends I2CDeviceController {
       }
     }
     else{
+      display.clearDisplay();
       display.writeBlock(0, val);
       response = new Lcd1602Response(SUCCESS, new byte[0]);
     }
