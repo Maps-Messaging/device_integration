@@ -337,80 +337,6 @@
     </profile>
 
     <!-- Profile for the main project (excluding example dependencies) -->
-    <profile>
-      <id>main</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <dependencies>
-
-        <dependency>
-          <groupId>com.pi4j</groupId>
-          <artifactId>pi4j-core</artifactId>
-          <version>${pi4j.version}</version>
-        </dependency>
-
-        <dependency>
-          <groupId>com.pi4j</groupId>
-          <artifactId>pi4j-plugin-raspberrypi</artifactId>
-          <version>${pi4j.version}</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/com.pi4j/pi4j-plugin-linuxfs -->
-        <dependency>
-          <groupId>com.pi4j</groupId>
-          <artifactId>pi4j-plugin-linuxfs</artifactId>
-          <version>${pi4j.version}</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/com.pi4j/pi4j-library-linuxfs -->
-        <dependency>
-          <groupId>com.pi4j</groupId>
-          <artifactId>pi4j-library-linuxfs</artifactId>
-          <version>${pi4j.version}</version>
-        </dependency>
-
-        <dependency>
-          <groupId>com.pi4j</groupId>
-          <artifactId>pi4j-plugin-pigpio</artifactId>
-          <version>${pi4j.version}</version>
-        </dependency>
-
-        <dependency>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-simple</artifactId>
-          <version>2.0.7</version>
-        </dependency>
-
-        <dependency>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>jackson-databind</artifactId>
-          <version>2.13.0</version>  <!-- use the latest version available -->
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.json/json -->
-        <dependency>
-          <groupId>org.json</groupId>
-          <artifactId>json</artifactId>
-          <version>20230227</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.everit.json/org.everit.json.schema -->
-        <dependency>
-          <groupId>org.everit.json</groupId>
-          <artifactId>org.everit.json.schema</artifactId>
-          <version>1.5.1</version>
-        </dependency>
-
-        <!-- Junit5 -->
-        <dependency>
-          <artifactId>junit-jupiter-engine</artifactId>
-          <groupId>org.junit.jupiter</groupId>
-          <scope>test</scope>
-          <version>5.9.2</version>
-        </dependency>
-
-
-      </dependencies>
-    </profile>
 
     <!-- Profile for the examples (with additional dependencies) -->
     <profile>
@@ -424,5 +350,71 @@
       </dependencies>
     </profile>
   </profiles>
+
+    <dependencies>
+      <dependency>
+        <groupId>com.pi4j</groupId>
+        <artifactId>pi4j-core</artifactId>
+        <version>${pi4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.pi4j</groupId>
+        <artifactId>pi4j-plugin-raspberrypi</artifactId>
+        <version>${pi4j.version}</version>
+      </dependency>
+      <!-- https://mvnrepository.com/artifact/com.pi4j/pi4j-plugin-linuxfs -->
+      <dependency>
+        <groupId>com.pi4j</groupId>
+        <artifactId>pi4j-plugin-linuxfs</artifactId>
+        <version>${pi4j.version}</version>
+      </dependency>
+      <!-- https://mvnrepository.com/artifact/com.pi4j/pi4j-library-linuxfs -->
+      <dependency>
+        <groupId>com.pi4j</groupId>
+        <artifactId>pi4j-library-linuxfs</artifactId>
+        <version>${pi4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.pi4j</groupId>
+        <artifactId>pi4j-plugin-pigpio</artifactId>
+        <version>${pi4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>2.0.7</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.13.0</version>  <!-- use the latest version available -->
+      </dependency>
+
+      <!-- https://mvnrepository.com/artifact/org.json/json -->
+      <dependency>
+        <groupId>org.json</groupId>
+        <artifactId>json</artifactId>
+        <version>20230227</version>
+      </dependency>
+
+      <!-- https://mvnrepository.com/artifact/org.everit.json/org.everit.json.schema -->
+      <dependency>
+        <groupId>org.everit.json</groupId>
+        <artifactId>org.everit.json.schema</artifactId>
+        <version>1.5.1</version>
+      </dependency>
+
+      <!-- Junit5 -->
+      <dependency>
+        <artifactId>junit-jupiter-engine</artifactId>
+        <groupId>org.junit.jupiter</groupId>
+        <scope>test</scope>
+        <version>5.9.2</version>
+      </dependency>
+  </dependencies>
 
 </project>
