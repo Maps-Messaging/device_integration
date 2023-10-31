@@ -94,14 +94,16 @@
 
   <distributionManagement>
     <snapshotRepository>
-      <id>github</id>
-      <url>https://maven.pkg.github.com/Maps-Messaging/device_integration</url>
+      <id>maps_snapshots</id>
+      <name>maps_snapshot_repository</name>
+      <url>https://repository.mapsmessaging.io:8081/repository/maps_snapshots/</url>
     </snapshotRepository>
     <repository>
       <id>ossrh</id>
       <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
+
 
   <build>
     <plugins>
@@ -267,6 +269,19 @@
     <profile>
       <!-- Default profile for regular releases -->
       <id>release</id>
+      <dependencies>
+        <dependency>
+          <groupId>io.mapsmessaging</groupId>
+          <artifactId>simple_logging</artifactId>
+          <version>2.0.9</version>
+        </dependency>
+
+        <dependency>
+          <groupId>io.mapsmessaging</groupId>
+          <artifactId>schemas</artifactId>
+          <version>2.1.2</version>
+        </dependency>
+      </dependencies>
       <distributionManagement>
         <repository>
           <id>ossrh</id>
@@ -297,28 +312,14 @@
       <id>snapshot</id>
       <repositories>
         <repository>
-          <id>github2</id>
-          <url>https://maven.pkg.github.com/Maps-Messaging/simple_logging</url>
-          <snapshots>
-            <enabled>true</enabled>
-          </snapshots>
-        </repository>
-        <repository>
-          <id>github</id>
-          <url>https://maven.pkg.github.com/Maps-Messaging/schemas</url>
+          <id>maps_snapshots</id>
+          <name>maps_snapshot_repository</name>
+          <url>https://repository.mapsmessaging.io:8081/repository/maps_snapshots/</url>
           <snapshots>
             <enabled>true</enabled>
           </snapshots>
         </repository>
       </repositories>
-    </profile>
-
-    <!-- Profile for the main project (excluding example dependencies) -->
-    <profile>
-      <id>main</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
       <dependencies>
         <dependency>
           <groupId>io.mapsmessaging</groupId>
@@ -331,6 +332,17 @@
           <artifactId>schemas</artifactId>
           <version>2.1.3-SNAPSHOT</version>
         </dependency>
+
+      </dependencies>
+    </profile>
+
+    <!-- Profile for the main project (excluding example dependencies) -->
+    <profile>
+      <id>main</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <dependencies>
 
         <dependency>
           <groupId>com.pi4j</groupId>
