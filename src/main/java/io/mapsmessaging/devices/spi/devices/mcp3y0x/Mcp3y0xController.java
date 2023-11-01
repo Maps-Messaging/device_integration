@@ -121,7 +121,7 @@ public class Mcp3y0xController extends SpiDeviceController {
     ObjectSchema.Builder staticSchema = ObjectSchema.builder()
         .addPropertySchema("resolution",
             NumberSchema.builder()
-                .description("The number of bits of resulution that the result has")
+                .description("The number of bits of resolution that the result has")
                 .build()
         )
         .addPropertySchema("channels",
