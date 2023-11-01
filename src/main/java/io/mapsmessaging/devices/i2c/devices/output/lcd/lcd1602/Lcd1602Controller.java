@@ -144,7 +144,7 @@ public class Lcd1602Controller extends I2CDeviceController {
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig();
     config.setComments(DESCRIPTION);
-    config.setSource("I2C bus address : 0x3e");
+    config.setSource(getName());
     config.setVersion("1.0");
     config.setResourceType("display");
     config.setInterfaceDescription("display");

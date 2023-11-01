@@ -74,7 +74,7 @@ public class Msa311Controller extends I2CDeviceController {
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig();
     config.setComments("Digital Tri-axial Accelerometer");
-    config.setSource("I2C bus address : " + i2cAddr);
+    config.setSource(getName());
     config.setVersion("1.0");
     config.setResourceType("sensor");
     config.setInterfaceDescription("Digital Tri-axial Accelerometer");
