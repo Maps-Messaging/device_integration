@@ -36,6 +36,8 @@ public enum DeviceLogMessage implements LogMessage {
   I2C_BUS_DEVICE_READ_REQUEST(LEVEL.DEBUG, BUS.I2C_DEVICE, "{}, requesting {} and received result {}"),
   I2C_BUS_DEVICE_WRITE_REQUEST(LEVEL.DEBUG, BUS.I2C_DEVICE, "{} Called {}"),
 
+  I2C_BUS_INVALID_DATE(LEVEL.ERROR, BUS.I2C_DEVICE, "Invalid date received Year:{}, Month:{}, Date:{}"),
+  I2C_BUS_INVALID_TIME(LEVEL.ERROR, BUS.I2C_DEVICE, "Invalid time received Hour:{}, Minute:{}, Second:{}"),
   I2C_BUS_DEVICE_REQUEST_FAILED(LEVEL.DEBUG, BUS.I2C_DEVICE, "{} Failed on request {}, reason {}"),
   //</editor-fold>
 

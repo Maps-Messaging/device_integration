@@ -205,7 +205,7 @@ public abstract class HT16K33Controller extends I2CDeviceController {
 
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig();
-    config.setSource("I2C bus address configurable from 0x70 to 0x77");
+    config.setSource(getName());
     config.setVersion("1.0");
     config.setResourceType("LED");
     config.setInterfaceDescription("Controls the LED segments");

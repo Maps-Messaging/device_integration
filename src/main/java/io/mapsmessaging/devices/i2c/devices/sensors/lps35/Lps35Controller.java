@@ -53,7 +53,7 @@ public class Lps35Controller extends I2CDeviceController {
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig();
     config.setComments("i2c device LPS35 pressure sensor: 260-1260 hPa");
-    config.setSource("I2C bus address : 0x5d");
+    config.setSource(getName());
     config.setVersion("1.0");
     config.setResourceType("sensor");
     config.setInterfaceDescription("Returns JSON object containing pressure and temperature");

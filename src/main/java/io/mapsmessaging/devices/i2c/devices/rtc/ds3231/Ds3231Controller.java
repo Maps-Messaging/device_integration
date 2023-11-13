@@ -74,7 +74,7 @@ public class Ds3231Controller extends I2CDeviceController {
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig();
     config.setComments("i2c RTC");
-    config.setSource("I2C bus address : 0x68");
+    config.setSource(getName());
     config.setVersion("1.0");
     config.setResourceType("rtc");
     config.setInterfaceDescription("Returns JSON object containing the latest rtc");

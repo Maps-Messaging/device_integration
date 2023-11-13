@@ -110,7 +110,7 @@ public class Mcp3y0xController extends SpiDeviceController {
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setComments("SPI device Analog to Digital convertor");
-    config.setSource("SPI Device");
+    config.setSource(getName());
     config.setVersion("1.0");
     config.setResourceType("sensor");
     config.setInterfaceDescription("Returns JSON object containing the latest readings from all channels");
@@ -121,7 +121,7 @@ public class Mcp3y0xController extends SpiDeviceController {
     ObjectSchema.Builder staticSchema = ObjectSchema.builder()
         .addPropertySchema("resolution",
             NumberSchema.builder()
-                .description("The number of bits of resulution that the result has")
+                .description("The number of bits of resolution that the result has")
                 .build()
         )
         .addPropertySchema("channels",

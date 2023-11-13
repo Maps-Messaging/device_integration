@@ -77,7 +77,7 @@ public class GasSensorController extends I2CDeviceController {
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig();
     config.setComments(getName());
-    config.setSource("I2C bus address : " + i2cAddr);
+    config.setSource(getName());
     config.setVersion("1.0");
     config.setResourceType("sensor");
     config.setInterfaceDescription("Gravity Gas sensor");

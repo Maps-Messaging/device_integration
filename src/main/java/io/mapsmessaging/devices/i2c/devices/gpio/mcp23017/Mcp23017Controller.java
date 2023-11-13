@@ -80,7 +80,7 @@ public class Mcp23017Controller extends I2CDeviceController {
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig();
     config.setComments("i2c device MCP32017 16 Pin extender");
-    config.setSource("I2C bus address : 0x27");
+    config.setSource(getName());
     config.setVersion("1.0");
     config.setResourceType("gpio");
     config.setInterfaceDescription("gpio extender");
