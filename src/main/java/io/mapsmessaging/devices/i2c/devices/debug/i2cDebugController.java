@@ -7,6 +7,8 @@ import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.IOException;
 
@@ -18,6 +20,10 @@ public class i2cDebugController extends I2CDeviceController {
 
   private final i2cDebugDevice device;
 
+  @Getter
+  @Setter
+  private boolean throwErrror;
+
   public i2cDebugController() {
     device = null;
   }
@@ -27,6 +33,7 @@ public class i2cDebugController extends I2CDeviceController {
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       this.device = new i2cDebugDevice(device);
     }
+    throwErrror = false;
   }
 
   public I2CDevice getDevice() {
@@ -69,5 +76,14 @@ public class i2cDebugController extends I2CDeviceController {
   @Override
   public int[] getAddressRange() {
     return new int[]{I2C_ADDRESS};
+  }
+
+  @Override
+  public byte[] getDeviceState() throws IOException {
+    if(throwErrror){
+      throwErrror = false;
+      throw new IOException("Exception requested on next read");
+    }
+    return super.getDeviceState();
   }
 }
