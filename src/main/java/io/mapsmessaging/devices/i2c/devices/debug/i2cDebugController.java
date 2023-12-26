@@ -15,7 +15,7 @@ import java.io.IOException;
 public class i2cDebugController extends I2CDeviceController {
 
   private static final int I2C_ADDRESS = 0x0;
-  private static final String NAME = "DEBUG";
+  private static final String NAME = "DebugDevice";
   private static final String DESCRIPTION = "i2c Debug Device, simply updates the time every second";
 
   private final i2cDebugDevice device;
