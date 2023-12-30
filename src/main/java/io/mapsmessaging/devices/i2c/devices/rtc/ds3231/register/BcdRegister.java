@@ -7,8 +7,8 @@ import java.io.IOException;
 
 public class BcdRegister extends SingleByteRegister {
 
-  private static final int TOP = 0b10000000;
-  private static final int TENS = 0b01110000;
+  private static final int TOP    = 0b10000000;
+  private static final int TENS   = 0b01110000;
   private static final int UNITSS = 0b00001111;
 
   private static final int BCD_FLAG = 0b01111111;
