@@ -76,7 +76,7 @@ public class DeviceBusManager {
 
   public boolean isAvailable(){
     try {
-      try (var i2c = pi4j.create(I2C.newConfigBuilder(pi4j).id("Test I2C").build())) {
+      try (var i2c = pi4j.create(I2C.newConfigBuilder(pi4j).id("Test I2C").device(1).bus(1).build())) {
         i2c.getDevice();
         return true;
       }
