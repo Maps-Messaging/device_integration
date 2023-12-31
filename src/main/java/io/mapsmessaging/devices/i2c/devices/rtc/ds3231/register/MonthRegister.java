@@ -10,10 +10,6 @@ public class MonthRegister extends BcdRegister {
 
   private static final int CENTURY = 0b10000000;
 
-  private static final int MONTH_MASK = 0b00011111;
-  private static final int TEN_MONTH = 0b00010000;
-  private static final int MONTH = 0b00001111;
-
   public MonthRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0x5, "MONTH", false);
     reload();

@@ -25,7 +25,7 @@ public class BcdRegister extends SingleByteRegister {
     }
   }
 
-  protected static int bcdToDecimal(int bcdValue) {
+  public static int bcdToDecimal(int bcdValue) {
     return ((bcdValue & TENS) >> 4) * 10 + (bcdValue & UNITSS);
   }
 
