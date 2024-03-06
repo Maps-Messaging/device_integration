@@ -9,11 +9,11 @@ import java.io.IOException;
 
 public class HourRegister extends SingleByteRegister {
 
-  private static final int TOP = 0b10000000;
+  private static final int TOP           = 0b10000000;
   private static final int CLOCK_24_MODE = 0b01000000;
-  private static final int AM_PM = 0b00100000;
-  private static final int TEN_HOURS = 0b00010000;
-  private static final int HOURS = 0b00001111;
+  private static final int AM_PM         = 0b00100000;
+  private static final int TEN_HOURS     = 0b00010000;
+  private static final int HOURS         = 0b00001111;
 
   public HourRegister(I2CDevice sensor, int address, String name) throws IOException {
     super(sensor, address, name);
@@ -48,6 +48,7 @@ public class HourRegister extends SingleByteRegister {
   public int getHours() throws IOException {
     reload();
     int hours = registerValue & HOURS;
+    hours = BcdRegister.bcdToDecimal(hours);
     if ((registerValue & TEN_HOURS) != 0) {
       hours += 10;
     }
@@ -68,7 +69,7 @@ public class HourRegister extends SingleByteRegister {
     } else {
       setControlRegister(~TEN_HOURS, 0);
     }
-    setControlRegister(~HOURS, val);
+    setControlRegister(~HOURS, BcdRegister.decimalToBcd(val));
   }
 
   @Override

@@ -23,6 +23,7 @@ import io.mapsmessaging.devices.i2c.devices.BufferedRegister;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.sensorreadings.IntegerSensorReading;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
+import io.mapsmessaging.devices.sensorreadings.StringSensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
@@ -86,6 +87,7 @@ public class Pmsa003iSensor extends I2CDevice implements Sensor {
     readings.add(new IntegerSensorReading("Particles larger than 25", "count", 0, 0x7ffff, this::getParticlesLargerThan25));
     readings.add(new IntegerSensorReading("Particles larger than 50", "count", 0, 0x7ffff, this::getParticlesLargerThan50));
     readings.add(new IntegerSensorReading("Particles larger than 100", "count", 0, 0x7ffff, this::getParticlesLargerThan100));
+    readings.add(new StringSensorReading("Air Quality", "", this::evaluateAirQuality));
   }
 
   @Override
@@ -169,6 +171,33 @@ public class Pmsa003iSensor extends I2CDevice implements Sensor {
       lastRead = System.currentTimeMillis() + 1000;
     }
   }
+
+
+    public String evaluateAirQuality() throws IOException {
+  // Air quality thresholds for PM1.0, PM2.5, and PM10
+      int[] pristineThreshold = {10, 10, 20};     // PM1.0, PM2.5, PM10
+      int[] healthyThreshold = {20, 30, 50};
+      int[] moderateThreshold = {30, 60, 100};
+      int[] poorThreshold = {40, 100, 150};
+
+      int pm1 = getPm1_0Standard();
+      int pm25 = getPm2_5Standard();
+      int pm10 = getPm10Standard();
+
+      // Evaluate air quality
+      if (pm1 <= pristineThreshold[0] && pm25 <= pristineThreshold[1] && pm10 <= pristineThreshold[2]) {
+        return "Pristine";
+      } else if (pm1 <= healthyThreshold[0] && pm25 <= healthyThreshold[1] && pm10 <= healthyThreshold[2]) {
+        return "Healthy";
+      } else if (pm1 <= moderateThreshold[0] && pm25 <= moderateThreshold[1] && pm10 <= moderateThreshold[2]) {
+        return "Moderate";
+      } else if (pm1 <= poorThreshold[0] && pm25 <= poorThreshold[1] && pm10 <= poorThreshold[2]) {
+        return "Poor";
+      } else {
+        return "Hazardous";
+      }
+    }
+
 
   @Override
   public String getName() {

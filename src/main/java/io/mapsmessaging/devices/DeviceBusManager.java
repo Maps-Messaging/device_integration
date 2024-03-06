@@ -18,6 +18,7 @@ package io.mapsmessaging.devices;
 
 import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
+import com.pi4j.io.i2c.I2C;
 import com.pi4j.io.i2c.I2CProvider;
 import io.mapsmessaging.devices.gpio.InterruptFactory;
 import io.mapsmessaging.devices.gpio.Pi4JPinManagement;
@@ -73,6 +74,16 @@ public class DeviceBusManager {
     interruptFactory = new PiInterruptFactory(pi4j);
   }
 
+  public boolean isAvailable(){
+    try {
+      try (var i2c = pi4j.create(I2C.newConfigBuilder(pi4j).id("Test I2C").device(1).bus(1).build())) {
+        i2c.getDevice();
+        return true;
+      }
+    } catch (Throwable e) {
+      return false;
+    }
+  }
   private static String getProvider() {
     String provider = System.getProperty("i2C-PROVIDER", PROVIDERS[0]).toLowerCase();
     boolean isValid = false;

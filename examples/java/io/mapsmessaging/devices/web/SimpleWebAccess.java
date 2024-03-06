@@ -44,6 +44,9 @@ public class SimpleWebAccess {
 
   public SimpleWebAccess() {
     deviceBusManager = DeviceBusManager.getInstance();
+    if(!deviceBusManager.isAvailable()){
+      throw new RuntimeException("PI4J not supported");
+    }
     Timer timer = new Timer();
     timer.scheduleAtFixedRate(new TimerTask() {
       @Override

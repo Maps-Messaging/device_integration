@@ -8,12 +8,12 @@ import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.data.AlarmDaySettingsData
 import java.io.IOException;
 
 public class AlarmDayRegister extends SingleByteRegister {
-  private static final int DAY = 0b00000111;
+  private static final int DAY  = 0b00000111;
   private static final int DATE = 0b00001111;
-  private static final int TEN_DATE = 0b00110000;
+  private static final int TEN_DATE  = 0b00110000;
   private static final int DATE_MASK = 0b00111111;
-  private static final int DAY_DATE = 0b01000000;
-  private static final int TOP = 0b10000000;
+  private static final int DAY_DATE  = 0b01000000;
+  private static final int TOP       = 0b10000000;
 
   public AlarmDayRegister(I2CDevice sensor, int address, String name) throws IOException {
     super(sensor, address, name);

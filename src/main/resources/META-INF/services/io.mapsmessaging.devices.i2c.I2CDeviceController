@@ -66,3 +66,8 @@ io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.backlight.BacklightV1Pwm
 io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.backlight.BacklightV1_1PwmController
 io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.backlight.BacklightRGBV1PwmController
 io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.backlight.BacklightRGBV2PwmController
+
+#
+# Debug/ testing sensors
+#
+io.mapsmessaging.devices.i2c.devices.debug.i2cDebugController
