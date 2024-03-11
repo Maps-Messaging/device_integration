@@ -21,13 +21,13 @@ public class ReadMeasurementRequest extends Request {
     temperature = Float.NaN;
     humidity = Float.NaN;
     byte[] response = super.getResponse();
-    if(generateCrc(response, 0, 2) == response[2]){
+    if(generateCrc(response, 0) == response[2]){
       co2 = response[0] << 8 | (response[1] & 0xff);
     }
-    if(generateCrc(response, 3, 2) == response[5]){
+    if(generateCrc(response, 3) == response[5]){
       temperature = computeTemperature(response[3], response[4]);
     }
-    if(generateCrc(response, 6, 2) == response[8]){
+    if(generateCrc(response, 6) == response[8]){
       humidity = computeHumidity(response[6], response[7]);
     }
     return response;

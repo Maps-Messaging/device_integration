@@ -6,4 +6,8 @@ public class SetAltitudeRequest extends Request {
   public SetAltitudeRequest(AddressableDevice device) {
     super(1, 0x2427, 0, device);
   }
+
+  public void setAlititude(int val){
+    setValue(val);
+  }
 }

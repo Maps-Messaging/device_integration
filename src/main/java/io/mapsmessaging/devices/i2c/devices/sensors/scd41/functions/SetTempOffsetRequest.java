@@ -6,4 +6,8 @@ public class SetTempOffsetRequest extends Request {
   public SetTempOffsetRequest(AddressableDevice device) {
     super(1, 0x241D, 0, device);
   }
+
+  public void setTempOffset(int val){
+    setValue(val);
+  }
 }

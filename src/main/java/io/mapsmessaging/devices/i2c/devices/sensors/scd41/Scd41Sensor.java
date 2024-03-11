@@ -18,31 +18,37 @@ import java.util.List;
 
 @Getter
 public class Scd41Sensor extends I2CDevice implements Sensor, Resetable, PowerManagement {
-
-
   private final DataReadyRegister dataReadyRegister;
-  private final FactoryResetRegister factoryResetRegister;
-  private final GetAltitudeRegister getAltitudeRegister;
+  private final DeviceStateRegister deviceStateRegister;
+  private final ASCERegister asceRegister;
+  private final AltitudeRegister altitudeRegister;
+  private final AmbientPressureRegister ambientPressureRegister;
   private final GetSerialNumberRegister getSerialNumberRegister;
   private final ReadMeasurementRegister readMeasurementRegister;
-  private final StartPeriodicMeasurementRegister startPeriodicMeasurementRegister;
-  private final StopPeriodicMeasurementRegister stopPeriodicMeasurementRegister;
-  private final PowerDownRegister powerDownRegister;
-  private final WakeUpRegister wakeUpRegister;
+  private final PeriodicMeasurementRegister periodicMeasurementRegister;
+  private final PowerManagementRegister powerManagementRegister;
+  private final TempOffsetRegister tempOffsetRegister;
+  private final ForcedRecalRegister forcedRecalRegister;
+  private final CalibrationPeriodRegister calibrationPeriodRegister;
+  private final SensorConfigurationRegister sensorConfigurationRegister;
   private final List<SensorReading<?>> readings;
 
   public Scd41Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(Scd41Sensor.class));
     dataReadyRegister = new DataReadyRegister(this);
-    factoryResetRegister = new FactoryResetRegister(this);
-    getAltitudeRegister = new GetAltitudeRegister(this);
+    deviceStateRegister = new DeviceStateRegister(this);
+    calibrationPeriodRegister = new CalibrationPeriodRegister(this);
+    asceRegister = new ASCERegister(this);
+    forcedRecalRegister = new ForcedRecalRegister(this);
+    altitudeRegister = new AltitudeRegister(this);
+    ambientPressureRegister = new AmbientPressureRegister(this);
     getSerialNumberRegister = new GetSerialNumberRegister(this);
     readMeasurementRegister = new ReadMeasurementRegister(this);
-    startPeriodicMeasurementRegister = new StartPeriodicMeasurementRegister(this);
-    stopPeriodicMeasurementRegister = new StopPeriodicMeasurementRegister(this);
-    powerDownRegister = new PowerDownRegister(this);
-    wakeUpRegister = new WakeUpRegister(this);
-    IntegerSensorReading co2Sensor = new IntegerSensorReading("CO2", "ppm", 0, 40_000, readMeasurementRegister::getCo2);
+    periodicMeasurementRegister = new PeriodicMeasurementRegister(this);
+    tempOffsetRegister = new TempOffsetRegister(this);
+    sensorConfigurationRegister = new SensorConfigurationRegister(this);
+    powerManagementRegister = new PowerManagementRegister(this);
+    IntegerSensorReading co2Sensor = new IntegerSensorReading("CO2", "ppm", 0, 5000, readMeasurementRegister::getCo2);
     FloatSensorReading humidity = new FloatSensorReading("Humidity", "%RH", 0, 100.0f, 2, readMeasurementRegister::getHumidity);
     FloatSensorReading temperature = new FloatSensorReading("Temperature", "°C", -10, 60.0f, 2, readMeasurementRegister::getTemperature);
     readings = List.of(co2Sensor, humidity, temperature);
@@ -50,7 +56,8 @@ public class Scd41Sensor extends I2CDevice implements Sensor, Resetable, PowerMa
   }
 
   private void initialise() throws IOException {
-    startPeriodicMeasurementRegister.startPeriodicMeasurement();
+    periodicMeasurementRegister.startPeriodicMeasurement();
+    asceRegister.setASCEState(false); // If used in doors this will stop it from resetting baseline to 400ppm
   }
 
   @Override
@@ -65,17 +72,17 @@ public class Scd41Sensor extends I2CDevice implements Sensor, Resetable, PowerMa
 
   @Override
   public String getDescription() {
-    return "CO2 Sensor 400 to 2000 ppm";
+    return "CO2 Sensor 400 to 2000 - 5000 ppm";
   }
 
   @Override
   public void reset() throws IOException {
-    factoryResetRegister.factoryResetDevice();
+    deviceStateRegister.factoryReset();
   }
-
   @Override
   public void softReset() throws IOException {
-    stopPeriodicMeasurementRegister.stopPeriodicMeasurement();
+    periodicMeasurementRegister.stopPeriodicMeasurement();
+    deviceStateRegister.reInitialize();
     initialise();
   }
 
@@ -86,11 +93,11 @@ public class Scd41Sensor extends I2CDevice implements Sensor, Resetable, PowerMa
 
   @Override
   public void powerOn() throws IOException {
-    wakeUpRegister.wakeUp();
+    powerManagementRegister.wakeUp();
   }
 
   @Override
   public void powerOff() {
-    powerDownRegister.powerDown();
+    powerManagementRegister.powerDown();
   }
 }

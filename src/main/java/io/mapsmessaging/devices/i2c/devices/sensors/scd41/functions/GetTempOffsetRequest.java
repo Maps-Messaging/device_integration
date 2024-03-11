@@ -6,4 +6,8 @@ public class GetTempOffsetRequest extends Request {
   public GetTempOffsetRequest(AddressableDevice device) {
     super(1, 0x2318, 0, device);
   }
+
+  public int getTempOffset(){
+    return readValue();
+  }
 }

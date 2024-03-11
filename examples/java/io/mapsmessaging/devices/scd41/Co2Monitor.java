@@ -33,8 +33,10 @@ public class Co2Monitor implements Runnable {
     // Configure and mount a device on address 0x5D as a LPS25 pressure & temperature
     I2CDeviceController deviceController = i2cBusManagers[bus].configureDevice(0x62, "SCD-41");
     if (deviceController != null) {
+      System.err.println(new String(deviceController.getDeviceConfiguration()));
       I2CDevice sensor = deviceController.getDevice();
       if (sensor instanceof Scd41Sensor) {
+
         new Co2Monitor((Scd41Sensor) sensor);
       }
     }

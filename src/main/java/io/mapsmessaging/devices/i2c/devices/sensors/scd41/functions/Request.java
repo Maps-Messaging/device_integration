@@ -26,7 +26,21 @@ public abstract class Request {
 
 
   public byte[] getResponse(){
-    device.write(command);
+    return sendAndWaitForResponse(command);
+  }
+
+  protected void setValue(int val){
+    byte[] buf = new byte[5];
+    buf[0] = getCommand()[0];
+    buf[1] = getCommand()[1];
+    buf[2] = (byte)(val >> 8 & 0xff);
+    buf[3] = (byte)(val & 0xff);
+    buf[4] = generateCrc(buf, 2);
+    sendAndWaitForResponse(buf);
+  }
+
+  protected byte[] sendAndWaitForResponse(byte[] buf){
+    device.write(buf);
     if(msDelay > 0) pause();
     byte[] response = new byte[responseLength];
     if(responseLength > 0) {
@@ -38,7 +52,7 @@ public abstract class Request {
   protected int readValue(){
     int value = Integer.MIN_VALUE;
     byte[] response = getResponse();
-    if(generateCrc(response, 0, 2) == response[2]){
+    if(generateCrc(response, 0) == response[2]){
       value = response[0] << 8 | (response[1] & 0xff);
     }
     return value;
@@ -58,16 +72,15 @@ public abstract class Request {
    *
    * @param data The input data array.
    * @param start The starting index in the array to compute the CRC.
-   * @param count The number of bytes in the array to include in the CRC computation.
    * @return The computed CRC value.
    */
-  protected byte generateCrc(byte[] data, int start, int count) {
+  protected byte generateCrc(byte[] data, int start) {
     int currentByte;
     byte crc = CRC8_INIT;
     int crcBit;
 
     // calculates 8-Bit checksum with given polynomial
-    for (currentByte = start; currentByte < (start + count); ++currentByte) {
+    for (currentByte = start; currentByte < (start + 2); ++currentByte) {
       crc ^= (data[currentByte]);
       for (crcBit = 8; crcBit > 0; --crcBit) {
         if ((crc & 0x80) != 0) {
