@@ -17,7 +17,6 @@ public class ReadMeasurementRequest extends Request {
 
   @Override
   public byte[] getResponse(){
-    System.err.println("Sensor reading!");
     co2 = Integer.MIN_VALUE;
     temperature = Float.NaN;
     humidity = Float.NaN;

@@ -15,7 +15,6 @@ public class ReadMeasurementRegister extends RequestRegister {
   public boolean hasData(){
     if(lastRead<System.currentTimeMillis()) {
       request.getResponse();
-      System.err.println("Reading");
       lastRead = System.currentTimeMillis() + 5000;
       return true;
     }
