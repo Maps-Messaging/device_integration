@@ -22,6 +22,7 @@ io.mapsmessaging.devices.i2c.devices.sensors.am2315.AM2315Controller
 io.mapsmessaging.devices.i2c.devices.sensors.am2320.AM2320Controller
 io.mapsmessaging.devices.i2c.devices.sensors.as3935.AS3935Controller
 io.mapsmessaging.devices.i2c.devices.sensors.bh1750.Bh1750Controller
+io.mapsmessaging.devices.i2c.devices.sensors.bme688.BME688Controller
 io.mapsmessaging.devices.i2c.devices.sensors.bmp280.BMP280Controller
 io.mapsmessaging.devices.i2c.devices.sensors.bno055.BNO055Controller
 io.mapsmessaging.devices.i2c.devices.sensors.ina219.Ina219Controller

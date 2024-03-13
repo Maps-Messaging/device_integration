@@ -35,6 +35,8 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+
+@SuppressWarnings("java:S6548") // yes it is a singleton
 @Getter
 public class DeviceBusManager {
   // Inner static class responsible for holding the Singleton instance
@@ -75,14 +77,15 @@ public class DeviceBusManager {
   }
 
   public boolean isAvailable(){
+    boolean result = false;
     try {
       try (var i2c = pi4j.create(I2C.newConfigBuilder(pi4j).id("Test I2C").device(1).bus(1).build())) {
         i2c.getDevice();
-        return true;
+        result = true;
       }
     } catch (Throwable e) {
-      return false;
     }
+    return result;
   }
   private static String getProvider() {
     String provider = System.getProperty("i2C-PROVIDER", PROVIDERS[0]).toLowerCase();
