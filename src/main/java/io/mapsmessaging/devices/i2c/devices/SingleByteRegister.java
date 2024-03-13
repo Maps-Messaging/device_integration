@@ -17,9 +17,11 @@
 package io.mapsmessaging.devices.i2c.devices;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import lombok.Getter;
 
 import java.io.IOException;
 
+@Getter
 public class SingleByteRegister extends Register {
 
   protected byte registerValue;

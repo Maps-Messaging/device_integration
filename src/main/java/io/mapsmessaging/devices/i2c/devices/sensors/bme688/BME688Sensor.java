@@ -42,6 +42,11 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
   private final HeaterResistanceRegister heaterResistanceRegister;
   private final HeaterCurrentRegister heaterCurrentRegister;
 
+  private final SensorReadings[] sensorReadings;
+  private final TemperatureCalibrationData temperatureCalibrationData;
+
+  private int readingIndex;
+
   public BME688Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(BME688Sensor.class));
 
@@ -60,6 +65,13 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
     }
     heaterResistanceRegister = new HeaterResistanceRegister(this);
     heaterCurrentRegister = new HeaterCurrentRegister(this);
+    temperatureCalibrationData = new TemperatureCalibrationData(this);
+    sensorReadings = new SensorReadings[3];
+    for(int x=0;x<sensorReadings.length;x++){
+      sensorReadings[x] = new SensorReadings(this, x, temperatureCalibrationData);
+    }
+    readingIndex = 0;
+
     initialise();
   }
 
