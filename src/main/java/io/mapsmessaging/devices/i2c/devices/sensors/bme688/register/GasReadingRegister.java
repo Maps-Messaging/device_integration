@@ -13,7 +13,7 @@ public class GasReadingRegister extends MultiByteRegister {
 
   public int getGasReading() throws IOException {
     reload();
-    return (buffer[0] << 2) | ((buffer[1] & 0xff) >> 6);
+    return ((buffer[1] & 0b11000000) >> 6) | ((buffer[0] & 0xff)<<2);
   }
 
   public int getGasRange() {

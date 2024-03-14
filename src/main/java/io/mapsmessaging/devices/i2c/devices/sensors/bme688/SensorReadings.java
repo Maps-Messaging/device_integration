@@ -23,13 +23,14 @@ public class SensorReadings {
   public SensorReadings(BME688Sensor sensor, int index,
                         TemperatureCalibrationData temperatureCalibrationData,
                         HumidityCalibrationData humidityCalibrationData,
-                        PressureCalibrationData pressureCalibrationData
+                        PressureCalibrationData pressureCalibrationData,
+                        GasCalibrationData gasCalibrationData
   ) throws IOException {
 
     humidityMeasurement = new HumidityMeasurement(sensor, index, humidityCalibrationData, temperatureCalibrationData);
     pressureMeasurement = new PressureMeasurement(sensor, index, pressureCalibrationData, temperatureCalibrationData);
     temperatureMeasurement = new TemperatureMeasurement(sensor, index, temperatureCalibrationData);
-    gasMeasurement = new GasMeasurement(sensor, index);
+    gasMeasurement = new GasMeasurement(sensor, index, gasCalibrationData);
 
     subMeasureIndex = new SingleByteRegister(sensor, MEASURE_IDX_ADDRESSES[index], "sub_meas_index_" + index);
     measurementStatusRegister = new MeasurementStatusRegister(sensor, MEASUREMENT_ADDRESSES[index], "meas_status_" + index);

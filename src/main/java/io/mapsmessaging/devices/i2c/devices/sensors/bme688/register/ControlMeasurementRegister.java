@@ -13,42 +13,40 @@ public class ControlMeasurementRegister extends SingleByteRegister {
 
   public ControlMeasurementRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0x74, "Ctrl_meas");
+    reload();
   }
 
-  public PowerMode getMode() throws IOException {
-    reload();
+  public PowerMode getMode()  {
     return PowerMode.values()[registerValue & 0b11];
   }
 
-  public void setPowerMode(PowerMode mode) throws IOException {
-    reload();
+  public void setPowerMode(PowerMode mode) {
     int val = mode.getValue();
     registerValue = (byte) ((registerValue & 0b11111100) | (val & 0b11));
-    setControlRegister(0b11111100, (val & 0b11));
   }
 
-  public Oversampling getTemperatureOverSampling() throws IOException {
-    reload();
+  public Oversampling getTemperatureOverSampling() {
     int idx = registerValue >> 5;
     return Oversampling.values()[idx];
   }
 
-  public void setTemperatureOversampling(Oversampling mode) throws IOException {
-    reload();
+  public void setTemperatureOversampling(Oversampling mode) {
     int val = mode.getValue();
-    setControlRegister(0b00011111, (val & 0b111) << 5);
+    registerValue = (byte) ((registerValue & 0b00011111) | (val & 0b111) << 5);
   }
 
-  public Oversampling getPressureOverSampling() throws IOException {
-    reload();
+  public Oversampling getPressureOverSampling() {
     int idx = (registerValue >> 2) & 0b111;
     return Oversampling.values()[idx];
   }
 
-  public void setPressureOversampling(Oversampling mode) throws IOException {
-    reload();
+  public void setPressureOversampling(Oversampling mode) {
     int val = mode.getValue();
-    setControlRegister(0b11100011, (val & 0b111) << 2);
+    registerValue = (byte) ((registerValue & 0b11100011) | (val & 0b111) << 2);
+  }
+
+  public void updateRegister() throws IOException {
+    sensor.write(address, registerValue);
   }
 
   @Override

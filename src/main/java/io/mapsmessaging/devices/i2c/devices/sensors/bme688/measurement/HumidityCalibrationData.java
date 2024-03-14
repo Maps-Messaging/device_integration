@@ -36,7 +36,7 @@ public class HumidityCalibrationData {
   private boolean loaded;
 
   public HumidityCalibrationData(BME688Sensor sensor) throws IOException {
-    parameterH1 = new Calibration2ByteRegister(sensor, 0XE2, "par_h1");
+    parameterH1 = new Calibration2ByteRegister(sensor, 0xE2, "par_h1");
     parameterH2 = new SingleByteRegister(sensor, 0xE1, "par_h2");
     parameterH3 = new SingleByteRegister(sensor, 0xE4, "par_h3");
 

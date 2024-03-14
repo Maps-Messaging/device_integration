@@ -9,17 +9,17 @@ import java.io.IOException;
 
 public class HeaterResistanceRegister extends MultiByteRegister {
 
-  public HeaterResistanceRegister(I2CDevice sensor) {
+  public HeaterResistanceRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0x5A, 10, "res_heat");
+    reload();
   }
 
-  public byte[] getHeaterResistance() throws IOException {
-    reload();
+  public byte[] getHeaterResistance()  {
     return super.buffer;
   }
 
-  public void setHeaterResistance(byte[] val) throws IOException {
-    System.arraycopy(val, 0, buffer, 0, buffer.length);
+  public void setHeaterResistance(int idx, byte val) throws IOException {
+    buffer[idx] = val;
     sensor.write(address, buffer);
   }
 

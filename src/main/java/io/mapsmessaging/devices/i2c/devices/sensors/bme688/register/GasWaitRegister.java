@@ -13,10 +13,10 @@ public class GasWaitRegister extends SingleByteRegister {
 
   public GasWaitRegister(I2CDevice sensor, int address, String name) throws IOException {
     super(sensor, address, name);
+    reload();
   }
 
-  public int getTimerSteps() throws IOException {
-    reload();
+  public int getTimerSteps() {
     return registerValue & 0b111111;
   }
 
@@ -24,13 +24,11 @@ public class GasWaitRegister extends SingleByteRegister {
     setControlRegister(0b111111, value);
   }
 
-  public int getMultiplicationFactor() throws IOException {
-    reload();
+  public int getMultiplicationFactor()  {
     return MULTIPLICATION_TABLE[(registerValue & 0b11000000) >> 6];
   }
 
   public void setMultiplicationFactor(int value) throws IOException {
-    reload();
     setControlRegister(0b00111111, (value & 0b11) << 6);
   }
 
