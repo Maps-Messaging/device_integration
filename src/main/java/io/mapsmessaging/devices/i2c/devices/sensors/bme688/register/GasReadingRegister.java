@@ -13,18 +13,18 @@ public class GasReadingRegister extends MultiByteRegister {
 
   public int getGasReading() throws IOException {
     reload();
-    return (buffer[0] << 2) | ((buffer[1] & 0xff ) >> 6);
+    return (buffer[0] << 2) | ((buffer[1] & 0xff) >> 6);
   }
 
-  public int getGasRange(){
+  public int getGasRange() {
     return buffer[1] & 0b1111;
   }
 
-  public boolean isGasValid(){
+  public boolean isGasValid() {
     return (buffer[1] & 0b100000) != 0;
   }
 
-  public boolean isHeatStable(){
+  public boolean isHeatStable() {
     return (buffer[1] & 0b10000) != 0;
   }
 }

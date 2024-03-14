@@ -18,7 +18,7 @@ public class HeaterCurrentRegister extends MultiByteRegister {
     return super.buffer;
   }
 
-  public void setHeaterCurrent(byte[] val)throws IOException{
+  public void setHeaterCurrent(byte[] val) throws IOException {
     System.arraycopy(val, 0, buffer, 0, buffer.length);
     sensor.write(address, buffer);
   }
@@ -27,7 +27,7 @@ public class HeaterCurrentRegister extends MultiByteRegister {
   public RegisterData toData() throws IOException {
     getHeaterCurrent();
     int[] value = new int[buffer.length];
-    for(int x=0;x<value.length;x++){
+    for (int x = 0; x < value.length; x++) {
       value[x] = (buffer[x] & 0xff);
     }
     return new HeaterCurrent(value);

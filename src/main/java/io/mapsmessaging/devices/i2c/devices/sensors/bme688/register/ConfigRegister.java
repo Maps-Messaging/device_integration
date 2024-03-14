@@ -16,7 +16,7 @@ public class ConfigRegister extends SingleByteRegister {
 
   public FilterSize getFilterSize() throws IOException {
     reload();
-    return FilterSize.values()[(registerValue>>2) & 0b111];
+    return FilterSize.values()[(registerValue >> 2) & 0b111];
   }
 
   @Override

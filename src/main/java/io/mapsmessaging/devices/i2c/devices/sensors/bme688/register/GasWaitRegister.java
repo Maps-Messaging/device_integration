@@ -20,13 +20,13 @@ public class GasWaitRegister extends SingleByteRegister {
     return registerValue & 0b111111;
   }
 
-  public void setTimerSteps(int value) throws IOException{
+  public void setTimerSteps(int value) throws IOException {
     setControlRegister(0b111111, value);
   }
 
   public int getMultiplicationFactor() throws IOException {
     reload();
-    return MULTIPLICATION_TABLE[ (registerValue & 0b11000000) >> 6];
+    return MULTIPLICATION_TABLE[(registerValue & 0b11000000) >> 6];
   }
 
   public void setMultiplicationFactor(int value) throws IOException {

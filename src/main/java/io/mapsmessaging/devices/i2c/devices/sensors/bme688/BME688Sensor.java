@@ -20,12 +20,20 @@ import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.PowerManagement;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
+import io.mapsmessaging.devices.i2c.devices.sensors.bme688.measurement.HumidityCalibrationData;
+import io.mapsmessaging.devices.i2c.devices.sensors.bme688.measurement.PressureCalibrationData;
+import io.mapsmessaging.devices.i2c.devices.sensors.bme688.measurement.TemperatureCalibrationData;
 import io.mapsmessaging.devices.i2c.devices.sensors.bme688.register.*;
 import io.mapsmessaging.devices.i2c.devices.sensors.bme688.values.PowerMode;
 import io.mapsmessaging.devices.impl.AddressableDevice;
+import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
+import lombok.Getter;
 
 import java.io.IOException;
+import java.util.List;
 
 public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
 
@@ -43,8 +51,12 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
   private final HeaterCurrentRegister heaterCurrentRegister;
 
   private final SensorReadings[] sensorReadings;
-  private final TemperatureCalibrationData temperatureCalibrationData;
 
+  private final TemperatureCalibrationData temperatureCalibrationData;
+  private final PressureCalibrationData pressureCalibrationData;
+  private final HumidityCalibrationData humidityCalibrationData;
+  @Getter
+  private final List<SensorReading<?>> readings;
   private int readingIndex;
 
   public BME688Sensor(AddressableDevice device) throws IOException {
@@ -60,19 +72,27 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
     controlGas1Register = new ControlGas1Register(this);
     gasWaitSharedRegister = new GasWaitRegister(this, 0x6E, "Gas_wait_shared");
     gasWaitRegisters = new GasWaitRegister[10];
-    for(int x=0;x<gasWaitRegisters.length;x++){
-      gasWaitRegisters[x] = new GasWaitRegister(this, 0x64 +x, "Gas_wait_"+x);
+    for (int x = 0; x < gasWaitRegisters.length; x++) {
+      gasWaitRegisters[x] = new GasWaitRegister(this, 0x64 + x, "Gas_wait_" + x);
     }
     heaterResistanceRegister = new HeaterResistanceRegister(this);
     heaterCurrentRegister = new HeaterCurrentRegister(this);
     temperatureCalibrationData = new TemperatureCalibrationData(this);
+    pressureCalibrationData = new PressureCalibrationData(this);
+    humidityCalibrationData = new HumidityCalibrationData(this);
     sensorReadings = new SensorReadings[3];
-    for(int x=0;x<sensorReadings.length;x++){
-      sensorReadings[x] = new SensorReadings(this, x, temperatureCalibrationData);
+    for (int x = 0; x < sensorReadings.length; x++) {
+      sensorReadings[x] = new SensorReadings(this, x, temperatureCalibrationData, humidityCalibrationData, pressureCalibrationData);
     }
     readingIndex = 0;
 
-    initialise();
+    FloatSensorReading full = new FloatSensorReading("temperature", "°C", -40, 85, 1, this::getTemperature);
+    FloatSensorReading ir = new FloatSensorReading("humidity", "%RH", 10, 90, 1, this::getHumidity);
+    FloatSensorReading lux = new FloatSensorReading("pressure", "hPa", 300, 1100, 1, this::getPressure);
+    readings = List.of(full, ir, lux);
+    synchronized (I2CDeviceScheduler.getI2cBusLock()) {
+      initialise();
+    }
   }
 
   @Override
@@ -102,11 +122,26 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
 
   private void initialise() throws IOException {
     resetRegister.reset();
+    temperatureCalibrationData.load();
+    pressureCalibrationData.load();
+    humidityCalibrationData.load();
   }
 
   @Override
   public DeviceType getType() {
     return DeviceType.SENSOR;
+  }
+
+  public float getTemperature() throws IOException {
+    return (float)(sensorReadings[readingIndex].getTemperature());
+  }
+
+  public float getPressure() throws IOException {
+    return (float)(sensorReadings[readingIndex].getPressure());
+  }
+
+  public float getHumidity() throws IOException {
+    return (float)(sensorReadings[readingIndex].getHumidity());
   }
 
 }

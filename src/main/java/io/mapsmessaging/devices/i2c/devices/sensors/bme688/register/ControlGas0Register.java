@@ -19,7 +19,7 @@ public class ControlGas0Register extends SingleByteRegister {
   }
 
   public void setHeatOn(boolean flag) throws IOException {
-    setControlRegister(0b1000, flag?0b1000: 0);
+    setControlRegister(0b1000, flag ? 0b1000 : 0);
   }
 
   @Override

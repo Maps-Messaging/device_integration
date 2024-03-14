@@ -63,7 +63,8 @@ public class BME688Controller extends I2CDeviceController {
       return new BME688Controller(device);
     }
   }
-  public DeviceType getType(){
+
+  public DeviceType getType() {
     return getDevice().getType();
   }
 
