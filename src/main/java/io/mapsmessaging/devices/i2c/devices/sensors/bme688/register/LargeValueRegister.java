@@ -13,6 +13,6 @@ public class LargeValueRegister extends MultiByteRegister {
 
   public int getValue() throws IOException {
     reload();
-    return (buffer[0] << 12) | ((buffer[1] & 0xff) << 4) | ((buffer[3] & 0xff) >> 4);
+    return (buffer[0] << 12) | ((buffer[1] & 0xff) << 4) | ((buffer[2] & 0xff) >> 4);
   }
 }

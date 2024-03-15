@@ -98,7 +98,7 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
     FloatSensorReading temperature = new FloatSensorReading("temperature", "°C", -40, 85, 1, this::getTemperature);
     FloatSensorReading humidity = new FloatSensorReading("humidity", "%RH", 10, 90, 1, this::getHumidity);
     FloatSensorReading pressure = new FloatSensorReading("pressure", "hPa", 300, 1100, 1, this::getPressure);
-    FloatSensorReading gas = new FloatSensorReading("pressure", "hPa", 300, 1100, 1, this::getGas);
+    FloatSensorReading gas = new FloatSensorReading("gas", "Ω", 0, 0xffff, 1, this::getGas);
     readings = List.of(temperature, humidity, pressure, gas);
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       initialise();
@@ -152,6 +152,11 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
     controlGas1Register.setRunGas(true);
     controlMeasurementRegister.setPowerMode(PowerMode.FORCED_MODE);
   }
+
+  public void startParallelMode() throws IOException{
+
+  }
+
 
   @Override
   public DeviceType getType() {

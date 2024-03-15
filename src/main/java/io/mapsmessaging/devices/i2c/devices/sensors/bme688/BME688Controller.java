@@ -47,6 +47,7 @@ public class BME688Controller extends I2CDeviceController {
   protected BME688Controller(AddressableDevice device) throws IOException {
     super(device);
     sensor = new BME688Sensor(device);
+    sensor.startForceMode();
   }
 
   public I2CDevice getDevice() {

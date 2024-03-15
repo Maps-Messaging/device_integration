@@ -27,7 +27,4 @@ public class MeasurementStatusRegister extends SingleByteRegister {
     return (registerValue & 0b1111);
   }
 
-  public void read() throws IOException {
-    reload();
-  }
 }

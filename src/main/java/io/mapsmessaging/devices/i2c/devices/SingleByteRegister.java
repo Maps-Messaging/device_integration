@@ -42,6 +42,9 @@ public class SingleByteRegister extends Register {
     sensor.write(address, registerValue);
   }
 
+  public void read() throws IOException {
+    reload();
+  }
 
   public String toString(int length) {
     try {
