@@ -22,27 +22,11 @@ public class TemperatureMeasurement implements Measurement {
     int parT2 = temperatureCalibrationData.getParT2();
     int parT3 = temperatureCalibrationData.getParT3();
 
-    // Compensation formula as per the sensor specifications
-    double var1;
-    double var2;
-    double temperature;
-    var1 = (rawTemp / 16384.0 - parT1 / 1024.0) * parT2;
-    var2 = (rawTemp / 131072.0 - parT1 / 8192.0) * (rawTemp / 131072.0 - parT1 / 8192.0) * parT3 * 16.0;
-    temperature = (var1 + var2) / 5120.0;
-    calculateTfine(rawTemp);
-    return temperature;
+    int var1 = (rawTemp >> 3) - (parT1 << 1);
+    int var2 = (var1 * parT2) >> 11;
+    int var3 = ((((var1 >>1 ) * (var1 >>1))>>12) * ( parT3 <<4)) >> 14;
+    int tFine = var2 + var3;
+    temperatureCalibrationData.setTFine(tFine);
+    return (((tFine * 5) + 128) >> 8) /100.0;
   }
-
-  public void calculateTfine(int rawTemperature) {
-    long parT1 = temperatureCalibrationData.getParT1();
-    long parT2 = temperatureCalibrationData.getParT2();
-    long parT3 = temperatureCalibrationData.getParT3();
-
-    long var1;
-    long var2;
-    var1 = ((((rawTemperature >> 3) - (parT1 << 1))) * parT2) >> 11;
-    var2 = (((((rawTemperature >> 4) - parT1) * ((rawTemperature >> 4) - parT1)) >> 12) * parT3) >> 14;
-    temperatureCalibrationData.setTFine(var1 + var2);
-  }
-
 }

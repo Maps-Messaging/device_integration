@@ -26,6 +26,7 @@ import io.mapsmessaging.devices.i2c.devices.sensors.bme688.measurement.HumidityC
 import io.mapsmessaging.devices.i2c.devices.sensors.bme688.measurement.PressureCalibrationData;
 import io.mapsmessaging.devices.i2c.devices.sensors.bme688.measurement.TemperatureCalibrationData;
 import io.mapsmessaging.devices.i2c.devices.sensors.bme688.register.*;
+import io.mapsmessaging.devices.i2c.devices.sensors.bme688.values.FilterSize;
 import io.mapsmessaging.devices.i2c.devices.sensors.bme688.values.HeaterStep;
 import io.mapsmessaging.devices.i2c.devices.sensors.bme688.values.Oversampling;
 import io.mapsmessaging.devices.i2c.devices.sensors.bme688.values.PowerMode;
@@ -62,6 +63,7 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
 
   @Getter
   private final List<SensorReading<?>> readings;
+  private long lastRead = 0;
   private int readingIndex;
 
   public BME688Sensor(AddressableDevice device) throws IOException {
@@ -132,6 +134,9 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
 
   private void initialise() throws IOException {
     resetRegister.reset();
+    System.err.println("ChipId:"+Integer.toHexString(chipIdRegister.getChipId()));
+    System.err.println("Variant:"+Integer.toHexString(variantIdRegister.getVariantId()));
+
     temperatureCalibrationData.load();
     pressureCalibrationData.load();
     humidityCalibrationData.load();
@@ -144,13 +149,19 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
     controlMeasurementRegister.setTemperatureOversampling(Oversampling.X2);
     controlMeasurementRegister.setPressureOversampling(Oversampling.X16);
     controlMeasurementRegister.updateRegister();
-
+    configRegister.setFilterSize(FilterSize.SIZE_3);
     // Set the heater details
-    gasWaitRegisters[0].setTimerSteps(0x59); // 100ms
-    heaterResistanceRegister.setHeaterResistance(0, (byte)gasCalibrationData.calcResHeat(300, 26));
+    gasWaitRegisters[0].setTimerSteps(0x1); // 100ms
+    gasWaitRegisters[0].setMultiplicationFactor(1);
+    gasWaitRegisters[0].updateRegister();
+
+    byte computed = (byte)gasCalibrationData.calcResHeat(300, 26);
+    System.err.println("Computed::"+computed);
+    heaterResistanceRegister.setHeaterResistance(0, (byte)0x73);
     controlGas1Register.setNbConv(HeaterStep.NONE);
     controlGas1Register.setRunGas(true);
     controlMeasurementRegister.setPowerMode(PowerMode.FORCED_MODE);
+    controlMeasurementRegister.updateRegister();
   }
 
   public void startParallelMode() throws IOException{
@@ -164,17 +175,33 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
   }
 
   public float getTemperature() throws IOException {
+    if(lastRead < System.currentTimeMillis()){
+      lastRead = System.currentTimeMillis() + 1000;
+      startForceMode();
+    }
     return (float)(sensorReadings[readingIndex].getTemperature());
   }
 
   public float getPressure() throws IOException {
+    if(lastRead < System.currentTimeMillis()){
+      lastRead = System.currentTimeMillis() + 1000;
+      startForceMode();
+    }
     return (float)(sensorReadings[readingIndex].getPressure());
   }
 
   public float getHumidity() throws IOException {
+    if(lastRead < System.currentTimeMillis()){
+      lastRead = System.currentTimeMillis() + 1000;
+      startForceMode();
+    }
     return (float)(sensorReadings[readingIndex].getHumidity());
   }
   public float getGas() throws IOException {
+    if(lastRead < System.currentTimeMillis()){
+      lastRead = System.currentTimeMillis() + 1000;
+      startForceMode();
+    }
     return (float)(sensorReadings[readingIndex].getGas());
   }
 

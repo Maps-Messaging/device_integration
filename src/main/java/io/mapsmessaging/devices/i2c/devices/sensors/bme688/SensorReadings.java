@@ -18,7 +18,6 @@ public class SensorReadings {
 
   private final SingleByteRegister subMeasureIndex;
   private final MeasurementStatusRegister measurementStatusRegister;
-  private final BME688Sensor bme688Sensor;
 
   private long lastRead;
 
@@ -33,7 +32,6 @@ public class SensorReadings {
                         PressureCalibrationData pressureCalibrationData,
                         GasCalibrationData gasCalibrationData
   ) throws IOException {
-    bme688Sensor = sensor;
     humidityMeasurement = new HumidityMeasurement(sensor, index, humidityCalibrationData, temperatureCalibrationData);
     pressureMeasurement = new PressureMeasurement(sensor, index, pressureCalibrationData, temperatureCalibrationData);
     temperatureMeasurement = new TemperatureMeasurement(sensor, index, temperatureCalibrationData);
@@ -79,17 +77,13 @@ public class SensorReadings {
   }
 
   private void doMeasurements() throws IOException {
+    hasData();
     if(!measurementStatusRegister.isReadingGas()) {
       lastRead = subMeasureIndex.getRegisterValue();
       temperature = temperatureMeasurement.getMeasurement(); // Must be performed first to compute t_fine
       humidity = humidityMeasurement.getMeasurement();
       pressure = pressureMeasurement.getMeasurement();
       gasResistance = gasMeasurement.getMeasurement();
-    }
-    else{
-      if(!measurementStatusRegister.isMeasuring()){
-        bme688Sensor.startForceMode();
-      }
     }
   }
 

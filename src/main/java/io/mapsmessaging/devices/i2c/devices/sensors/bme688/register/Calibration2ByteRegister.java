@@ -13,7 +13,7 @@ public class Calibration2ByteRegister extends MultiByteRegister {
 
   public int getValue() throws IOException {
     reload();
-    return (buffer[0] << 2) | ((buffer[1] & 0xff));
+    return ((buffer[1] & 0xff)<< 8) | ((buffer[0] & 0xff));
   }
 
 }

@@ -12,7 +12,7 @@ public class ResetRegister extends SingleByteRegister {
   }
 
   public void reset() throws IOException {
-    setControlRegister(0b11111111, 0xB6);
+    sensor.write(address, (byte)0xB6);
   }
 
 }

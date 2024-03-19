@@ -17,7 +17,7 @@ public class TemperatureCalibrationData {
 
   @Getter
   @Setter
-  private long tFine;
+  private int tFine;
 
   @Getter
   private int parT1;
@@ -39,7 +39,7 @@ public class TemperatureCalibrationData {
       loaded = true;
       parT1 = parameterT1.getValue();
       parT2 = parameterT2.getValue();
-      parT3 = parameterT3.getRegisterValue() & 0xff;
+      parT3 = parameterT3.getRegisterValue();
     }
   }
 
