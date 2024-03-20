@@ -14,6 +14,9 @@ public class TemperatureCalibrationData {
   private final Calibration2ByteRegister parameterT2;
   private final SingleByteRegister parameterT3;
 
+  @Getter
+  @Setter
+  public int ambientAir;
 
   @Getter
   @Setter

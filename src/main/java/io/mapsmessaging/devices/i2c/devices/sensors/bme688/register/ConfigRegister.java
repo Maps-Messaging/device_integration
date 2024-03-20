@@ -21,7 +21,7 @@ public class ConfigRegister extends SingleByteRegister {
 
   public void setFilterSize(FilterSize filterSize) throws IOException {
     int val = filterSize.getValue();
-    super.setControlRegister(0b11100011, (byte)((val&0b111)<<2));
+    setControlRegister(0b11100011, (byte)((val&0b111)<<2));
   }
 
   @Override

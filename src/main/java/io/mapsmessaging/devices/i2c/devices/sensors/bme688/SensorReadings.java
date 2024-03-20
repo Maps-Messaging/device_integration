@@ -3,6 +3,8 @@ package io.mapsmessaging.devices.i2c.devices.sensors.bme688;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.bme688.measurement.*;
 import io.mapsmessaging.devices.i2c.devices.sensors.bme688.register.MeasurementStatusRegister;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.IOException;
 
@@ -21,10 +23,18 @@ public class SensorReadings {
 
   private long lastRead;
 
+  @Getter
   private double temperature;
+  @Getter
   private double pressure;
+  @Getter
   private double humidity;
-  private double gasResistance;
+  @Getter
+  private double gas;
+
+  @Getter
+  @Setter
+  private long dataReady;
 
   public SensorReadings(BME688Sensor sensor, int index,
                         TemperatureCalibrationData temperatureCalibrationData,
@@ -35,55 +45,30 @@ public class SensorReadings {
     humidityMeasurement = new HumidityMeasurement(sensor, index, humidityCalibrationData, temperatureCalibrationData);
     pressureMeasurement = new PressureMeasurement(sensor, index, pressureCalibrationData, temperatureCalibrationData);
     temperatureMeasurement = new TemperatureMeasurement(sensor, index, temperatureCalibrationData);
-    gasMeasurement = new GasMeasurement(sensor, index, gasCalibrationData);
+    gasMeasurement = new GasMeasurement(sensor, index, gasCalibrationData, temperatureCalibrationData);
 
     subMeasureIndex = new SingleByteRegister(sensor, MEASURE_IDX_ADDRESSES[index], "sub_meas_index_" + index);
     measurementStatusRegister = new MeasurementStatusRegister(sensor, MEASUREMENT_ADDRESSES[index], "meas_status_" + index);
     lastRead = subMeasureIndex.getRegisterValue();
   }
 
-
-  public boolean hasData() throws IOException {
+  protected boolean hasData() throws IOException {
     measurementStatusRegister.read();
     subMeasureIndex.read();
-    System.err.println("IsMeasuring:"+measurementStatusRegister.isMeasuring());
-    System.err.println("isReading gas:"+measurementStatusRegister.isReadingGas());
-    System.err.println("has new data:"+measurementStatusRegister.hasNewData());
-    System.err.println("Measureindex:"+subMeasureIndex.getRegisterValue());
     return measurementStatusRegister.hasNewData() &&   // new data not yet read
         !measurementStatusRegister.isReadingGas() &&   // Not performing a gas reading
         !measurementStatusRegister.isMeasuring() &&    // not performing a temp/humidity/ pressure
         subMeasureIndex.getRegisterValue() != lastRead;// device has incremented the internal counter
   }
 
-  public double getTemperature() throws IOException {
-    doMeasurements();
-    return temperature;
-  }
-
-  public double getHumidity() throws IOException {
-    doMeasurements();
-    return humidity;
-  }
-
-  public double getPressure() throws IOException {
-    doMeasurements();
-    return pressure;
-  }
-
-  public double getGas() throws IOException {
-    doMeasurements();
-    return gasResistance;
-  }
-
-  private void doMeasurements() throws IOException {
+  public void doMeasurements() throws IOException {
     hasData();
     if(!measurementStatusRegister.isReadingGas()) {
       lastRead = subMeasureIndex.getRegisterValue();
       temperature = temperatureMeasurement.getMeasurement(); // Must be performed first to compute t_fine
       humidity = humidityMeasurement.getMeasurement();
       pressure = pressureMeasurement.getMeasurement();
-      gasResistance = gasMeasurement.getMeasurement();
+      gas = gasMeasurement.getMeasurement();
     }
   }
 

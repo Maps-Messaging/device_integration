@@ -20,7 +20,8 @@ public class GasReadingRegister extends MultiByteRegister {
     return buffer[1] & 0b1111;
   }
 
-  public boolean isGasValid() {
+  public boolean isGasValid() throws IOException {
+    reload();
     return (buffer[1] & 0b100000) != 0;
   }
 

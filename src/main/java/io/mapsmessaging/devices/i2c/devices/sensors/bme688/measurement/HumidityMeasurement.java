@@ -16,7 +16,7 @@ public class HumidityMeasurement implements Measurement {
   public HumidityMeasurement(BME688Sensor sensor,
                              int index,
                              HumidityCalibrationData humidityCalibrationData,
-                             TemperatureCalibrationData temperatureCalibrationData) throws IOException {
+                             TemperatureCalibrationData temperatureCalibrationData) {
     humidityRegister = new ValueRegister(sensor, HUMIDITY_ADDRESS[index], "hum_" + index);
     this.humidityCalibrationData = humidityCalibrationData;
     this.temperatureCalibrationData = temperatureCalibrationData;
@@ -38,11 +38,11 @@ public class HumidityMeasurement implements Measurement {
     int calcHum;
 
     tempScaled = ((int) (tFine * 5 + 128) >> 8);
-    var1 = (int) (rawHumidity - ((int) (humidityCalibrationData.getParH1() * 16))) -
+    var1 = (int) (rawHumidity - ((humidityCalibrationData.getParH1() * 16))) -
         ((tempScaled * humidityCalibrationData.getParH3() / 100) >> 1);
     var2 = (humidityCalibrationData.getParH2()
         * ((tempScaled * humidityCalibrationData.getParH4() / 100)
-        + ((tempScaled * ((tempScaled * humidityCalibrationData.getParH5() / 100)) >> 6) / 100)
+        + ((tempScaled * ((tempScaled * humidityCalibrationData.getParH5()) / 100) >> 6) / 100)
         + (1 << 14))) >> 10;
     var3 = var1 * var2;
     var4 = humidityCalibrationData.getParH6() << 7;

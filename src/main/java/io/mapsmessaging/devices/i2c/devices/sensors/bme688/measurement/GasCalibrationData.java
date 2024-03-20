@@ -26,7 +26,6 @@ public class GasCalibrationData {
   private int heatRange;
   @Getter
   private int heatVal;
-
   
   private boolean loaded;
 

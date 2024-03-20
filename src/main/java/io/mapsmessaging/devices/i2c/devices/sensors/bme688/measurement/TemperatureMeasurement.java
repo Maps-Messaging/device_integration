@@ -17,16 +17,20 @@ public class TemperatureMeasurement implements Measurement {
   }
 
   public double getMeasurement() throws IOException {
-    int rawTemp = temperatureMeasurementRegister.getValue();
-    int parT1 = temperatureCalibrationData.getParT1();
+    int tempAdc = temperatureMeasurementRegister.getValue();
+    long parT1 = temperatureCalibrationData.getParT1();
     int parT2 = temperatureCalibrationData.getParT2();
-    int parT3 = temperatureCalibrationData.getParT3();
+    long parT3 = temperatureCalibrationData.getParT3();
 
-    int var1 = (rawTemp >> 3) - (parT1 << 1);
-    int var2 = (var1 * parT2) >> 11;
-    int var3 = ((((var1 >>1 ) * (var1 >>1))>>12) * ( parT3 <<4)) >> 14;
-    int tFine = var2 + var3;
+    long var1 = (tempAdc >> 3) - (parT1 << 1);
+    long var2 = ((var1 * parT2) >> 11) & 0xffffffffL;
+    long var3 = ((((var1 >>1 ) * (var1 >>1))>>12) * ( parT3 <<4)) >> 14;
+    int tFine = (int)((var2 + var3)&0xffffffffL);
     temperatureCalibrationData.setTFine(tFine);
-    return (((tFine * 5) + 128) >> 8) /100.0;
+    int ambientAir = (((tFine * 5) + 128) >> 8);
+    temperatureCalibrationData.setAmbientAir(ambientAir);
+    double resp = ambientAir;
+
+    return resp/100.0;
   }
 }

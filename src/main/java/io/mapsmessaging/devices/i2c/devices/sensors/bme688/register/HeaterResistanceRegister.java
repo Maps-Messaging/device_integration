@@ -20,7 +20,7 @@ public class HeaterResistanceRegister extends MultiByteRegister {
 
   public void setHeaterResistance(int idx, byte val) throws IOException {
     buffer[idx] = val;
-    sensor.write(address, buffer);
+    sensor.write(address+idx, val);
   }
 
   @Override

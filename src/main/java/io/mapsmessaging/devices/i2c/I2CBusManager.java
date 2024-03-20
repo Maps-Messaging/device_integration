@@ -199,7 +199,17 @@ public class I2CBusManager {
         device.read(buf, 0, 1);
         TimeUnit.MILLISECONDS.sleep(20);
       }
-      TimeUnit.MILLISECONDS.sleep(1);
+      else if(addr == 0x62){ // special case for the SCD41 device
+        byte[] req = {0x36, (byte)0x82};
+        device.write(req);
+        TimeUnit.MILLISECONDS.sleep(1);
+        byte[] response = new byte[9];
+        int read = device.read(response);
+        if(read == 9) return true;
+      }
+      else {
+        TimeUnit.MILLISECONDS.sleep(1);
+      }
       return device.read(buf, 0, 1) == 1;
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
