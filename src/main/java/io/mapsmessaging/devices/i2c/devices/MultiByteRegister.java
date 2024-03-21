@@ -20,6 +20,7 @@ import io.mapsmessaging.devices.i2c.I2CDevice;
 import lombok.Getter;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @Getter
 public class MultiByteRegister extends Register {
@@ -33,6 +34,7 @@ public class MultiByteRegister extends Register {
 
   @Override
   public void reload() throws IOException {
+    Arrays.fill(buffer, (byte)0);
     sensor.readRegister(address, buffer);
   }
 

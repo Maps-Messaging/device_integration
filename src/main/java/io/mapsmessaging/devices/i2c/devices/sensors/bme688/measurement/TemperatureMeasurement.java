@@ -11,26 +11,25 @@ public class TemperatureMeasurement implements Measurement {
   private final LargeValueRegister temperatureMeasurementRegister;
   private final TemperatureCalibrationData temperatureCalibrationData;
 
-  public TemperatureMeasurement(BME688Sensor sensor, int index, TemperatureCalibrationData temperatureCalibrationData) throws IOException {
+  public TemperatureMeasurement(BME688Sensor sensor, int index, CalibrationData calibrationData) {
     temperatureMeasurementRegister = new LargeValueRegister(sensor, TEMPERATURE_ADDRESS[index], "temp_" + index);
-    this.temperatureCalibrationData = temperatureCalibrationData;
+    this.temperatureCalibrationData = calibrationData.getTemperatureCalibrationData();
   }
 
   public double getMeasurement() throws IOException {
     int tempAdc = temperatureMeasurementRegister.getValue();
-    long parT1 = temperatureCalibrationData.getParT1();
+    int parT1 = temperatureCalibrationData.getParT1();
     int parT2 = temperatureCalibrationData.getParT2();
-    long parT3 = temperatureCalibrationData.getParT3();
+    int parT3 = temperatureCalibrationData.getParT3();
 
-    long var1 = (tempAdc >> 3) - (parT1 << 1);
-    long var2 = ((var1 * parT2) >> 11) & 0xffffffffL;
-    long var3 = ((((var1 >>1 ) * (var1 >>1))>>12) * ( parT3 <<4)) >> 14;
-    int tFine = (int)((var2 + var3)&0xffffffffL);
+    int var1 = (tempAdc >> 3) - (parT1 << 1);
+    int var2 = (var1 * parT2) >> 11;
+    int var3 = ((var1 >> 1) * (var1 >> 1)) >> 12;
+    var3 = ((var3) * (parT3 << 4)) >> 14;
+    int tFine = (var2 + var3);
+    int calcemp = (((tFine * 5) + 128) >> 8);
     temperatureCalibrationData.setTFine(tFine);
-    int ambientAir = (((tFine * 5) + 128) >> 8);
-    temperatureCalibrationData.setAmbientAir(ambientAir);
-    double resp = ambientAir;
-
-    return resp/100.0;
+    temperatureCalibrationData.setAmbientAir(calcemp);
+    return calcemp/100.0;
   }
 }

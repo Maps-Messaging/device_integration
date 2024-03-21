@@ -15,12 +15,10 @@ public class PressureMeasurement implements Measurement {
 
   public PressureMeasurement(BME688Sensor sensor,
                              int index,
-                             PressureCalibrationData pressureCalibrationData,
-                             TemperatureCalibrationData temperatureCalibrationData
-  ) {
+                             CalibrationData calibrationData) {
     pressureMeasurementRegister = new LargeValueRegister(sensor, PRESSURE_ADDRESSES[index], "pres_adc_" + index);
-    this.pressureCalibrationData = pressureCalibrationData;
-    this.temperatureCalibrationData = temperatureCalibrationData;
+    this.pressureCalibrationData = calibrationData.getPressureCalibrationData();
+    this.temperatureCalibrationData = calibrationData.getTemperatureCalibrationData();
   }
 
   @Override
@@ -38,48 +36,16 @@ public class PressureMeasurement implements Measurement {
     int parP10 = pressureCalibrationData.getParP10();
     int tFine = temperatureCalibrationData.getTFine();
 
-    float var1;
-    float var2;
-    float var3;
-    float calcPres;
-
-    var1 = (tFine / 2.0f) - 64000.0f;
-    var2 = var1 * var1 * (parP6 / 131072.0f);
-    var2 = var2 + (var1 * parP5 * 2.0f);
-    var2 = (var2 / 4.0f) + ((parP4) * 65536.0f);
-
-    var1 = (((parP3 * var1 * var1) / 16384.0f) + (parP2 * var1)) / 524288.0f;
-    var1 = (1.0f + (var1 / 32768.0f)) * parP1;
-    calcPres = 1048576.0f - presAdc;
-
-    // Avoid exception caused by division by zero
-    if ((int) var1 != 0) {
-      calcPres = ((calcPres - (var2 / 4096.0f)) * 6250.0f) / var1;
-      var1 = (parP9 * calcPres * calcPres) / 2147483648.0f;
-      var2 = calcPres * (parP8 / 32768.0f);
-      var3 = (calcPres / 256.0f) * (calcPres / 256.0f) * (calcPres / 256.0f) * (parP10 / 131072.0f);
-      calcPres = calcPres + (var1 + var2 + var3 + (parP7 * 128.0f)) / 16.0f;
-    } else {
-      calcPres = 0;
-    }
-    long intComp = calculatePressure(presAdc, pressureCalibrationData, tFine);
-    return intComp/100.0;
-  }
-
-  public long calculatePressure(long presAdc, PressureCalibrationData calib, int tFine) {
-    int var1, var2, var3;
-    long pressureComp;
     final int presOvfCheck = 0x40000000;
-
     // Assuming CalibrationData is a class that holds calibration values.
-    var1 = (((tFine) >> 1) - 64000);
-    var2 = ((((var1 >> 2) * (var1 >> 2)) >> 11) * calib.getParP6()) >> 2;
-    var2 = var2 + ((var1 * calib.getParP5()) << 1);
-    var2 = (var2 >> 2) + (calib.getParP4() << 16);
-    var1 = (((var1 >> 2) * (var1 >> 2)) >> 13) * (calib.getParP3() << 5);
-    var1 = ((var1 >> 3) + ((calib.getParP2() * var1) >> 1)) >> 18;
-    var1 = (((32768 + var1) * calib.getParP1()) >> 15);
-    pressureComp = 1048576 - presAdc;
+    int var1 = (((tFine) >> 1) - 64000);
+    int var2 = ((((var1 >> 2) * (var1 >> 2)) >> 11) * parP6) >> 2;
+    var2 = var2 + ((var1 * parP5) << 1);
+    var2 = (var2 >> 2) + (parP4 << 16);
+    var1 = (((var1 >> 2) * (var1 >> 2)) >> 13) * (parP3 << 5);
+    var1 = ((var1 >> 3) + ((parP2 * var1) >> 1)) >> 18;
+    var1 = (((32768 + var1) * parP1) >> 15);
+    int  pressureComp = 1048576 - presAdc;
     pressureComp = ((pressureComp - (var2 >> 12)) * (3125));
     if (pressureComp < presOvfCheck) {
       pressureComp = (pressureComp << 1) / var1;
@@ -87,11 +53,11 @@ public class PressureMeasurement implements Measurement {
       pressureComp = (pressureComp / var1) << 1;
     }
 
-    var3 = (int)(((pressureComp >> 3) * (pressureComp >> 3)) >> 13) * (calib.getParP9() >> 12);
-    var2 =  (int)(((pressureComp >> 2) * (calib.getParP8())) >> 13);
-    var3 +=  (int)((pressureComp >> 8) * (pressureComp >> 8) * (pressureComp >> 8) * (calib.getParP10() >> 17));
-    pressureComp += (var3 + var2 + (calib.getParP7() << 7)) >> 4;
-
-    return pressureComp;
+    int var3 = (((pressureComp >> 3) * (pressureComp >> 3)) >> 13) * (parP9 >> 12);
+    var2 =  (((pressureComp >> 2) * (parP8)) >> 13);
+    var3 +=  ((pressureComp >> 8) * (pressureComp >> 8) * (pressureComp >> 8) * (parP10 >> 17));
+    pressureComp += (var3 + var2 + (parP7 << 7)) >> 4;
+    return pressureComp/100.0;
   }
+
 }

@@ -15,49 +15,49 @@ public class HumidityMeasurement implements Measurement {
 
   public HumidityMeasurement(BME688Sensor sensor,
                              int index,
-                             HumidityCalibrationData humidityCalibrationData,
-                             TemperatureCalibrationData temperatureCalibrationData) {
+                             CalibrationData calibrationData){
     humidityRegister = new ValueRegister(sensor, HUMIDITY_ADDRESS[index], "hum_" + index);
-    this.humidityCalibrationData = humidityCalibrationData;
-    this.temperatureCalibrationData = temperatureCalibrationData;
+    this.humidityCalibrationData = calibrationData.getHumidityCalibrationData();
+    this.temperatureCalibrationData = calibrationData.getTemperatureCalibrationData();
   }
 
   @Override
   public double getMeasurement() throws IOException {
-    humidityCalibrationData.load(); // Ensure calibration data is loaded
-    long rawHumidity = humidityRegister.getValue();
-    long tFine = temperatureCalibrationData.getTFine();
+    int humAdc = humidityRegister.getValue();
+    int tFine = temperatureCalibrationData.getTFine();
+    int parH1 = humidityCalibrationData.getParH1();
+    int parH2 = humidityCalibrationData.getParH2();
+    int parH3 = humidityCalibrationData.getParH3();
+    int parH4 = humidityCalibrationData.getParH4();
+    int parH5 = humidityCalibrationData.getParH5();
+    int parH6 = humidityCalibrationData.getParH6();
+    int parH7 = humidityCalibrationData.getParH7();
 
-    int var1;
-    int var2;
-    int var3;
-    int var4;
-    int var5;
-    int var6;
-    int tempScaled;
-    int calcHum;
 
-    tempScaled = ((int) (tFine * 5 + 128) >> 8);
-    var1 = (int) (rawHumidity - ((humidityCalibrationData.getParH1() * 16))) -
-        ((tempScaled * humidityCalibrationData.getParH3() / 100) >> 1);
-    var2 = (humidityCalibrationData.getParH2()
-        * ((tempScaled * humidityCalibrationData.getParH4() / 100)
-        + ((tempScaled * ((tempScaled * humidityCalibrationData.getParH5()) / 100) >> 6) / 100)
-        + (1 << 14))) >> 10;
-    var3 = var1 * var2;
-    var4 = humidityCalibrationData.getParH6() << 7;
-    var4 = (var4 + (tempScaled * humidityCalibrationData.getParH7() / 100)) >> 4;
-    var5 = ((var3 >> 14) * (var3 >> 14)) >> 10;
-    var6 = (var4 * var5) >> 1;
-    calcHum = (((var3 + var6) >> 10) * 1000) >> 12;
 
-    if (calcHum > 100000) { // Cap at 100%rH
+    int tempScaled = ((tFine * 5) + 128) >> 8;
+    int var1 = (humAdc - (parH1 * 16)) - (((tempScaled * parH3) / (100)) >> 1);
+    int var2 =
+        (parH2 *
+            (((tempScaled * parH4) / (100)) +
+                (((tempScaled * ((tempScaled * parH5) / (100))) >> 6) / (100)) +
+                (1 << 14))) >> 10;
+    int var3 = var1 * var2;
+    int var4 = parH6 << 7;
+    var4 = ((var4) + ((tempScaled * parH7) / (100))) >> 4;
+    int var5 = ((var3 >> 14) * (var3 >> 14)) >> 10;
+    int var6 = (var4 * var5) >> 1;
+    int calcHum = (((var3 + var6) >> 10) * (1000)) >> 12;
+    if (calcHum > 100000) /* Cap at 100%rH */
+    {
       calcHum = 100000;
-    } else if (calcHum < 0) {
+    }
+    else if (calcHum < 0)
+    {
       calcHum = 0;
     }
 
-    return calcHum / 1000.0; // Convert to percentage
+    return calcHum/1000f;
   }
 
 }
