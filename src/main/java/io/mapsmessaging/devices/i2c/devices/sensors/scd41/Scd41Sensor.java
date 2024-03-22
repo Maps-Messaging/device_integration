@@ -94,9 +94,10 @@ public class Scd41Sensor extends I2CDevice implements Sensor, Resetable, PowerMa
     float temperature = readMeasurementRegister.getTemperature();
 
     String airQuality;
-
-    // CO2 level assessment
-    if (co2 <= 1000) {
+    // Adjusting Excellent to reflect current outdoor CO2 levels
+    if (co2 <= 450) {
+      airQuality = "Excellent";
+    } else if (co2 <= 1000) {
       airQuality = "Fresh";
     } else if (co2 <= 2000) {
       airQuality = "Moderate";
@@ -113,6 +114,7 @@ public class Scd41Sensor extends I2CDevice implements Sensor, Resetable, PowerMa
     // Adjustments based on temperature and humidity
     if ((humidity > 60 || humidity < 30) || (temperature > 25 || temperature < 19)) {
       switch (airQuality) {
+        case "Excellent":
         case "Fresh":
           airQuality = "Moderate";
           break;
@@ -123,6 +125,7 @@ public class Scd41Sensor extends I2CDevice implements Sensor, Resetable, PowerMa
           airQuality = "Unhealthy";
           break;
       }
+      // No adjustment for higher categories to avoid overestimating the risk
     }
 
     return airQuality;
