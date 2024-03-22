@@ -34,7 +34,7 @@ public class Scd41Sensor extends I2CDevice implements Sensor, Resetable, PowerMa
   private final SensorConfigurationRegister sensorConfigurationRegister;
   private final List<SensorReading<?>> readings;
 
-  public Scd41Sensor(AddressableDevice device) throws IOException {
+  public Scd41Sensor(AddressableDevice device) {
     super(device, LoggerFactory.getLogger(Scd41Sensor.class));
     dataReadyRegister = new DataReadyRegister(this);
     deviceStateRegister = new DeviceStateRegister(this);
@@ -49,10 +49,10 @@ public class Scd41Sensor extends I2CDevice implements Sensor, Resetable, PowerMa
     tempOffsetRegister = new TempOffsetRegister(this);
     sensorConfigurationRegister = new SensorConfigurationRegister(this);
     powerManagementRegister = new PowerManagementRegister(this);
-    IntegerSensorReading co2Sensor = new IntegerSensorReading("CO2", "ppm", 0, 5000, readMeasurementRegister::getCo2);
-    FloatSensorReading humidity = new FloatSensorReading("Humidity", "%RH", 0, 100.0f, 2, readMeasurementRegister::getHumidity);
-    FloatSensorReading temperature = new FloatSensorReading("Temperature", "°C", -10, 60.0f, 2, readMeasurementRegister::getTemperature);
-    StringSensorReading category = new StringSensorReading("AirQuality", "", this::getAirQuality);
+    IntegerSensorReading co2Sensor = new IntegerSensorReading("CO₂", "ppm", 0, 5000, readMeasurementRegister::getCo2);
+    FloatSensorReading humidity = new FloatSensorReading("humidity", "%RH", 0, 100.0f, 2, readMeasurementRegister::getHumidity);
+    FloatSensorReading temperature = new FloatSensorReading("temperature", "°C", -10, 60.0f, 2, readMeasurementRegister::getTemperature);
+    StringSensorReading category = new StringSensorReading("airQuality", "", this::getAirQuality);
     readings = List.of(co2Sensor, humidity, temperature, category);
     initialise();
   }
