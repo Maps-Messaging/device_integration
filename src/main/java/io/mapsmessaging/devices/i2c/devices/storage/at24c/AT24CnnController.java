@@ -24,7 +24,7 @@ public class AT24CnnController extends I2CDeviceController {
   @Getter
   private final String name = "AT24C32/64";
   @Getter
-  private final String description = "AT24C32/64 eeprom";
+  private final String description = "AT24C32/64/128/256/512 eeprom";
 
   // Used during ServiceLoading
   public AT24CnnController() {
@@ -99,7 +99,6 @@ public class AT24CnnController extends I2CDeviceController {
 
   @Override
   public int[] getAddressRange() {
-    int i2cAddr = 0x57;
-    return new int[]{i2cAddr};
+    return new int[]{0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57};
   }
 }
