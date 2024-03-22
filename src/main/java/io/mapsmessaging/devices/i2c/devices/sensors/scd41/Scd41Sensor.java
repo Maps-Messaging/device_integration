@@ -10,6 +10,7 @@ import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
 import io.mapsmessaging.devices.sensorreadings.IntegerSensorReading;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
+import io.mapsmessaging.devices.sensorreadings.StringSensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
@@ -51,11 +52,12 @@ public class Scd41Sensor extends I2CDevice implements Sensor, Resetable, PowerMa
     IntegerSensorReading co2Sensor = new IntegerSensorReading("CO2", "ppm", 0, 5000, readMeasurementRegister::getCo2);
     FloatSensorReading humidity = new FloatSensorReading("Humidity", "%RH", 0, 100.0f, 2, readMeasurementRegister::getHumidity);
     FloatSensorReading temperature = new FloatSensorReading("Temperature", "°C", -10, 60.0f, 2, readMeasurementRegister::getTemperature);
-    readings = List.of(co2Sensor, humidity, temperature);
+    StringSensorReading category = new StringSensorReading("AirQuality", "", this::getAirQuality);
+    readings = List.of(co2Sensor, humidity, temperature, category);
     initialise();
   }
 
-  private void initialise() throws IOException {
+  private void initialise() {
     periodicMeasurementRegister.startPeriodicMeasurement();
     asceRegister.setASCEState(false); // If used in doors this will stop it from resetting baseline to 400ppm
   }
@@ -85,6 +87,47 @@ public class Scd41Sensor extends I2CDevice implements Sensor, Resetable, PowerMa
     deviceStateRegister.reInitialize();
     initialise();
   }
+
+  public String getAirQuality(){
+    int co2 = readMeasurementRegister.getCo2();
+    float humidity = readMeasurementRegister.getHumidity();
+    float temperature = readMeasurementRegister.getTemperature();
+
+    String airQuality;
+
+    // CO2 level assessment
+    if (co2 <= 1000) {
+      airQuality = "Fresh";
+    } else if (co2 <= 2000) {
+      airQuality = "Moderate";
+    } else if (co2 <= 2500) {
+      airQuality = "Stuffy/Unhealthy for Sensitive Groups";
+    } else if (co2 <= 5000) {
+      airQuality = "Unhealthy";
+    } else if (co2 <= 10000) {
+      airQuality = "Very Unhealthy";
+    } else {
+      airQuality = "Hazardous";
+    }
+
+    // Adjustments based on temperature and humidity
+    if ((humidity > 60 || humidity < 30) || (temperature > 25 || temperature < 19)) {
+      switch (airQuality) {
+        case "Fresh":
+          airQuality = "Moderate";
+          break;
+        case "Moderate":
+          airQuality = "Stuffy/Unhealthy for Sensitive Groups";
+          break;
+        case "Stuffy/Unhealthy for Sensitive Groups":
+          airQuality = "Unhealthy";
+          break;
+      }
+    }
+
+    return airQuality;
+  }
+
 
   @Override
   public DeviceType getType() {
