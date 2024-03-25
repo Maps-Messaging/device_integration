@@ -35,9 +35,9 @@ public class GasCalibrationData {
     }
 
     // Assuming getters for calibration parameters (parGh1, parGh2, parGh3, ambTemp, resHeatRange, and resHeatVal) are defined in GasCalibrationData
-    var1 = (((double) parG1 / 16.0) + 49.0);
-    var2 = ((((double) parG2 / 32768.0) * 0.0005) + 0.00235);
-    var3 = ((double) parG3 / 1024.0);
+    var1 = (( parG1 / 16.0) + 49.0);
+    var2 = ((( parG2 / 32768.0) * 0.0005) + 0.00235);
+    var3 = ( parG3 / 1024.0);
     var4 = (var1 * (1.0 + (var2 * desiredTemp)));
     var5 = (var4 + (var3 * ambientTemp));
     resHeat = (int) (3.4 *

@@ -140,7 +140,8 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
     gasWaitRegisters[0].setTimerSteps(52); // 100ms
     gasWaitRegisters[0].setMultiplicationFactor(1);
     gasWaitRegisters[0].updateRegister();
-    heaterResistanceRegister.setHeaterResistance(0, (byte)0x74);
+    byte val = (byte)(calibrationData.getGasCalibrationData().calcResHeat(350, 26) & 0xff);
+    heaterResistanceRegister.setHeaterResistance(0, val);
 
     controlGas1Register.setNbConv(HeaterStep.NONE);
     controlGas1Register.setRunGas(true);
