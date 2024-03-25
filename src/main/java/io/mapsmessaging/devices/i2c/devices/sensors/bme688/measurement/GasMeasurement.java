@@ -19,9 +19,10 @@ public class GasMeasurement implements Measurement {
     if (gasReadingRegister.isGasValid()) {
       long gasResAdc = gasReadingRegister.getGasReading();
       int gasRange = gasReadingRegister.getGasRange();
-      double var1 = 262144 >> gasRange;
-      double var2 = 4096.0 + (gasResAdc - 512)*3;
-      return ((10000 * var1)/var2) * 100;
+
+      long var1 = 0x40000 >> gasRange;
+      double dVar2 = 0x1000 + ( ( gasResAdc - 0x200 ) * 3f );
+      return 1000000.0f * var1 /dVar2;
     }
     return Double.NaN;
   }
