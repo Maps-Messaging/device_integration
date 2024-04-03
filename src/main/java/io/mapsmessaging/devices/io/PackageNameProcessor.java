@@ -1,13 +1,12 @@
 package io.mapsmessaging.devices.io;
 
-import lombok.Getter;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@SuppressWarnings("java:S6548") // yes it is a singleton
 public class PackageNameProcessor {
 
-  public static final String[][] MAPPING = {
+  protected static final String[][] MAPPING = {
       {"io.mapsmessaging.devices.i2c.devices.sensors.", "#i2c_snr#"},
       {"io.mapsmessaging.devices.i2c.devices.rtc.", "#i2c_rtc#"},
       {"io.mapsmessaging.devices.i2c.devices.output.", "#i2c_out#"},
@@ -17,8 +16,16 @@ public class PackageNameProcessor {
       {"io.mapsmessaging.devices.onewire.devices.", "#1wire#"},
   };
 
-  @Getter
-  private static final PackageNameProcessor instance = new PackageNameProcessor();
+  private static class Holder {
+    private static final PackageNameProcessor INSTANCE = new PackageNameProcessor();
+  }
+
+  // Global access point to get the Singleton instance
+  public static PackageNameProcessor getInstance() {
+    return Holder.INSTANCE;
+  }
+
+
   private final Map<String, String> byPackageName;
 
   private PackageNameProcessor() {
@@ -47,7 +54,9 @@ public class PackageNameProcessor {
       if (id.startsWith(entry.getValue())) {
         id = entry.getKey() + id.substring(entry.getValue().length());
         int idx = id.indexOf("@");
-        id = id.substring(0, idx) + ".data." + id.substring(idx + 1);
+        if( idx >=0) {
+          id = id.substring(0, idx) + ".data." + id.substring(idx + 1);
+        }
       }
     }
     return id;
