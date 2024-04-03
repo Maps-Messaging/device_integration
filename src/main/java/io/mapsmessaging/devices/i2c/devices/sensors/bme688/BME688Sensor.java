@@ -135,8 +135,6 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
     controlMeasurementRegister.setPressureOversampling(Oversampling.X2);
     controlMeasurementRegister.updateRegister();
 
-    //configRegister.setFilterSize(FilterSize.SIZE_127);
-    // Set the heater details
     gasWaitRegisters[0].setTimerSteps(52); // 100ms
     gasWaitRegisters[0].setMultiplicationFactor(1);
     gasWaitRegisters[0].updateRegister();

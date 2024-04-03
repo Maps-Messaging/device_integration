@@ -19,7 +19,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.lps35.registers;
 import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
-import io.mapsmessaging.devices.i2c.devices.sensors.lps35.data.FiFoStatusData;
+import io.mapsmessaging.devices.i2c.devices.sensors.lps35.data.FiFoStatusData35;
 
 import java.io.IOException;
 
@@ -43,7 +43,7 @@ public class FiFoStatusRegister extends SingleByteRegister {
 
   @Override
   public RegisterData toData() {
-    return new FiFoStatusData(hasHitThreshold(), isOverwritten(), getSize());
+    return new FiFoStatusData35(hasHitThreshold(), isOverwritten(), getSize());
   }
 
 

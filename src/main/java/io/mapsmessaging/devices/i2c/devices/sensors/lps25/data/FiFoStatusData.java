@@ -5,15 +5,16 @@ import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.io.TypeNameResolver;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @JsonTypeIdResolver(value = TypeNameResolver.class)
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @ToString
 public class FiFoStatusData implements RegisterData {
-  private final boolean hitThreshold;
-  private final boolean isOverwritten;
-  private final int size;
-
+  private boolean hitThreshold;
+  private boolean isOverwritten;
+  private int size;
 }

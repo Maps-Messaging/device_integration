@@ -17,7 +17,6 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.bme688;
 
 import io.mapsmessaging.devices.DeviceType;
-import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
@@ -25,8 +24,6 @@ import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
-import org.everit.json.schema.NumberSchema;
-import org.everit.json.schema.ObjectSchema;
 
 import java.io.IOException;
 
@@ -86,28 +83,12 @@ public class BME688Controller extends I2CDeviceController {
   }
 
   private String buildSchema() {
-    ObjectSchema.Builder updateSchema = ObjectSchema.builder()
-        .addPropertySchema("temperature",
-            NumberSchema.builder()
-                .minimum(-40.0)
-                .maximum(80.0)
-                .description("Temperature")
-                .build()
-        )
-        .addPropertySchema("pressure",
-            NumberSchema.builder()
-                .minimum(0.0)
-                .maximum(100.0)
-                .description("Humidity")
-                .build()
-        );
-
-    ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
-    schemaBuilder
-        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, updateSchema.build())
-        .description("VOC, Humidity, pressure and Temperature Module")
-        .title("BME688");
-
-    return schemaToString(schemaBuilder.build());
+    JsonSchemaConfig config = new JsonSchemaConfig();
+    config.setComments("i2c device BME688  VOC, Pressure, Temperature and humidity Sensor");
+    config.setSource(getName());
+    config.setVersion("1.0");
+    config.setResourceType("sensor");
+    config.setInterfaceDescription("Returns JSON object containing VOC, Pressure, Temperature and humidity");
+    return config.toString();
   }
 }
