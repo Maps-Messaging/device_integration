@@ -85,7 +85,7 @@ public class Lps35Sensor extends I2CDevice implements Sensor, Resetable {
   }
 
   private void initialise() throws IOException {
-    control1Register.setDataRate(DataRate.RATE_10_HZ);
+    control1Register.setDataRate(DataRate.RATE_1_HZ);
   }
 
   @Override
