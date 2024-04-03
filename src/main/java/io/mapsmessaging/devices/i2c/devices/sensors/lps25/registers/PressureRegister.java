@@ -38,6 +38,7 @@ public class PressureRegister extends MultiByteRegister {
     if ((raw & 0x800000) != 0) {
       raw = raw - 0xFFFFFF;
     }
-    return raw / 4096.0f;
+    float v = raw;
+    return v / 4096.0f;
   }
 }

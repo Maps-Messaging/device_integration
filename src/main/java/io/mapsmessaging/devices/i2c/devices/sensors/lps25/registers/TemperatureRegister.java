@@ -37,7 +37,8 @@ public class TemperatureRegister extends MultiByteRegister {
     if ((raw & 0x8000) != 0) {
       raw = raw - 0xFFFF;
     }
-    return raw / 480.0f + 42.5f;
+    float r = raw;
+    return r / 480.0f + 42.5f;
   }
 }
 
