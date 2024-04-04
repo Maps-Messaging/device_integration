@@ -28,9 +28,9 @@ public class Control2 extends SingleByteRegister {
   private static final byte CONTROL_REGISTER2 = 0x21;
 
   private static final byte BOOT = (byte) 0b10000000;
-  private static final byte FIFO_ENABLED = 0b01000000;
+  private static final byte FIFO_ENABLED           = 0b01000000;
   private static final byte STOP_ON_FIFO_THRESHOLD = 0b00100000;
-
+  private static final byte FIFO_MEAN_DEC = 0b10000;
   private static final byte RESET = 0b00000100;
   private static final byte ENABLE_AUTO_ZERO = 0b00000010;
   private static final byte ENABLE_ONE_SHOT = 0b00000001;
@@ -54,6 +54,17 @@ public class Control2 extends SingleByteRegister {
   public boolean isFiFoEnabled() {
     return (registerValue & FIFO_ENABLED) != 0;
   }
+
+
+  public void setFiFoMeanDec(boolean flag) throws IOException {
+    int value = flag ? FIFO_MEAN_DEC : 0;
+    setControlRegister(~FIFO_MEAN_DEC, value);
+  }
+
+  public boolean isFiFoMeanDecEnabled() {
+    return (registerValue & FIFO_MEAN_DEC) != 0;
+  }
+
 
   public void enableStopFiFoOnThreshold(boolean flag) throws IOException {
     int value = flag ? STOP_ON_FIFO_THRESHOLD : 0;

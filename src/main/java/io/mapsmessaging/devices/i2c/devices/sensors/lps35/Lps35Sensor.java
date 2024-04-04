@@ -77,14 +77,16 @@ public class Lps35Sensor extends I2CDevice implements Sensor, Resetable {
     FloatSensorReading pressureReading = new FloatSensorReading("pressure", "hPa", 260, 1260, 0, this::getPressure);
     FloatSensorReading temperatureReading = new FloatSensorReading("temperature", "C", -30, 70, 1, this::getTemperature);
     readings = List.of(pressureReading, temperatureReading);
-    initialise();
+    if(whoAmIRegister.getWhoAmI() == 0b10110001){
+      initialise();
+    }
   }
 
   public static int getId(AddressableDevice device) {
     return device.readRegister(WHO_AM_I);
   }
 
-  private void initialise() throws IOException {
+  protected void initialise() throws IOException {
     control1Register.setDataRate(DataRate.RATE_1_HZ);
   }
 

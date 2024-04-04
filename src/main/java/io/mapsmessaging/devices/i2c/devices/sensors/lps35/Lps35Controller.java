@@ -3,6 +3,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.lps35;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
+import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -26,7 +27,9 @@ public class Lps35Controller extends I2CDeviceController {
 
   public Lps35Controller(AddressableDevice device) throws IOException {
     super(device);
-    sensor = new Lps35Sensor(device);
+    synchronized (I2CDeviceScheduler.getI2cBusLock()) {
+      sensor = new Lps35Sensor(device);
+    }
   }
 
   public I2CDevice getDevice() {
@@ -62,7 +65,7 @@ public class Lps35Controller extends I2CDeviceController {
 
   @Override
   public int[] getAddressRange() {
-    int i2cAddr = 0x5D;
+    int i2cAddr = 0x5E;
     return new int[]{i2cAddr};
   }
 }

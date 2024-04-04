@@ -38,7 +38,7 @@ public class Scd41Controller extends I2CDeviceController {
 
   @Override
   public boolean canDetect() {
-    return true;
+    return sensor.getGetSerialNumberRegister().getSerialNumber() != 0;
   }
 
   @Override

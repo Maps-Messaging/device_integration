@@ -52,6 +52,12 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
   @Getter
   private final List<SensorReading<?>> readings;
 
+  private float pressure;
+  private float temperature;
+
+  private int counter;
+  private DataRate dataRate;
+
   public Lps25Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(Lps25Sensor.class));
     control1 = new Control1(this);
@@ -70,16 +76,21 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
     whoAmIRegister = new WhoAmIRegister(this);
     pressureOffset = new PressureOffset(this);
     resolutionRegister = new ResolutionRegister(this);
-    FloatSensorReading pressureReading = new FloatSensorReading("pressure", "hPa", 260, 1260, 0, this::getPressure);
-    FloatSensorReading temperatureReading = new FloatSensorReading("temperature", "C", -30, 70, 1, this::getTemperature);
+    FloatSensorReading pressureReading = new FloatSensorReading("pressure", "hPa", 260, 1260, 1, this::getPressure);
+    FloatSensorReading temperatureReading = new FloatSensorReading("temperature", "°C", -30, 70, 1, this::getTemperature);
     readings = List.of(pressureReading, temperatureReading);
-    initialise();
+    if(whoAmIRegister.getWhoAmI() == 0b10111101){
+      initialise();
+    }
   }
 
   private void initialise() throws IOException {
+    counter =0;
+    reset();
     softReset();
     setPowerDownMode(true);
-    getControl1().setDataRate(DataRate.RATE_1_HZ);
+    control1.setDataRate(DataRate.RATE_7_HZ);
+    dataRate = DataRate.RATE_7_HZ;
   }
 
   public static int getId(AddressableDevice device) {
@@ -126,28 +137,35 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
 
   //region Pressure Out Registers
   protected float getPressure() throws IOException {
-    int count = 0;
-    if (!control1.getDataRate().equals(DataRate.RATE_ONE_SHOT)) {
-      while (!statusRegister.isPressureDataAvailable() && count < 10000) {
-        delay(1);
-        count++;
-      }
+    if(counter > 30){
+      initialise();
     }
-    return pressureRegister.getPressure();
+    if (!control1.getDataRate().equals(DataRate.RATE_ONE_SHOT) &&
+      !statusRegister.isPressureDataAvailable()){
+      counter++;
+      return pressure;
+    }
+    pressure = pressureRegister.getPressure();
+    if(pressure > 2047){
+      counter++;
+    }
+    else{
+      counter = 0;
+    }
+    return pressure;
   }
   //endregion
 
   //region Temperature Out Registers
   protected float getTemperature() throws IOException {
-    if (!control1.getDataRate().equals(DataRate.RATE_ONE_SHOT)) {
-      int count = 0;
-      while (!statusRegister.isTemperatureDataAvailable() && count < 10000) {
-        delay(1);
-        count++;
-      }
+    if (!control1.getDataRate().equals(DataRate.RATE_ONE_SHOT) &&
+      !statusRegister.isTemperatureDataAvailable()){
+      return temperature;
     }
-    return temperatureRegister.getTemperature();
+    temperature = temperatureRegister.getTemperature();
+    return temperature;
   }
+
   //endregion
   @Override
   public DeviceType getType() {
