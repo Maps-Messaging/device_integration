@@ -86,9 +86,18 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
 
   private void initialise() throws IOException {
     counter =0;
+    control1.setPowerDownMode(false);
+    delay(10);
     reset();
+    delay(100);
     softReset();
-    setPowerDownMode(true);
+    delay(100);
+    control1.setPowerDownMode(true);
+    delay(100);
+    pressureOffset.setPressureOffset(0);
+    referencePressureRegister.setReference(0);
+    thresholdPressureRegister.setThreshold(0.0f);
+    control1.resetAutoZero(true);
     control1.setDataRate(DataRate.RATE_7_HZ);
     dataRate = DataRate.RATE_7_HZ;
   }
@@ -137,7 +146,7 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
 
   //region Pressure Out Registers
   protected float getPressure() throws IOException {
-    if(counter > 30){
+    if(counter > 20){
       initialise();
     }
     if (!control1.getDataRate().equals(DataRate.RATE_ONE_SHOT) &&
@@ -146,12 +155,6 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
       return pressure;
     }
     pressure = pressureRegister.getPressure();
-    if(pressure > 2047){
-      counter++;
-    }
-    else{
-      counter = 0;
-    }
     return pressure;
   }
   //endregion
@@ -171,5 +174,8 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
   public DeviceType getType() {
     return DeviceType.SENSOR;
   }
+/*
+export CLASSPATH=$MAPS_LIB//commons-logging-1.2.jar:$CLASSPATH
 
+ */
 }

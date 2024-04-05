@@ -47,7 +47,7 @@ public abstract class Register {
   protected void waitForDevice() {
     int count = 0;
     boolean wait = true;
-    while (wait && count < 10) {
+    while (wait && count < 100) {
       try {
         wait = sensor.readRegister(address) > -1;
       } catch (IOException e) {

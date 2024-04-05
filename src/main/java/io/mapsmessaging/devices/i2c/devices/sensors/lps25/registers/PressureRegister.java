@@ -35,8 +35,8 @@ public class PressureRegister extends MultiByteRegister {
   public float getPressure() throws IOException {
     reload();
     int raw = asInt();
-    if ((raw & 0x800000) != 0) {
-      raw |= 0xff000000;
+    if ((raw & 0x00800000) != 0) {
+      raw |=   0xff000000;
     }
     float v = raw;
     return v / 4096.0f;
