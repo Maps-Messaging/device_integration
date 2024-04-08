@@ -38,12 +38,12 @@ public class Scd41Controller extends I2CDeviceController {
 
   @Override
   public boolean canDetect() {
-    return sensor.getGetSerialNumberRegister().getSerialNumber() != 0;
+    return true;
   }
 
   @Override
   public boolean detect(AddressableDevice i2cDevice) {
-    return true;
+    return Scd41Sensor.detect(i2cDevice);
   }
 
   public I2CDeviceController mount(AddressableDevice device) throws IOException {

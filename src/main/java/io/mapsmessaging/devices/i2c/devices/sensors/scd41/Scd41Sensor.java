@@ -5,6 +5,7 @@ import io.mapsmessaging.devices.deviceinterfaces.PowerManagement;
 import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.devices.sensors.scd41.functions.SerialNumberRequest;
 import io.mapsmessaging.devices.i2c.devices.sensors.scd41.registers.*;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
@@ -55,6 +56,11 @@ public class Scd41Sensor extends I2CDevice implements Sensor, Resetable, PowerMa
     StringSensorReading category = new StringSensorReading("airQuality", "", this::getAirQuality);
     readings = List.of(co2Sensor, humidity, temperature, category);
     initialise();
+  }
+
+  public static boolean detect(AddressableDevice device){
+    SerialNumberRequest request = new SerialNumberRequest(device);
+    return request.getSerialNumber() != 0;
   }
 
   private void initialise() {
