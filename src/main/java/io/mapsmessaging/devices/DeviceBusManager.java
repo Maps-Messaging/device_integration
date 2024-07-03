@@ -48,7 +48,8 @@ public class DeviceBusManager {
   public static DeviceBusManager getInstance() {
     return Holder.INSTANCE;
   }
-  private static final String[] PROVIDERS = {"pigpio-i2c", "linuxfs-i2c"};
+
+  private static final String[] PROVIDERS = {"linuxfs-i2c", "pigpio-i2c",};
 
   private final Logger logger = LoggerFactory.getLogger(DeviceBusManager.class);
   private final Context pi4j;
@@ -57,15 +58,12 @@ public class DeviceBusManager {
   private final SpiBusManager spiBusManager;
   private final Pi4JPinManagement pinManagement;
   private final InterruptFactory interruptFactory;
-  private final boolean supportsLengthResponse;
 
   private DeviceBusManager() {
     logger.log(DeviceLogMessage.BUS_MANAGER_STARTUP);
     pi4j = Pi4J.newAutoContext();
-    String provider = getProvider();
-    supportsLengthResponse = provider.equalsIgnoreCase("linuxfs-i2c");
-    I2CProvider i2cProvider = pi4j.provider(provider);
-    logger.log(DeviceLogMessage.BUS_MANAGER_PROVIDER, provider);
+    I2CProvider i2cProvider = pi4j.getI2CProvider();
+    logger.log(DeviceLogMessage.BUS_MANAGER_PROVIDER, i2cProvider.getName());
     i2cBusManager = new I2CBusManager[2];
     for (int x = 0; x < i2cBusManager.length; x++) {
       i2cBusManager[x] = new I2CBusManager(pi4j, i2cProvider, x);
