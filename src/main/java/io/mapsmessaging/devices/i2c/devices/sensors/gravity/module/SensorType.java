@@ -5,19 +5,19 @@ import lombok.Getter;
 @Getter
 public enum SensorType {
 
-  NH3(0x2, "SEN0469", 0, 100, "ppm", 0, 150, new NH3Module(), 10),
-  H2S(0x3, "SEN0467", 0, 100, "ppm", 0, 30, new H2SModule(), 10),
-  CO(0x4, "SEN0466", 0, 1000, "ppm", 0, 30, new COModule(), 50),
-  O2(0x5, "SEN0465", 0, 25, "%Vol", 1, 15, new O2Module(), 195),
-  H2(0x6, "SEN0473", 0, 1000, "ppm", 0, 120, new H2Module(), 50),
-  O3(0x2A, "SEN0472", 0, 10, "ppm", 1, 120, new O3Module(), 50),
-  SO2(0x2B, "SEN0470", 0, 20, "ppm", 1, 30, new SO2Module(), 100),
-  NO2(0x2C, "SEN0471", 0, 20, "ppm", 1, 30, new NO2Module(), 50),
-  HCL(0x2E, "SEN0474", 0, 10, "ppm", 1, 60, new HCLModule(), 50),
-  Cl2(0x31, "SEN0468", 0, 20, "ppm", 1, 60, new Cl2Module(), 50),
-  HF(0x33, "SEN0475", 0, 10, "ppm", 1, 60, new HFModule(), 30),
-  PH3(0x45, "SEN0476", 0, 1000, "ppm", 1, 30, new PH3Module(), 50),
-  UNKNOWN(0x0, "Unknown", 0, 0, "", 0, 0, null, 0);
+  NH3(0x2, "SEN0469", 0, 100, "ppm", 0, 150, new NH3Module(), 10, "NH₃"),
+  H2S(0x3, "SEN0467", 0, 100, "ppm", 0, 30, new H2SModule(), 10, "H₂S"),
+  CO(0x4, "SEN0466", 0, 1000, "ppm", 0, 30, new COModule(), 50, "CO"),
+  O2(0x5, "SEN0465", 0, 25, "%Vol", 1, 15, new O2Module(), 195, "O₂"),
+  H2(0x6, "SEN0473", 0, 1000, "ppm", 0, 120, new H2Module(), 50, "H₂"),
+  O3(0x2A, "SEN0472", 0, 10, "ppm", 1, 120, new O3Module(), 50, "O₃"),
+  SO2(0x2B, "SEN0470", 0, 20, "ppm", 1, 30, new SO2Module(), 100, "SO₂"),
+  NO2(0x2C, "SEN0471", 0, 20, "ppm", 1, 30, new NO2Module(), 50, "NO₂"),
+  HCL(0x2E, "SEN0474", 0, 10, "ppm", 1, 60, new HCLModule(), 50, "HCl"),
+  Cl2(0x31, "SEN0468", 0, 20, "ppm", 1, 60, new Cl2Module(), 50, "Cl₂"),
+  HF(0x33, "SEN0475", 0, 10, "ppm", 1, 60, new HFModule(), 30, "HF"),
+  PH3(0x45, "SEN0476", 0, 1000, "ppm", 1, 30, new PH3Module(), 50, "PH₃"),
+  UNKNOWN(0x0, "Unknown", 0, 0, "", 0, 0, null, 0, "Unknown");
 
   private final int type;
 
@@ -45,14 +45,18 @@ public enum SensorType {
   @Getter
   private final int threshold;
 
+  private final String gasType;
+
   SensorType(int type,
              String sku,
              int min,
              int max,
              String units,
              int resolution,
-             int responseTime, SensorModule sensorModule,
-             int threshold) {
+             int responseTime,
+             SensorModule sensorModule,
+             int threshold,
+             String gasType) {
     this.type = type;
     this.sku = sku;
     this.minimumRange = min;
@@ -62,6 +66,7 @@ public enum SensorType {
     this.responseTime = responseTime;
     this.sensorModule = sensorModule;
     this.threshold = threshold;
+    this.gasType = gasType;
   }
 
 
