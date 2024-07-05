@@ -26,7 +26,10 @@ public class ControlMeasurementRegister extends SingleByteRegister {
   }
 
   public Oversampling getTemperatureOverSampling() {
-    int idx = registerValue >> 5;
+    int idx = (0xff & registerValue) >> 5;
+    if(idx> Oversampling.values().length){
+      return Oversampling.values()[0];
+    }
     return Oversampling.values()[idx];
   }
 

@@ -29,7 +29,7 @@ import java.io.IOException;
 
 public class Msa311Controller extends I2CDeviceController {
 
-  private final int i2cAddr = 0x62;
+  private final int i2cAddr = 0x63;
   private final Msa311Sensor sensor;
 
   @Getter

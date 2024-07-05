@@ -37,8 +37,8 @@ public class Pi4JPinManagement extends PinManagement {
 
   public Pi4JPinManagement(Context pi4J) {
     this.pi4j = pi4J;
-    inputProvider = pi4j.getDigitalInputProvider();
-    outputProvider = pi4J.getDigitalOutputProvider();
+    inputProvider = pi4j.provider("pigpio-digital-input");
+    outputProvider = pi4j.provider("pigpio-digital-output");
   }
 
   @Override

@@ -86,7 +86,7 @@
     <sonar.projectKey>deviceLibrary</sonar.projectKey>
 
     <sonar.sources>src/main</sonar.sources>
-    <pi4j.version>2.6.0</pi4j.version>
+    <pi4j.version>2.4.0</pi4j.version>
     <sonar.test.exclusions>
       **/*Test.*,**/*IT.*, **.*JMH.*
     </sonar.test.exclusions>
@@ -364,35 +364,12 @@
         <artifactId>pi4j-plugin-raspberrypi</artifactId>
         <version>${pi4j.version}</version>
       </dependency>
-
-      <!-- https://mvnrepository.com/artifact/com.pi4j/pi4j-library-gpiod -->
-      <dependency>
-        <groupId>com.pi4j</groupId>
-        <artifactId>pi4j-library-gpiod</artifactId>
-        <version>${pi4j.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.pi4j</groupId>
-        <artifactId>pi4j-plugin-pigpio</artifactId>
-        <version>${pi4j.version}</version>
-      </dependency>
-
-      <!-- https://mvnrepository.com/artifact/com.pi4j/pi4j-plugin-gpiod -->
-      <dependency>
-        <groupId>com.pi4j</groupId>
-        <artifactId>pi4j-plugin-gpiod</artifactId>
-        <version>${pi4j.version}</version>
-      </dependency>
-
-
       <!-- https://mvnrepository.com/artifact/com.pi4j/pi4j-plugin-linuxfs -->
       <dependency>
         <groupId>com.pi4j</groupId>
         <artifactId>pi4j-plugin-linuxfs</artifactId>
         <version>${pi4j.version}</version>
       </dependency>
-
       <!-- https://mvnrepository.com/artifact/com.pi4j/pi4j-library-linuxfs -->
       <dependency>
         <groupId>com.pi4j</groupId>
@@ -402,7 +379,7 @@
 
       <dependency>
         <groupId>com.pi4j</groupId>
-        <artifactId>pi4j-library-pigpio</artifactId>
+        <artifactId>pi4j-plugin-pigpio</artifactId>
         <version>${pi4j.version}</version>
       </dependency>
 

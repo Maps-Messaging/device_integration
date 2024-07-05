@@ -50,13 +50,13 @@ public class Co2Monitor implements Runnable {
 
     for (SensorReading<?> val : device.getReadings()) {
       switch (val.getName()) {
-        case "CO2":
+        case "CO₂":
           co2 = val;
           break;
-        case "Humidity":
+        case "humidity":
           humidity = val;
           break;
-        case "Temperature":
+        case "temperature":
           temp = val;
           break;
       }
