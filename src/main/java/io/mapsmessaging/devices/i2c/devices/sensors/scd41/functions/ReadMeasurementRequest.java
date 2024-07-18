@@ -22,7 +22,7 @@ public class ReadMeasurementRequest extends Request {
     humidity = Float.NaN;
     byte[] response = super.getResponse();
     if(generateCrc(response, 0) == response[2]){
-      co2 = response[0] << 8 | (response[1] & 0xff);
+      co2 = (response[0] & 0xff) << 8 | (response[1] & 0xff);
     }
     if(generateCrc(response, 3) == response[5]){
       temperature = computeTemperature(response[3], response[4]);

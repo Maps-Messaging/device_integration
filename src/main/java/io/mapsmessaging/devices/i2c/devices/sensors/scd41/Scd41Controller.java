@@ -51,7 +51,7 @@ public class Scd41Controller extends I2CDeviceController {
   }
 
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig();
+    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setComments("i2c device SCD-41 CO2 sensor: 400-2000 ppm");
     config.setSource(getName());
     config.setVersion("1.0");
@@ -64,5 +64,41 @@ public class Scd41Controller extends I2CDeviceController {
   public int[] getAddressRange() {
     int i2cAddr = 0x62;
     return new int[]{i2cAddr};
+  }
+
+  private String buildSchema() {
+    return "{\n" +
+        "  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n" +
+        "  \"title\": \"SensorReadings\",\n" +
+        "  \"type\": \"object\",\n" +
+        "  \"properties\": {\n" +
+        "    \"CO₂\": {\n" +
+        "      \"type\": \"integer\",\n" +
+        "      \"description\": \"The CO₂ reading in ppm\",\n" +
+        "      \"minimum\": 400,\n" +
+        "      \"maximum\": 40000\n" +
+        "    },\n" +
+        "    \"humidity\": {\n" +
+        "      \"type\": \"number\",\n" +
+        "      \"description\": \"The humidity reading as a percentage\",\n" +
+        "      \"minimum\": 0,\n" +
+        "      \"maximum\": 100,\n" +
+        "      \"multipleOf\": 0.01\n" +
+        "    },\n" +
+        "    \"temperature\": {\n" +
+        "      \"type\": \"number\",\n" +
+        "      \"description\": \"The temperature reading in degrees Celsius\",\n" +
+        "      \"minimum\": -10,\n" +
+        "      \"maximum\": 60,\n" +
+        "      \"multipleOf\": 0.01\n" +
+        "    },\n" +
+        "    \"airQuality\": {\n" +
+        "      \"type\": \"string\",\n" +
+        "      \"description\": \"The air quality category\"\n" +
+        "    }\n" +
+        "  },\n" +
+        "  \"required\": [\"CO₂\", \"humidity\", \"temperature\", \"airQuality\"],\n" +
+        "  \"additionalProperties\": false\n" +
+        "}\n";
   }
 }
