@@ -20,6 +20,7 @@ import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
+import io.mapsmessaging.devices.util.UuidGenerator;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -81,6 +82,7 @@ public class Mcp23017Controller extends I2CDeviceController {
     JsonSchemaConfig config = new JsonSchemaConfig();
     config.setComments("i2c device MCP32017 16 Pin extender");
     config.setSource(getName());
+    config.setUniqueId(UuidGenerator.getInstance().generateUuid(getName()));
     config.setVersion("1.0");
     config.setResourceType("gpio");
     config.setInterfaceDescription("gpio extender");

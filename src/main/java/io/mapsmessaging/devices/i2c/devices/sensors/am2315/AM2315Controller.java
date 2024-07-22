@@ -21,6 +21,7 @@ import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
+import io.mapsmessaging.devices.util.UuidGenerator;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -93,6 +94,7 @@ public class AM2315Controller extends I2CDeviceController {
     config.setComments("i2c device AM2315 encased Temperature and Humidity Sensor https://www.adafruit.com/product/1293");
     config.setSource("AM2315");
     config.setVersion("1.0");
+    config.setUniqueId(UuidGenerator.getInstance().generateUuid(getName()));
     config.setResourceType("sensor");
     config.setInterfaceDescription("temperature, humidity");
     return config;

@@ -19,6 +19,7 @@ package io.mapsmessaging.devices.onewire.devices.ds18b20;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.onewire.OneWireDeviceController;
+import io.mapsmessaging.devices.util.UuidGenerator;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -61,6 +62,7 @@ public class DS18B20Controller extends OneWireDeviceController {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setComments("1-Wire temperature sensor");
     config.setSource(getName());
+    config.setUniqueId(UuidGenerator.getInstance().generateUuid(getName()));
     config.setVersion("1.0");
     config.setResourceType("sensor");
     config.setInterfaceDescription("Returns JSON object containing temperature, minimum and maximum, Model, Status and Version");
