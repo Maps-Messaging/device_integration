@@ -69,13 +69,13 @@ public class BME688Controller extends I2CDeviceController {
 
 
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
+    JsonSchemaConfig config = new JsonSchemaConfig("{}");
     config.setComments("i2c device BME688 VOC, Pressure, Temperature and humidity Sensor");
     config.setSource(getName());
     config.setVersion("1.0");
     config.setUniqueId(UuidGenerator.getInstance().generateUuid(getName()));
     config.setResourceType("sensor");
-    config.setInterfaceDescription("Returns JSON object containing Temperature and Pressure");
+    config.setInterfaceDescription("Returns JSON object containing Temperature, humidity, Pressure and VOC");
     return config;
   }
 
@@ -84,13 +84,4 @@ public class BME688Controller extends I2CDeviceController {
     return new int[]{i2cAddr};
   }
 
-  private String buildSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig();
-    config.setComments("i2c device BME688  VOC, Pressure, Temperature and humidity Sensor");
-    config.setSource(getName());
-    config.setVersion("1.0");
-    config.setResourceType("sensor");
-    config.setInterfaceDescription("Returns JSON object containing VOC, Pressure, Temperature and humidity");
-    return config.toString();
-  }
 }
