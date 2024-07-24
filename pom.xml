@@ -128,7 +128,7 @@
       <plugin>
         <groupId>org.sonatype.plugins</groupId>
         <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>1.6.13</version>
+        <version>1.7.0</version>
         <extensions>true</extensions>
         <configuration>
           <serverId>mapsmessaging.io</serverId>
@@ -221,12 +221,12 @@
           </execution>
         </executions>
         <groupId>org.apache.maven.plugins</groupId>
-        <version>3.6.3</version>
+        <version>3.8.0</version>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <version>3.5.0</version>
+        <version>3.6.0</version>
         <executions>
           <execution>
             <id>add-test-sources</id>
@@ -296,7 +296,7 @@
           <plugin>
             <groupId>org.sonatype.plugins</groupId>
             <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.13</version>
+            <version>1.7.0</version>
             <extensions>true</extensions>
             <configuration>
               <serverId>mapsmessaging.io</serverId>
@@ -398,7 +398,7 @@
       <dependency>
         <groupId>io.javalin</groupId>
         <artifactId>javalin</artifactId>
-        <version>6.1.4</version>
+        <version>6.2.0</version>
       </dependency>
 
       <!-- https://mvnrepository.com/artifact/com.fasterxml.uuid/java-uuid-generator -->
