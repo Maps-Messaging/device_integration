@@ -86,7 +86,7 @@
     <sonar.projectKey>deviceLibrary</sonar.projectKey>
 
     <sonar.sources>src/main</sonar.sources>
-    <pi4j.version>2.4.0</pi4j.version>
+    <pi4j.version>2.7.0</pi4j.version>
     <sonar.test.exclusions>
       **/*Test.*,**/*IT.*, **.*JMH.*
     </sonar.test.exclusions>
