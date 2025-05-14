@@ -31,7 +31,6 @@ import io.mapsmessaging.devices.i2c.devices.storage.at24c.data.AT24CnnResponse;
 import io.mapsmessaging.devices.i2c.devices.storage.at24c.data.Details;
 import io.mapsmessaging.devices.i2c.devices.storage.at24c.values.ActionType;
 import io.mapsmessaging.devices.impl.AddressableDevice;
-import io.mapsmessaging.devices.util.UuidGenerator;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -115,7 +114,7 @@ public class AT24CnnController extends I2CDeviceController {
     config.setSource(getName());
     config.setVersion("1.0");
     config.setResourceType("storage");
-    config.setUniqueId(UuidGenerator.getInstance().generateUuid(getName()));
+    config.setUniqueId(getSchemaId());
     config.setInterfaceDescription("Serial EEPROM");
     return config;
   }

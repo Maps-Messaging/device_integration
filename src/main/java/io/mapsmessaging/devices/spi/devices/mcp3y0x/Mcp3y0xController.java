@@ -25,7 +25,6 @@ import com.pi4j.io.spi.Spi;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.devices.spi.SpiDeviceController;
-import io.mapsmessaging.devices.util.UuidGenerator;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -117,7 +116,7 @@ public class Mcp3y0xController extends SpiDeviceController {
     config.setSource(getName());
     config.setVersion("1.0");
     config.setResourceType("sensor");
-    config.setUniqueId(UuidGenerator.getInstance().generateUuid(getName()));
+    config.setUniqueId(getSchemaId());
     config.setInterfaceDescription("Returns JSON object containing the latest readings from all channels");
     return config;
   }

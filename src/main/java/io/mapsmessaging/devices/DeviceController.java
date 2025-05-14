@@ -27,6 +27,7 @@ import com.google.gson.JsonObject;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.LocalDateTimeSensorReading;
 import io.mapsmessaging.devices.sensorreadings.*;
+import io.mapsmessaging.devices.util.UuidGenerator;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import org.everit.json.schema.ObjectSchema;
 import org.everit.json.schema.internal.JSONPrinter;
@@ -35,10 +36,32 @@ import org.json.JSONWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class DeviceController {
 
+  private AtomicReference<UUID> uuid;
+
+  protected DeviceController() {
+    uuid = new AtomicReference<>();
+  }
+
   protected static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+  public UUID getSchemaId() {
+    UUID current = uuid.get();
+    if (current == null) {
+      UUID newUuid = UuidGenerator.getInstance().generateUuid(getName());
+      if (uuid.compareAndSet(null, newUuid)) {
+        return newUuid;
+      } else {
+        return uuid.get(); // someone else set it
+      }
+    }
+    return current;
+  }
+
 
   public abstract String getName();
 

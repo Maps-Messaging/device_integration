@@ -25,7 +25,6 @@ import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.impl.AddressableDevice;
-import io.mapsmessaging.devices.util.UuidGenerator;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -83,7 +82,7 @@ public class Msa311Controller extends I2CDeviceController {
     config.setSource(getName());
     config.setVersion("1.0");
     config.setResourceType("sensor");
-    config.setUniqueId(UuidGenerator.getInstance().generateUuid(getName()));
+    config.setUniqueId(getSchemaId());
     config.setInterfaceDescription(description);
     return config;
   }

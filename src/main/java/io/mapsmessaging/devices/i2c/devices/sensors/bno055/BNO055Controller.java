@@ -27,7 +27,6 @@ import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.i2c.devices.sensors.bno055.values.SystemStatus;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.sensorreadings.Orientation;
-import io.mapsmessaging.devices.util.UuidGenerator;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
@@ -117,7 +116,7 @@ public class BNO055Controller extends I2CDeviceController {
     config.setSource(getName());
     config.setVersion("1.0");
     config.setResourceType("sensor");
-    config.setUniqueId(UuidGenerator.getInstance().generateUuid(getName()));
+    config.setUniqueId(getSchemaId());
     config.setInterfaceDescription("Returns JSON object containing Temperature and Pressure");
     return config;
   }
