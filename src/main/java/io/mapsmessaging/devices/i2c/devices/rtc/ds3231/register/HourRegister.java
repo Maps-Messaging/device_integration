@@ -1,3 +1,23 @@
+/*
+ *
+ *  Copyright [ 2020 - 2024 ] [Matthew Buckton]
+ *  Copyright [ 2024 - 2025.  ] [Maps Messaging B.V.]
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
+ */
+
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register;
 
 import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
@@ -9,11 +29,11 @@ import java.io.IOException;
 
 public class HourRegister extends SingleByteRegister {
 
-  private static final int TOP           = 0b10000000;
+  private static final int TOP = 0b10000000;
   private static final int CLOCK_24_MODE = 0b01000000;
-  private static final int AM_PM         = 0b00100000;
-  private static final int TEN_HOURS     = 0b00010000;
-  private static final int HOURS         = 0b00001111;
+  private static final int AM_PM = 0b00100000;
+  private static final int TEN_HOURS = 0b00010000;
+  private static final int HOURS = 0b00001111;
 
   public HourRegister(I2CDevice sensor, int address, String name) throws IOException {
     super(sensor, address, name);

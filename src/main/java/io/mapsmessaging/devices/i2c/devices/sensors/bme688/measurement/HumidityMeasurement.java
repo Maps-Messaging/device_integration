@@ -1,3 +1,23 @@
+/*
+ *
+ *  Copyright [ 2020 - 2024 ] [Matthew Buckton]
+ *  Copyright [ 2024 - 2025.  ] [Maps Messaging B.V.]
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
+ */
+
 package io.mapsmessaging.devices.i2c.devices.sensors.bme688.measurement;
 
 import io.mapsmessaging.devices.i2c.devices.sensors.bme688.BME688Sensor;
@@ -15,7 +35,7 @@ public class HumidityMeasurement implements Measurement {
 
   public HumidityMeasurement(BME688Sensor sensor,
                              int index,
-                             CalibrationData calibrationData){
+                             CalibrationData calibrationData) {
     humidityRegister = new ValueRegister(sensor, HUMIDITY_ADDRESS[index], "hum_" + index);
     this.humidityCalibrationData = calibrationData.getHumidityCalibrationData();
     this.temperatureCalibrationData = calibrationData.getTemperatureCalibrationData();
@@ -34,7 +54,6 @@ public class HumidityMeasurement implements Measurement {
     int parH7 = humidityCalibrationData.getParH7();
 
 
-
     int tempScaled = ((tFine * 5) + 128) >> 8;
     int var1 = (humAdc - (parH1 * 16)) - (((tempScaled * parH3) / (100)) >> 1);
     int var2 =
@@ -48,16 +67,13 @@ public class HumidityMeasurement implements Measurement {
     int var5 = ((var3 >> 14) * (var3 >> 14)) >> 10;
     int var6 = (var4 * var5) >> 1;
     int calcHum = (((var3 + var6) >> 10) * (1000)) >> 12;
-    if (calcHum > 100000) /* Cap at 100%rH */
-    {
+    if (calcHum > 100000) /* Cap at 100%rH */ {
       calcHum = 100000;
-    }
-    else if (calcHum < 0)
-    {
+    } else if (calcHum < 0) {
       calcHum = 0;
     }
 
-    return calcHum/1000f;
+    return calcHum / 1000f;
   }
 
 }

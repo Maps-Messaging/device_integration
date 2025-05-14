@@ -1,17 +1,21 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] [Matthew Buckton]
+ *  Copyright [ 2024 - 2025.  ] [Maps Messaging B.V.]
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
  */
 
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935;
@@ -80,10 +84,37 @@ public class AS3935Sensor extends I2CDevice implements PowerManagement, Sensor, 
       powerOn();
       reset();
     }
+    IntegerSensorReading energySensor = new IntegerSensorReading(
+        "lightning_energy",
+        "arbitrary",
+        "Energy value of the last lightning event",
+        1200,
+        true,
+        0,
+        0xFFFF,
+        this::getEnergy
+    );
 
-    IntegerSensorReading energySensor = new IntegerSensorReading("energy", "", 0, 0xffff, this::getEnergy);
-    IntegerSensorReading distance = new IntegerSensorReading("distance", "km", 0, 0b0111111, this::getDistanceEstimation);
-    StringSensorReading reason = new StringSensorReading("reason", "", this::getInterruptReason);
+    IntegerSensorReading distance = new IntegerSensorReading(
+        "lightning_distance",
+        "km",
+        "Estimated distance to the lightning strike",
+        5,
+        true,
+        0,
+        63,  // 0b0111111
+        this::getDistanceEstimation
+    );
+
+    StringSensorReading reason = new StringSensorReading(
+        "interrupt_reason",
+        "",
+        "Last interrupt reason (e.g., noise, disturber, lightning)",
+        "lightning",
+        true,
+        this::getInterruptReason
+    );
+
     readings = List.of(energySensor, distance, reason);
   }
 

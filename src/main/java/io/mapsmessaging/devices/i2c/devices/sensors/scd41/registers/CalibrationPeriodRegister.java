@@ -1,3 +1,23 @@
+/*
+ *
+ *  Copyright [ 2020 - 2024 ] [Matthew Buckton]
+ *  Copyright [ 2024 - 2025.  ] [Maps Messaging B.V.]
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
+ */
+
 package io.mapsmessaging.devices.i2c.devices.sensors.scd41.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
@@ -8,10 +28,10 @@ import io.mapsmessaging.devices.i2c.devices.sensors.scd41.functions.SetAutoCalib
 
 public class CalibrationPeriodRegister extends RequestRegister {
 
-  private SetAutoCalibrationStandardPeriod setStandardPeriodRequest;
-  private SetAutoCalibrationInitialPeriod setInitialPeriodRequest;
-  private GetAutoCalibrationInitialPeriod getInitialPeriodRequest;
-  private GetAutoCalibrationStandardPeriod getStandardPeriodRequest;
+  private final SetAutoCalibrationStandardPeriod setStandardPeriodRequest;
+  private final SetAutoCalibrationInitialPeriod setInitialPeriodRequest;
+  private final GetAutoCalibrationInitialPeriod getInitialPeriodRequest;
+  private final GetAutoCalibrationStandardPeriod getStandardPeriodRequest;
 
   public CalibrationPeriodRegister(I2CDevice sensor) {
     super(sensor, "CalibrationPeriod", null); // No default request is associated directly.
@@ -21,20 +41,20 @@ public class CalibrationPeriodRegister extends RequestRegister {
     this.getStandardPeriodRequest = new GetAutoCalibrationStandardPeriod(sensor.getDevice());
   }
 
-  public void setStandardPeriod(int period) {
-    setStandardPeriodRequest.setPeriod(period);
+  public int getInitialPeriod() {
+    return getInitialPeriodRequest.getPeriod();
   }
 
   public void setInitialPeriod(int period) {
     setInitialPeriodRequest.setPeriod(period);
   }
 
-  public int getInitialPeriod() {
-    return getInitialPeriodRequest.getPeriod();
-  }
-
   public int getStandardPeriod() {
     return getStandardPeriodRequest.getPeriod();
+  }
+
+  public void setStandardPeriod(int period) {
+    setStandardPeriodRequest.setPeriod(period);
   }
 
 }

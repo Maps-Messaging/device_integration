@@ -1,17 +1,21 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] [Matthew Buckton]
+ *  Copyright [ 2024 - 2025.  ] [Maps Messaging B.V.]
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
  */
 
 package io.mapsmessaging.devices.i2c.devices.sensors.bme688;
@@ -29,6 +33,7 @@ import io.mapsmessaging.devices.i2c.devices.sensors.bme688.values.PowerMode;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
+import io.mapsmessaging.devices.sensorreadings.StringSensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
@@ -57,7 +62,7 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
   @Getter
   private final List<SensorReading<?>> readings;
   private long lastRead = 0;
-  private int readingIndex;
+  private final int readingIndex;
 
   public BME688Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(BME688Sensor.class));
@@ -87,13 +92,55 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
     }
     readingIndex = 0;
 
-    FloatSensorReading temperature = new FloatSensorReading("temperature", "°C", -40, 85, 1, this::getTemperature);
-    FloatSensorReading humidity = new FloatSensorReading("humidity", "%RH", 10, 90, 1, this::getHumidity);
-    FloatSensorReading pressure = new FloatSensorReading("pressure", "hPa", 300, 1100, 1, this::getPressure);
-    FloatSensorReading gas = new FloatSensorReading("gas", "Ω", 0, 0xffff, 1, this::getGas);
-    readings = List.of(temperature, humidity, pressure, gas);
+    FloatSensorReading temperature = new FloatSensorReading(
+        "temperature", "°C", "Temperature from BME688 sensor", 25.0f, true, -40f, 85f, 1, this::getTemperature
+    );
+
+    FloatSensorReading humidity = new FloatSensorReading(
+        "humidity", "%RH", "Relative humidity from BME688 sensor", 50.0f, true, 10f, 90f, 1, this::getHumidity
+    );
+
+    FloatSensorReading pressure = new FloatSensorReading(
+        "pressure", "hPa", "Pressure from BME688 sensor", 1013.25f, true, 300f, 1100f, 1, this::getPressure
+    );
+
+    FloatSensorReading gas = new FloatSensorReading(
+        "gas", "Ω", "Gas resistance from BME688 sensor", 10000.0f, true, 0f, 65535f, 1, this::getGas
+    );
+    StringSensorReading heaterStatus = new StringSensorReading(
+        "heaterStatus",
+        "",
+        "Current heater status (ON/OFF)",
+        "ON",
+        true,
+        this::getHeaterStatus
+    );
+    StringSensorReading gasMode = new StringSensorReading(
+        "gasMode",
+        "",
+        "Current gas sensor profile mode",
+        "profile_0",
+        true,
+        this::getGasProfileMode
+    );
+
+
+    readings = List.of(temperature, humidity, pressure, gas, heaterStatus, gasMode);
+
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       initialise();
+    }
+  }
+
+  private String getGasProfileMode() {
+    return "profile_" + readingIndex;
+  }
+
+  private String getHeaterStatus() {
+    try {
+      return controlGas1Register.isRunGas() ? "ON" : "OFF";
+    } catch (IOException e) {
+      return "ERROR";
     }
   }
 
@@ -138,7 +185,7 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
     gasWaitRegisters[0].setTimerSteps(52); // 100ms
     gasWaitRegisters[0].setMultiplicationFactor(1);
     gasWaitRegisters[0].updateRegister();
-    byte val = (byte)(calibrationData.getGasCalibrationData().calcResHeat(350, 26) & 0xff);
+    byte val = (byte) (calibrationData.getGasCalibrationData().calcResHeat(350, 26) & 0xff);
     heaterResistanceRegister.setHeaterResistance(0, val);
 
     controlGas1Register.setNbConv(HeaterStep.NONE);
@@ -148,7 +195,7 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
     sensorReadings[0].setDataReady(System.currentTimeMillis() + 1000);
   }
 
-  public void startParallelMode() throws IOException{
+  public void startParallelMode() throws IOException {
 
   }
 
@@ -160,28 +207,29 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
 
   public float getTemperature() throws IOException {
     checkState();
-    return (float)(sensorReadings[readingIndex].getTemperature());
+    return (float) (sensorReadings[readingIndex].getTemperature());
   }
 
   public float getPressure() throws IOException {
     checkState();
-    return (float)(sensorReadings[readingIndex].getPressure());
+    return (float) (sensorReadings[readingIndex].getPressure());
   }
 
   public float getHumidity() throws IOException {
     checkState();
-    return (float)(sensorReadings[readingIndex].getHumidity());
+    return (float) (sensorReadings[readingIndex].getHumidity());
   }
+
   public float getGas() throws IOException {
     checkState();
-    return (float)(sensorReadings[readingIndex].getGas());
+    return (float) (sensorReadings[readingIndex].getGas());
   }
 
   private void checkState() throws IOException {
-    if(sensorReadings[readingIndex].getDataReady() < System.currentTimeMillis()){
+    if (sensorReadings[readingIndex].getDataReady() < System.currentTimeMillis()) {
       sensorReadings[readingIndex].doMeasurements();
     }
-    if(lastRead < System.currentTimeMillis()){
+    if (lastRead < System.currentTimeMillis()) {
       lastRead = System.currentTimeMillis() + 1000;
       startForceMode();
     }

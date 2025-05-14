@@ -1,23 +1,27 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] [Matthew Buckton]
+ *  Copyright [ 2024 - 2025.  ] [Maps Messaging B.V.]
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
  */
 
 package io.mapsmessaging.devices.i2c.devices.sensors.am2315;
 
+import com.google.gson.JsonObject;
 import io.mapsmessaging.devices.DeviceType;
-import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
@@ -25,11 +29,8 @@ import io.mapsmessaging.devices.util.UuidGenerator;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
-import org.everit.json.schema.BooleanSchema;
 import org.everit.json.schema.NumberSchema;
 import org.everit.json.schema.ObjectSchema;
-import org.everit.json.schema.StringSchema;
-import org.json.JSONObject;
 
 import java.io.IOException;
 
@@ -65,28 +66,30 @@ public class AM2315Controller extends I2CDeviceController {
     return new AM2315Controller(device);
   }
 
-  public DeviceType getType(){
+  public DeviceType getType() {
     return getDevice().getType();
   }
 
+  @Override
   public byte[] getDeviceConfiguration() throws IOException {
-    JSONObject jsonObject = new JSONObject();
+    JsonObject jsonObject = new JsonObject();
     if (sensor != null) {
-      jsonObject.put("model", sensor.getModel());
-      jsonObject.put("status", sensor.getStatus());
-      jsonObject.put("version", sensor.getVersion());
-      jsonObject.put("id", sensor.getId());
+      jsonObject.addProperty("model", sensor.getModel());
+      jsonObject.addProperty("status", sensor.getStatus());
+      jsonObject.addProperty("version", sensor.getVersion());
+      jsonObject.addProperty("id", sensor.getId());
     }
-    return jsonObject.toString(2).getBytes();
+    return convert(jsonObject);
   }
 
+  @Override
   public byte[] getDeviceState() throws IOException {
-    JSONObject jsonObject = new JSONObject();
+    JsonObject jsonObject = new JsonObject();
     if (sensor != null) {
-      jsonObject.put("temperature", sensor.getTemperature());
-      jsonObject.put("humidity", sensor.getHumidity());
+      jsonObject.addProperty("temperature", sensor.getTemperature());
+      jsonObject.addProperty("humidity", sensor.getHumidity());
     }
-    return jsonObject.toString(2).getBytes();
+    return convert(jsonObject);
   }
 
   public SchemaConfig getSchema() {
@@ -108,49 +111,27 @@ public class AM2315Controller extends I2CDeviceController {
 
 
   private String buildSchema() {
-    ObjectSchema.Builder staticSchema = ObjectSchema.builder()
+    ObjectSchema staticSchema = ObjectSchema.builder()
         .addPropertySchema("model",
-            StringSchema.builder()
+            NumberSchema.builder()
                 .description("Model number of sensor")
-                .build()
-        )
+                .build())
         .addPropertySchema("id",
-            StringSchema.builder()
+            NumberSchema.builder()
                 .description("Unique ID of sensor")
-                .build()
-        )
+                .build())
         .addPropertySchema("status",
-            BooleanSchema.builder()
-                .description("Current Status")
+            NumberSchema.builder()
+                .description("Current status bitmask")
                 .build())
         .addPropertySchema("version",
-            BooleanSchema.builder()
-                .description("Chip Version")
-                .build());
-
-    ObjectSchema.Builder updateSchema = ObjectSchema.builder()
-        .addPropertySchema("temperature",
             NumberSchema.builder()
-                .minimum(-40.0)
-                .maximum(80.0)
-                .description("Temperature")
-                .build()
-        )
-        .addPropertySchema("humidity",
-            NumberSchema.builder()
-                .minimum(0.0)
-                .maximum(100.0)
-                .description("Humidity")
-                .build()
-        );
+                .description("Chip version")
+                .build())
+        .build();
 
-    ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
-    schemaBuilder
-        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, updateSchema.build())
-        .addPropertySchema(NamingConstants.DEVICE_STATIC_DATA_SCHEMA, staticSchema.build())
-        .description("Humidity and Temperature Module")
-        .title("AM2315");
-
-    return schemaToString(schemaBuilder.build());
+    return buildSchema(sensor, staticSchema);
   }
+
+
 }

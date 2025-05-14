@@ -1,17 +1,21 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] [Matthew Buckton]
+ *  Copyright [ 2024 - 2025.  ] [Maps Messaging B.V.]
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
  */
 
 package io.mapsmessaging.devices.i2c.devices.sensors.ina219;
@@ -21,30 +25,32 @@ import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.*;
 import io.mapsmessaging.devices.impl.AddressableDevice;
+import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
+import io.mapsmessaging.devices.sensorreadings.IntegerSensorReading;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Getter
 public class Ina219Sensor extends I2CDevice implements Sensor {
 
+  @Getter
+  private final List<SensorReading<?>> readings;
   @Setter
   private ADCResolution adcResolution;
-
   @Getter
   @Setter
   private BusVoltageRange busVoltageRange;
-
   @Getter
   @Setter
   private GainMask gainMask;
-
   @Getter
   @Setter
   private OperatingMode operatingMode;
-
   @Getter
   @Setter
   private ShuntADCResolution shuntADCResolution;
@@ -57,6 +63,55 @@ public class Ina219Sensor extends I2CDevice implements Sensor {
     operatingMode = OperatingMode.BVOLT_CONTINUOUS;
     shuntADCResolution = ShuntADCResolution.RES_12BIT_1S_532US;
     setCalibration();
+    FloatSensorReading busVoltage = new FloatSensorReading(
+        "bus_voltage",
+        "mV",
+        "Bus voltage measured by INA219",
+        12000.0f,
+        true,
+        0f,
+        32000f,
+        0,
+        () -> (float) getBusVoltage()
+    );
+
+    FloatSensorReading shuntVoltage = new FloatSensorReading(
+        "shunt_voltage",
+        "mV",
+        "Voltage across the shunt resistor",
+        2.5f,
+        true,
+        -320f,
+        320f,
+        2,
+        () -> (float) getShuntVoltage()
+    );
+
+    FloatSensorReading current = new FloatSensorReading(
+        "current",
+        "mA",
+        "Measured current",
+        100.0f,
+        true,
+        -32768f,
+        32767f,
+        1,
+        this::getCurrent_mA
+    );
+
+    IntegerSensorReading power = new IntegerSensorReading(
+        "power",
+        "mW",
+        "Power calculated by INA219",
+        500,
+        true,
+        0,
+        65535,
+        this::getPower
+    );
+
+    this.readings = List.of(busVoltage, shuntVoltage, current, power);
+
   }
 
   @Override
@@ -127,6 +182,7 @@ public class Ina219Sensor extends I2CDevice implements Sensor {
   public String getDescription() {
     return "Zero-Drift, Bidirectional Current/Power Monitor";
   }
+
   @Override
   public DeviceType getType() {
     return DeviceType.SENSOR;

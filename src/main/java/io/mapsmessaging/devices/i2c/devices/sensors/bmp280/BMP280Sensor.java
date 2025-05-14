@@ -1,17 +1,21 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] [Matthew Buckton]
+ *  Copyright [ 2024 - 2025.  ] [Maps Messaging B.V.]
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
  */
 
 package io.mapsmessaging.devices.i2c.devices.sensors.bmp280;
@@ -23,9 +27,13 @@ import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.bmp280.values.OversamplingRate;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
+import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
+import lombok.Getter;
 
 import java.io.IOException;
+import java.util.List;
 
 import static io.mapsmessaging.devices.logging.DeviceLogMessage.I2C_BUS_DEVICE_READ_REQUEST;
 
@@ -36,6 +44,8 @@ public class BMP280Sensor extends I2CDevice implements PowerManagement, Sensor {
   public static final byte ADC_READ = (byte) 0x00;
   private static final short sReset = 0x1E;
   private final int[] prom;
+  @Getter
+  private final List<SensorReading<?>> readings;
   private long C1; // C1
   private long C2; // C2
   private long C3; // C3
@@ -49,7 +59,6 @@ public class BMP280Sensor extends I2CDevice implements PowerManagement, Sensor {
   private long TCO;
   private int D1; // 24 bit unsigned int
   private int D2; // 24 bit unsigned int
-
   private float temperature;
   private float pressure;
 
@@ -61,6 +70,32 @@ public class BMP280Sensor extends I2CDevice implements PowerManagement, Sensor {
     lastRead = 0;
     initialise();
     loadValues();
+    FloatSensorReading temperatureReading = new FloatSensorReading(
+        "temperature",
+        "°C",
+        "Temperature reading from BMP280 sensor",
+        25.0f,
+        true,
+        -40f,
+        85f,
+        1,
+        this::getTemperature
+    );
+
+    FloatSensorReading pressureReading = new FloatSensorReading(
+        "pressure",
+        "hPa",
+        "Pressure reading from BMP280 sensor",
+        1013.25f,
+        true,
+        300f,
+        1100f,
+        1,
+        this::getPressure
+    );
+
+    this.readings = List.of(temperatureReading, pressureReading);
+
   }
 
   @Override
@@ -191,6 +226,7 @@ public class BMP280Sensor extends I2CDevice implements PowerManagement, Sensor {
     prom[7] = crcRead; // restore the crc_read to its original place
     return (byte) (nRem);
   }
+
   @Override
   public DeviceType getType() {
     return DeviceType.SENSOR;

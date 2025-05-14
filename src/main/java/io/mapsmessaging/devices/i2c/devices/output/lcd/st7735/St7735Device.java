@@ -1,3 +1,23 @@
+/*
+ *
+ *  Copyright [ 2020 - 2024 ] [Matthew Buckton]
+ *  Copyright [ 2024 - 2025.  ] [Maps Messaging B.V.]
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
+ */
+
 package io.mapsmessaging.devices.i2c.devices.output.lcd.st7735;
 
 import io.mapsmessaging.devices.DeviceBusManager;
@@ -18,37 +38,6 @@ import java.nio.ByteBuffer;
 import java.util.Random;
 
 public class St7735Device extends I2CDevice implements Output, Storage, Resetable {
-  private static final int I2C_ADDRESS = 0x18;
-  private static final int BURST_MAX_LENGTH = 160;
-
-  private static final int X_COORDINATE_MAX = 160;
-  private static final int X_COORDINATE_MIN = 0;
-  private static final int Y_COORDINATE_MAX = 80;
-  private static final int Y_COORDINATE_MIN = 0;
-
-  private static final int X_COORDINATE_REG = 0x2A;
-  private static final int Y_COORDINATE_REG = 0x2B;
-  private static final int CHAR_DATA_REG = 0x2C;
-  private static final int SCAN_DIRECTION_REG = 0x36;
-  private static final int WRITE_DATA_REG = 0x00;
-  private static final int BURST_WRITE_REG = 0x01;
-  private static final int SYNC_REG = 0x03;
-
-  private static final int ST7735_MADCTL_MY = 0x80;
-  private static final int ST7735_MADCTL_MX = 0x40;
-  private static final int ST7735_MADCTL_MV = 0x20;
-  private static final int ST7735_MADCTL_ML = 0x10;
-  private static final int ST7735_MADCTL_RGB = 0x00;
-  private static final int ST7735_MADCTL_BGR = 0x08;
-  private static final int ST7735_MADCTL_MH = 0x04;
-
-  private static final int ST7735_IS_160X80 = 1;
-  private static final int ST7735_XSTART = 0;
-  private static final int ST7735_YSTART = 24;
-  private static final int ST7735_WIDTH = 160;
-  private static final int ST7735_HEIGHT = 80;
-  private static final int ST7735_ROTATION = ST7735_MADCTL_MY | ST7735_MADCTL_MV | ST7735_MADCTL_BGR;
-
   // Color definitions
   public static final int ST7735_BLACK = 0x0000;
   public static final int ST7735_BLUE = 0x001F;
@@ -59,10 +48,60 @@ public class St7735Device extends I2CDevice implements Output, Storage, Resetabl
   public static final int ST7735_YELLOW = 0xFFE0;
   public static final int ST7735_WHITE = 0xFFFF;
   public static final int ST7735_GRAY = 0x8410;
+  private static final int I2C_ADDRESS = 0x18;
+  private static final int BURST_MAX_LENGTH = 160;
+  private static final int X_COORDINATE_MAX = 160;
+  private static final int X_COORDINATE_MIN = 0;
+  private static final int Y_COORDINATE_MAX = 80;
+  private static final int Y_COORDINATE_MIN = 0;
+  private static final int X_COORDINATE_REG = 0x2A;
+  private static final int Y_COORDINATE_REG = 0x2B;
+  private static final int CHAR_DATA_REG = 0x2C;
+  private static final int SCAN_DIRECTION_REG = 0x36;
+  private static final int WRITE_DATA_REG = 0x00;
+  private static final int BURST_WRITE_REG = 0x01;
+  private static final int SYNC_REG = 0x03;
+  private static final int ST7735_MADCTL_MY = 0x80;
+  private static final int ST7735_MADCTL_MX = 0x40;
+  private static final int ST7735_MADCTL_MV = 0x20;
+  private static final int ST7735_MADCTL_ML = 0x10;
+  private static final int ST7735_MADCTL_RGB = 0x00;
+  private static final int ST7735_MADCTL_BGR = 0x08;
+  private static final int ST7735_MADCTL_MH = 0x04;
+  private static final int ST7735_IS_160X80 = 1;
+  private static final int ST7735_XSTART = 0;
+  private static final int ST7735_YSTART = 24;
+  private static final int ST7735_WIDTH = 160;
+  private static final int ST7735_HEIGHT = 80;
+  private static final int ST7735_ROTATION = ST7735_MADCTL_MY | ST7735_MADCTL_MV | ST7735_MADCTL_BGR;
 
   public St7735Device(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(St7735Device.class));
     reset();
+  }
+
+  public static void main(String[] args) throws IOException {
+    I2CBusManager[] i2cBusManagers = DeviceBusManager.getInstance().getI2cBusManager();
+    int bus = 1;
+    if (args.length > 0) {
+      bus = Integer.parseInt(args[0]);
+    }
+    // Configure and mount a device on address 0x5D as a LPS25 pressure & temperature
+    I2CDeviceController deviceController = i2cBusManagers[bus].configureDevice(0x18, "ST7735");
+    if (deviceController != null) {
+      System.err.println(new String(deviceController.getDeviceConfiguration()));
+      I2CDevice sensor = deviceController.getDevice();
+      Random random = new Random(System.currentTimeMillis());
+
+      if (sensor instanceof St7735Device) {
+        St7735Device device1 = (St7735Device) sensor;
+        device1.reset();
+        while (true) {
+          device1.lcdDisplayPercentage("Test:", Math.abs(random.nextInt(100)), 100);
+          device1.delay(1000);
+        }
+      }
+    }
   }
 
   public void lcdSetAddressWindow(int x0, int y0, int x1, int y1) throws IOException {
@@ -202,7 +241,6 @@ public class St7735Device extends I2CDevice implements Output, Storage, Resetabl
     return "LCD Panel";
   }
 
-
   @Override
   public void reset() throws IOException {
     lcdFillScreen(0);
@@ -212,7 +250,6 @@ public class St7735Device extends I2CDevice implements Output, Storage, Resetabl
   public void softReset() throws IOException {
     lcdFillScreen(0);
   }
-
 
   @Override
   public DeviceType getType() {
@@ -227,29 +264,5 @@ public class St7735Device extends I2CDevice implements Output, Storage, Resetabl
   @Override
   public byte[] readBlock(int address, int length) throws IOException {
     return new byte[0];
-  }
-
-  public static void main(String[] args) throws IOException {
-    I2CBusManager[] i2cBusManagers = DeviceBusManager.getInstance().getI2cBusManager();
-    int bus = 1;
-    if (args.length > 0) {
-      bus = Integer.parseInt(args[0]);
-    }
-    // Configure and mount a device on address 0x5D as a LPS25 pressure & temperature
-    I2CDeviceController deviceController = i2cBusManagers[bus].configureDevice(0x18, "ST7735");
-    if (deviceController != null) {
-      System.err.println(new String(deviceController.getDeviceConfiguration()));
-      I2CDevice sensor = deviceController.getDevice();
-      Random random = new Random(System.currentTimeMillis());
-
-      if (sensor instanceof St7735Device) {
-        St7735Device device1 = (St7735Device) sensor;
-        device1.reset();
-        while(true) {
-          device1.lcdDisplayPercentage("Test:", Math.abs(random.nextInt(100)), 100);
-          device1.delay(1000);
-        }
-      }
-    }
   }
 }

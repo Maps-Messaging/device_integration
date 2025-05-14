@@ -1,17 +1,21 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] [Matthew Buckton]
+ *  Copyright [ 2024 - 2025.  ] [Maps Messaging B.V.]
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
  */
 
 package io.mapsmessaging.devices.spi.devices.mcp3y0x;
@@ -19,7 +23,6 @@ package io.mapsmessaging.devices.spi.devices.mcp3y0x;
 import com.pi4j.context.Context;
 import com.pi4j.io.spi.Spi;
 import io.mapsmessaging.devices.DeviceType;
-import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.devices.spi.SpiDeviceController;
 import io.mapsmessaging.devices.util.UuidGenerator;
@@ -27,12 +30,12 @@ import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
 import lombok.Setter;
-import org.everit.json.schema.ArraySchema;
 import org.everit.json.schema.NumberSchema;
 import org.everit.json.schema.ObjectSchema;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -66,7 +69,7 @@ public class Mcp3y0xController extends SpiDeviceController {
     return new Mcp3y0xController(new Mcp3y0xDevice(spi, resolution, channels));
   }
 
-  public DeviceType getType(){
+  public DeviceType getType() {
     return device.getType();
   }
 
@@ -83,7 +86,7 @@ public class Mcp3y0xController extends SpiDeviceController {
   }
 
   public List<SensorReading<?>> getSensors() {
-    return device.getSensors();
+    return device != null ? device.getReadings() : new ArrayList<>();
   }
 
   public byte[] getDeviceConfiguration() {
@@ -120,39 +123,13 @@ public class Mcp3y0xController extends SpiDeviceController {
   }
 
   private String buildSchema() {
-    ObjectSchema.Builder staticSchema = ObjectSchema.builder()
-        .addPropertySchema("resolution",
-            NumberSchema.builder()
-                .description("The number of bits of resolution that the result has")
-                .build()
-        )
-        .addPropertySchema("channels",
-            NumberSchema.builder()
-                .description("Number of ADC channels available")
-                .build()
-        )
-        .addPropertySchema("dutyCycle",
-            NumberSchema.builder()
-                .description("Number of times per second that the device can be read")
-                .build()
-        );
+    ObjectSchema staticSchema = ObjectSchema.builder()
+        .addPropertySchema("resolution", NumberSchema.builder().description("ADC resolution in bits").build())
+        .addPropertySchema("channels", NumberSchema.builder().description("Number of ADC channels").build())
+        .addPropertySchema("dutyCycle", NumberSchema.builder().description("Read rate in Hz").build())
+        .build();
 
-    ObjectSchema.Builder updateSchema = ObjectSchema.builder()
-        .addPropertySchema("current",
-            ArraySchema.builder()
-                .minItems(0)
-                .maxItems(device == null ? 8 : device.channels)
-                .description("Current values of all channels on the ADC")
-                .build()
-        );
-
-    ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
-    schemaBuilder
-        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, updateSchema.build())
-        .addPropertySchema(NamingConstants.DEVICE_STATIC_DATA_SCHEMA, staticSchema.build())
-        .description("Analog to digital convertor")
-        .title(NAME);
-    return schemaToString(schemaBuilder.build());
+    return buildSchema(device, staticSchema); // uses helper in base class
   }
 
 }

@@ -1,17 +1,21 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] [Matthew Buckton]
+ *  Copyright [ 2024 - 2025.  ] [Maps Messaging B.V.]
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
  */
 
 package io.mapsmessaging.devices.i2c;
@@ -174,7 +178,7 @@ public class I2CBusManager {
           // Ignore since we are simply looking for devices
         }
       }
-      if(pollDelay>0) TimeUnit.MILLISECONDS.sleep(pollDelay);
+      if (pollDelay > 0) TimeUnit.MILLISECONDS.sleep(pollDelay);
     }
     listDetected(found);
     return found;
@@ -198,16 +202,14 @@ public class I2CBusManager {
       if (addr == 0x5c) {
         device.read(buf, 0, 1);
         TimeUnit.MILLISECONDS.sleep(20);
-      }
-      else if(addr == 0x62){ // special case for the SCD41 device
-        byte[] req = {0x36, (byte)0x82};
+      } else if (addr == 0x62) { // special case for the SCD41 device
+        byte[] req = {0x36, (byte) 0x82};
         device.write(req);
         TimeUnit.MILLISECONDS.sleep(1);
         byte[] response = new byte[9];
         int read = device.read(response);
-        if(read == 9) return true;
-      }
-      else {
+        if (read == 9) return true;
+      } else {
         TimeUnit.MILLISECONDS.sleep(1);
       }
       return device.read(buf, 0, 1) == 1;

@@ -1,23 +1,29 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] [Matthew Buckton]
+ *  Copyright [ 2024 - 2025.  ] [Maps Messaging B.V.]
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
  */
 
 package io.mapsmessaging.devices.onewire.devices.ds18b20;
 
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.onewire.OneWireDevice;
+import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import lombok.Getter;
 
 import java.io.File;
@@ -26,12 +32,10 @@ import java.util.List;
 @Getter
 public class DS18B20Device extends OneWireDevice implements Sensor {
 
+  private final List<SensorReading<?>> readings;
   private float myCurrent;
-  @Getter
   private float myDif;
-  @Getter
   private float myMin;
-  @Getter
   private float myMax;
 
   public DS18B20Device(File path) {
@@ -39,6 +43,56 @@ public class DS18B20Device extends OneWireDevice implements Sensor {
     myCurrent = 0.0f;
     myMin = Float.MAX_VALUE;
     myMax = Float.MIN_VALUE;
+    FloatSensorReading current = new FloatSensorReading(
+        "temperature",
+        "°C",
+        "Current temperature from DS18B20",
+        25.0f,
+        true,
+        -55f,
+        125f,
+        2,
+        this::getCurrent
+    );
+
+    FloatSensorReading min = new FloatSensorReading(
+        "temperature_min",
+        "°C",
+        "Minimum temperature recorded",
+        25.0f,
+        true,
+        -55f,
+        125f,
+        2,
+        this::getMin
+    );
+
+    FloatSensorReading max = new FloatSensorReading(
+        "temperature_max",
+        "°C",
+        "Maximum temperature recorded",
+        25.0f,
+        true,
+        -55f,
+        125f,
+        2,
+        this::getMax
+    );
+
+    FloatSensorReading delta = new FloatSensorReading(
+        "temperature_delta",
+        "°C",
+        "Change in temperature since last update",
+        0.0f,
+        true,
+        -180f,
+        180f,
+        2,
+        this::getDif
+    );
+
+    this.readings = List.of(current, min, max, delta);
+
   }
 
   public float getCurrent() {

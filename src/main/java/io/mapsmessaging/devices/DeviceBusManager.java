@@ -1,17 +1,21 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] [Matthew Buckton]
+ *  Copyright [ 2024 - 2025.  ] [Maps Messaging B.V.]
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
  */
 
 package io.mapsmessaging.devices;
@@ -39,17 +43,7 @@ import java.util.Map;
 @SuppressWarnings("java:S6548") // yes it is a singleton
 @Getter
 public class DeviceBusManager {
-  // Inner static class responsible for holding the Singleton instance
-  private static class Holder {
-    private static final DeviceBusManager INSTANCE = new DeviceBusManager();
-  }
-
-  // Global access point to get the Singleton instance
-  public static DeviceBusManager getInstance() {
-    return Holder.INSTANCE;
-  }
   private static final String[] PROVIDERS = {"pigpio-i2c", "linuxfs-i2c"};
-
   private final Logger logger = LoggerFactory.getLogger(DeviceBusManager.class);
   private final Context pi4j;
   private final I2CBusManager[] i2cBusManager;
@@ -58,7 +52,6 @@ public class DeviceBusManager {
   private final Pi4JPinManagement pinManagement;
   private final InterruptFactory interruptFactory;
   private final boolean supportsLengthResponse;
-
   private DeviceBusManager() {
     logger.log(DeviceLogMessage.BUS_MANAGER_STARTUP);
     pi4j = Pi4J.newAutoContext();
@@ -76,17 +69,11 @@ public class DeviceBusManager {
     interruptFactory = new PiInterruptFactory(pi4j);
   }
 
-  public boolean isAvailable(){
-    boolean result = false;
-    try {
-      try (var i2c = pi4j.create(I2C.newConfigBuilder(pi4j).id("Test I2C").device(1).bus(1).build())) {
-        i2c.getDevice();
-        result = true;
-      }
-    } catch (Throwable e) {
-    }
-    return result;
+  // Global access point to get the Singleton instance
+  public static DeviceBusManager getInstance() {
+    return Holder.INSTANCE;
   }
+
   private static String getProvider() {
     String provider = System.getProperty("I2C-PROVIDER", PROVIDERS[0]).toLowerCase();
     boolean isValid = false;
@@ -100,6 +87,19 @@ public class DeviceBusManager {
       provider = PROVIDERS[0];
     }
     return provider;
+  }
+
+  public boolean isAvailable() {
+    boolean result = false;
+    try {
+      try (var i2c = pi4j.create(I2C.newConfigBuilder(pi4j).id("Test I2C").device(1).bus(1).build())) {
+        i2c.getDevice();
+        result = true;
+      }
+    } catch (Throwable e) {
+      e.printStackTrace();
+    }
+    return result;
   }
 
   public void configureDevices(Map<String, Object> config) throws IOException {
@@ -127,6 +127,11 @@ public class DeviceBusManager {
   public void close() {
     pi4j.shutdown();
     logger.log(DeviceLogMessage.BUS_MANAGER_SHUTDOWN);
+  }
+
+  // Inner static class responsible for holding the Singleton instance
+  private static class Holder {
+    private static final DeviceBusManager INSTANCE = new DeviceBusManager();
   }
 
 }

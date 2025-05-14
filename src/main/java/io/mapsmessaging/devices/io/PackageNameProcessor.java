@@ -1,3 +1,23 @@
+/*
+ *
+ *  Copyright [ 2020 - 2024 ] [Matthew Buckton]
+ *  Copyright [ 2024 - 2025.  ] [Maps Messaging B.V.]
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
+ */
+
 package io.mapsmessaging.devices.io;
 
 import java.util.LinkedHashMap;
@@ -15,17 +35,6 @@ public class PackageNameProcessor {
       {"io.mapsmessaging.devices.spi.devices.", "#spi#"},
       {"io.mapsmessaging.devices.onewire.devices.", "#1wire#"},
   };
-
-  private static class Holder {
-    private static final PackageNameProcessor INSTANCE = new PackageNameProcessor();
-  }
-
-  // Global access point to get the Singleton instance
-  public static PackageNameProcessor getInstance() {
-    return Holder.INSTANCE;
-  }
-
-
   private final Map<String, String> byPackageName;
 
   private PackageNameProcessor() {
@@ -33,6 +42,11 @@ public class PackageNameProcessor {
     for (String[] map : MAPPING) {
       byPackageName.put(map[0], map[1]);
     }
+  }
+
+  // Global access point to get the Singleton instance
+  public static PackageNameProcessor getInstance() {
+    return Holder.INSTANCE;
   }
 
   public String getPrefix(String packageName) {
@@ -54,12 +68,16 @@ public class PackageNameProcessor {
       if (id.startsWith(entry.getValue())) {
         id = entry.getKey() + id.substring(entry.getValue().length());
         int idx = id.indexOf("@");
-        if( idx >=0) {
+        if (idx >= 0) {
           id = id.substring(0, idx) + ".data." + id.substring(idx + 1);
         }
       }
     }
     return id;
+  }
+
+  private static class Holder {
+    private static final PackageNameProcessor INSTANCE = new PackageNameProcessor();
   }
 }
 

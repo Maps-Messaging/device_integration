@@ -1,21 +1,32 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] [Matthew Buckton]
+ *  Copyright [ 2024 - 2025.  ] [Maps Messaging B.V.]
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
  */
 
 package io.mapsmessaging.devices;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import io.mapsmessaging.devices.deviceinterfaces.Sensor;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.LocalDateTimeSensorReading;
+import io.mapsmessaging.devices.sensorreadings.*;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import org.everit.json.schema.ObjectSchema;
 import org.everit.json.schema.internal.JSONPrinter;
@@ -23,40 +34,132 @@ import org.json.JSONWriter;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.List;
 
-public interface DeviceController {
+public abstract class DeviceController {
 
-  String getName();
+  protected static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-  String getDescription();
+  public abstract String getName();
 
-  SchemaConfig getSchema();
+  public abstract String getDescription();
 
-  byte[] getDeviceConfiguration() throws IOException;
+  public abstract SchemaConfig getSchema();
 
-  DeviceType getType();
+  public abstract byte[] getDeviceConfiguration() throws IOException;
 
-  byte[] getDeviceState() throws IOException;
+  public abstract DeviceType getType();
 
+  public abstract byte[] getDeviceState() throws IOException;
 
-  void setRaiseExceptionOnError(boolean flag);
-
-  default boolean getRaiseExceptionOnError(){
+  public boolean getRaiseExceptionOnError() {
     return true;
   }
 
-  default byte[] updateDeviceConfiguration(byte[] val) throws IOException {
+  public abstract void setRaiseExceptionOnError(boolean flag);
+
+  public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
     return new byte[0];
   }
 
-  default void close() {
+  public void close() {
   }
 
-  default String schemaToString(ObjectSchema schema) {
+  public String schemaToString(ObjectSchema schema) {
     StringWriter stringWriter = new StringWriter();
     JSONWriter jsonWriter = new JSONWriter(stringWriter);
     JSONPrinter printer = new JSONPrinter(jsonWriter);
     schema.describeTo(printer);
     return stringWriter.getBuffer().toString();
+  }
+
+  public String buildSchema(Sensor sensor) {
+    return buildSchema(sensor, ObjectSchema.builder().build());
+  }
+
+  public String buildSchema(Sensor sensor, ObjectSchema staticSchema) {
+    JsonObject sensorSchema = buildSchemaFromReadings(sensor.getReadings());
+
+    JsonObject fullSchema = new JsonObject();
+    fullSchema.addProperty("$schema", "https://json-schema.org/draft/2020-12/schema");
+    fullSchema.addProperty("title", getName());
+    fullSchema.addProperty("description", getDescription());
+    fullSchema.addProperty("type", "object");
+
+    JsonObject properties = new JsonObject();
+    properties.add(NamingConstants.DEVICE_STATIC_DATA_SCHEMA, gson.fromJson(staticSchema.toString(), JsonObject.class));
+    properties.add(NamingConstants.SENSOR_DATA_SCHEMA, sensorSchema);
+
+    fullSchema.add("properties", properties);
+    fullSchema.add("required", gson.toJsonTree(List.of(
+        NamingConstants.DEVICE_STATIC_DATA_SCHEMA,
+        NamingConstants.SENSOR_DATA_SCHEMA
+    )));
+    fullSchema.addProperty("additionalProperties", false);
+
+    return gson.toJson(fullSchema);
+  }
+
+  public JsonObject buildSchemaFromReadings(List<SensorReading<?>> readings) {
+    JsonObject schema = new JsonObject();
+    schema.addProperty("$schema", "https://json-schema.org/draft/2020-12/schema");
+    schema.addProperty("type", "object");
+
+    JsonObject properties = new JsonObject();
+    JsonArray required = new JsonArray();
+
+    for (SensorReading<?> reading : readings) {
+      JsonObject prop = new JsonObject();
+
+      if (reading instanceof FloatSensorReading) {
+        FloatSensorReading floatReading = (FloatSensorReading) reading;
+        prop.addProperty("type", "number");
+        prop.addProperty("minimum", floatReading.getMinimum());
+        prop.addProperty("maximum", floatReading.getMaximum());
+        prop.addProperty("x-precision", floatReading.getPrecision());
+        prop.addProperty("description", "Unit: " + floatReading.getUnit());
+      } else if (reading instanceof IntegerSensorReading || reading instanceof LongSensorReading) {
+        NumericSensorReading<?> num = (NumericSensorReading<?>) reading;
+        prop.addProperty("type", "integer");
+        prop.addProperty("minimum", num.getMinimum().longValue());
+        prop.addProperty("maximum", num.getMaximum().longValue());
+        prop.addProperty("description", "Unit: " + reading.getUnit());
+      } else if (reading instanceof StringSensorReading) {
+        prop.addProperty("type", "string");
+        prop.addProperty("description", "Unit: " + reading.getUnit());
+      } else if (reading instanceof OrientationSensorReading) {
+        prop.addProperty("type", "object");
+        JsonObject orientationProps = new JsonObject();
+        for (String axis : List.of("x", "y", "z")) {
+          JsonObject axisProp = new JsonObject();
+          axisProp.addProperty("type", "number");
+          orientationProps.add(axis, axisProp);
+        }
+        prop.add("properties", orientationProps);
+        prop.add("required", new Gson().toJsonTree(List.of("x", "y", "z")));
+        prop.addProperty("description", "Unit: " + reading.getUnit());
+      } else if (reading instanceof LocalDateTimeSensorReading) {
+        prop.addProperty("type", "string");
+        prop.addProperty("format", "date-time");
+        prop.addProperty("description", reading.getDescription() != null ? reading.getDescription() : "Unit: " + reading.getUnit());
+
+        if (reading.getExample() != null) {
+          prop.add("examples", new Gson().toJsonTree(List.of(reading.getExample().toString())));
+        }
+        prop.addProperty("readOnly", reading.isReadOnly());
+      } else {
+        // fallback: unknown type
+        prop.addProperty("type", "string");
+        prop.addProperty("description", "Unit: " + reading.getUnit());
+      }
+
+      properties.add(reading.getName(), prop);
+      required.add(reading.getName());
+    }
+
+    schema.add("properties", properties);
+    schema.add("required", required);
+    schema.addProperty("additionalProperties", false);
+    return schema;
   }
 }

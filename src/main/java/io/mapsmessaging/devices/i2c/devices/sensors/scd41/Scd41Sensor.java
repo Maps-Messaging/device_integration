@@ -1,3 +1,23 @@
+/*
+ *
+ *  Copyright [ 2020 - 2024 ] [Matthew Buckton]
+ *  Copyright [ 2024 - 2025.  ] [Maps Messaging B.V.]
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
+ */
+
 package io.mapsmessaging.devices.i2c.devices.sensors.scd41;
 
 import io.mapsmessaging.devices.DeviceType;
@@ -37,6 +57,7 @@ public class Scd41Sensor extends I2CDevice implements Sensor, Resetable, PowerMa
 
   public Scd41Sensor(AddressableDevice device) {
     super(device, LoggerFactory.getLogger(Scd41Sensor.class));
+
     dataReadyRegister = new DataReadyRegister(this);
     deviceStateRegister = new DeviceStateRegister(this);
     calibrationPeriodRegister = new CalibrationPeriodRegister(this);
@@ -50,15 +71,57 @@ public class Scd41Sensor extends I2CDevice implements Sensor, Resetable, PowerMa
     tempOffsetRegister = new TempOffsetRegister(this);
     sensorConfigurationRegister = new SensorConfigurationRegister(this);
     powerManagementRegister = new PowerManagementRegister(this);
-    IntegerSensorReading co2Sensor = new IntegerSensorReading("CO₂", "ppm", 0, 5000, readMeasurementRegister::getCo2);
-    FloatSensorReading humidity = new FloatSensorReading("humidity", "%RH", 0, 100.0f, 2, readMeasurementRegister::getHumidity);
-    FloatSensorReading temperature = new FloatSensorReading("temperature", "°C", -10, 60.0f, 2, readMeasurementRegister::getTemperature);
-    StringSensorReading category = new StringSensorReading("airQuality", "", this::getAirQuality);
+
+    IntegerSensorReading co2Sensor = new IntegerSensorReading(
+        "CO₂",
+        "ppm",
+        "Carbon dioxide concentration from SCD41 sensor",
+        400,
+        true,
+        0,
+        5000,
+        readMeasurementRegister::getCo2
+    );
+
+    FloatSensorReading humidity = new FloatSensorReading(
+        "humidity",
+        "%RH",
+        "Relative humidity from SCD41 sensor",
+        50.0f,
+        true,
+        0f,
+        100.0f,
+        2,
+        readMeasurementRegister::getHumidity
+    );
+
+    FloatSensorReading temperature = new FloatSensorReading(
+        "temperature",
+        "°C",
+        "Ambient temperature from SCD41 sensor",
+        25.0f,
+        true,
+        -10f,
+        60.0f,
+        2,
+        readMeasurementRegister::getTemperature
+    );
+
+    StringSensorReading category = new StringSensorReading(
+        "airQuality",
+        "",
+        "Air quality category based on CO₂ levels",
+        "Good",
+        true,
+        this::getAirQuality
+    );
+
     readings = List.of(co2Sensor, humidity, temperature, category);
     initialise();
   }
 
-  public static boolean detect(AddressableDevice device){
+
+  public static boolean detect(AddressableDevice device) {
     SerialNumberRequest request = new SerialNumberRequest(device);
     return request.getSerialNumber() != 0;
   }
@@ -87,6 +150,7 @@ public class Scd41Sensor extends I2CDevice implements Sensor, Resetable, PowerMa
   public void reset() throws IOException {
     deviceStateRegister.factoryReset();
   }
+
   @Override
   public void softReset() throws IOException {
     periodicMeasurementRegister.stopPeriodicMeasurement();
@@ -94,7 +158,7 @@ public class Scd41Sensor extends I2CDevice implements Sensor, Resetable, PowerMa
     initialise();
   }
 
-  public String getAirQuality(){
+  public String getAirQuality() {
     int co2 = readMeasurementRegister.getCo2();
     float humidity = readMeasurementRegister.getHumidity();
     float temperature = readMeasurementRegister.getTemperature();

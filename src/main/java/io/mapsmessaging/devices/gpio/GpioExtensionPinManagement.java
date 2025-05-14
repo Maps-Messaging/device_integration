@@ -1,17 +1,21 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] [Matthew Buckton]
+ *  Copyright [ 2024 - 2025.  ] [Maps Messaging B.V.]
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
  */
 
 package io.mapsmessaging.devices.gpio;
@@ -65,10 +69,9 @@ public class GpioExtensionPinManagement extends PinManagement implements Interru
     int pin = Integer.parseInt(config.get("pin").trim());
     boolean pullUp = config.get("pull").equalsIgnoreCase("up");
     GpioDigitalInput input = new GpioDigitalInput(id, name, gpio, pin, pullUp);
-    if(config.containsKey("on") && config.get("on").equalsIgnoreCase("up")){
+    if (config.containsKey("on") && config.get("on").equalsIgnoreCase("up")) {
       gpio.setOnHigh(pin);
-    }
-    else{
+    } else {
       gpio.setOnLow(pin);
     }
     interruptMap.put(pin, input);
@@ -76,12 +79,12 @@ public class GpioExtensionPinManagement extends PinManagement implements Interru
     return input;
   }
 
-  public void interruptFired()  {
+  public void interruptFired() {
     try {
       int[] list = gpio.getInterrupted();
-      for(int port:list){
+      for (int port : list) {
         BaseDigitalInput input = interruptMap.get(port);
-        if(input != null){
+        if (input != null) {
           input.stateChange();
         }
       }

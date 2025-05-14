@@ -1,17 +1,21 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] [Matthew Buckton]
+ *  Copyright [ 2024 - 2025.  ] [Maps Messaging B.V.]
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
  */
 
 package io.mapsmessaging.devices.i2c.devices;
@@ -35,6 +39,30 @@ public class BitsetRegister extends Register {
     reload();
   }
 
+  private static int wordIndex(int bitIndex) {
+    return bitIndex >> ADDRESS_BITS_PER_WORD;
+  }
+
+  public static int[] getAllBits(byte[] bytes, boolean set) {
+    ArrayList<Integer> bitsList = new ArrayList<>();
+    for (int i = 0; i < bytes.length; i++) {
+      for (int j = 0; j < 8; j++) {
+        boolean isSet = ((bytes[i] & 0xff) & (1 << j)) != 0;
+        if (isSet == set) {
+          bitsList.add(i * 8 + j);
+        }
+      }
+    }
+
+    // Convert ArrayList to array
+    int[] bits = new int[bitsList.size()];
+    for (int i = 0; i < bitsList.size(); i++) {
+      bits[i] = bitsList.get(i);
+    }
+
+    return bits;
+  }
+
   @Override
   protected void reload() throws IOException {
     sensor.readRegister(address, buffer);
@@ -43,13 +71,13 @@ public class BitsetRegister extends Register {
   public int[] getAllSet() throws IOException {
     reload();
     boolean hasSet = false;
-    for(byte b:buffer){
-      if(b != 0){
+    for (byte b : buffer) {
+      if (b != 0) {
         hasSet = true;
         break;
       }
     }
-    if(!hasSet){
+    if (!hasSet) {
       return new int[0];
     }
     return getAllBits(buffer, true);
@@ -93,7 +121,7 @@ public class BitsetRegister extends Register {
 
     int wordIndex = wordIndex(bitIndex);
     int bit = bitIndex % 8;
-    buffer[wordIndex] &=(byte) ((1 << bit) & 0xff);
+    buffer[wordIndex] &= (byte) ((1 << bit) & 0xff);
     sensor.write(address, buffer);
   }
 
@@ -121,10 +149,6 @@ public class BitsetRegister extends Register {
     throw new IOException("Function not applicable");
   }
 
-  private static int wordIndex(int bitIndex) {
-    return bitIndex >> ADDRESS_BITS_PER_WORD;
-  }
-
   @Override
   public String toString(int length) {
     try {
@@ -141,26 +165,6 @@ public class BitsetRegister extends Register {
       if (c < buffer.length) stringBuilder.append("\n");
     }
     return stringBuilder.toString();
-  }
-
-  public static int[] getAllBits(byte[] bytes, boolean set) {
-    ArrayList<Integer> bitsList = new ArrayList<>();
-    for (int i = 0; i < bytes.length; i++) {
-      for (int j = 0; j < 8; j++) {
-        boolean isSet = ((bytes[i] & 0xff) & (1 << j)) != 0;
-        if (isSet == set) {
-          bitsList.add(i * 8 + j);
-        }
-      }
-    }
-
-    // Convert ArrayList to array
-    int[] bits = new int[bitsList.size()];
-    for (int i = 0; i < bitsList.size(); i++) {
-      bits[i] = bitsList.get(i);
-    }
-
-    return bits;
   }
 }
 

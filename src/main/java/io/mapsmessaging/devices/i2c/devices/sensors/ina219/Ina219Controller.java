@@ -1,23 +1,26 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] [Matthew Buckton]
+ *  Copyright [ 2024 - 2025.  ] [Maps Messaging B.V.]
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
  */
 
 package io.mapsmessaging.devices.i2c.devices.sensors.ina219;
 
 import io.mapsmessaging.devices.DeviceType;
-import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.*;
@@ -27,7 +30,6 @@ import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
 import org.everit.json.schema.EnumSchema;
-import org.everit.json.schema.NumberSchema;
 import org.everit.json.schema.ObjectSchema;
 import org.json.JSONObject;
 
@@ -67,7 +69,8 @@ public class Ina219Controller extends I2CDeviceController {
   public I2CDeviceController mount(AddressableDevice device) throws IOException {
     return new Ina219Controller(device);
   }
-  public DeviceType getType(){
+
+  public DeviceType getType() {
     return getDevice().getType();
   }
 
@@ -155,96 +158,49 @@ public class Ina219Controller extends I2CDeviceController {
   }
 
   private String buildSchema() {
-    ObjectSchema.Builder updateSchema = ObjectSchema.builder()
-        .addPropertySchema("current",
-            NumberSchema.builder()
-                .minimum(0)
-                .maximum(5)
-                .description("Current measurement in Amperes (A)")
-                .build()
-        )
-        .addPropertySchema("shuntVoltage",
-            NumberSchema.builder()
-                .minimum(0)
-                .maximum(0.5)
-                .description("Shunt voltage measurement in Volts (V)")
-                .build()
-        )
-        .addPropertySchema("busVoltage",
-            NumberSchema.builder()
-                .minimum(0)
-                .maximum(32)
-                .description("Bus voltage measurement in Volts (V)")
-                .build()
-        )
-        .addPropertySchema("power",
-            NumberSchema.builder()
-                .minimum(0)
-                .maximum(5 * 32)
-                .description("Power measurement in Watts (W)")
-                .build()
-        );
+    ObjectSchema staticSchema = ObjectSchema.builder()
+        .addPropertySchema("adcResolution", EnumSchema.builder()
+            .possibleValue(ADCResolution.RES_9BIT.name())
+            .possibleValue(ADCResolution.RES_10BIT.name())
+            .possibleValue(ADCResolution.RES_11BIT.name())
+            .possibleValue(ADCResolution.RES_12BIT.name())
+            .build())
+        .addPropertySchema("shuntAdcResolution", EnumSchema.builder()
+            .possibleValue(ShuntADCResolution.RES_9BIT_1S_84US.name())
+            .possibleValue(ShuntADCResolution.RES_10BIT_1S_148US.name())
+            .possibleValue(ShuntADCResolution.RES_11BIT_1S_276US.name())
+            .possibleValue(ShuntADCResolution.RES_12BIT_1S_532US.name())
+            .possibleValue(ShuntADCResolution.RES_12BIT_2S_1060US.name())
+            .possibleValue(ShuntADCResolution.RES_12BIT_4S_2130US.name())
+            .possibleValue(ShuntADCResolution.RES_12BIT_8S_4260US.name())
+            .possibleValue(ShuntADCResolution.RES_12BIT_16S_8510US.name())
+            .possibleValue(ShuntADCResolution.RES_12BIT_32S_17MS.name())
+            .possibleValue(ShuntADCResolution.RES_12BIT_64S_34MS.name())
+            .possibleValue(ShuntADCResolution.RES_12BIT_128S_69MS.name())
+            .build())
+        .addPropertySchema("busVoltageRange", EnumSchema.builder()
+            .possibleValue(BusVoltageRange.RANGE_16V.name())
+            .possibleValue(BusVoltageRange.RANGE_32V.name())
+            .build())
+        .addPropertySchema("gainMask", EnumSchema.builder()
+            .possibleValue(GainMask.GAIN_1_40MV.name())
+            .possibleValue(GainMask.GAIN_2_80MV.name())
+            .possibleValue(GainMask.GAIN_4_160MV.name())
+            .possibleValue(GainMask.GAIN_8_320MV.name())
+            .build())
+        .addPropertySchema("operatingMode", EnumSchema.builder()
+            .possibleValue(OperatingMode.POWERDOWN.name())
+            .possibleValue(OperatingMode.SVOLT_TRIGGERED.name())
+            .possibleValue(OperatingMode.BVOLT_TRIGGERED.name())
+            .possibleValue(OperatingMode.SANDBVOLT_TRIGGERED.name())
+            .possibleValue(OperatingMode.ADCOFF.name())
+            .possibleValue(OperatingMode.SVOLT_CONTINUOUS.name())
+            .possibleValue(OperatingMode.BVOLT_CONTINUOUS.name())
+            .possibleValue(OperatingMode.SANDBVOLT_CONTINUOUS.name())
+            .build())
+        .build();
 
-
-    ObjectSchema.Builder staticSchema = ObjectSchema.builder()
-        .addPropertySchema("adcResolution",
-            EnumSchema.builder()
-                .possibleValue(ADCResolution.RES_9BIT.name())
-                .possibleValue(ADCResolution.RES_10BIT.name())
-                .possibleValue(ADCResolution.RES_11BIT.name())
-                .possibleValue(ADCResolution.RES_12BIT.name())
-                .build()
-        )
-        .addPropertySchema("shuntAdcResolution",
-            EnumSchema.builder()
-                .possibleValue(ShuntADCResolution.RES_9BIT_1S_84US.name())
-                .possibleValue(ShuntADCResolution.RES_10BIT_1S_148US.name())
-                .possibleValue(ShuntADCResolution.RES_11BIT_1S_276US.name())
-                .possibleValue(ShuntADCResolution.RES_12BIT_1S_532US.name())
-                .possibleValue(ShuntADCResolution.RES_12BIT_2S_1060US.name())
-                .possibleValue(ShuntADCResolution.RES_12BIT_4S_2130US.name())
-                .possibleValue(ShuntADCResolution.RES_12BIT_8S_4260US.name())
-                .possibleValue(ShuntADCResolution.RES_12BIT_16S_8510US.name())
-                .possibleValue(ShuntADCResolution.RES_12BIT_32S_17MS.name())
-                .possibleValue(ShuntADCResolution.RES_12BIT_64S_34MS.name())
-                .possibleValue(ShuntADCResolution.RES_12BIT_128S_69MS.name())
-                .build()
-        )
-        .addPropertySchema("busVoltageRange",
-            EnumSchema.builder()
-                .possibleValue(BusVoltageRange.RANGE_16V.name())
-                .possibleValue(BusVoltageRange.RANGE_32V.name())
-                .build()
-        )
-        .addPropertySchema("gainMask",
-            EnumSchema.builder()
-                .possibleValue(GainMask.GAIN_1_40MV.name())
-                .possibleValue(GainMask.GAIN_2_80MV.name())
-                .possibleValue(GainMask.GAIN_4_160MV.name())
-                .possibleValue(GainMask.GAIN_8_320MV.name())
-                .build()
-        )
-        .addPropertySchema("operatingMode",
-            EnumSchema.builder()
-                .possibleValue(OperatingMode.POWERDOWN.name())
-                .possibleValue(OperatingMode.SVOLT_TRIGGERED.name())
-                .possibleValue(OperatingMode.BVOLT_TRIGGERED.name())
-                .possibleValue(OperatingMode.SANDBVOLT_TRIGGERED.name())
-                .possibleValue(OperatingMode.ADCOFF.name())
-                .possibleValue(OperatingMode.SVOLT_CONTINUOUS.name())
-                .possibleValue(OperatingMode.BVOLT_CONTINUOUS.name())
-                .possibleValue(OperatingMode.SANDBVOLT_CONTINUOUS.name())
-                .build()
-        );
-
-    ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
-    schemaBuilder
-        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, updateSchema.build())
-        .addPropertySchema(NamingConstants.DEVICE_STATIC_DATA_SCHEMA, staticSchema.build())
-        .addPropertySchema(NamingConstants.DEVICE_WRITE_SCHEMA, staticSchema.build())
-        .description("High Side DC Current Sensor")
-        .title("INA219");
-
-    return schemaToString(schemaBuilder.build());
+    return buildSchema(sensor, staticSchema);
   }
+
 }

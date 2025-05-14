@@ -1,3 +1,23 @@
+/*
+ *
+ *  Copyright [ 2020 - 2024 ] [Matthew Buckton]
+ *  Copyright [ 2024 - 2025.  ] [Maps Messaging B.V.]
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
+ */
+
 package io.mapsmessaging.devices.i2c;
 
 import io.mapsmessaging.devices.DeviceType;
@@ -28,13 +48,13 @@ public class I2CDeviceScheduler extends I2CDeviceController {
   }
 
   @Override
-  public void setRaiseExceptionOnError(boolean flag){
-    deviceController.setRaiseExceptionOnError(flag);
+  public boolean getRaiseExceptionOnError() {
+    return deviceController.getRaiseExceptionOnError();
   }
 
   @Override
-  public boolean getRaiseExceptionOnError(){
-    return deviceController.getRaiseExceptionOnError();
+  public void setRaiseExceptionOnError(boolean flag) {
+    deviceController.setRaiseExceptionOnError(flag);
   }
 
   @Override
@@ -50,7 +70,8 @@ public class I2CDeviceScheduler extends I2CDeviceController {
   public I2CDevice getDevice() {
     return deviceController.getDevice();
   }
-  public DeviceType getType(){
+
+  public DeviceType getType() {
     return getDevice().getType();
   }
 

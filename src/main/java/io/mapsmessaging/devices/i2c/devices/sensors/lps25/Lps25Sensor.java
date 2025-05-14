@@ -1,3 +1,23 @@
+/*
+ *
+ *  Copyright [ 2020 - 2024 ] [Matthew Buckton]
+ *  Copyright [ 2024 - 2025.  ] [Maps Messaging B.V.]
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
+ */
+
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25;
 
 import io.mapsmessaging.devices.DeviceType;
@@ -60,6 +80,7 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
 
   public Lps25Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(Lps25Sensor.class));
+
     control1 = new Control1(this);
     control2 = new Control2(this);
     control3 = new Control3(this);
@@ -76,16 +97,44 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
     whoAmIRegister = new WhoAmIRegister(this);
     pressureOffset = new PressureOffset(this);
     resolutionRegister = new ResolutionRegister(this);
-    FloatSensorReading pressureReading = new FloatSensorReading("pressure", "hPa", 260, 1260, 1, this::getPressure);
-    FloatSensorReading temperatureReading = new FloatSensorReading("temperature", "°C", -30, 70, 1, this::getTemperature);
+
+    FloatSensorReading pressureReading = new FloatSensorReading(
+        "pressure",
+        "hPa",
+        "Absolute pressure from LPS25 sensor",
+        1013.25f,
+        true,
+        260f,
+        1260f,
+        1,
+        this::getPressure
+    );
+
+    FloatSensorReading temperatureReading = new FloatSensorReading(
+        "temperature",
+        "°C",
+        "Temperature reading from LPS25 sensor",
+        25.0f,
+        true,
+        -30f,
+        70f,
+        1,
+        this::getTemperature
+    );
+
     readings = List.of(pressureReading, temperatureReading);
-    if(whoAmIRegister.getWhoAmI() == 0b10111101){
+
+    if (whoAmIRegister.getWhoAmI() == 0b10111101) {
       initialise();
     }
   }
 
+  public static int getId(AddressableDevice device) {
+    return device.readRegister(WHO_AM_I);
+  }
+
   private void initialise() throws IOException {
-    counter =0;
+    counter = 0;
     control1.setPowerDownMode(false);
     delay(10);
     reset();
@@ -100,10 +149,6 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
     control1.resetAutoZero(true);
     control1.setDataRate(DataRate.RATE_7_HZ);
     dataRate = DataRate.RATE_7_HZ;
-  }
-
-  public static int getId(AddressableDevice device) {
-    return device.readRegister(WHO_AM_I);
   }
 
   @Override
@@ -146,11 +191,11 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
 
   //region Pressure Out Registers
   protected float getPressure() throws IOException {
-    if(counter > 20){
+    if (counter > 20) {
       initialise();
     }
     if (!control1.getDataRate().equals(DataRate.RATE_ONE_SHOT) &&
-      !statusRegister.isPressureDataAvailable()){
+        !statusRegister.isPressureDataAvailable()) {
       counter++;
       return pressure;
     }
@@ -162,7 +207,7 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
   //region Temperature Out Registers
   protected float getTemperature() throws IOException {
     if (!control1.getDataRate().equals(DataRate.RATE_ONE_SHOT) &&
-      !statusRegister.isTemperatureDataAvailable()){
+        !statusRegister.isTemperatureDataAvailable()) {
       return temperature;
     }
     temperature = temperatureRegister.getTemperature();

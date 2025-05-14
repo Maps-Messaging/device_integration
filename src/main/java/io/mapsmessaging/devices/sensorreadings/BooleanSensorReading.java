@@ -18,12 +18,11 @@
  *
  */
 
-package io.mapsmessaging.devices.i2c.devices.sensors.scd41.functions;
+package io.mapsmessaging.devices.sensorreadings;
 
-import io.mapsmessaging.devices.impl.AddressableDevice;
+public class BooleanSensorReading extends SensorReading<Boolean> {
 
-public class WakeUpRequest extends Request {
-  public WakeUpRequest(AddressableDevice device) {
-    super(30, 0x36f6, 0, device);
+  public BooleanSensorReading(String name, String unit, String description, Boolean example, boolean readOnly, ReadingSupplier<Boolean> valueSupplier) {
+    super(name, unit, description, example, readOnly, valueSupplier);
   }
 }

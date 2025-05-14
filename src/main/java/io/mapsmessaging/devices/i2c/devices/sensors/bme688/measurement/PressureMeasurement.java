@@ -1,3 +1,23 @@
+/*
+ *
+ *  Copyright [ 2020 - 2024 ] [Matthew Buckton]
+ *  Copyright [ 2024 - 2025.  ] [Maps Messaging B.V.]
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
+ */
+
 package io.mapsmessaging.devices.i2c.devices.sensors.bme688.measurement;
 
 import io.mapsmessaging.devices.i2c.devices.sensors.bme688.BME688Sensor;
@@ -45,7 +65,7 @@ public class PressureMeasurement implements Measurement {
     var1 = (((var1 >> 2) * (var1 >> 2)) >> 13) * (parP3 << 5);
     var1 = ((var1 >> 3) + ((parP2 * var1) >> 1)) >> 18;
     var1 = (((32768 + var1) * parP1) >> 15);
-    int  pressureComp = 1048576 - presAdc;
+    int pressureComp = 1048576 - presAdc;
     pressureComp = ((pressureComp - (var2 >> 12)) * (3125));
     if (pressureComp < presOvfCheck) {
       pressureComp = (pressureComp << 1) / var1;
@@ -54,10 +74,10 @@ public class PressureMeasurement implements Measurement {
     }
 
     int var3 = (((pressureComp >> 3) * (pressureComp >> 3)) >> 13) * (parP9 >> 12);
-    var2 =  (((pressureComp >> 2) * (parP8)) >> 13);
-    var3 +=  ((pressureComp >> 8) * (pressureComp >> 8) * (pressureComp >> 8) * (parP10 >> 17));
+    var2 = (((pressureComp >> 2) * (parP8)) >> 13);
+    var3 += ((pressureComp >> 8) * (pressureComp >> 8) * (pressureComp >> 8) * (parP10 >> 17));
     pressureComp += (var3 + var2 + (parP7 << 7)) >> 4;
-    return pressureComp/100.0;
+    return pressureComp / 100.0;
   }
 
 }

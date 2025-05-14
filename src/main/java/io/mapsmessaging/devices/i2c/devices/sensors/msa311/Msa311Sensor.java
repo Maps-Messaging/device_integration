@@ -1,17 +1,21 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] [Matthew Buckton]
+ *  Copyright [ 2024 - 2025.  ] [Maps Messaging B.V.]
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *
  */
 
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311;
@@ -106,6 +110,7 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
 
   public Msa311Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(Msa311Sensor.class));
+
     resetRegister = new ResetRegister(this);
     partIdRegister = new PartIdRegister(this);
     rangeRegister = new RangeRegister(this);
@@ -139,10 +144,41 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
     yOffsetCompensation = new OffsetCompensationRegister(this, 0x39, "Y offset compensation");
     zOffsetCompensation = new OffsetCompensationRegister(this, 0x3A, "Z offset compensation");
 
+    FloatSensorReading xOrientation = new FloatSensorReading(
+        "x_orientation",
+        "m/s²",
+        "X-axis acceleration from MSA311 sensor",
+        0.0f,
+        true,
+        -100f,
+        100f,
+        2,
+        this::getX
+    );
 
-    FloatSensorReading xOrientation = new FloatSensorReading("x_orientation", "m/s^2", -100, 100, 2, this::getX);
-    FloatSensorReading yOrientation = new FloatSensorReading("y_orientation", "m/s^2", -100, 100, 2, this::getY);
-    FloatSensorReading zOrientation = new FloatSensorReading("z_orientation", "m/s^2", -100, 100, 2, this::getZ);
+    FloatSensorReading yOrientation = new FloatSensorReading(
+        "y_orientation",
+        "m/s²",
+        "Y-axis acceleration from MSA311 sensor",
+        0.0f,
+        true,
+        -100f,
+        100f,
+        2,
+        this::getY
+    );
+
+    FloatSensorReading zOrientation = new FloatSensorReading(
+        "z_orientation",
+        "m/s²",
+        "Z-axis acceleration from MSA311 sensor",
+        9.8f,
+        true,
+        -100f,
+        100f,
+        2,
+        this::getZ
+    );
 
     readings = List.of(xOrientation, yOrientation, zOrientation);
     initialise();
@@ -225,6 +261,7 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
   private Range getRange() {
     return rangeRegister.getRange();
   }
+
   @Override
   public DeviceType getType() {
     return DeviceType.SENSOR;
