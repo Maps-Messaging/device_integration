@@ -183,7 +183,7 @@
           </execution>
         </executions>
         <groupId>org.jacoco</groupId>
-        <version>0.8.12</version>
+        <version>0.8.13</version>
       </plugin>
 
       <!-- Setup the JUnit tests runner -->
@@ -198,7 +198,7 @@
           </includes>
         </configuration>
         <groupId>org.apache.maven.plugins</groupId>
-        <version>3.5.2</version>
+        <version>3.5.3</version>
       </plugin>
 
       <!-- JavaDoc -->
@@ -269,7 +269,7 @@
       <plugin>
         <groupId>org.owasp</groupId>
         <artifactId>dependency-check-maven</artifactId>
-        <version>12.1.0</version>
+        <version>12.1.1</version>
         <configuration>
           <nvdApiKey>${nvd.api.key}</nvdApiKey>
           <failBuildOnCVSS>10</failBuildOnCVSS>
@@ -437,7 +437,7 @@
         <artifactId>junit-jupiter-engine</artifactId>
         <groupId>org.junit.jupiter</groupId>
         <scope>test</scope>
-        <version>5.12.1</version>
+        <version>5.12.2</version>
       </dependency>
   </dependencies>
 
