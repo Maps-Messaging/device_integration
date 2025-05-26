@@ -51,12 +51,15 @@ public class DeviceBusManager {
   private final Pi4JPinManagement pinManagement;
   private final InterruptFactory interruptFactory;
   private final boolean supportsLengthResponse;
+
   private DeviceBusManager() {
     logger.log(DeviceLogMessage.BUS_MANAGER_STARTUP);
     pi4j = Pi4J.newAutoContext();
     String provider = getProvider();
-    supportsLengthResponse = provider.equalsIgnoreCase("linuxfs-i2c");
-    I2CProvider i2cProvider = pi4j.provider(provider);
+    //  supportsLengthResponse = provider.equalsIgnoreCase("linuxfs-i2c");
+
+    Context pi4j = Pi4J.newAutoContext();
+    I2CProvider i2cProvider = pi4j.getI2CProvider();
     logger.log(DeviceLogMessage.BUS_MANAGER_PROVIDER, provider);
     i2cBusManager = new I2CBusManager[2];
     for (int x = 0; x < i2cBusManager.length; x++) {
@@ -74,7 +77,7 @@ public class DeviceBusManager {
   }
 
   private static String getProvider() {
-    String provider = System.getProperty("I2C-PROVIDER", PROVIDERS[0]).toLowerCase();
+    String provider = System.getProperty("I2C-PROVIDER", PROVIDERS[1]).toLowerCase();
     boolean isValid = false;
     for (String providers : PROVIDERS) {
       if (providers.equals(provider)) {
@@ -83,7 +86,7 @@ public class DeviceBusManager {
       }
     }
     if (!isValid) {
-      provider = PROVIDERS[0];
+      provider = PROVIDERS[1];
     }
     return provider;
   }

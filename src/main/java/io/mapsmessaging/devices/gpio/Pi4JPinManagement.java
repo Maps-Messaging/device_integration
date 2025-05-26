@@ -35,13 +35,13 @@ import java.util.Map;
 public class Pi4JPinManagement extends PinManagement {
 
   private final Context pi4j;
-  private final DigitalInputProvider inputProvider;
-  private final DigitalOutputProvider outputProvider;
+  private DigitalInputProvider inputProvider;
+  private DigitalOutputProvider outputProvider;
 
   public Pi4JPinManagement(Context pi4J) {
     this.pi4j = pi4J;
-    inputProvider = pi4j.provider("pigpio-digital-input");
-    outputProvider = pi4j.provider("pigpio-digital-output");
+    inputProvider = pi4j.getDigitalInputProvider();
+    outputProvider = pi4j.getDigitalOutputProvider();
   }
 
   @Override
