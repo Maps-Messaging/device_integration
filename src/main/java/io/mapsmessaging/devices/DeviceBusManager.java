@@ -58,7 +58,6 @@ public class DeviceBusManager {
     String name = i2cProvider.getId();
     supportsLengthResponse = name.equalsIgnoreCase("linuxfs-i2c");
 
-    pi4j.providers().all(I2CProvider.class).values().forEach(p -> System.out.println(p.id()));
     logger.log(DeviceLogMessage.BUS_MANAGER_PROVIDER, name);
     i2cBusManager = new I2CBusManager[2];
     for (int x = 0; x < i2cBusManager.length; x++) {
