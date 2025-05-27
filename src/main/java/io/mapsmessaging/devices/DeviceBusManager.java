@@ -56,7 +56,7 @@ public class DeviceBusManager {
     logger.log(DeviceLogMessage.BUS_MANAGER_STARTUP);
     pi4j = Pi4J.newAutoContext();
     String provider = getProvider();
-    //  supportsLengthResponse = provider.equalsIgnoreCase("linuxfs-i2c");
+    supportsLengthResponse = provider.equalsIgnoreCase("linuxfs-i2c");
 
     Context pi4j = Pi4J.newAutoContext();
     I2CProvider i2cProvider = pi4j.getI2CProvider();
@@ -93,7 +93,7 @@ public class DeviceBusManager {
 
   public boolean isAvailable() {
     boolean result = false;
-    try {
+   try {
       try (var i2c = pi4j.create(I2C.newConfigBuilder(pi4j).id("Test I2C").device(1).bus(1).build())) {
         i2c.getDevice();
         result = true;
