@@ -42,7 +42,6 @@ import java.util.Map;
 @SuppressWarnings("java:S6548") // yes it is a singleton
 @Getter
 public class DeviceBusManager {
-  private static final String[] PROVIDERS = {"pigpio-i2c", "linuxfs-i2c"};
   private final Logger logger = LoggerFactory.getLogger(DeviceBusManager.class);
   private final Context pi4j;
   private final I2CBusManager[] i2cBusManager;
@@ -55,12 +54,12 @@ public class DeviceBusManager {
   private DeviceBusManager() {
     logger.log(DeviceLogMessage.BUS_MANAGER_STARTUP);
     pi4j = Pi4J.newAutoContext();
-    String provider = getProvider();
-    supportsLengthResponse = provider.equalsIgnoreCase("linuxfs-i2c");
-
-    Context pi4j = Pi4J.newAutoContext();
     I2CProvider i2cProvider = pi4j.getI2CProvider();
-    logger.log(DeviceLogMessage.BUS_MANAGER_PROVIDER, provider);
+    String name = i2cProvider.getId();
+    supportsLengthResponse = name.equalsIgnoreCase("linuxfs-i2c");
+
+    pi4j.providers().all(I2CProvider.class).values().forEach(p -> System.out.println(p.id()));
+    logger.log(DeviceLogMessage.BUS_MANAGER_PROVIDER, name);
     i2cBusManager = new I2CBusManager[2];
     for (int x = 0; x < i2cBusManager.length; x++) {
       i2cBusManager[x] = new I2CBusManager(pi4j, i2cProvider, x);
@@ -74,21 +73,6 @@ public class DeviceBusManager {
   // Global access point to get the Singleton instance
   public static DeviceBusManager getInstance() {
     return Holder.INSTANCE;
-  }
-
-  private static String getProvider() {
-    String provider = System.getProperty("I2C-PROVIDER", PROVIDERS[1]).toLowerCase();
-    boolean isValid = false;
-    for (String providers : PROVIDERS) {
-      if (providers.equals(provider)) {
-        isValid = true;
-        break;
-      }
-    }
-    if (!isValid) {
-      provider = PROVIDERS[1];
-    }
-    return provider;
   }
 
   public boolean isAvailable() {
