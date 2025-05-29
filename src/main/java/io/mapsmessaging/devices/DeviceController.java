@@ -175,6 +175,14 @@ public abstract class DeviceController {
         prop.addProperty("description", "Unit: " + reading.getUnit());
       }
 
+      JsonObject timestampProp = new JsonObject();
+      timestampProp.addProperty("type", "string");
+      timestampProp.addProperty("format", "date-time");
+      timestampProp.addProperty("description", "Optional ISO 8601 UTC timestamp (e.g., 2025-05-29T07:28:15.123Z)");
+      timestampProp.addProperty("readOnly", true);
+
+      properties.add("timestamp", timestampProp);
+
       properties.add(reading.getName(), prop);
       required.add(reading.getName());
     }
