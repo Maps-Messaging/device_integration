@@ -27,6 +27,7 @@ import io.mapsmessaging.devices.gpio.InterruptFactory;
 import io.mapsmessaging.devices.gpio.Pi4JPinManagement;
 import io.mapsmessaging.devices.gpio.PiInterruptFactory;
 import io.mapsmessaging.devices.i2c.I2CBusManager;
+import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.devices.onewire.OneWireBusManager;
 import io.mapsmessaging.devices.spi.SpiBusManager;
@@ -50,6 +51,7 @@ public class DeviceBusManager {
   private final Pi4JPinManagement pinManagement;
   private final InterruptFactory interruptFactory;
   private final boolean supportsLengthResponse;
+  private boolean timestamp;
 
   private DeviceBusManager() {
     logger.log(DeviceLogMessage.BUS_MANAGER_STARTUP);
@@ -82,7 +84,7 @@ public class DeviceBusManager {
         result = true;
       }
     } catch (Throwable e) {
-      e.printStackTrace();
+     // ignore
     }
     return result;
   }
@@ -99,6 +101,10 @@ public class DeviceBusManager {
     if (!spi.isEmpty()) {
       spiBusManager.configureDevices(spi);
     }
+  }
+
+  public void enableTimestamping(boolean enable) {
+    I2CDeviceController.setTimestampReadings(enable);
   }
 
   private Map<String, Object> getConfig(String bus, Map<String, Object> config) {

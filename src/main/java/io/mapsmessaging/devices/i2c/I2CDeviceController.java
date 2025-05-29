@@ -34,12 +34,17 @@ import lombok.Setter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
 @Getter
 @Setter
 public abstract class I2CDeviceController extends DeviceController {
+
+  @Getter
+  @Setter
+  private static boolean timestampReadings = true;
 
   protected static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
@@ -115,7 +120,7 @@ public abstract class I2CDeviceController extends DeviceController {
       }
       jsonObject.addProperty(reading.getName(), computationResult.getError().getMessage());
     }
-
+    jsonObject.addProperty("timestamp", Instant.now().toString());
   }
 
   public boolean canDetect() {
