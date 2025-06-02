@@ -75,4 +75,7 @@ io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.backlight.BacklightRGBV2
 #
 # Debug/ testing sensors
 #
-io.mapsmessaging.devices.i2c.devices.debug.i2cDebugController
+io.mapsmessaging.devices.i2c.devices.demo.impl.scd41.Scd41Controller
+io.mapsmessaging.devices.i2c.devices.demo.impl.pmsca003i.Pmsa003iController
+io.mapsmessaging.devices.i2c.devices.demo.impl.tls2561.TSL2561Controller
+

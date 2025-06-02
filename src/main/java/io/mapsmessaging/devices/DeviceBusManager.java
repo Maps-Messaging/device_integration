@@ -28,6 +28,7 @@ import io.mapsmessaging.devices.gpio.Pi4JPinManagement;
 import io.mapsmessaging.devices.gpio.PiInterruptFactory;
 import io.mapsmessaging.devices.i2c.I2CBusManager;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
+import io.mapsmessaging.devices.i2cmock.I2CMockBusManager;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.devices.onewire.OneWireBusManager;
 import io.mapsmessaging.devices.spi.SpiBusManager;
@@ -61,10 +62,16 @@ public class DeviceBusManager {
     supportsLengthResponse = name.equalsIgnoreCase("linuxfs-i2c");
 
     logger.log(DeviceLogMessage.BUS_MANAGER_PROVIDER, name);
-    i2cBusManager = new I2CBusManager[2];
+    i2cBusManager = new I2CBusManager[3];
     for (int x = 0; x < i2cBusManager.length; x++) {
-      i2cBusManager[x] = new I2CBusManager(pi4j, i2cProvider, x);
+      if(x < i2cBusManager.length-1) {
+        i2cBusManager[x] = new I2CBusManager(pi4j, i2cProvider, x);
+      }
+      else{
+        i2cBusManager[x] = new I2CMockBusManager(255);
+      }
     }
+
     oneWireBusManager = new OneWireBusManager();
     spiBusManager = new SpiBusManager(pi4j);
     pinManagement = new Pi4JPinManagement(pi4j);
@@ -101,6 +108,11 @@ public class DeviceBusManager {
     if (!spi.isEmpty()) {
       spiBusManager.configureDevices(spi);
     }
+    Map<String, Object> debug = getConfig("debug", config);
+    if( !debug.isEmpty()) {
+      System.err.println("Loading debug devices");
+    }
+
   }
 
   public void enableTimestamping(boolean enable) {

@@ -17,12 +17,13 @@
  *  limitations under the License
  */
 
-package io.mapsmessaging.devices.i2c.devices.debug;
+package io.mapsmessaging.devices.i2c.devices.demo.impl.scd41;
 
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
+import io.mapsmessaging.devices.i2c.devices.demo.I2cDemoController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -31,26 +32,27 @@ import lombok.Setter;
 
 import java.io.IOException;
 
-public class i2cDebugController extends I2CDeviceController {
+public class Scd41Controller extends I2cDemoController {
 
-  private static final int I2C_ADDRESS = 0x0;
-  private static final String NAME = "DebugDevice";
-  private static final String DESCRIPTION = "i2c Debug Device, simply updates the time every second";
+  private static final int I2C_ADDRESS = 0x62;
+  private static final String NAME = "Demo SCD41";
+  private static final String DESCRIPTION = "Demo SCD41, generates the values you would find in a normal SCD41";
 
-  private final i2cDebugDevice device;
+  private final Scd41Device device;
 
   @Getter
   @Setter
   private boolean throwErrror;
 
-  public i2cDebugController() {
+  public Scd41Controller() {
+    super(null);
     device = null;
   }
 
-  public i2cDebugController(AddressableDevice device) {
+  public Scd41Controller(AddressableDevice device) {
     super(device);
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
-      this.device = new i2cDebugDevice(device);
+      this.device = new Scd41Device(device);
     }
     throwErrror = false;
   }
@@ -64,7 +66,7 @@ public class i2cDebugController extends I2CDeviceController {
   }
 
   public I2CDeviceController mount(AddressableDevice device) throws IOException {
-    return new i2cDebugController(device);
+    return new Scd41Controller(device);
   }
 
   @Override

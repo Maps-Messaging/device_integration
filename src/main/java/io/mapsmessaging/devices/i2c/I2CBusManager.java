@@ -24,6 +24,7 @@ import com.pi4j.io.i2c.I2C;
 import com.pi4j.io.i2c.I2CConfig;
 import com.pi4j.io.i2c.I2CProvider;
 import io.mapsmessaging.devices.DeviceController;
+import io.mapsmessaging.devices.i2c.devices.demo.I2cDemoController;
 import io.mapsmessaging.devices.impl.I2CDeviceImpl;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.Logger;
@@ -39,17 +40,30 @@ import static io.mapsmessaging.devices.logging.DeviceLogMessage.I2C_BUS_SCAN_MUL
 
 public class I2CBusManager {
 
-  private final Logger logger = LoggerFactory.getLogger(I2CBusManager.class);
+  protected final Logger logger = LoggerFactory.getLogger(I2CBusManager.class);
 
-  private final Map<String, I2CDeviceController> knownDevices;
-  private final Map<Integer, List<I2CDeviceController>> mappedDevices;
-  private final Map<String, DeviceController> activeDevices;
-  private final Map<Integer, I2C> physicalDevices;
+  protected final Map<String, I2CDeviceController> knownDevices;
+  protected final Map<Integer, List<I2CDeviceController>> mappedDevices;
+  protected final Map<String, DeviceController> activeDevices;
+  protected final Map<Integer, I2C> physicalDevices;
 
   private final Context pi4j;
   private final I2CProvider i2cProvider;
-  private final int i2cBus;
-  private final boolean active;
+  protected final int i2cBus;
+  protected final boolean active;
+
+
+  protected I2CBusManager(int bus) {
+    active = true;
+    i2cBus = bus;
+    this.pi4j = null;
+    this.i2cProvider = null;
+    mappedDevices = new LinkedHashMap<>();
+    activeDevices = new ConcurrentHashMap<>();
+    knownDevices = new ConcurrentHashMap<>();
+    physicalDevices = new ConcurrentHashMap<>();
+
+  }
 
   public I2CBusManager(Context pi4j, I2CProvider i2cProvider, int bus) {
     logger.log(DeviceLogMessage.I2C_BUS_MANAGER_STARTUP);
@@ -62,14 +76,17 @@ public class I2CBusManager {
     activeDevices = new ConcurrentHashMap<>();
     knownDevices = new ConcurrentHashMap<>();
     physicalDevices = new ConcurrentHashMap<>();
+
     ServiceLoader<I2CDeviceController> deviceEntries = ServiceLoader.load(I2CDeviceController.class);
     for (I2CDeviceController device : deviceEntries) {
-      knownDevices.put(device.getName(), device);
-      logger.log(DeviceLogMessage.I2C_BUS_LOADED_DEVICE, device.getName());
-      int[] addressRange = device.getAddressRange();
-      for (int i : addressRange) {
-        logger.log(DeviceLogMessage.I2C_BUS_ALLOCATING_ADDRESS, "0x" + Integer.toHexString(i), device.getName());
-        mappedDevices.computeIfAbsent(i, k -> new ArrayList<>()).add(device);
+      if(!(device instanceof I2cDemoController)) {
+        knownDevices.put(device.getName(), device);
+        logger.log(DeviceLogMessage.I2C_BUS_LOADED_DEVICE, device.getName());
+        int[] addressRange = device.getAddressRange();
+        for (int i : addressRange) {
+          logger.log(DeviceLogMessage.I2C_BUS_ALLOCATING_ADDRESS, "0x" + Integer.toHexString(i), device.getName());
+          mappedDevices.computeIfAbsent(i, k -> new ArrayList<>()).add(device);
+        }
       }
     }
   }
