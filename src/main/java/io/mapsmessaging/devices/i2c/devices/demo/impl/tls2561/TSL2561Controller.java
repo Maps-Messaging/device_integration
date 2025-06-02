@@ -70,7 +70,7 @@ public class TSL2561Controller extends I2cDemoController {
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
     config.setComments("i2c device TLS2561 light sensor, returns light and IR light levels and computed lux level");
-    config.setSource(getName());
+    config.setTitle(getName());
     config.setVersion("1.0");
     config.setResourceType("sensor");
     config.setUniqueId(getSchemaId());

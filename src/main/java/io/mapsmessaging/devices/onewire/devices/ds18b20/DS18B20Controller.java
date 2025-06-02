@@ -61,7 +61,7 @@ public class DS18B20Controller extends OneWireDeviceController {
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
     config.setComments("1-Wire temperature sensor");
-    config.setSource(getName());
+    config.setTitle(getName());
     config.setUniqueId(getSchemaId());
     config.setVersion("1.0");
     config.setResourceType("sensor");

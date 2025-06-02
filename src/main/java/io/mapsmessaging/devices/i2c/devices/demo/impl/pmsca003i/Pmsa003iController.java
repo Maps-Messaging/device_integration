@@ -86,7 +86,7 @@ public class Pmsa003iController extends I2cDemoController {
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig();
     config.setComments("Air Quality Breakout");
-    config.setSource(getName());
+    config.setTitle(getName());
     config.setVersion("1.0");
     config.setResourceType("sensor");
     config.setUniqueId(getSchemaId());

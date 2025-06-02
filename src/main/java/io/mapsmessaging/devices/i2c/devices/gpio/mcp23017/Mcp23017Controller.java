@@ -83,7 +83,7 @@ public class Mcp23017Controller extends I2CDeviceController {
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
     config.setComments("i2c device MCP32017 16 Pin extender");
-    config.setSource(getName());
+    config.setTitle(getName());
     config.setUniqueId(getSchemaId());
     config.setVersion("1.0");
     config.setResourceType("gpio");

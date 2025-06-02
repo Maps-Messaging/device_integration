@@ -112,7 +112,7 @@ public class Mcp3y0xController extends SpiDeviceController {
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setComments("SPI device Analog to Digital convertor");
-    config.setSource(getName());
+    config.setTitle(getName());
     config.setVersion("1.0");
     config.setResourceType("sensor");
     config.setUniqueId(getSchemaId());

@@ -78,7 +78,7 @@ public class Msa311Controller extends I2CDeviceController {
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
     config.setComments(description);
-    config.setSource(getName());
+    config.setTitle(getName());
     config.setVersion("1.0");
     config.setResourceType("sensor");
     config.setUniqueId(getSchemaId());

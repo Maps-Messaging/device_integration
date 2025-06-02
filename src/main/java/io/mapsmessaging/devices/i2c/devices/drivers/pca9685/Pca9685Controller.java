@@ -79,7 +79,7 @@ public class Pca9685Controller extends I2CDeviceController {
     JsonSchemaConfig config = new JsonSchemaConfig();
     config.setComments(DESCRIPTION);
     config.setUniqueId(getSchemaId());
-    config.setSource(getName());
+    config.setTitle(getName());
     config.setVersion("1.0");
     config.setResourceType("driver");
     config.setInterfaceDescription("Manages the output of 16 PWM devices");

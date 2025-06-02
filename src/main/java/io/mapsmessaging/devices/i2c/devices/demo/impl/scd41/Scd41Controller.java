@@ -87,7 +87,7 @@ public class Scd41Controller extends I2cDemoController {
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(device));
     config.setComments(DESCRIPTION);
-    config.setSource(getName());
+    config.setTitle(getName());
     config.setVersion("1.0");
     config.setUniqueId(getSchemaId());
     config.setResourceType("sensor");

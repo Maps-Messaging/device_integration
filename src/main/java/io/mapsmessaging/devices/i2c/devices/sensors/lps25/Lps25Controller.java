@@ -76,7 +76,7 @@ public class Lps25Controller extends I2CDeviceController {
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
     config.setComments("i2c device LPS25 pressure sensor: 260-1260 hPa");
-    config.setSource(getName());
+    config.setTitle(getName());
     config.setVersion("1.0");
     config.setUniqueId(getSchemaId());
     config.setResourceType("sensor");

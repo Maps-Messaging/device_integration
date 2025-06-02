@@ -85,9 +85,9 @@ public class GasSensorController extends I2CDeviceController {
     config.setResourceType("sensor");
     if (sensor != null) {
       config.setUniqueId(UuidGenerator.getInstance().generateUuid(getName() + "-" + sensor.getSensorType().getSku() + "-" + sensor.getSensorType().getGasType()));
-      config.setSource(getName() + "-" + sensor.getSensorType().getGasType());
+      config.setTitle(getName() + "-" + sensor.getSensorType().getGasType());
     } else {
-      config.setSource(getName());
+      config.setTitle(getName());
       config.setUniqueId(getSchemaId());
     }
     config.setInterfaceDescription("Gravity Gas sensor");

@@ -93,7 +93,7 @@ public class AM2315Controller extends I2CDeviceController {
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setComments("i2c device AM2315 encased Temperature and Humidity Sensor https://www.adafruit.com/product/1293");
-    config.setSource("AM2315");
+    config.setTitle(getName());
     config.setVersion("1.0");
     config.setUniqueId(getSchemaId());
     config.setResourceType("sensor");

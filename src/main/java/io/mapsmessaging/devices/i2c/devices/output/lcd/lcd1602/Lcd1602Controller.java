@@ -148,7 +148,7 @@ public class Lcd1602Controller extends I2CDeviceController {
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setComments(DESCRIPTION);
-    config.setSource(getName());
+    config.setTitle(getName());
     config.setUniqueId(getSchemaId());
     config.setVersion("1.0");
     config.setResourceType("display");
