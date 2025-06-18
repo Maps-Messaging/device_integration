@@ -63,7 +63,7 @@ public class DS18B20Controller extends OneWireDeviceController {
     config.setComments("1-Wire temperature sensor");
     config.setTitle(getName());
     config.setUniqueId(getSchemaId());
-    config.setVersion("1.0");
+    config.setVersion(1);
     config.setResourceType("sensor");
     config.setInterfaceDescription("Returns JSON object containing temperature, minimum and maximum, Model, Status and Version");
     return config;

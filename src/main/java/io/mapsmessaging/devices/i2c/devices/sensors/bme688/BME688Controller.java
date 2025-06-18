@@ -75,7 +75,7 @@ public class BME688Controller extends I2CDeviceController {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
     config.setComments("I2C device BME688 VOC, Pressure, Temperature and Humidity Sensor");
     config.setTitle(getName());
-    config.setVersion("1.0");
+    config.setVersion(1);
     config.setUniqueId(getSchemaId());
     config.setResourceType("sensor");
     config.setInterfaceDescription("Returns JSON object containing Temperature, Humidity, Pressure, Gas Resistance, Heater status and Gas mode");

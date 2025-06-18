@@ -113,7 +113,7 @@ public class BNO055Controller extends I2CDeviceController {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
     config.setComments("i2c device BNO055 orientation sensor");
     config.setTitle(getName());
-    config.setVersion("1.0");
+    config.setVersion(1);
     config.setResourceType("sensor");
     config.setUniqueId(getSchemaId());
     config.setInterfaceDescription("Returns JSON object containing Temperature and Pressure");

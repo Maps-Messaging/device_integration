@@ -150,7 +150,7 @@ public class Lcd1602Controller extends I2CDeviceController {
     config.setComments(DESCRIPTION);
     config.setTitle(getName());
     config.setUniqueId(getSchemaId());
-    config.setVersion("1.0");
+    config.setVersion(1);
     config.setResourceType("display");
     config.setInterfaceDescription("LCD1602 accepts actions such as WRITE, CLEAR, READ. Data is a byte array.");
     return config;

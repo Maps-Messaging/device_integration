@@ -81,7 +81,7 @@ public class GasSensorController extends I2CDeviceController {
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
     config.setComments(getName());
-    config.setVersion("1.0");
+    config.setVersion(1);
     config.setResourceType("sensor");
     if (sensor != null) {
       config.setUniqueId(UuidGenerator.getInstance().generateUuid(getName() + "-" + sensor.getSensorType().getSku() + "-" + sensor.getSensorType().getGasType()));

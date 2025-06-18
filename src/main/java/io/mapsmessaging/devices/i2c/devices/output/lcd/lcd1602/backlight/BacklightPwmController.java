@@ -80,7 +80,7 @@ public abstract class BacklightPwmController extends I2CDeviceController {
     JsonSchemaConfig config = new JsonSchemaConfig();
     config.setComments("i2c device AM2315 encased Temperature and Humidity Sensor https://www.adafruit.com/product/1293");
     config.setSource("I2C bus address : 0x5C");
-    config.setVersion("1.0");
+    config.setVersion(1);
     config.setResourceType("sensor");
     config.setInterfaceDescription("temperature, humidity");
     return config;

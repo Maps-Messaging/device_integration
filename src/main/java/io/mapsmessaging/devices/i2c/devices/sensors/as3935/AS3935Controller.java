@@ -71,7 +71,7 @@ public class AS3935Controller extends I2CDeviceController {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
     config.setComments("i2c device AS3935 is a lightning detector");
     config.setTitle(getName());
-    config.setVersion("1.0");
+    config.setVersion(1);
     config.setUniqueId(getSchemaId());
     config.setResourceType("sensor");
     config.setInterfaceDescription("Returns JSON object containing details about the latest detection");

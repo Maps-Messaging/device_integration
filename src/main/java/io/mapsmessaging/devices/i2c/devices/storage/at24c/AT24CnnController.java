@@ -111,7 +111,7 @@ public class AT24CnnController extends I2CDeviceController {
     JsonSchemaConfig config = new JsonSchemaConfig();
     config.setComments("i2c device AT24C32/64 eeprom");
     config.setTitle(getName());
-    config.setVersion("1.0");
+    config.setVersion(1);
     config.setResourceType("storage");
     config.setUniqueId(getSchemaId());
     config.setInterfaceDescription("Serial EEPROM");

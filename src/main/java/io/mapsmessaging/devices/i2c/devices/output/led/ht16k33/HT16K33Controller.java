@@ -208,7 +208,7 @@ public abstract class HT16K33Controller extends I2CDeviceController {
   public SchemaConfig getSchema(String schema) {
     JsonSchemaConfig config = new JsonSchemaConfig(schema);
     config.setTitle(getName());
-    config.setVersion("1.0");
+    config.setVersion(1);
     config.setResourceType("LED");
     config.setUniqueId(getSchemaId());
     config.setInterfaceDescription("Controls the LED segments");

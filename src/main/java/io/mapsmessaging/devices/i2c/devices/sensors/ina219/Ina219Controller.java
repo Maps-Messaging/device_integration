@@ -143,7 +143,7 @@ public class Ina219Controller extends I2CDeviceController {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setComments("High Side DC Current Sensor");
     config.setTitle(getName());
-    config.setVersion("1.0");
+    config.setVersion(1);
     config.setResourceType("sensor");
     config.setUniqueId(getSchemaId());
     config.setInterfaceDescription("Returns json object with current readings from sensor");

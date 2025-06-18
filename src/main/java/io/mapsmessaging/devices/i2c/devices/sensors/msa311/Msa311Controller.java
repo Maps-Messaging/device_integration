@@ -32,7 +32,7 @@ import java.io.IOException;
 
 public class Msa311Controller extends I2CDeviceController {
 
-  private final int i2cAddr = 0x63;
+  private final int i2cAddr = 0x62;
   private final Msa311Sensor sensor;
 
   @Getter
@@ -79,7 +79,7 @@ public class Msa311Controller extends I2CDeviceController {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
     config.setComments(description);
     config.setTitle(getName());
-    config.setVersion("1.0");
+    config.setVersion(1);
     config.setResourceType("sensor");
     config.setUniqueId(getSchemaId());
     config.setInterfaceDescription(description);

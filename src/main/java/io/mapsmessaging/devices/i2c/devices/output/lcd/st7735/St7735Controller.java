@@ -104,7 +104,7 @@ public class St7735Controller extends I2CDeviceController {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setComments(DESCRIPTION);
     config.setTitle(getName());
-    config.setVersion("1.0");
+    config.setVersion(1);
     config.setUniqueId(getSchemaId());
     config.setResourceType("display");
     config.setInterfaceDescription("display");

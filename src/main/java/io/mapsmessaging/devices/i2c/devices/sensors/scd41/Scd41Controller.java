@@ -74,7 +74,7 @@ public class Scd41Controller extends I2CDeviceController {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setComments("i2c device SCD-41 CO2 sensor: 400-2000 ppm");
     config.setTitle(getName());
-    config.setVersion("1.0");
+    config.setVersion(1);
     config.setResourceType("sensor");
     config.setUniqueId(getSchemaId());
     config.setInterfaceDescription("Returns JSON object containing CO2 levels");
