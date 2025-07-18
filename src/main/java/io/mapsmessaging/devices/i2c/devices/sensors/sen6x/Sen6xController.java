@@ -33,9 +33,9 @@ public class Sen6xController extends I2CDeviceController {
   private final Sen6xSensor sensor;
 
   @Getter
-  private final String name = "SEN66";
+  private final String name = "SEN6x";
   @Getter
-  private final String description = "Air Quality Sensor for PM, RH/T, VOC, Nox  and CO2";
+  private final String description = "Air Quality Sensor for PM, RH/T, VOC, Nox, CO2, HCOH";
 
 
   public Sen6xController() {

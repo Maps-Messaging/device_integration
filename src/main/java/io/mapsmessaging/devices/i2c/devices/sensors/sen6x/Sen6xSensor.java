@@ -57,7 +57,7 @@ public class Sen6xSensor extends I2CDevice implements Sensor, Resetable, PowerMa
   private final List<SensorReading<?>> readings;
   private final String productName;
 
-  public Sen6xSensor(AddressableDevice device) throws IOException {
+  public Sen6xSensor(AddressableDevice device) {
     super(device, LoggerFactory.getLogger(Sen6xSensor.class));
     helper = new Sen6xCommandHelper(device);
     getProductNameCommand = new GetProductNameCommand(helper);
