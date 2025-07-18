@@ -100,7 +100,12 @@ public class Sen6xSensor extends I2CDevice implements Sensor, Resetable, PowerMa
 
 
   public static boolean detect(AddressableDevice device) {
-    return false;
+    try {
+      GetSerialNumberCommand request = new GetSerialNumberCommand(new Sen6xCommandHelper(device));
+      return !request.get().isEmpty();
+    } catch (IOException e) {
+      return false;
+    }
   }
 
   private void initialise() {

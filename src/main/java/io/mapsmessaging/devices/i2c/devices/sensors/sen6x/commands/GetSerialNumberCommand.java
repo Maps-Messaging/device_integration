@@ -23,7 +23,7 @@ import io.mapsmessaging.devices.sensorreadings.ReadingSupplier;
 
 import java.io.IOException;
 
-public class GetSerialNumberCommand implements Sen6xCommand<String>, ReadingSupplier {
+public class GetSerialNumberCommand implements Sen6xCommand<String>, ReadingSupplier<String> {
 
   private static final int CMD_ID = 0xD033;
   private static final int RESPONSE_LENGTH = 48;
@@ -35,12 +35,8 @@ public class GetSerialNumberCommand implements Sen6xCommand<String>, ReadingSupp
     this.helper = helper;
   }
 
-  public String get(){
-    try {
-      return execute();
-    } catch (IOException e) {
-      return e.getMessage();
-    }
+  public String get() throws IOException {
+    return execute();
   }
 
   @Override
