@@ -55,7 +55,7 @@ public class MeasurementBlock {
   }
 
   public static MeasurementBlock fromRaw(byte[] raw) throws IOException {
-    if (raw.length < 27 + 3) throw new IOException("Invalid measurement block size"); // now requires 30 bytes
+    if (raw.length < 20) throw new IOException("Invalid measurement block size"); // now requires 30 bytes
     return new MeasurementBlock(
         parseFloat(raw, 0),
         parseFloat(raw, 3),

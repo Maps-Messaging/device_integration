@@ -96,6 +96,11 @@ public class Sen6xSensor extends I2CDevice implements Sensor, Resetable, PowerMa
     readings.addAll(buildStatusReadings(new Sen6xStatusSupplier(getDeviceStatusCommand)));
     readings.addAll(buildMeasurementReadingds());
     initialise();
+    try {
+      powerOn();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
 
@@ -122,12 +127,12 @@ public class Sen6xSensor extends I2CDevice implements Sensor, Resetable, PowerMa
 
   @Override
   public String getName() {
-    return "SCD-41";
+    return "SEN6x";
   }
 
   @Override
   public String getDescription() {
-    return "CO2 Sensor 400 to 2000 - 5000 ppm";
+    return "Air Quality Sensor for PM, RH/T, VOC, Nox, CO2, HCOH";
   }
 
   @Override

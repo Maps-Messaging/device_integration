@@ -43,13 +43,13 @@ public class GetDeviceStatusCommand implements Sen6xCommand<Sen6xStatus> {
       byte[] data = helper.requestResponse(CMD_ID, RESPONSE_LENGTH, DELAY_MS);
       int status = ((data[0] & 0xFF) << 8) | (data[1] & 0xFF);
       sen6xstatus = new Sen6xStatus(status);
+      nextQuery = System.currentTimeMillis() + 1000;
     }
     return sen6xstatus;
   }
 
   public Sen6xStatus get() {
     try {
-      nextQuery = System.currentTimeMillis()+1000;
       return execute();
     } catch (IOException e) {
       return new Sen6xStatus(0); // or optionally throw / log

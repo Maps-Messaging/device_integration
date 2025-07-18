@@ -87,15 +87,20 @@ public abstract class I2CDeviceController extends DeviceController {
 
   @Override
   public byte[] getDeviceState() throws IOException {
-    I2CDevice device = getDevice();
-    JsonObject jsonObject = new JsonObject();
-    if (device instanceof Sensor) {
-      List<SensorReading<?>> readings = ((Sensor) device).getReadings();
-      for (SensorReading<?> reading : readings) {
-        addProperty(reading, jsonObject);
+    try {
+      I2CDevice device = getDevice();
+      JsonObject jsonObject = new JsonObject();
+      if (device instanceof Sensor) {
+        List<SensorReading<?>> readings = ((Sensor) device).getReadings();
+        for (SensorReading<?> reading : readings) {
+          addProperty(reading, jsonObject);
+        }
       }
+      return convert(jsonObject);
+    } catch (Throwable e) {
+      e.printStackTrace();
     }
-    return convert(jsonObject);
+    return "{}".getBytes();
   }
 
   private void addProperty(SensorReading<?> reading, JsonObject jsonObject) throws IOException {

@@ -36,7 +36,7 @@ public class Sen6xMeasurementManager {
   public synchronized MeasurementBlock getMeasurementBlock() throws IOException {
     long now = System.currentTimeMillis();
     if (cachedBlock == null || now - lastReadTime > 1000) {
-      byte[] raw = helper.requestResponse(0x0300, 18); // Example code: Read Measurement
+      byte[] raw = helper.requestResponse(0x0300, 30); // Example code: Read Measurement
       cachedBlock = MeasurementBlock.fromRaw(raw);
       lastReadTime = now;
     }

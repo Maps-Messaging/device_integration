@@ -23,6 +23,7 @@ import io.mapsmessaging.devices.impl.AddressableDevice;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class Sen6xCommandHelper {
 
@@ -45,13 +46,9 @@ public class Sen6xCommandHelper {
 
   public String requestAsciiResponse(int command, int expectedResponseLength, int delayMillis) throws IOException {
     byte[] raw = requestResponse(command, expectedResponseLength, delayMillis);
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < raw.length; i += 2) {
-      char c = (char) ((raw[i] << 8) | (raw[i + 1] & 0xFF));
-      if (c != 0) sb.append(c);
-    }
-    return sb.toString().trim();
+    return new String(raw, StandardCharsets.US_ASCII).trim();
   }
+
 
   public void sendCommand(int commandId) throws IOException {
     byte[] cmd = new byte[2];
@@ -85,6 +82,9 @@ public class Sen6xCommandHelper {
     delay(delayMillis);
     byte[] response = new byte[expectedResponseLength];
     int read = device.read(response, 0, response.length);
+    if (read < 0) {
+      return new byte[0];
+    }
     byte[] actualResponse = new byte[read];
     System.arraycopy(response, 0, actualResponse, 0, read);
     return decodeRawData(actualResponse);
@@ -99,9 +99,9 @@ public class Sen6xCommandHelper {
       byte msb = raw[offset];
       byte lsb = raw[offset + 1];
       byte crc = raw[offset + 2];
-
-      if (crc != computeCRC(msb, lsb)) {
-        throw new IOException("CRC mismatch at word " + i);
+      int computed = computeCRC(msb, lsb);
+      if (crc != -1 && (crc & 0xff) != (computed & 0xff)) {
+        throw new IOException("CRC mismatch at word " + i + " CRC:" + crc + " computed:" + computed);
       }
 
       result[i * 2] = msb;
@@ -131,7 +131,9 @@ public class Sen6xCommandHelper {
 
   public void delay(int delayMs) {
     try {
-      device.wait(delayMs);
+      synchronized (device) {
+        device.wait(delayMs);
+      }
     } catch (InterruptedException e) {
     }
   }

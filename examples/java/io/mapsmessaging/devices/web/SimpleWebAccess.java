@@ -332,7 +332,7 @@ public class SimpleWebAccess {
     JSONObject schemaObject = new JSONObject(schema);
     JSONObject obj1 = schemaObject.getJSONObject("schema");
     if (obj1.has("jsonSchema")) {
-      JSONObject rawSchema = new JSONObject(obj1.getString("jsonSchema"));
+      JSONObject rawSchema = obj1.getJSONObject("jsonSchema");
       obj1.remove("jsonSchema");
       obj1.put("jsonSchema", rawSchema);
     }
