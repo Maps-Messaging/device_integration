@@ -19,32 +19,31 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands;
 
 import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.Sen6xCommandHelper;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.data.MeasurementBlock;
 
 import java.io.IOException;
 
-public class Sen6xMeasurementManager {
+public class GetDataReadyFlagCommand implements Sen6xCommand<Boolean> {
 
+  private static final int CMD_ID = 0x0202;
+  private static final int DELAY_MS = 200;
   private final Sen6xCommandHelper helper;
-  private long lastReadTime = 0;
-  private MeasurementBlock cachedBlock;
-  private GetDataReadyFlagCommand getReadyFlagCommand;
 
-  public Sen6xMeasurementManager(Sen6xCommandHelper helper) {
+  public GetDataReadyFlagCommand(Sen6xCommandHelper helper) {
     this.helper = helper;
-    getReadyFlagCommand = new GetDataReadyFlagCommand(helper);
-    cachedBlock = new MeasurementBlock();
   }
 
-  public synchronized MeasurementBlock getMeasurementBlock() throws IOException {
-    if (getReadyFlagCommand.isReady()) {
-      long now = System.currentTimeMillis();
-      if (cachedBlock == null || now - lastReadTime > 1000) {
-        byte[] raw = helper.requestResponse(0x0300, 30); // Example code: Read Measurement
-        cachedBlock = MeasurementBlock.fromRaw(raw);
-        lastReadTime = now;
-      }
+  @Override
+  public Boolean execute() throws IOException {
+    byte[] status = helper.requestResponse(CMD_ID, 3, DELAY_MS);
+    return status[0] == 0 && status[1] == 1;
+  }
+
+  public boolean isReady() {
+    try {
+      return execute();
+    } catch (IOException e) {
+
     }
-    return cachedBlock;
+    return false;
   }
 }

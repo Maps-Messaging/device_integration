@@ -25,7 +25,7 @@ import java.io.IOException;
 public class StopMeasurementCommand implements Sen6xCommand<Boolean> {
 
   private static final int CMD_ID = 0x0104;
-  private static final int DELAY_MS = 1000;
+  private static final int DELAY_MS = 1100;
   private final Sen6xCommandHelper helper;
 
   public StopMeasurementCommand(Sen6xCommandHelper helper) {
