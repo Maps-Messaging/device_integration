@@ -140,6 +140,7 @@ public abstract class DeviceController {
 
   private void processSchemaList(JsonObject properties, JsonArray required, List<SensorReading<?>> readings) {
     for (SensorReading<?> reading : readings) {
+      boolean isRequired = true;
       JsonObject prop = new JsonObject();
       if (reading instanceof GroupSensorReading) {
         List<SensorReading<?>> list = ((GroupSensorReading) reading).getGroupList();
@@ -184,6 +185,13 @@ public abstract class DeviceController {
         prop.addProperty("type", "boolean");
         prop.addProperty("description", "Unit: " + reading.getUnit());
         prop.addProperty("readOnly", reading.isReadOnly());
+      } else if (reading instanceof OptionalBooleanSensorReading) {
+        prop.addProperty("type", "boolean");
+        prop.addProperty("description", "Unit: " + reading.getUnit());
+        prop.addProperty("readOnly", reading.isReadOnly());
+        isRequired = false;
+
+
       } else {
         // fallback: unknown type
         prop.addProperty("type", "string");
@@ -199,7 +207,7 @@ public abstract class DeviceController {
       properties.add("timestamp", timestampProp);
 
       properties.add(reading.getName(), prop);
-      required.add(reading.getName());
+      if (isRequired) required.add(reading.getName());
     }
   }
 }
