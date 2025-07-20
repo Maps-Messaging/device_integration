@@ -28,6 +28,7 @@ import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.io.SerialisationHelper;
 import io.mapsmessaging.devices.sensorreadings.ComputationResult;
+import io.mapsmessaging.devices.sensorreadings.GroupSensorReading;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import lombok.Getter;
 import lombok.Setter;
@@ -92,15 +93,27 @@ public abstract class I2CDeviceController extends DeviceController {
       JsonObject jsonObject = new JsonObject();
       if (device instanceof Sensor) {
         List<SensorReading<?>> readings = ((Sensor) device).getReadings();
-        for (SensorReading<?> reading : readings) {
-          addProperty(reading, jsonObject);
-        }
+        walkSensorReadings(jsonObject, readings);
       }
       return convert(jsonObject);
     } catch (Throwable e) {
       e.printStackTrace();
     }
     return "{}".getBytes();
+  }
+
+  private void walkSensorReadings(JsonObject root, List<SensorReading<?>> readings) throws IOException {
+    for (SensorReading<?> reading : readings) {
+      if (reading instanceof GroupSensorReading) {
+        JsonObject readingObject = new JsonObject();
+        walkSensorReadings(new JsonObject(), ((GroupSensorReading) reading).getGroupList());
+        if (!readingObject.isEmpty()) {
+          root.add(reading.getName(), readingObject);
+        }
+      } else {
+        addProperty(reading, root);
+      }
+    }
   }
 
   private void addProperty(SensorReading<?> reading, JsonObject jsonObject) throws IOException {
