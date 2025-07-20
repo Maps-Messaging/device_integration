@@ -25,10 +25,7 @@ import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.*;
 import io.mapsmessaging.devices.impl.AddressableDevice;
-import io.mapsmessaging.devices.sensorreadings.BooleanSensorReading;
-import io.mapsmessaging.devices.sensorreadings.ReadingSupplier;
-import io.mapsmessaging.devices.sensorreadings.SensorReading;
-import io.mapsmessaging.devices.sensorreadings.StringSensorReading;
+import io.mapsmessaging.devices.sensorreadings.*;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
@@ -93,7 +90,20 @@ public class Sen6xSensor extends I2CDevice implements Sensor, Resetable, PowerMa
     readings = new ArrayList<>();
     readings.add(productNameReading);
     readings.add(serialNumberReading);
-    readings.addAll(buildStatusReadings(new Sen6xStatusSupplier(getDeviceStatusCommand)));
+
+    /*
+    String name, String unit, String description, Void example, boolean readOnly, ReadingSupplier<Void> valueSupplier
+     */
+    GroupSensorReading groupSensorReading = new GroupSensorReading(
+        "status",
+        "",
+        "Device Status Flags",
+        null,
+        true,
+        null);
+    groupSensorReading.getGroupList()
+        .addAll(buildStatusReadings(new Sen6xStatusSupplier(getDeviceStatusCommand)));
+    readings.add(groupSensorReading);
     readings.addAll(buildMeasurementReadingds());
     initialise();
     try {
@@ -220,17 +230,17 @@ public class Sen6xSensor extends I2CDevice implements Sensor, Resetable, PowerMa
       "SEN64", EnumSet.of(Sen6xSensorType.CO2)
   );
 
-  private List<SensorReading<Boolean>> buildStatusReadings(Sen6xStatusSupplier supplier) {
+  private List<OptionalBooleanSensorReading> buildStatusReadings(Sen6xStatusSupplier supplier) {
     return List.of(
-        new BooleanSensorReading("Fan Error", "Fan failure detected", "Fan", false, true, supplier::isFanError),
-        new BooleanSensorReading("RHT Error", "Humidity/Temperature sensor error", "RHT", false, true, supplier::isRhtError),
-        new BooleanSensorReading("Gas Error", "Gas sensor failure", "Gas", false, true, (ReadingSupplier<Boolean>) supplier::isGasError),
-        new BooleanSensorReading("CO2-2 Error", "CO2 sensor 2 failure", "CO2-2", false, true, (ReadingSupplier<Boolean>) supplier::isCo2_2Error),
-        new BooleanSensorReading("HCHO Error", "Formaldehyde sensor error", "HCHO", false, true, (ReadingSupplier<Boolean>) supplier::isHchoError),
-        new BooleanSensorReading("PM Error", "Particulate Matter sensor error", "PM", false, true, (ReadingSupplier<Boolean>) supplier::isPmError),
-        new BooleanSensorReading("CO2-1 Error", "CO2 sensor 1 failure", "CO2-1", false, true, (ReadingSupplier<Boolean>) supplier::isCo2_1Error),
-        new BooleanSensorReading("Speed Warning", "Fan speed abnormal", "Fan", false, true, (ReadingSupplier<Boolean>) supplier::isSpeedWarning),
-        new BooleanSensorReading("Compensation Active", "Compensation enabled", "Sensor", false, true, (ReadingSupplier<Boolean>) supplier::isCompensationActive)
+        new OptionalBooleanSensorReading("Fan Error", "Fan failure detected", "Fan", false, true, supplier::isFanError),
+        new OptionalBooleanSensorReading("RHT Error", "Humidity/Temperature sensor error", "RHT", false, true, supplier::isRhtError),
+        new OptionalBooleanSensorReading("Gas Error", "Gas sensor failure", "Gas", false, true, (ReadingSupplier<Boolean>) supplier::isGasError),
+        new OptionalBooleanSensorReading("CO2-2 Error", "CO2 sensor 2 failure", "CO2-2", false, true, (ReadingSupplier<Boolean>) supplier::isCo2_2Error),
+        new OptionalBooleanSensorReading("HCHO Error", "Formaldehyde sensor error", "HCHO", false, true, (ReadingSupplier<Boolean>) supplier::isHchoError),
+        new OptionalBooleanSensorReading("PM Error", "Particulate Matter sensor error", "PM", false, true, (ReadingSupplier<Boolean>) supplier::isPmError),
+        new OptionalBooleanSensorReading("CO2-1 Error", "CO2 sensor 1 failure", "CO2-1", false, true, (ReadingSupplier<Boolean>) supplier::isCo2_1Error),
+        new OptionalBooleanSensorReading("Speed Warning", "Fan speed abnormal", "Fan", false, true, (ReadingSupplier<Boolean>) supplier::isSpeedWarning),
+        new OptionalBooleanSensorReading("Compensation Active", "Compensation enabled", "Sensor", false, true, (ReadingSupplier<Boolean>) supplier::isCompensationActive)
     );
   }
 }

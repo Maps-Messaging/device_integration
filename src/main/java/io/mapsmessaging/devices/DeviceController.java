@@ -130,10 +130,21 @@ public abstract class DeviceController {
     JsonObject properties = new JsonObject();
     JsonArray required = new JsonArray();
 
+    processSchemaList(properties, required, readings);
+
+    schema.add("properties", properties);
+    schema.add("required", required);
+    schema.addProperty("additionalProperties", false);
+    return schema;
+  }
+
+  private void processSchemaList(JsonObject properties, JsonArray required, List<SensorReading<?>> readings) {
     for (SensorReading<?> reading : readings) {
       JsonObject prop = new JsonObject();
-
-      if (reading instanceof FloatSensorReading) {
+      if (reading instanceof GroupSensorReading) {
+        List<SensorReading<?>> list = ((GroupSensorReading) reading).getGroupList();
+        processSchemaList(prop, required, list);
+      } else if (reading instanceof FloatSensorReading) {
         FloatSensorReading floatReading = (FloatSensorReading) reading;
         prop.addProperty("type", "number");
         prop.addProperty("minimum", floatReading.getMinimum());
@@ -169,6 +180,10 @@ public abstract class DeviceController {
           prop.add("examples", new Gson().toJsonTree(List.of(reading.getExample().toString())));
         }
         prop.addProperty("readOnly", reading.isReadOnly());
+      } else if (reading instanceof BooleanSensorReading) {
+        prop.addProperty("type", "boolean");
+        prop.addProperty("description", "Unit: " + reading.getUnit());
+        prop.addProperty("readOnly", reading.isReadOnly());
       } else {
         // fallback: unknown type
         prop.addProperty("type", "string");
@@ -186,10 +201,5 @@ public abstract class DeviceController {
       properties.add(reading.getName(), prop);
       required.add(reading.getName());
     }
-
-    schema.add("properties", properties);
-    schema.add("required", required);
-    schema.addProperty("additionalProperties", false);
-    return schema;
   }
 }

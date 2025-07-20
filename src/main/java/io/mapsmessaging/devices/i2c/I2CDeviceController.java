@@ -38,6 +38,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -120,6 +121,14 @@ public abstract class I2CDeviceController extends DeviceController {
     ComputationResult<?> computationResult = reading.getValue();
     if (!computationResult.hasError()) {
       Object value = computationResult.getResult();
+      if (value instanceof Optional<?>) {
+        Optional<?> optional = (Optional<?>) value;
+        if (!optional.isPresent()) {
+          return;
+        }
+        value = ((Optional<?>) value).get();
+      }
+
       if (value instanceof Number) {
         jsonObject.addProperty(reading.getName(), (Number) value);
       } else if (value instanceof Boolean) {

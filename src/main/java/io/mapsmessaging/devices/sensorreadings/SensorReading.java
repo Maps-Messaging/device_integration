@@ -33,7 +33,7 @@ public class SensorReading<T> {
   private final T example;
   private final boolean readOnly;
 
-  private final ReadingSupplier<T> supplier;
+  protected final ReadingSupplier<T> supplier;
 
   protected SensorReading(String name, String unit, String description, T example, boolean readOnly, ReadingSupplier<T> valueSupplier) {
     this.name = name;

@@ -18,20 +18,11 @@
 
 package io.mapsmessaging.devices.sensorreadings;
 
-import lombok.Getter;
+import java.util.Optional;
 
-import java.util.ArrayList;
-import java.util.List;
+public class OptionalSensorReading<T> extends SensorReading<Optional<T>> {
 
-public class GroupSensorReading extends SensorReading<Void> {
-
-  @Getter
-  private final List<SensorReading<?>> groupList;
-
-
-  public GroupSensorReading(String name, String unit, String description, Void example, boolean readOnly, ReadingSupplier<Void> valueSupplier) {
-    super(name, unit, description, example, readOnly, valueSupplier);
-    groupList = new ArrayList<>();
+  public OptionalSensorReading(String name, String unit, String description, T example, boolean readOnly, ReadingSupplier<Optional<T>> supplier) {
+    super(name, unit, description, Optional.ofNullable(example), readOnly, supplier);
   }
-
 }

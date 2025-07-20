@@ -15,23 +15,13 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License
  */
-
 package io.mapsmessaging.devices.sensorreadings;
 
-import lombok.Getter;
+import java.util.Optional;
 
-import java.util.ArrayList;
-import java.util.List;
+public class OptionalBooleanSensorReading extends OptionalSensorReading<Boolean> {
 
-public class GroupSensorReading extends SensorReading<Void> {
-
-  @Getter
-  private final List<SensorReading<?>> groupList;
-
-
-  public GroupSensorReading(String name, String unit, String description, Void example, boolean readOnly, ReadingSupplier<Void> valueSupplier) {
-    super(name, unit, description, example, readOnly, valueSupplier);
-    groupList = new ArrayList<>();
+  public OptionalBooleanSensorReading(String name, String unit, String description, Boolean example, boolean readOnly, ReadingSupplier<Boolean> valueSupplier) {
+    super(name, unit, description, example, readOnly, () -> valueSupplier.get() ? Optional.of(Boolean.TRUE) : Optional.empty());
   }
-
 }
