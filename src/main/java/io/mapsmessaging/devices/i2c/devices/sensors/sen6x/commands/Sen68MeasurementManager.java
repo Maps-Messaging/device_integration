@@ -32,7 +32,7 @@ public class Sen68MeasurementManager extends Sen6xMeasurementManager {
 
   @Override
   protected MeasurementBlock processResponse(byte[] raw) throws IOException {
-    if (raw.length < 20) throw new IOException("Invalid measurement block size");
+    if (raw.length < 18) throw new IOException("Invalid measurement block size");
 
     return new MeasurementBlock(
         parseUInt16(raw, 0) / 10.0f,       // PM1.0
