@@ -25,7 +25,7 @@ public class Co2MeasurementCommand extends AbstractMeasurementCommand {
   public Co2MeasurementCommand(Sen6xMeasurementManager manager) {
     super(
         manager,
-        "co2",                     // name
+        "CO₂",                     // name
         "ppm",                    // unit
         "Carbon dioxide level",   // description
         420.0f,                   // example

@@ -23,8 +23,6 @@ package io.mapsmessaging.devices.i2c.devices.sensors.sen6x.data;
 
 import lombok.Getter;
 
-import java.io.IOException;
-
 @Getter
 public class MeasurementBlock {
 
@@ -52,7 +50,7 @@ public class MeasurementBlock {
     hchoPpb = 0.0f;
   }
 
-  private MeasurementBlock(float pm1_0, float pm2_5, float pm4_0, float pm10_0,
+  public MeasurementBlock(float pm1_0, float pm2_5, float pm4_0, float pm10_0,
                            float humidity, float temperature, float vocIndex, float noxIndex,
                            float co2ppm, float hchoPpb) {
     this.pm1_0 = pm1_0;
@@ -66,30 +64,4 @@ public class MeasurementBlock {
     this.co2ppm = co2ppm;
     this.hchoPpb = hchoPpb;
   }
-
-  public static MeasurementBlock fromRaw(byte[] raw) throws IOException {
-    if (raw.length < 20) throw new IOException("Invalid measurement block size");
-
-    return new MeasurementBlock(
-        parseUInt16(raw, 0) / 10.0f,       // PM1.0
-        parseUInt16(raw, 2) / 10.0f,       // PM2.5
-        parseUInt16(raw, 4) / 10.0f,       // PM4.0
-        parseUInt16(raw, 6) / 10.0f,       // PM10.0
-        parseInt16(raw, 8) / 100.0f,      // Humidity
-        parseInt16(raw, 10) / 200.0f,      // Temperature
-        parseInt16(raw, 12) / 10.0f,       // VOC Index
-        parseInt16(raw, 14) / 10.0f,       // NOx Index
-        parseUInt16(raw, 16) * 1.0f,       // CO₂ ppm
-        0.0f                               // HCHO — not reported by this command
-    );
-  }
-
-  private static int parseUInt16(byte[] raw, int offset) {
-    return ((raw[offset] & 0xFF) << 8) | (raw[offset + 1] & 0xFF);
-  }
-
-  private static short parseInt16(byte[] raw, int offset) {
-    return (short) (((raw[offset] & 0xFF) << 8) | (raw[offset + 1] & 0xFF));
-  }
-
 }

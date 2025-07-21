@@ -23,15 +23,19 @@ import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.data.MeasurementBlock;
 
 import java.io.IOException;
 
-public class Sen6xMeasurementManager {
+public abstract class Sen6xMeasurementManager {
 
   private final Sen6xCommandHelper helper;
+  private final int commandId;
+  private final int length;
   private long lastReadTime = 0;
   private MeasurementBlock cachedBlock;
   private GetDataReadyFlagCommand getReadyFlagCommand;
 
-  public Sen6xMeasurementManager(Sen6xCommandHelper helper) {
+  public Sen6xMeasurementManager(Sen6xCommandHelper helper, int commandId, int length) {
     this.helper = helper;
+    this.length = length;
+    this.commandId = commandId;
     getReadyFlagCommand = new GetDataReadyFlagCommand(helper);
     cachedBlock = new MeasurementBlock();
   }
@@ -40,11 +44,22 @@ public class Sen6xMeasurementManager {
     if (getReadyFlagCommand.isReady()) {
       long now = System.currentTimeMillis();
       if (cachedBlock == null || now - lastReadTime > 1000) {
-        byte[] raw = helper.requestResponse(0x0300, 30); // Example code: Read Measurement
-        cachedBlock = MeasurementBlock.fromRaw(raw);
+        byte[] raw = helper.requestResponse(commandId, length);
+        cachedBlock = processResponse(raw);
         lastReadTime = now;
       }
     }
     return cachedBlock;
+  }
+
+  protected abstract MeasurementBlock processResponse(byte[] data) throws IOException;
+
+
+  protected static int parseUInt16(byte[] raw, int offset) {
+    return ((raw[offset] & 0xFF) << 8) | (raw[offset + 1] & 0xFF);
+  }
+
+  protected static short parseInt16(byte[] raw, int offset) {
+    return (short) (((raw[offset] & 0xFF) << 8) | (raw[offset + 1] & 0xFF));
   }
 }

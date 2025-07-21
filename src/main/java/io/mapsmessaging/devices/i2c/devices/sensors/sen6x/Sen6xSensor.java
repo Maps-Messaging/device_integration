@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 @Getter
-public class Sen6xSensor extends I2CDevice implements Sensor, Resetable, PowerManagement {
+public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable, PowerManagement {
 
   private final Sen6xCommandHelper helper;
 
@@ -101,8 +101,7 @@ public class Sen6xSensor extends I2CDevice implements Sensor, Resetable, PowerMa
         null,
         true,
         null);
-    groupSensorReading.getGroupList()
-        .addAll(buildStatusReadings(new Sen6xStatusSupplier(getDeviceStatusCommand)));
+    groupSensorReading.getGroupList().addAll(buildStatusReadings(new Sen6xStatusSupplier(getDeviceStatusCommand)));
     readings.add(groupSensorReading);
     readings.addAll(buildMeasurementReadingds());
     initialise();
@@ -115,12 +114,18 @@ public class Sen6xSensor extends I2CDevice implements Sensor, Resetable, PowerMa
 
 
   public static boolean detect(AddressableDevice device) {
-    try {
-      GetSerialNumberCommand request = new GetSerialNumberCommand(new Sen6xCommandHelper(device));
-      return !request.get().isEmpty();
-    } catch (IOException e) {
-      return false;
-    }
+    String res = getModel(device);
+    return (
+        res.equalsIgnoreCase("sen63c")||
+        res.equalsIgnoreCase("sen65")||
+        res.equalsIgnoreCase("sen66") ||
+        res.equalsIgnoreCase("sen68")
+    );
+  }
+
+  public static String getModel(AddressableDevice device){
+    GetProductNameCommand request = new GetProductNameCommand(new Sen6xCommandHelper(device));
+    return  request.get();
   }
 
   private void initialise() {
@@ -195,32 +200,34 @@ public class Sen6xSensor extends I2CDevice implements Sensor, Resetable, PowerMa
     clearDeviceStateCommand.clear();
   }
 
+  protected abstract Sen6xMeasurementManager contructMeasurementManager(Sen6xCommandHelper helper);
+
   private List<SensorReading<?>> buildMeasurementReadingds() {
-    Sen6xMeasurementManager manager = new Sen6xMeasurementManager(helper);
-    List<SensorReading<?>> readings = new ArrayList<>();
+    Sen6xMeasurementManager manager = contructMeasurementManager(helper);
+    List<SensorReading<?>> tempReadings = new ArrayList<>();
 
     EnumSet<Sen6xSensorType> supported = SENSOR_SUPPORT_MAP.getOrDefault(productName.trim().toUpperCase(), EnumSet.of(Sen6xSensorType.CO2));
 
     for (Sen6xSensorType type : supported) {
       switch (type) {
-        case CO2 -> readings.add(new Co2MeasurementCommand(manager).asSensorReading());
-        case TEMP -> readings.add(new TemperatureMeasurementCommand(manager).asSensorReading());
-        case HUMIDITY -> readings.add(new HumidityMeasurementCommand(manager).asSensorReading());
-        case VOC -> readings.add(new VocIndexMeasurementCommand(manager).asSensorReading());
-        case NOX -> readings.add(new NoxIndexMeasurementCommand(manager).asSensorReading());
-        case PM1 -> readings.add(new Pm1_0MeasurementCommand(manager).asSensorReading());
-        case PM2_5 -> readings.add(new Pm2_5MeasurementCommand(manager).asSensorReading());
-        case PM4 -> readings.add(new Pm4_0MeasurementCommand(manager).asSensorReading());
-        case PM10 -> readings.add(new Pm10_0MeasurementCommand(manager).asSensorReading());
-        case HCHO -> readings.add(new HchoMeasurementCommand(manager).asSensorReading());
+        case CO2 -> tempReadings.add(new Co2MeasurementCommand(manager).asSensorReading());
+        case TEMP -> tempReadings.add(new TemperatureMeasurementCommand(manager).asSensorReading());
+        case HUMIDITY -> tempReadings.add(new HumidityMeasurementCommand(manager).asSensorReading());
+        case VOC -> tempReadings.add(new VocIndexMeasurementCommand(manager).asSensorReading());
+        case NOX -> tempReadings.add(new NoxIndexMeasurementCommand(manager).asSensorReading());
+        case PM1 -> tempReadings.add(new Pm1_0MeasurementCommand(manager).asSensorReading());
+        case PM2_5 -> tempReadings.add(new Pm2_5MeasurementCommand(manager).asSensorReading());
+        case PM4 -> tempReadings.add(new Pm4_0MeasurementCommand(manager).asSensorReading());
+        case PM10 -> tempReadings.add(new Pm10_0MeasurementCommand(manager).asSensorReading());
+        case HCHO -> tempReadings.add(new HchoMeasurementCommand(manager).asSensorReading());
       }
     }
 
     AirQualityIndexCommand airQualityIndexCommand = new AirQualityIndexCommand(manager);
-    readings.add(new AirQualityLevelCommand(airQualityIndexCommand));
-    readings.add(airQualityIndexCommand.asSensorReading());
+    tempReadings.add(new AirQualityLevelCommand(airQualityIndexCommand));
+    tempReadings.add(airQualityIndexCommand.asSensorReading());
 
-    return readings;
+    return tempReadings;
   }
 
   private static final Map<String, EnumSet<Sen6xSensorType>> SENSOR_SUPPORT_MAP = Map.of(
@@ -235,10 +242,10 @@ public class Sen6xSensor extends I2CDevice implements Sensor, Resetable, PowerMa
         new OptionalBooleanSensorReading("Fan Error", "Fan failure detected", "Fan", false, true, supplier::isFanError),
         new OptionalBooleanSensorReading("RHT Error", "Humidity/Temperature sensor error", "RHT", false, true, supplier::isRhtError),
         new OptionalBooleanSensorReading("Gas Error", "Gas sensor failure", "Gas", false, true, (ReadingSupplier<Boolean>) supplier::isGasError),
-        new OptionalBooleanSensorReading("CO2-2 Error", "CO2 sensor 2 failure", "CO2-2", false, true, (ReadingSupplier<Boolean>) supplier::isCo2_2Error),
+        new OptionalBooleanSensorReading("CO₂-2 Error", "CO₂ sensor 2 failure", "CO₂-2", false, true, (ReadingSupplier<Boolean>) supplier::isCo2_2Error),
         new OptionalBooleanSensorReading("HCHO Error", "Formaldehyde sensor error", "HCHO", false, true, (ReadingSupplier<Boolean>) supplier::isHchoError),
         new OptionalBooleanSensorReading("PM Error", "Particulate Matter sensor error", "PM", false, true, (ReadingSupplier<Boolean>) supplier::isPmError),
-        new OptionalBooleanSensorReading("CO2-1 Error", "CO2 sensor 1 failure", "CO2-1", false, true, (ReadingSupplier<Boolean>) supplier::isCo2_1Error),
+        new OptionalBooleanSensorReading("CO₂-1 Error", "CO₂ sensor 1 failure", "CO₂-1", false, true, (ReadingSupplier<Boolean>) supplier::isCo2_1Error),
         new OptionalBooleanSensorReading("Speed Warning", "Fan speed abnormal", "Fan", false, true, (ReadingSupplier<Boolean>) supplier::isSpeedWarning),
         new OptionalBooleanSensorReading("Compensation Active", "Compensation enabled", "Sensor", false, true, (ReadingSupplier<Boolean>) supplier::isCompensationActive)
     );

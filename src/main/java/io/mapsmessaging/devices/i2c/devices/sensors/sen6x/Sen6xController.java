@@ -44,7 +44,23 @@ public class Sen6xController extends I2CDeviceController {
 
   public Sen6xController(AddressableDevice device) throws IOException {
     super(device);
-    sensor = new Sen6xSensor(device);
+    String model = Sen6xSensor.getModel(device);
+
+    if(model.equalsIgnoreCase("sen63c")){
+      sensor = new Sen63cSensor(device);
+    }
+    else if(model.equalsIgnoreCase("sen65")){
+      sensor = new Sen65Sensor(device);
+    }
+    else if(model.equalsIgnoreCase("sen66")){
+      sensor = new Sen66Sensor(device);
+    }
+    else if(model.equalsIgnoreCase("sen68")){
+      sensor = new Sen68Sensor(device);
+    }
+    else{
+      throw new IOException("Unknown model detected");
+    }
   }
 
   public I2CDevice getDevice() {
