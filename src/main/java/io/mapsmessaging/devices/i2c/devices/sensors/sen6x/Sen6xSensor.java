@@ -103,7 +103,7 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
         null);
     groupSensorReading.getGroupList().addAll(buildStatusReadings(new Sen6xStatusSupplier(getDeviceStatusCommand)));
     readings.add(groupSensorReading);
-    readings.addAll(buildMeasurementReadingds());
+    readings.addAll(buildMeasurementReadingds(contructMeasurementManager(helper)));
     initialise();
     try {
       powerOn();
@@ -202,8 +202,7 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
 
   protected abstract Sen6xMeasurementManager contructMeasurementManager(Sen6xCommandHelper helper);
 
-  private List<SensorReading<?>> buildMeasurementReadingds() {
-    Sen6xMeasurementManager manager = contructMeasurementManager(helper);
+  protected List<SensorReading<?>> buildMeasurementReadingds(Sen6xMeasurementManager manager) {
     List<SensorReading<?>> tempReadings = new ArrayList<>();
 
     EnumSet<Sen6xSensorType> supported = SENSOR_SUPPORT_MAP.getOrDefault(productName.trim().toUpperCase(), EnumSet.of(Sen6xSensorType.CO2));
@@ -222,11 +221,6 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
         case HCHO -> tempReadings.add(new HchoMeasurementCommand(manager).asSensorReading());
       }
     }
-
-    AirQualityIndexCommand airQualityIndexCommand = new AirQualityIndexCommand(manager);
-    tempReadings.add(new AirQualityLevelCommand(airQualityIndexCommand));
-    tempReadings.add(airQualityIndexCommand.asSensorReading());
-
     return tempReadings;
   }
 

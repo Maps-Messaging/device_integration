@@ -19,9 +19,14 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.sen6x;
 
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.AirQualityIndexCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.AirQualityLevelCommand;
 import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.Sen68MeasurementManager;
 import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.Sen6xMeasurementManager;
 import io.mapsmessaging.devices.impl.AddressableDevice;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
+
+import java.util.List;
 
 public class Sen68Sensor extends Sen6xSensor {
   public Sen68Sensor(AddressableDevice device) {
@@ -32,6 +37,15 @@ public class Sen68Sensor extends Sen6xSensor {
   @Override
   protected Sen6xMeasurementManager contructMeasurementManager(Sen6xCommandHelper helper) {
     return new Sen68MeasurementManager(helper);
+  }
+
+  protected List<SensorReading<?>> buildMeasurementReadingds(Sen6xMeasurementManager manager) {
+    List<SensorReading<?>> list = super.buildMeasurementReadingds(manager);
+
+    AirQualityIndexCommand airQualityIndexCommand = new AirQualityIndexCommand(manager);
+    list.add(new AirQualityLevelCommand(airQualityIndexCommand));
+    list.add(airQualityIndexCommand.asSensorReading());
+    return list;
   }
 
 }

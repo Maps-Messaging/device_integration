@@ -33,11 +33,12 @@ public class AirQualityLevelCommand extends StringSensorReading {
         "Normal",
         true,
         () -> {
-          float index = indexCommand.getValue();
-          if (index < 50) return "Excellent";
-          if (index < 100) return "Good";
-          if (index < 150) return "Moderate";
-          if (index < 200) return "Poor";
+          float aqi = indexCommand.getValue();
+          if (aqi <= 50) return "Excellent";
+          if (aqi <= 100) return "Good";
+          if (aqi <= 150) return "Moderate";
+          if (aqi <= 200) return "Unhealthy";
+          if (aqi <= 300) return "Very Unhealthy";
           return "Hazardous";
         }
     );

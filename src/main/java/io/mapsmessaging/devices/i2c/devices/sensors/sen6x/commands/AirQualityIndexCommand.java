@@ -19,6 +19,8 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands;
 
 
+import io.mapsmessaging.devices.i2c.devices.sensors.utils.AqiCalculator;
+
 import java.io.IOException;
 
 public class AirQualityIndexCommand extends AbstractMeasurementCommand {
@@ -40,15 +42,10 @@ public class AirQualityIndexCommand extends AbstractMeasurementCommand {
   @Override
   public float getValue() throws IOException {
     var block = manager.getMeasurementBlock();
-    float co2 = block.getCo2ppm();
-    float voc = block.getVocIndex();
-    float nox = block.getNoxIndex();
-
-    // Normalize to arbitrary 0-100 scale and weight
-    float co2Component = Math.min((co2 - 400) / 1600 * 100, 100);  // 400–2000 ppm
-    float vocComponent = Math.min(voc, 500) / 5;                   // VOC Index 0–500
-    float noxComponent = Math.min(nox, 500) / 5;                   // NOx Index 0–500
-
-    return (co2Component * 0.5f) + (vocComponent * 0.3f) + (noxComponent * 0.2f);
+    return AqiCalculator.computeFromSEN66(
+        block.getPm2_5(),
+        block.getVocIndex(),
+        block.getNoxIndex()
+    );
   }
 }
