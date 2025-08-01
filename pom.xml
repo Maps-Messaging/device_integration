@@ -117,7 +117,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-gpg-plugin</artifactId>
-        <version>3.2.7</version>
+        <version>3.2.8</version>
         <executions>
           <execution>
             <id>sign-artifacts</id>
@@ -405,7 +405,7 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>2.19.1</version>  <!-- use the latest version available -->
+        <version>2.19.2</version>  <!-- use the latest version available -->
       </dependency>
 
       <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
@@ -417,7 +417,7 @@
       <dependency>
         <groupId>io.javalin</groupId>
         <artifactId>javalin</artifactId>
-        <version>6.6.0</version>
+        <version>6.7.0</version>
       </dependency>
 
       <!-- https://mvnrepository.com/artifact/com.fasterxml.uuid/java-uuid-generator -->
@@ -452,7 +452,7 @@
         <artifactId>junit-jupiter-engine</artifactId>
         <groupId>org.junit.jupiter</groupId>
         <scope>test</scope>
-        <version>5.13.1</version>
+        <version>5.13.4</version>
       </dependency>
   </dependencies>
 
