@@ -19,6 +19,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.backlight;
 
+import com.google.gson.JsonObject;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
@@ -26,9 +27,9 @@ import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
-import org.json.JSONObject;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public abstract class BacklightPwmController extends I2CDeviceController {
 
@@ -63,18 +64,21 @@ public abstract class BacklightPwmController extends I2CDeviceController {
   }
 
   public byte[] getDeviceConfiguration() throws IOException {
-    JSONObject jsonObject = new JSONObject();
+    JsonObject jsonObject = new JsonObject();
     if (pwmController != null) {
+      // Add properties as needed
     }
-    return jsonObject.toString(2).getBytes();
+    return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
   }
 
   public byte[] getDeviceState() throws IOException {
-    JSONObject jsonObject = new JSONObject();
+    JsonObject jsonObject = new JsonObject();
     if (pwmController != null) {
+      // Add properties as needed
     }
-    return jsonObject.toString(2).getBytes();
+    return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
   }
+
 
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig();

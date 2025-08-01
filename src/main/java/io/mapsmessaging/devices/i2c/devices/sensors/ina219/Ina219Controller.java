@@ -19,6 +19,9 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.ina219;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
@@ -27,11 +30,9 @@ import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
-import org.everit.json.schema.EnumSchema;
-import org.everit.json.schema.ObjectSchema;
-import org.json.JSONObject;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import static io.mapsmessaging.devices.i2c.devices.sensors.ina219.Constants.INA219_ADDRESS;
 
@@ -71,72 +72,68 @@ public class Ina219Controller extends I2CDeviceController {
   public DeviceType getType() {
     return getDevice().getType();
   }
-
   public byte[] getDeviceConfiguration() {
-    JSONObject jsonObject = new JSONObject();
+    JsonObject jsonObject = new JsonObject();
     if (sensor != null) {
-      jsonObject.put("adcResolution", sensor.getAdcResolution().name());
-      jsonObject.put("shuntAdcResolution", sensor.getShuntADCResolution().name());
-      jsonObject.put("busVoltageRange", sensor.getBusVoltageRange().name());
-      jsonObject.put("gainMask", sensor.getGainMask().name());
-      jsonObject.put("operatingMode", sensor.getOperatingMode().name());
+      jsonObject.addProperty("adcResolution", sensor.getAdcResolution().name());
+      jsonObject.addProperty("shuntAdcResolution", sensor.getShuntADCResolution().name());
+      jsonObject.addProperty("busVoltageRange", sensor.getBusVoltageRange().name());
+      jsonObject.addProperty("gainMask", sensor.getGainMask().name());
+      jsonObject.addProperty("operatingMode", sensor.getOperatingMode().name());
     }
-    return jsonObject.toString(2).getBytes();
+    return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
   }
 
   @Override
   public byte[] updateDeviceConfiguration(byte[] payload) throws IOException {
-    JSONObject jsonObject = new JSONObject(new String(payload));
-    JSONObject response = new JSONObject();
-    if (sensor == null) return response.toString(2).getBytes();
+    JsonObject jsonObject = JsonParser.parseString(new String(payload, StandardCharsets.UTF_8)).getAsJsonObject();
+    JsonObject response = new JsonObject();
+    if (sensor == null) return gson.toJson(response).getBytes(StandardCharsets.UTF_8);
+
     if (jsonObject.has("adcResolution")) {
-      String adcResolutionStr = jsonObject.getString("adcResolution");
-      ADCResolution adcResolution = ADCResolution.valueOf(adcResolutionStr);
+      ADCResolution adcResolution = ADCResolution.valueOf(jsonObject.get("adcResolution").getAsString());
       sensor.setAdcResolution(adcResolution);
-      response.put("adcResolution", adcResolution.name());
+      response.addProperty("adcResolution", adcResolution.name());
     }
 
     if (jsonObject.has("shuntAdcResolution")) {
-      String shuntAdcResolutionStr = jsonObject.getString("shuntAdcResolution");
-      ShuntADCResolution shuntAdcResolution = ShuntADCResolution.valueOf(shuntAdcResolutionStr);
+      ShuntADCResolution shuntAdcResolution = ShuntADCResolution.valueOf(jsonObject.get("shuntAdcResolution").getAsString());
       sensor.setShuntADCResolution(shuntAdcResolution);
-      response.put("shuntAdcResolution", shuntAdcResolution.name());
+      response.addProperty("shuntAdcResolution", shuntAdcResolution.name());
     }
 
     if (jsonObject.has("busVoltageRange")) {
-      String busVoltageRangeStr = jsonObject.getString("busVoltageRange");
-      BusVoltageRange busVoltageRange = BusVoltageRange.valueOf(busVoltageRangeStr);
+      BusVoltageRange busVoltageRange = BusVoltageRange.valueOf(jsonObject.get("busVoltageRange").getAsString());
       sensor.setBusVoltageRange(busVoltageRange);
-      response.put("busVoltageRange", busVoltageRange.name());
+      response.addProperty("busVoltageRange", busVoltageRange.name());
     }
 
     if (jsonObject.has("gainMask")) {
-      String gainMaskStr = jsonObject.getString("gainMask");
-      GainMask gainMask = GainMask.valueOf(gainMaskStr);
+      GainMask gainMask = GainMask.valueOf(jsonObject.get("gainMask").getAsString());
       sensor.setGainMask(gainMask);
-      response.put("gainMask", gainMask.name());
+      response.addProperty("gainMask", gainMask.name());
     }
 
     if (jsonObject.has("operatingMode")) {
-      String operatingModeStr = jsonObject.getString("operatingMode");
-      OperatingMode operatingMode = OperatingMode.valueOf(operatingModeStr);
+      OperatingMode operatingMode = OperatingMode.valueOf(jsonObject.get("operatingMode").getAsString());
       sensor.setOperatingMode(operatingMode);
-      response.put("operatingMode", operatingMode.name());
+      response.addProperty("operatingMode", operatingMode.name());
     }
+
     sensor.setCalibration();
-    response.put("Status", "success");
-    return response.toString(2).getBytes();
+    response.addProperty("Status", "success");
+    return gson.toJson(response).getBytes(StandardCharsets.UTF_8);
   }
 
   public byte[] getDeviceState() throws IOException {
-    JSONObject jsonObject = new JSONObject();
+    JsonObject jsonObject = new JsonObject();
     if (sensor != null) {
-      jsonObject.put("current", sensor.getCurrent());
-      jsonObject.put("shuntVoltage", sensor.getShuntVoltage());
-      jsonObject.put("busVoltage", sensor.getBusVoltage());
-      jsonObject.put("power", sensor.getPower());
+      jsonObject.addProperty("current", sensor.getCurrent());
+      jsonObject.addProperty("shuntVoltage", sensor.getShuntVoltage());
+      jsonObject.addProperty("busVoltage", sensor.getBusVoltage());
+      jsonObject.addProperty("power", sensor.getPower());
     }
-    return jsonObject.toString(2).getBytes();
+    return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
   }
 
   public SchemaConfig getSchema() {
@@ -156,49 +153,69 @@ public class Ina219Controller extends I2CDeviceController {
   }
 
   private String buildSchema() {
-    ObjectSchema staticSchema = ObjectSchema.builder()
-        .addPropertySchema("adcResolution", EnumSchema.builder()
-            .possibleValue(ADCResolution.RES_9BIT.name())
-            .possibleValue(ADCResolution.RES_10BIT.name())
-            .possibleValue(ADCResolution.RES_11BIT.name())
-            .possibleValue(ADCResolution.RES_12BIT.name())
-            .build())
-        .addPropertySchema("shuntAdcResolution", EnumSchema.builder()
-            .possibleValue(ShuntADCResolution.RES_9BIT_1S_84US.name())
-            .possibleValue(ShuntADCResolution.RES_10BIT_1S_148US.name())
-            .possibleValue(ShuntADCResolution.RES_11BIT_1S_276US.name())
-            .possibleValue(ShuntADCResolution.RES_12BIT_1S_532US.name())
-            .possibleValue(ShuntADCResolution.RES_12BIT_2S_1060US.name())
-            .possibleValue(ShuntADCResolution.RES_12BIT_4S_2130US.name())
-            .possibleValue(ShuntADCResolution.RES_12BIT_8S_4260US.name())
-            .possibleValue(ShuntADCResolution.RES_12BIT_16S_8510US.name())
-            .possibleValue(ShuntADCResolution.RES_12BIT_32S_17MS.name())
-            .possibleValue(ShuntADCResolution.RES_12BIT_64S_34MS.name())
-            .possibleValue(ShuntADCResolution.RES_12BIT_128S_69MS.name())
-            .build())
-        .addPropertySchema("busVoltageRange", EnumSchema.builder()
-            .possibleValue(BusVoltageRange.RANGE_16V.name())
-            .possibleValue(BusVoltageRange.RANGE_32V.name())
-            .build())
-        .addPropertySchema("gainMask", EnumSchema.builder()
-            .possibleValue(GainMask.GAIN_1_40MV.name())
-            .possibleValue(GainMask.GAIN_2_80MV.name())
-            .possibleValue(GainMask.GAIN_4_160MV.name())
-            .possibleValue(GainMask.GAIN_8_320MV.name())
-            .build())
-        .addPropertySchema("operatingMode", EnumSchema.builder()
-            .possibleValue(OperatingMode.POWERDOWN.name())
-            .possibleValue(OperatingMode.SVOLT_TRIGGERED.name())
-            .possibleValue(OperatingMode.BVOLT_TRIGGERED.name())
-            .possibleValue(OperatingMode.SANDBVOLT_TRIGGERED.name())
-            .possibleValue(OperatingMode.ADCOFF.name())
-            .possibleValue(OperatingMode.SVOLT_CONTINUOUS.name())
-            .possibleValue(OperatingMode.BVOLT_CONTINUOUS.name())
-            .possibleValue(OperatingMode.SANDBVOLT_CONTINUOUS.name())
-            .build())
-        .build();
+    JsonObject properties = new JsonObject();
+
+    properties.add("adcResolution", enumSchema(
+        ADCResolution.RES_9BIT,
+        ADCResolution.RES_10BIT,
+        ADCResolution.RES_11BIT,
+        ADCResolution.RES_12BIT
+    ));
+
+    properties.add("shuntAdcResolution", enumSchema(
+        ShuntADCResolution.RES_9BIT_1S_84US,
+        ShuntADCResolution.RES_10BIT_1S_148US,
+        ShuntADCResolution.RES_11BIT_1S_276US,
+        ShuntADCResolution.RES_12BIT_1S_532US,
+        ShuntADCResolution.RES_12BIT_2S_1060US,
+        ShuntADCResolution.RES_12BIT_4S_2130US,
+        ShuntADCResolution.RES_12BIT_8S_4260US,
+        ShuntADCResolution.RES_12BIT_16S_8510US,
+        ShuntADCResolution.RES_12BIT_32S_17MS,
+        ShuntADCResolution.RES_12BIT_64S_34MS,
+        ShuntADCResolution.RES_12BIT_128S_69MS
+    ));
+
+    properties.add("busVoltageRange", enumSchema(
+        BusVoltageRange.RANGE_16V,
+        BusVoltageRange.RANGE_32V
+    ));
+
+    properties.add("gainMask", enumSchema(
+        GainMask.GAIN_1_40MV,
+        GainMask.GAIN_2_80MV,
+        GainMask.GAIN_4_160MV,
+        GainMask.GAIN_8_320MV
+    ));
+
+    properties.add("operatingMode", enumSchema(
+        OperatingMode.POWERDOWN,
+        OperatingMode.SVOLT_TRIGGERED,
+        OperatingMode.BVOLT_TRIGGERED,
+        OperatingMode.SANDBVOLT_TRIGGERED,
+        OperatingMode.ADCOFF,
+        OperatingMode.SVOLT_CONTINUOUS,
+        OperatingMode.BVOLT_CONTINUOUS,
+        OperatingMode.SANDBVOLT_CONTINUOUS
+    ));
+
+    JsonObject staticSchema = new JsonObject();
+    staticSchema.addProperty("type", "object");
+    staticSchema.add("properties", properties);
 
     return buildSchema(sensor, staticSchema);
+  }
+
+  @SafeVarargs
+  private final <T extends Enum<T>> JsonObject enumSchema(T... values) {
+    JsonObject schema = new JsonObject();
+    schema.addProperty("type", "string");
+    JsonArray enums = new JsonArray();
+    for (T val : values) {
+      enums.add(val.name());
+    }
+    schema.add("enum", enums);
+    return schema;
   }
 
 }

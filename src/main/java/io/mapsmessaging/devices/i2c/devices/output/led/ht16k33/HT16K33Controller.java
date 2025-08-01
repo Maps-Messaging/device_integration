@@ -20,6 +20,7 @@
 package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
@@ -29,10 +30,9 @@ import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks.TestTask;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public abstract class HT16K33Controller extends I2CDeviceController {
 
@@ -86,14 +86,14 @@ public abstract class HT16K33Controller extends I2CDeviceController {
 
   @Override
   public byte[] getDeviceState() {
-    JSONObject jsonObject = new JSONObject();
+    JsonObject jsonObject = new JsonObject();
     if (driver != null) {
-      jsonObject.put(DISPLAY, driver.getCurrent());
-      jsonObject.put(BLINK, driver.getRate().name());
-      jsonObject.put(ENABLED, driver.isOn());
-      jsonObject.put(BRIGHTNESS, driver.getBrightness());
+      jsonObject.addProperty(DISPLAY, driver.getCurrent());
+      jsonObject.addProperty(BLINK, driver.getRate().name());
+      jsonObject.addProperty(ENABLED, driver.isOn());
+      jsonObject.addProperty(BRIGHTNESS, driver.getBrightness());
     }
-    return jsonObject.toString(2).getBytes();
+    return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
   }
 
   public void rawWrite(String value) throws IOException {
@@ -107,87 +107,17 @@ public abstract class HT16K33Controller extends I2CDeviceController {
       driver.write(value);
     }
   }
-
-  private void processBrightness(JSONObject jsonObject, JSONObject response) throws IOException {
-    if (jsonObject.has(BRIGHTNESS)) {
-      int brightness = jsonObject.getInt(BRIGHTNESS);
-      if (brightness != driver.getBrightness()) {
-        driver.setBrightness((byte) (brightness & 0xf));
-        response.put(BRIGHTNESS, brightness);
-      }
-    }
-  }
-
-  private void processBlink(JSONObject jsonObject, JSONObject response) throws IOException {
-    if (jsonObject.has(BLINK)) {
-      String blink = jsonObject.optString(BLINK, "OFF");
-      BlinkRate rate = BlinkRate.valueOf(blink);
-      driver.setBlinkRate(rate);
-      response.put(BLINK, rate.name());
-    }
-  }
-
-  private void processEnabled(JSONObject jsonObject, JSONObject response) throws IOException {
-    if (jsonObject.has(ENABLED)) {
-      boolean isOn = jsonObject.optBoolean(ENABLED, driver.isOn());
-      if (isOn != driver.isOn()) {
-        if (isOn) {
-          response.put(ENABLED, isOn);
-          driver.turnOn();
-        } else {
-          response.put(ENABLED, isOn);
-          driver.turnOff();
-        }
-      }
-    }
-  }
-
-  private void processDisplay(JSONObject jsonObject, JSONObject response) throws IOException {
-    if (jsonObject.has(DISPLAY)) {
-      cancelCurrentTask();
-      String text = jsonObject.getString(DISPLAY);
-      if (text.length() <= 5) {
-        driver.write(text);
-        response.put(DISPLAY, text);
-      }
-    }
-  }
-
-  private void processRaw(JSONObject jsonObject, JSONObject response) throws IOException {
-    if (jsonObject.has(RAW)) {
-      cancelCurrentTask();
-      String text = jsonObject.getString(RAW);
-      driver.writeRaw(text);
-      response.put(RAW, text);
-    }
-  }
-
-  private void processTask(JSONObject jsonObject, JSONObject response) throws IOException {
-    if (jsonObject.has(TASK)) {
-      cancelCurrentTask();
-      driver.write("    ");
-      String task = jsonObject.getString(TASK);
-      if (task.equalsIgnoreCase(CLOCK)) {
-        setTask(new Clock(this));
-        response.put(TASK, CLOCK);
-      }
-      if (task.equalsIgnoreCase(TEST)) {
-        setTask(new TestTask(this));
-        response.put(TASK, TEST);
-      }
-    }
-  }
-
   @Override
   public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
-    JSONObject response = new JSONObject();
+    JsonObject response = new JsonObject();
     if (driver != null) {
-      JSONObject jsonObject = null;
+      JsonObject jsonObject = null;
       try {
-        jsonObject = new JSONObject(new String(val));
-      } catch (JSONException jsonException) {
-        //
+        jsonObject = JsonParser.parseString(new String(val, StandardCharsets.UTF_8)).getAsJsonObject();
+      } catch (Exception ignore) {
+        // fallback below
       }
+
       if (jsonObject != null) {
         processBrightness(jsonObject, response);
         processBlink(jsonObject, response);
@@ -197,12 +127,78 @@ public abstract class HT16K33Controller extends I2CDeviceController {
         processTask(jsonObject, response);
       } else {
         cancelCurrentTask();
-        String text = new String(val);
+        String text = new String(val, StandardCharsets.UTF_8);
         driver.writeRaw(text);
-        response.put(RAW, text);
+        response.addProperty(RAW, text);
       }
     }
-    return response.toString(2).getBytes();
+    return gson.toJson(response).getBytes(StandardCharsets.UTF_8);
+  }
+
+  private void processBrightness(JsonObject jsonObject, JsonObject response) throws IOException {
+    if (jsonObject.has(BRIGHTNESS) && jsonObject.get(BRIGHTNESS).isJsonPrimitive()) {
+      int brightness = jsonObject.get(BRIGHTNESS).getAsInt();
+      if (brightness != driver.getBrightness()) {
+        driver.setBrightness((byte) (brightness & 0xf));
+        response.addProperty(BRIGHTNESS, brightness);
+      }
+    }
+  }
+
+  private void processBlink(JsonObject jsonObject, JsonObject response) throws IOException {
+    if (jsonObject.has(BLINK)) {
+      String blink = jsonObject.get(BLINK).getAsString();
+      BlinkRate rate = BlinkRate.valueOf(blink);
+      driver.setBlinkRate(rate);
+      response.addProperty(BLINK, rate.name());
+    }
+  }
+
+  private void processEnabled(JsonObject jsonObject, JsonObject response) throws IOException {
+    if (jsonObject.has(ENABLED)) {
+      boolean isOn = jsonObject.get(ENABLED).getAsBoolean();
+      if (isOn != driver.isOn()) {
+        response.addProperty(ENABLED, isOn);
+        if (isOn) driver.turnOn();
+        else driver.turnOff();
+      }
+    }
+  }
+
+  private void processDisplay(JsonObject jsonObject, JsonObject response) throws IOException {
+    if (jsonObject.has(DISPLAY)) {
+      cancelCurrentTask();
+      String text = jsonObject.get(DISPLAY).getAsString();
+      if (text.length() <= 5) {
+        driver.write(text);
+        response.addProperty(DISPLAY, text);
+      }
+    }
+  }
+
+  private void processRaw(JsonObject jsonObject, JsonObject response) throws IOException {
+    if (jsonObject.has(RAW)) {
+      cancelCurrentTask();
+      String text = jsonObject.get(RAW).getAsString();
+      driver.writeRaw(text);
+      response.addProperty(RAW, text);
+    }
+  }
+
+  private void processTask(JsonObject jsonObject, JsonObject response) throws IOException {
+    if (jsonObject.has(TASK)) {
+      cancelCurrentTask();
+      driver.write("    ");
+      String task = jsonObject.get(TASK).getAsString();
+      if (CLOCK.equalsIgnoreCase(task)) {
+        setTask(new Clock(this));
+        response.addProperty(TASK, CLOCK);
+      }
+      if (TEST.equalsIgnoreCase(task)) {
+        setTask(new TestTask(this));
+        response.addProperty(TASK, TEST);
+      }
+    }
   }
 
   public SchemaConfig getSchema(String schema) {

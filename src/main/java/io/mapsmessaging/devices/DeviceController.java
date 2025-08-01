@@ -28,12 +28,8 @@ import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.LocalDateTimeSensorReadin
 import io.mapsmessaging.devices.sensorreadings.*;
 import io.mapsmessaging.devices.util.UuidGenerator;
 import io.mapsmessaging.schemas.config.SchemaConfig;
-import org.everit.json.schema.ObjectSchema;
-import org.everit.json.schema.internal.JSONPrinter;
-import org.json.JSONWriter;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -87,19 +83,13 @@ public abstract class DeviceController {
   public void close() {
   }
 
-  public String schemaToString(ObjectSchema schema) {
-    StringWriter stringWriter = new StringWriter();
-    JSONWriter jsonWriter = new JSONWriter(stringWriter);
-    JSONPrinter printer = new JSONPrinter(jsonWriter);
-    schema.describeTo(printer);
-    return stringWriter.getBuffer().toString();
-  }
-
   public String buildSchema(Sensor sensor) {
-    return buildSchema(sensor, ObjectSchema.builder().build());
+    JsonObject staticSchema = new JsonObject();
+    staticSchema.addProperty("type", "object"); // Replace this with actual static schema structure
+    return buildSchema(sensor, staticSchema);
   }
 
-  public String buildSchema(Sensor sensor, ObjectSchema staticSchema) {
+  public String buildSchema(Sensor sensor, JsonObject staticSchema) {
     JsonObject sensorSchema = buildSchemaFromReadings(sensor.getReadings());
 
     JsonObject fullSchema = new JsonObject();
@@ -109,7 +99,7 @@ public abstract class DeviceController {
     fullSchema.addProperty("type", "object");
 
     JsonObject properties = new JsonObject();
-    properties.add(NamingConstants.DEVICE_STATIC_DATA_SCHEMA, gson.fromJson(staticSchema.toString(), JsonObject.class));
+    properties.add(NamingConstants.DEVICE_STATIC_DATA_SCHEMA, staticSchema);
     properties.add(NamingConstants.SENSOR_DATA_SCHEMA, sensorSchema);
 
     fullSchema.add("properties", properties);

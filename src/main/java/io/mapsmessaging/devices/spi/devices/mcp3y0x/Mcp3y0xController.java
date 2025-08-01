@@ -19,6 +19,8 @@
 
 package io.mapsmessaging.devices.spi.devices.mcp3y0x;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.pi4j.context.Context;
 import com.pi4j.io.spi.Spi;
 import io.mapsmessaging.devices.DeviceType;
@@ -28,11 +30,8 @@ import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
 import lombok.Setter;
-import org.everit.json.schema.NumberSchema;
-import org.everit.json.schema.ObjectSchema;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -88,25 +87,25 @@ public class Mcp3y0xController extends SpiDeviceController {
   }
 
   public byte[] getDeviceConfiguration() {
-    JSONObject jsonObject = new JSONObject();
+    JsonObject jsonObject = new JsonObject();
     if (device != null) {
-      jsonObject.put("resolution", device.getBits());
-      jsonObject.put("channels", device.getChannels());
-      jsonObject.put("dutyCycle", device.getDutyCycle());
+      jsonObject.addProperty("resolution", device.getBits());
+      jsonObject.addProperty("channels", device.getChannels());
+      jsonObject.addProperty("dutyCycle", device.getDutyCycle());
     }
-    return jsonObject.toString(2).getBytes();
+    return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
   }
 
   public byte[] getDeviceState() {
-    JSONObject jsonObject = new JSONObject();
-    JSONArray jsonArray = new JSONArray();
+    JsonObject jsonObject = new JsonObject();
+    JsonArray jsonArray = new JsonArray();
     if (device != null) {
       for (short x = 0; x < device.channels; x++) {
-        jsonArray.put(device.readFromChannel(false, x));
+        jsonArray.add(device.readFromChannel(false, x));
       }
     }
-    jsonObject.put("current", jsonArray);
-    return jsonObject.toString(2).getBytes();
+    jsonObject.add("current", jsonArray);
+    return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
   }
 
   public SchemaConfig getSchema() {
@@ -121,13 +120,30 @@ public class Mcp3y0xController extends SpiDeviceController {
   }
 
   private String buildSchema() {
-    ObjectSchema staticSchema = ObjectSchema.builder()
-        .addPropertySchema("resolution", NumberSchema.builder().description("ADC resolution in bits").build())
-        .addPropertySchema("channels", NumberSchema.builder().description("Number of ADC channels").build())
-        .addPropertySchema("dutyCycle", NumberSchema.builder().description("Read rate in Hz").build())
-        .build();
+    JsonObject staticSchema = new JsonObject();
 
-    return buildSchema(device, staticSchema); // uses helper in base class
+    JsonObject resolution = new JsonObject();
+    resolution.addProperty("type", "number");
+    resolution.addProperty("description", "ADC resolution in bits");
+
+    JsonObject channels = new JsonObject();
+    channels.addProperty("type", "number");
+    channels.addProperty("description", "Number of ADC channels");
+
+    JsonObject dutyCycle = new JsonObject();
+    dutyCycle.addProperty("type", "number");
+    dutyCycle.addProperty("description", "Read rate in Hz");
+
+    JsonObject properties = new JsonObject();
+    properties.add("resolution", resolution);
+    properties.add("channels", channels);
+    properties.add("dutyCycle", dutyCycle);
+
+    JsonObject schema = new JsonObject();
+    schema.addProperty("type", "object");
+    schema.add("properties", properties);
+
+    return buildSchema(device, schema); // calls the method using JsonObject
   }
 
 }

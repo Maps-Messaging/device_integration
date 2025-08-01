@@ -19,14 +19,16 @@
 
 package io.mapsmessaging.devices.onewire.devices.ds18b20;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.onewire.OneWireDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
-import org.json.JSONObject;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 
 public class DS18B20Controller extends OneWireDeviceController {
 
@@ -76,11 +78,11 @@ public class DS18B20Controller extends OneWireDeviceController {
 
   @Override
   public byte[] getDeviceState() {
-    JSONObject jsonObject = new JSONObject();
+    JsonObject jsonObject = new JsonObject();
     if (sensor != null) {
       sensor.update();
-      jsonObject.put("temperature", sensor.getCurrent());
+      jsonObject.add("temperature", new JsonPrimitive(sensor.getCurrent()));
     }
-    return jsonObject.toString(2).getBytes();
+    return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
   }
 }

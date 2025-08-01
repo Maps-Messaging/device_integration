@@ -27,8 +27,6 @@ import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
-import org.everit.json.schema.NumberSchema;
-import org.everit.json.schema.ObjectSchema;
 
 import java.io.IOException;
 
@@ -91,7 +89,7 @@ public class AM2315Controller extends I2CDeviceController {
   }
 
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
+    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
     config.setComments("i2c device AM2315 encased Temperature and Humidity Sensor https://www.adafruit.com/product/1293");
     config.setTitle(getName());
     config.setVersion(1);
@@ -106,30 +104,4 @@ public class AM2315Controller extends I2CDeviceController {
     int i2cAddr = 0x5C;
     return new int[]{i2cAddr};
   }
-
-
-  private String buildSchema() {
-    ObjectSchema staticSchema = ObjectSchema.builder()
-        .addPropertySchema("model",
-            NumberSchema.builder()
-                .description("Model number of sensor")
-                .build())
-        .addPropertySchema("id",
-            NumberSchema.builder()
-                .description("Unique ID of sensor")
-                .build())
-        .addPropertySchema("status",
-            NumberSchema.builder()
-                .description("Current status bitmask")
-                .build())
-        .addPropertySchema("version",
-            NumberSchema.builder()
-                .description("Chip version")
-                .build())
-        .build();
-
-    return buildSchema(sensor, staticSchema);
-  }
-
-
 }

@@ -427,13 +427,6 @@
         <version>5.1.0</version>
       </dependency>
 
-      <!-- https://mvnrepository.com/artifact/org.everit.json/org.everit.json.schema -->
-      <dependency>
-        <groupId>org.everit.json</groupId>
-        <artifactId>org.everit.json.schema</artifactId>
-        <version>1.5.1</version>
-      </dependency>
-
       <dependency>
         <artifactId>lombok</artifactId>
         <groupId>org.projectlombok</groupId>

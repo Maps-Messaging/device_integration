@@ -19,6 +19,10 @@
 
 package io.mapsmessaging.devices.web;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.mapsmessaging.devices.DeviceBusManager;
@@ -31,14 +35,14 @@ import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.onewire.OneWireDeviceController;
 import io.mapsmessaging.devices.spi.SpiDeviceController;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import static io.mapsmessaging.schemas.config.SchemaConfigFactory.gson;
 
 public class SimpleWebAccess {
 
@@ -81,13 +85,12 @@ public class SimpleWebAccess {
       System.exit(0);
     });
     app.get("/device/list", ctx -> {
-      JSONObject jsonObject = new JSONObject();
-
-      jsonObject.put("i2c[0]", packList(deviceBusManager.getI2cBusManager()[0].getActive()));
-      jsonObject.put("i2c[1]", packList(deviceBusManager.getI2cBusManager()[1].getActive()));
-      jsonObject.put("1Wire", packList(deviceBusManager.getOneWireBusManager().getActive()));
-      jsonObject.put("spi", packList(deviceBusManager.getSpiBusManager().getActive()));
-      ctx.json(jsonObject.toString(2));
+      JsonObject jsonObject = new JsonObject();
+      jsonObject.add("i2c[0]", packList(deviceBusManager.getI2cBusManager()[0].getActive()));
+      jsonObject.add("i2c[1]", packList(deviceBusManager.getI2cBusManager()[1].getActive()));
+      jsonObject.add("1Wire", packList(deviceBusManager.getOneWireBusManager().getActive()));
+      jsonObject.add("spi", packList(deviceBusManager.getSpiBusManager().getActive()));
+      ctx.json(gson.toJson(jsonObject));
     });
 
     //<editor-fold desc="I2C handler">
@@ -96,13 +99,15 @@ public class SimpleWebAccess {
       int bus = Integer.parseInt(ctx.pathParam("bus"));
       List<Integer> found = deviceBusManager.getI2cBusManager()[bus].findDevicesOnBus(0);
       List<String> map = deviceBusManager.getI2cBusManager()[bus].listDetected(found);
-      JSONArray jsonArray = new JSONArray();
+
+      JsonArray jsonArray = new JsonArray();
       for (String line : map) {
-        jsonArray.put(line);
+        jsonArray.add(line);
       }
-      JSONObject json = new JSONObject();
-      json.put("I2C_Detect", jsonArray);
-      ctx.json(json.toString(2));
+
+      JsonObject json = new JsonObject();
+      json.add("I2C_Detect", jsonArray);
+      ctx.json(gson.toJson(json));
     });
 
     app.get("/device/i2c/{bus}/{id}", ctx -> {
@@ -309,34 +314,38 @@ public class SimpleWebAccess {
   }
 
   private void handleGetFunctions(Context ctx, DeviceController deviceController) {
-    JSONObject schemaObject = new JSONObject();
-    JSONArray functionList = new JSONArray();
-    if (deviceController instanceof I2CDeviceController) {
-      I2CDevice device = ((I2CDeviceController) deviceController).getDevice();
+    JsonObject schemaObject = new JsonObject();
+    JsonArray functionList = new JsonArray();
+
+    if (deviceController instanceof I2CDeviceController i2cController) {
+      I2CDevice device = i2cController.getDevice();
       if (device instanceof PowerManagement) {
-        functionList.put("powerOn");
-        functionList.put("powerOff");
+        functionList.add("powerOn");
+        functionList.add("powerOff");
       }
       if (device instanceof Resetable) {
-        functionList.put("reset");
-        functionList.put("softReset");
+        functionList.add("reset");
+        functionList.add("softReset");
       }
     }
-    schemaObject.put("functions", functionList);
-    ctx.json(schemaObject.toString(2));
+
+    schemaObject.add("functions", functionList);
+    ctx.json(gson.toJson(schemaObject));
   }
 
 
   private void handleGetSchema(Context ctx, DeviceController deviceController) throws IOException {
     String schema = deviceController.getSchema().pack();
-    JSONObject schemaObject = new JSONObject(schema);
-    JSONObject obj1 = schemaObject.getJSONObject("schema");
-    if (obj1.has("jsonSchema")) {
-      JSONObject rawSchema = obj1.getJSONObject("jsonSchema");
+    JsonObject schemaObject = JsonParser.parseString(schema).getAsJsonObject();
+
+    JsonObject obj1 = schemaObject.getAsJsonObject("schema");
+    if (obj1 != null && obj1.has("jsonSchema")) {
+      JsonElement rawSchema = obj1.get("jsonSchema");
       obj1.remove("jsonSchema");
-      obj1.put("jsonSchema", rawSchema);
+      obj1.add("jsonSchema", rawSchema); // Re-insert to preserve order/trigger re-serialization
     }
-    ctx.json(schemaObject.toString(2));
+
+    ctx.json(gson.toJson(schemaObject));
   }
 
   private void handleGetStatic(Context ctx, DeviceController deviceController) throws IOException {
@@ -347,17 +356,18 @@ public class SimpleWebAccess {
     ctx.json(new String(deviceController.getDeviceState()));
   }
 
-  private JSONArray packList(Map<String, DeviceController> devices) {
-    JSONArray list = new JSONArray();
-    for (Map.Entry<String, DeviceController> deviceEntryEntry : devices.entrySet()) {
-      JSONObject entry = new JSONObject();
-      entry.put("id", deviceEntryEntry.getKey());
-      entry.put("name", deviceEntryEntry.getValue().getName());
-      entry.put("description", deviceEntryEntry.getValue().getDescription());
-      list.put(entry);
+  private JsonArray packList(Map<String, DeviceController> devices) {
+    JsonArray list = new JsonArray();
+    for (Map.Entry<String, DeviceController> entry : devices.entrySet()) {
+      JsonObject obj = new JsonObject();
+      obj.addProperty("id", entry.getKey());
+      obj.addProperty("name", entry.getValue().getName());
+      obj.addProperty("description", entry.getValue().getDescription());
+      list.add(obj);
     }
     return list;
   }
+
 
 }
 
