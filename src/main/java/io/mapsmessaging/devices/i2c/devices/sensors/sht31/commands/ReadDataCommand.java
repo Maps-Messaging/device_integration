@@ -21,6 +21,8 @@ package io.mapsmessaging.devices.i2c.devices.sensors.sht31.commands;
 
 import io.mapsmessaging.devices.impl.AddressableDevice;
 
+import java.io.IOException;
+
 public class ReadDataCommand extends Command {
   private float lastTemperature;
   private float lastHumidity;
@@ -36,7 +38,7 @@ public class ReadDataCommand extends Command {
     };
   }
 
-  public synchronized void read(AddressableDevice device) throws InterruptedException {
+  public synchronized void read(AddressableDevice device) throws IOException {
     long now = System.currentTimeMillis();
     if ((now - lastReadTime) < minimumReadIntervalMillis) {
       return;

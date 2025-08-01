@@ -21,6 +21,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors.sht31;
 
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.PowerManagement;
+import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
@@ -35,7 +36,7 @@ import lombok.Getter;
 import java.io.IOException;
 import java.util.List;
 
-public class Sht31Sensor extends I2CDevice implements PowerManagement, Sensor {
+public class Sht31Sensor extends I2CDevice implements PowerManagement, Resetable, Sensor {
 
   @Getter
   private final List<SensorReading<?>> readings;
@@ -46,7 +47,7 @@ public class Sht31Sensor extends I2CDevice implements PowerManagement, Sensor {
 
   public Sht31Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(Sht31Sensor.class));
-    periodicReadCommand = new PeriodicReadCommand(Repeatability.MEDIUM, Mps.MPS_1);
+    periodicReadCommand = new PeriodicReadCommand(Repeatability.MEDIUM, Mps.MPS_0_5);
     readDataCommand = periodicReadCommand.getReadCommand();
 
     FloatSensorReading temperature = new FloatSensorReading(
@@ -89,7 +90,7 @@ public class Sht31Sensor extends I2CDevice implements PowerManagement, Sensor {
     if (logger.isDebugEnabled()) {
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "powerOn()");
     }
-    softResetCommand.sendCommand(device);
+    reset();
     periodicReadCommand.sendCommand(device);
   }
 
@@ -102,18 +103,6 @@ public class Sht31Sensor extends I2CDevice implements PowerManagement, Sensor {
 
   public void initialise() throws IOException {
     powerOn();
-  }
-
-  private void scanForChange() throws IOException {
-    if (lastRead < System.currentTimeMillis()) {
-      lastRead = System.currentTimeMillis();
-      try {
-        readDataCommand.read(device);
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-        throw new IOException("Read interrupted");
-      }
-    }
   }
 
   @Override
@@ -140,4 +129,23 @@ public class Sht31Sensor extends I2CDevice implements PowerManagement, Sensor {
     scanForChange();
     return readDataCommand.getHumidity();
   }
+
+  @Override
+  public void reset() throws IOException {
+    softReset();
+  }
+
+  @Override
+  public void softReset() throws IOException {
+    softResetCommand.sendCommand(device);
+  }
+
+
+  private void scanForChange() throws IOException {
+    if (lastRead < System.currentTimeMillis()) {
+      lastRead = System.currentTimeMillis();
+      readDataCommand.read(device);
+    }
+  }
+
 }

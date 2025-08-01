@@ -22,7 +22,6 @@ package io.mapsmessaging.devices.i2c.devices.sensors.sht31;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
-import io.mapsmessaging.devices.i2c.devices.sensors.tsl2561.TSL2561Controller;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -62,7 +61,7 @@ public class Sht31Controller extends I2CDeviceController {
   }
 
   public I2CDeviceController mount(AddressableDevice device) throws IOException {
-    return new TSL2561Controller(device);
+    return new Sht31Controller(device);
   }
 
 
