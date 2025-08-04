@@ -29,14 +29,14 @@ import java.io.IOException;
 @AllArgsConstructor
 public abstract class Command {
 
-  private final int command;
+  private final int cmd;
   private final long delayTime;
   private final int responseSize;
 
   public byte[] sendCommand(AddressableDevice device) throws IOException {
     byte[] commandBytes = new byte[2];
-    commandBytes[0] = (byte) ((command >> 8) & 0xFF); // MSB
-    commandBytes[1] = (byte) (command & 0xFF);        // LSB
+    commandBytes[0] = (byte) ((cmd >> 8) & 0xFF); // MSB
+    commandBytes[1] = (byte) (cmd & 0xFF);        // LSB
     device.write(commandBytes);
     if(delayTime > 0){
       synchronized(device){

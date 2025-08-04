@@ -25,22 +25,25 @@ import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 
-@Getter
 public class Bh1750Controller extends I2CDeviceController {
-
-  private final String name = "BH1750";
-
-  @Getter
-  private final String description = "16bit Serial Output Type Ambient Light Sensor ";
 
   private final Bh1750Sensor sensor;
 
   public Bh1750Controller() {
     sensor = null;
+  }
+
+  @Override
+  public String getName() {
+    return "BH1750";
+  }
+
+  @Override
+  public String getDescription() {
+    return "16bit Serial Output Type Ambient Light Sensor ";
   }
 
   public Bh1750Controller(AddressableDevice device) throws IOException {
@@ -68,7 +71,7 @@ public class Bh1750Controller extends I2CDeviceController {
   @Override
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
-    config.setComments(description);
+    config.setComments(getDescription());
     config.setTitle(getName());
     config.setVersion(1);
     config.setUniqueId(getSchemaId());

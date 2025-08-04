@@ -20,7 +20,6 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.bmp280;
 
 import io.mapsmessaging.devices.DeviceType;
-import io.mapsmessaging.devices.deviceinterfaces.PowerManagement;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.bmp280.values.OversamplingRate;
@@ -36,7 +35,7 @@ import java.util.List;
 
 import static io.mapsmessaging.devices.logging.DeviceLogMessage.I2C_BUS_DEVICE_READ_REQUEST;
 
-public class BMP280Sensor extends I2CDevice implements PowerManagement, Sensor {
+public class BMP280Sensor extends I2CDevice implements Sensor {
 
   public static final byte PROM_READ_SEQUENCE = (byte) 0xA0;
 
@@ -110,16 +109,6 @@ public class BMP280Sensor extends I2CDevice implements PowerManagement, Sensor {
   @Override
   public boolean isConnected() {
     return true;
-  }
-
-  @Override
-  public void powerOn() throws IOException {
-
-  }
-
-  @Override
-  public void powerOff() throws IOException {
-    // No Op
   }
 
   public float getTemperature() throws IOException {

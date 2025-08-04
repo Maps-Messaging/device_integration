@@ -38,8 +38,7 @@ public class AM2315Sensor extends I2CDevice implements Sensor {
   //
   // Command Codes
   //
-  private static final byte READ_REGISTER = 0x03; // Read data from one or more registers
-  private static final byte WRITE_REGISTER = 0x10; // Multiple sets of binary data is written to mutliple registers
+  private static final byte READ_FUNCTION = 0x03;
 
   //
   // Registers
@@ -181,7 +180,7 @@ public class AM2315Sensor extends I2CDevice implements Sensor {
 
   private byte[] readRegisters(byte startReg, byte endReg) throws IOException {
     byte[] sendPacket = new byte[3];
-    sendPacket[0] = READ_REGISTER;
+    sendPacket[0] = READ_FUNCTION;
     sendPacket[1] = startReg;
     sendPacket[2] = endReg;
     write(sendPacket);

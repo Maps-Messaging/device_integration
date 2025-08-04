@@ -32,7 +32,8 @@ import java.nio.charset.StandardCharsets;
 
 public class AM2320Controller extends I2CDeviceController {
 
-  private static final int i2cAddr = 0x5C;
+  private static final int I2C_ADDR = 0x5C;
+
   private final AM2320Sensor sensor;
 
   // Used during ServiceLoading
@@ -98,7 +99,7 @@ public class AM2320Controller extends I2CDeviceController {
 
   @Override
   public int[] getAddressRange() {
-    return new int[]{i2cAddr};
+    return new int[]{I2C_ADDR};
   }
 
 

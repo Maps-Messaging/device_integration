@@ -179,7 +179,6 @@ public class I2CBusManager {
   public List<Integer> findDevicesOnBus(long pollDelay) throws InterruptedException {
     List<Integer> found = new ArrayList<>();
     for (int x = 0; x < 0x78; x++) {
-      System.err.println("Scanning " + Integer.toHexString(x));
       if (!activeDevices.containsKey(Integer.toHexString(x))) {
         try {
           I2C device = physicalDevices.get(x);
@@ -192,7 +191,6 @@ public class I2CBusManager {
             }
           }
         } catch (Exception e) {
-          e.printStackTrace();
           // Ignore since we are simply looking for devices
         }
       }

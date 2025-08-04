@@ -35,9 +35,7 @@ import static io.mapsmessaging.devices.logging.DeviceLogMessage.I2C_BUS_DEVICE_R
 
 public class AM2320Sensor extends I2CDevice implements Sensor {
 
-  private static final int AM2320_SENSOR_VERSION = 1;
   private static final int AM2320_CMD_READREG = 0x03;
-  private static final int AM2320_REG_TEMP_H = 0x02;
   private static final int AM2320_REG_HUM_H = 0x00;
   @Getter
   private final List<SensorReading<?>> readings;

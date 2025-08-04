@@ -41,17 +41,23 @@ import java.util.List;
 
 public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
 
+  @Getter
   private final ChipIdRegister chipIdRegister;
   private final ControlMeasurementRegister controlMeasurementRegister;
   private final ResetRegister resetRegister;
+  @Getter
   private final VariantIdRegister variantIdRegister;
+  @Getter
   private final ConfigRegister configRegister;
   private final ControlHumidityRegister controlHumidityRegister;
+  @Getter
   private final ControlGas0Register controlGas0Register;
   private final ControlGas1Register controlGas1Register;
+  @Getter
   private final GasWaitRegister gasWaitSharedRegister;
   private final GasWaitRegister[] gasWaitRegisters;
   private final HeaterResistanceRegister heaterResistanceRegister;
+  @Getter
   private final HeaterCurrentRegister heaterCurrentRegister;
 
   private final SensorReadings[] sensorReadings;

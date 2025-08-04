@@ -18,7 +18,7 @@
  */
 
 package io.mapsmessaging.devices.i2c.devices.sensors.ina219;
-
+@SuppressWarnings("java:S125")
 public class Constants {
   /*=========================================================================
   CONFIG REGISTER (R/W);
