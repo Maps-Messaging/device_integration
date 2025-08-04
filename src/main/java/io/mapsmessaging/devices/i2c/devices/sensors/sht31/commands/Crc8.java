@@ -35,4 +35,8 @@ public class Crc8 {
   public static boolean check(byte[] data, int offset) {
     return compute(data, offset, 2) == data[offset + 2];
   }
+
+  private Crc8() {
+    //private
+  }
 }

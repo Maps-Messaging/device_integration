@@ -46,10 +46,12 @@ public class ThresholdPressureRegister extends MultiByteRegister {
     write(val);
   }
 
+  @Override
   public RegisterData toData() throws IOException {
     return new ThresholdPressureData(getThreshold());
   }
 
+  @Override
   public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof ThresholdPressureData) {
       ThresholdPressureData data = (ThresholdPressureData) input;

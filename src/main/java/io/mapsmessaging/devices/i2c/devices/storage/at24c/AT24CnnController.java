@@ -41,9 +41,9 @@ public class AT24CnnController extends I2CDeviceController {
   private final AT24CnnDevice sensor;
 
   @Getter
-  private final String name = "AT24C32/64";
+  private static final String name = "AT24C32/64";
   @Getter
-  private final String description = "AT24C32/64/128/256/512 eeprom";
+  private static final String description = "AT24C32/64/128/256/512 eeprom";
 
   // Used during ServiceLoading
   public AT24CnnController() {
@@ -72,10 +72,12 @@ public class AT24CnnController extends I2CDeviceController {
     return new AT24CnnController(device);
   }
 
+  @Override
   public byte[] getDeviceConfiguration() throws IOException {
     return getDeviceState();
   }
 
+  @Override
   public byte[] getDeviceState() throws IOException {
     if (sensor != null) {
       Details details = new Details(sensor.getName(), sensor.getMemorySize());

@@ -49,7 +49,7 @@ public class SetFanCleaningIntervalCommand implements Sen6xCommand<Void> {
     try {
       execute();
     } catch (IOException e) {
-
+      // No Op
     }
 
   }

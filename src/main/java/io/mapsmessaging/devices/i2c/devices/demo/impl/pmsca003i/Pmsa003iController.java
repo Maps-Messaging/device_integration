@@ -34,14 +34,14 @@ import java.nio.charset.StandardCharsets;
 
 public class Pmsa003iController extends I2cDemoController {
 
-  private final int i2cAddr = 0x12;
+  private static final int i2cAddr = 0x12;
   private final Pmsa003iSensor sensor;
 
   @Getter
-  private final String name = "Demo PMSA003I";
+  private static final String name = "Demo PMSA003I";
 
   @Getter
-  private final String description = "Demo Air Quality sensor";
+  private static final String description = "Demo Air Quality sensor";
 
   public Pmsa003iController() {
     super(null);
@@ -70,6 +70,7 @@ public class Pmsa003iController extends I2cDemoController {
     return new Pmsa003iController(device);
   }
 
+  @Override
   public byte[] getDeviceConfiguration() throws IOException {
     JsonObject jsonObject = new JsonObject();
     if (sensor != null) {

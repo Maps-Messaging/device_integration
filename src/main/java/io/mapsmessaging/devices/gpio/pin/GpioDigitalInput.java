@@ -87,6 +87,7 @@ public class GpioDigitalInput extends BaseDigitalInput {
     return id + " " + name;
   }
 
+  @Override
   public void stateChange() throws IOException {
     DigitalStateChangeEvent event = new DigitalStateChangeEvent(null, getState());
     for (DigitalStateChangeListener listener : listenerList) {

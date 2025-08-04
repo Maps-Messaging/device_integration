@@ -198,4 +198,8 @@ public class BNO055Constants {
   public static final byte OPERATION_MODE_M4G = 0X0A;
   public static final byte OPERATION_MODE_NDOF_FMC_OFF = 0X0B;
   public static final byte OPERATION_MODE_NDOF = 0X0C;
+
+  private BNO055Constants() {
+    // no op
+  }
 }

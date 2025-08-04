@@ -34,5 +34,5 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class VariantId implements RegisterData {
-  private byte variantId;
+  private byte id;
 }

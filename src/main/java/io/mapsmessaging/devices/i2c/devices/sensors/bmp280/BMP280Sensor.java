@@ -119,7 +119,7 @@ public class BMP280Sensor extends I2CDevice implements PowerManagement, Sensor {
 
   @Override
   public void powerOff() throws IOException {
-
+    // No Op
   }
 
   public float getTemperature() throws IOException {
@@ -147,13 +147,13 @@ public class BMP280Sensor extends I2CDevice implements PowerManagement, Sensor {
     write(OversamplingRate.D2_OSR_4096.getValue());
     delay(10);
     read(ADC_READ, 3, readBuffer);
-    D2 = ((readBuffer[0] & 0xFF) << 16) | ((readBuffer[1] & 0xFF) << 8) | ((readBuffer[2] & 0xFF));
+    D2 = ((readBuffer[0] & 0xFF) << 16) | ((readBuffer[1] & 0xFF) << 8) | (readBuffer[2] & 0xFF);
 
 
     write(OversamplingRate.D1_OSR_4096.getValue());
     delay(10);
     read(ADC_READ, 3, readBuffer);
-    D1 = ((readBuffer[0] & 0xFF) << 16) | ((readBuffer[1] & 0xFF) << 8) | ((readBuffer[2] & 0xFF));
+    D1 = ((readBuffer[0] & 0xFF) << 16) | ((readBuffer[1] & 0xFF) << 8) | (readBuffer[2] & 0xFF);
   }
 
   private void initialise() throws IOException {
@@ -162,7 +162,7 @@ public class BMP280Sensor extends I2CDevice implements PowerManagement, Sensor {
     byte[] readBuffer = new byte[2];
     for (int i = 0; i < 8; i++) {
       read((byte) (PROM_READ_SEQUENCE + i * 2), 2, readBuffer);
-      prom[i] = ((readBuffer[0] & 0xFF) << 8) | ((readBuffer[1] & 0xFF));
+      prom[i] = ((readBuffer[0] & 0xFF) << 8) | (readBuffer[1] & 0xFF);
     }
     C1 = prom[1];
     C2 = prom[2];

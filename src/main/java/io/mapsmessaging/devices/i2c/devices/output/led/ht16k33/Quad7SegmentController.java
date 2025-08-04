@@ -31,9 +31,9 @@ public class Quad7SegmentController extends HT16K33Controller {
   private final int[] i2cAddr = {0x72};
 
   @Getter
-  private final String name = "Quad 7-Segment LED";
+  private static final String name = "Quad 7-Segment LED";
   @Getter
-  private final String description = "Quad 7-Segment LED";
+  private static final String description = "Quad 7-Segment LED";
 
   public Quad7SegmentController() {
   }

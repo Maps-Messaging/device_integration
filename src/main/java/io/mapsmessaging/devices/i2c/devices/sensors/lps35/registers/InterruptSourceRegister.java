@@ -64,6 +64,7 @@ public class InterruptSourceRegister extends SingleByteRegister {
     return sourceList.toArray(new InterruptSource[]{});
   }
 
+  @Override
   public RegisterData toData() throws IOException {
     InterruptSourceData data = new InterruptSourceData();
     data.setInterruptSources(Arrays.asList(getInterruptSource()));

@@ -162,7 +162,7 @@ public class AS3935Sensor extends I2CDevice implements PowerManagement, Sensor, 
     afeRegister.setPowerDown(true);
   }
 
-  protected String getInterruptReason() throws IOException {
+  protected String getInterruptReason() {
     return interruptRegister.getInterruptReason().getDescription();
   }
 

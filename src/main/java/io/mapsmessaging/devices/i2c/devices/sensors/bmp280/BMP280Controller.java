@@ -34,13 +34,13 @@ import java.nio.charset.StandardCharsets;
 
 public class BMP280Controller extends I2CDeviceController {
 
-  private final int i2cAddr = 0x78;
+  private static final int i2cAddr = 0x78;
   private final BMP280Sensor sensor;
 
   @Getter
-  private final String name = "BMP280";
+  private static final String name = "BMP280";
   @Getter
-  private final String description = "Pressure and Temperature Module";
+  private static final String description = "Pressure and Temperature Module";
 
   public BMP280Controller() {
     sensor = null;
@@ -66,6 +66,7 @@ public class BMP280Controller extends I2CDeviceController {
     }
   }
 
+  @Override
   public byte[] getDeviceConfiguration() {
     return "{}".getBytes();
   }
@@ -74,7 +75,7 @@ public class BMP280Controller extends I2CDeviceController {
     return getDevice().getType();
   }
 
-
+  @Override
   public byte[] getDeviceState() throws IOException {
     JsonObject jsonObject = new JsonObject();
     jsonObject.addProperty("pressure", sensor.getPressure());

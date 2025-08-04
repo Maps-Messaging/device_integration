@@ -51,7 +51,7 @@ public class GpioExtension {
       config.put("pin", "17");
       BaseDigitalInput piInterrupt0 = pi4JPinManagement.allocateInPin(config);
       Gpio gpio = (Mcp23017Device) deviceController.getDeviceController().getDevice();
-      GpioExtensionPinManagement pinManagement = new GpioExtensionPinManagement(gpio);//, piInterrupt0);
+      GpioExtensionPinManagement pinManagement = new GpioExtensionPinManagement(gpio, piInterrupt0);
       BaseDigitalOutput[] outputs = new BaseDigitalOutput[gpio.getPins()/2];
       BaseDigitalInput[] inputs = new BaseDigitalInput[gpio.getPins()/2];
       for (int x = 0; x < gpio.getPins()/2; x++) {

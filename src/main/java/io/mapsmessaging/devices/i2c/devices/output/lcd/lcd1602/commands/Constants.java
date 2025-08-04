@@ -24,4 +24,7 @@ public class Constants {
   public static final byte CONTROL = (byte) 0b10000000;
   public static final byte RS = (byte) 0b01000000;
 
+  private Constants() {
+    // private
+  }
 }

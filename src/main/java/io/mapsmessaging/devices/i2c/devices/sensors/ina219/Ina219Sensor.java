@@ -124,7 +124,7 @@ public class Ina219Sensor extends I2CDevice implements Sensor {
 
   public int getBusVoltage() throws IOException {
     int value = readDevice(Registers.BUS_VOLTAGE);
-    value = ((value >> 3));
+    value = value >> 3;
     return value;
   }
 
@@ -146,8 +146,7 @@ public class Ina219Sensor extends I2CDevice implements Sensor {
   }
 
   public float getCurrent_mA() throws IOException {
-    float valueDec = getCurrent();
-    return valueDec;
+    return getCurrent();
   }
 
   private int readDevice(Registers register) throws IOException {

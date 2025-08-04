@@ -37,6 +37,7 @@ public class ChipIdRegister extends SingleByteRegister {
     return registerValue;
   }
 
+  @Override
   public RegisterData toData() throws IOException {
     return new ChipIdData(getChipId());
   }

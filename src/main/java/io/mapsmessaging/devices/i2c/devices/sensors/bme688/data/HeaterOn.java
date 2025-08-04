@@ -33,5 +33,5 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class HeaterOn implements RegisterData {
-  private boolean heaterOn;
+  private boolean state;
 }

@@ -108,11 +108,6 @@ public class DeviceBusManager {
     if (!spi.isEmpty()) {
       spiBusManager.configureDevices(spi);
     }
-    Map<String, Object> debug = getConfig("debug", config);
-    if( !debug.isEmpty()) {
-      System.err.println("Loading debug devices");
-    }
-
   }
 
   public void enableTimestamping(boolean enable) {

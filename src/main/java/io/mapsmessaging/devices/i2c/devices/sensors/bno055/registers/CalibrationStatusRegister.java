@@ -72,6 +72,7 @@ public class CalibrationStatusRegister extends SingleByteRegister {
     return CalibrationStatus.UNKNOWN;
   }
 
+  @Override
   public RegisterData toData() throws IOException {
     return new CalibrationStatusDate(
         getName(),

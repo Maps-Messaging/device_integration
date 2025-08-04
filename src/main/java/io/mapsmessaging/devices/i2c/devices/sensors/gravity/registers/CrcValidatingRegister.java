@@ -49,13 +49,13 @@ public class CrcValidatingRegister extends Register {
   }
 
   @Override
-  protected void reload() throws IOException {
-
+  protected void reload() {
+    // no Op
   }
 
   @Override
-  protected void setControlRegister(int mask, int value) throws IOException {
-
+  protected void setControlRegister(int mask, int value) {
+    // no Op
   }
 
   @Override

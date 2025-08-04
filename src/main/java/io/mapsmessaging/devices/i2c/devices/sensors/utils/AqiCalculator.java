@@ -72,4 +72,7 @@ public class AqiCalculator {
     return Math.max(vocAqi, noxAqi);
   }
 
+  private AqiCalculator() {
+    // Hidden
+  }
 }

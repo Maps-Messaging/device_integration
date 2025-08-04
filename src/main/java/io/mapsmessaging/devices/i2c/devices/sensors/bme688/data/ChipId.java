@@ -33,5 +33,5 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class ChipId implements RegisterData {
-  private byte chipId;
+  private byte id;
 }

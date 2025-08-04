@@ -45,10 +45,11 @@ public abstract class OneWireDevice {
       String line;
       do {
         line = scanner.nextLine();
-        if (line.length() > 0) ret.add(line);
+        if (!line.isEmpty()) ret.add(line);
       }
-      while (line.length() > 0);
+      while (!line.isEmpty());
     } catch (Exception e) {
+      // ignore
     }
     process(ret);
   }

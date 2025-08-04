@@ -195,7 +195,7 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
   }
 
   public void startParallelMode() throws IOException {
-
+    // No  Op
   }
 
 

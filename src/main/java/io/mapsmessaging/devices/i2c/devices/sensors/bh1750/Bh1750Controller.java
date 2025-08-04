@@ -39,7 +39,6 @@ public class Bh1750Controller extends I2CDeviceController {
 
   private final Bh1750Sensor sensor;
 
-
   public Bh1750Controller() {
     sensor = null;
   }

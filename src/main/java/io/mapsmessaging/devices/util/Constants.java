@@ -36,4 +36,8 @@ public class Constants {
     // Format the number and return the rounded string representation
     return decimalFormat.format(number);
   }
+
+  private Constants() {
+    // private
+  }
 }

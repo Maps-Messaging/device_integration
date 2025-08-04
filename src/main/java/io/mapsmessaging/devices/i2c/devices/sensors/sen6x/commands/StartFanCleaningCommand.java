@@ -41,7 +41,7 @@ public class StartFanCleaningCommand implements Sen6xCommand<Void> {
     try {
       execute();
     } catch (IOException e) {
-
+      // Ignore
     }
   }
 }

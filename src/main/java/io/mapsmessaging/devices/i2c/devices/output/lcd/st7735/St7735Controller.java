@@ -134,7 +134,7 @@ public class St7735Controller extends I2CDeviceController {
 
     JsonObject root = new JsonObject();
     root.addProperty("$schema", "https://json-schema.org/draft/2020-12/schema");
-    root.addProperty("title", "ST7735");
+    root.addProperty("title", NAME);
     root.addProperty("description", "ST7735 RGB LCD Display");
     root.addProperty("type", "object");
 

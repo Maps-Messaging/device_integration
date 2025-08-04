@@ -136,9 +136,7 @@ public class SystemStatusError {
   }
 
   public String toString() {
-    String sb = "System Status:\n" + "\tState:" + getStateString() + "\n" +
-        "\tError:" + getErrorString() + "\n" +
-        "\tAccel:" + selfTestAccelerometer() + " Magnetometer:" + selfTestMagnetometer() + " Gyroscope:" + selfTestGyroscope() + " MCU:" + selfTestMCU() + "\n";
+    String sb = new StringBuilder().append("System Status:\n").append("\tState:").append(getStateString()).append("\n").append("\tError:").append(getErrorString()).append("\n").append("\tAccel:").append(selfTestAccelerometer()).append(" Magnetometer:").append(selfTestMagnetometer()).append(" Gyroscope:").append(selfTestGyroscope()).append(" MCU:").append(selfTestMCU()).append("\n").toString();
     return sb;
   }
 

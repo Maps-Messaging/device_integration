@@ -115,7 +115,7 @@ public class DS18B20Device extends OneWireDevice implements Sensor {
       int pos = aData.indexOf("t=");
       if (pos > 0) {
         String tmp = aData.substring(pos + 2);
-        if (tmp.length() > 0) {
+        if (!tmp.isEmpty()) {
           updateData(tmp);
         }
       }

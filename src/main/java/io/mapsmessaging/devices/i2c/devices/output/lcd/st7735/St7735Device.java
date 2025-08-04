@@ -19,14 +19,11 @@
 
 package io.mapsmessaging.devices.i2c.devices.output.lcd.st7735;
 
-import io.mapsmessaging.devices.DeviceBusManager;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.Output;
 import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Storage;
-import io.mapsmessaging.devices.i2c.I2CBusManager;
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.devices.output.lcd.st7735.font.FontDef;
 import io.mapsmessaging.devices.i2c.devices.output.lcd.st7735.font.Fonts;
 import io.mapsmessaging.devices.impl.AddressableDevice;
@@ -34,7 +31,6 @@ import io.mapsmessaging.logging.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Random;
 
 public class St7735Device extends I2CDevice implements Output, Storage, Resetable {
   // Color definitions
@@ -77,30 +73,6 @@ public class St7735Device extends I2CDevice implements Output, Storage, Resetabl
   public St7735Device(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(St7735Device.class));
     reset();
-  }
-
-  public static void main(String[] args) throws IOException {
-    I2CBusManager[] i2cBusManagers = DeviceBusManager.getInstance().getI2cBusManager();
-    int bus = 1;
-    if (args.length > 0) {
-      bus = Integer.parseInt(args[0]);
-    }
-    // Configure and mount a device on address 0x5D as a LPS25 pressure & temperature
-    I2CDeviceController deviceController = i2cBusManagers[bus].configureDevice(0x18, "ST7735");
-    if (deviceController != null) {
-      System.err.println(new String(deviceController.getDeviceConfiguration()));
-      I2CDevice sensor = deviceController.getDevice();
-      Random random = new Random(System.currentTimeMillis());
-
-      if (sensor instanceof St7735Device) {
-        St7735Device device1 = (St7735Device) sensor;
-        device1.reset();
-        while (true) {
-          device1.lcdDisplayPercentage("Test:", Math.abs(random.nextInt(100)), 100);
-          device1.delay(1000);
-        }
-      }
-    }
   }
 
   public void lcdSetAddressWindow(int x0, int y0, int x1, int y1) throws IOException {
@@ -257,7 +229,7 @@ public class St7735Device extends I2CDevice implements Output, Storage, Resetabl
 
   @Override
   public void writeBlock(int address, byte[] data) throws IOException {
-
+    // no op
   }
 
   @Override

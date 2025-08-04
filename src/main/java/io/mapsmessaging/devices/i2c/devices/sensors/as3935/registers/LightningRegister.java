@@ -36,7 +36,7 @@ public class LightningRegister extends SingleByteRegister {
     super(sensor, 0x02, "Lightning");
   }
 
-  public int getSpikeRejection() throws IOException {
+  public int getSpikeRejection() {
     return (registerValue >> LIGHTNING_REG_SREJ_BITS) & 0x0F;
   }
 
@@ -46,7 +46,7 @@ public class LightningRegister extends SingleByteRegister {
     sensor.write(address, registerValue);
   }
 
-  public int getMinNumLightning() throws IOException {
+  public int getMinNumLightning() {
     return (registerValue >> LIGHTNING_REG_MIN_NUM_LIGH_BITS) & 0x03;
   }
 
@@ -56,7 +56,7 @@ public class LightningRegister extends SingleByteRegister {
     sensor.write(address, registerValue);
   }
 
-  public boolean isClearStatisticsEnabled() throws IOException {
+  public boolean isClearStatisticsEnabled() {
     return ((registerValue & 0xff) & (1 << LIGHTNING_REG_CL_STAT_BIT)) != 0;
   }
 

@@ -34,9 +34,9 @@ public class Sht31Controller extends I2CDeviceController {
   private final Sht31Sensor sensor;
 
   @Getter
-  private final String name = "SHT31-D";
+  private static final String name = "SHT31-D";
   @Getter
-  private final String description = "Humidity and Temperature Sensor";
+  private static final String description = "Humidity and Temperature Sensor";
 
   public Sht31Controller() {
     sensor = null;

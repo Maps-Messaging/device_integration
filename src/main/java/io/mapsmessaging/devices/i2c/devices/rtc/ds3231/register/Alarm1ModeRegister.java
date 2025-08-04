@@ -47,7 +47,7 @@ public class Alarm1ModeRegister extends Register {
     this.dayRegister = dayRegister;
   }
 
-  public Alarm1Settings getAlarmSettings() throws IOException {
+  public Alarm1Settings getAlarmSettings() {
     int mode = 0;
     boolean setDay = !dayRegister.isDate();
     if (secondsRegister.isTopSet()) {
@@ -92,11 +92,12 @@ public class Alarm1ModeRegister extends Register {
 
   @Override
   protected void reload() throws IOException {
+    // No op
   }
 
   @Override
   protected void setControlRegister(int mask, int value) throws IOException {
-
+    // No Op
   }
 
   @Override

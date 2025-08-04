@@ -47,6 +47,7 @@ public class TapThresholdRegister extends SingleByteRegister {
     setControlRegister(~TAP_TH_MASK, maskedValue);
   }
 
+  @Override
   public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof TapThresholdData) {
       TapThresholdData data = (TapThresholdData) input;
@@ -57,6 +58,7 @@ public class TapThresholdRegister extends SingleByteRegister {
     return false;
   }
 
+  @Override
   public RegisterData toData() throws IOException {
     return new TapThresholdData(getTapThreshold());
   }

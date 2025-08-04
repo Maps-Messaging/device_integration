@@ -38,14 +38,14 @@ import static io.mapsmessaging.devices.i2c.devices.sensors.ina219.Constants.INA2
 
 public class Ina219Controller extends I2CDeviceController {
 
-  private final int i2cAddr = INA219_ADDRESS;
+  private static final int i2cAddr = INA219_ADDRESS;
   private final Ina219Sensor sensor;
 
   @Getter
-  private final String name = "INA219";
+  private static final String name = "INA219";
 
   @Getter
-  private final String description = "High Side DC Current Sensor";
+  private static final String description = "High Side DC Current Sensor";
 
   public Ina219Controller() {
     sensor = null;
@@ -72,6 +72,8 @@ public class Ina219Controller extends I2CDeviceController {
   public DeviceType getType() {
     return getDevice().getType();
   }
+
+  @Override
   public byte[] getDeviceConfiguration() {
     JsonObject jsonObject = new JsonObject();
     if (sensor != null) {
@@ -125,6 +127,7 @@ public class Ina219Controller extends I2CDeviceController {
     return gson.toJson(response).getBytes(StandardCharsets.UTF_8);
   }
 
+  @Override
   public byte[] getDeviceState() throws IOException {
     JsonObject jsonObject = new JsonObject();
     if (sensor != null) {

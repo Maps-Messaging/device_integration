@@ -35,9 +35,9 @@ public class AM2315Controller extends I2CDeviceController {
   private final AM2315Sensor sensor;
 
   @Getter
-  private final String name = "AM2315";
+  private static final String name = "AM2315";
   @Getter
-  private final String description = "AM2315 encased Temperature and Humidity Sensor";
+  private static final String description = "AM2315 encased Temperature and Humidity Sensor";
 
   // Used during ServiceLoading
   public AM2315Controller() {

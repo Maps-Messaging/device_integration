@@ -34,5 +34,5 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class LowPowerMode implements RegisterData {
-  private boolean lowPowerMode;
+  private boolean mode;
 }

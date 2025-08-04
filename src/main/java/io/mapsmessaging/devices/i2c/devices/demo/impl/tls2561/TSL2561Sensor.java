@@ -98,13 +98,15 @@ public class TSL2561Sensor extends I2CDevice implements PowerManagement, Sensor 
   }
 
   public void powerOn() throws IOException {
-
+    // No Op
   }
 
   public void powerOff() throws IOException {
+    // No Op
   }
 
   public void initialise() throws IOException {
+    // No Op
   }
 
   protected int getFull() {
@@ -116,7 +118,7 @@ public class TSL2561Sensor extends I2CDevice implements PowerManagement, Sensor 
   }
 
 
-  protected float calculateLux() throws IOException {
+  protected float calculateLux() {
     int irValue = getIr();
     int fullValue = getFull();
     float channelRatio = irValue / (float) fullValue;
@@ -131,7 +133,7 @@ public class TSL2561Sensor extends I2CDevice implements PowerManagement, Sensor 
       lux = 0.00146f * fullValue - 0.00112f * irValue;
     } else {
       lux = 0.0f; // high IR, out of range
-    };
+    }
     if (logger.isDebugEnabled()) {
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), lux + " = calculateLux()");
     }

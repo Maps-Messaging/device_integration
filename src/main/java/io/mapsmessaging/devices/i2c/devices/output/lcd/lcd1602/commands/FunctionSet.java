@@ -47,10 +47,12 @@ public class FunctionSet extends Command {
     buffer[1] = (byte) (buffer[1] & ~SET_2_LINES);
   }
 
+  @Override
   public int getCycleTime() {
     return 5;
   }
 
+  @Override
   public int repeatCount() {
     return 2;
   }

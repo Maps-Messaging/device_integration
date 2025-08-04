@@ -29,6 +29,7 @@ public class ClearDisplay extends Command {
     super(CONTROL, CLEAR_DISPLAY);
   }
 
+  @Override
   public int getCycleTime() {
     return 2;
   }

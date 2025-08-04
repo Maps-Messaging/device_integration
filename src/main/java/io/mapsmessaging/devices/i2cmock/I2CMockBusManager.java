@@ -64,6 +64,7 @@ public class I2CMockBusManager extends I2CBusManager {
         try {
           processDeviceList(addr, devices.get(0));
         } catch (IOException e) {
+          // Ignore this
         }
       }
     }

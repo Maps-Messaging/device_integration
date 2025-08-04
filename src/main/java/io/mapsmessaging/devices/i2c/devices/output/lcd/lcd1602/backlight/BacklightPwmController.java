@@ -36,9 +36,9 @@ public abstract class BacklightPwmController extends I2CDeviceController {
   protected final BacklightPwm pwmController;
 
   @Getter
-  private final String name = "PwmController";
+  private static final String name = "PwmController";
   @Getter
-  private final String description = "LCD1602 16*2 lcd display";
+  private static final String description = "LCD1602 16*2 lcd display";
 
   // Used during ServiceLoading
   protected BacklightPwmController() {
@@ -63,6 +63,7 @@ public abstract class BacklightPwmController extends I2CDeviceController {
     return pwmController != null && pwmController.isConnected();
   }
 
+  @Override
   public byte[] getDeviceConfiguration() throws IOException {
     JsonObject jsonObject = new JsonObject();
     if (pwmController != null) {
@@ -71,6 +72,7 @@ public abstract class BacklightPwmController extends I2CDeviceController {
     return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
   }
 
+  @Override
   public byte[] getDeviceState() throws IOException {
     JsonObject jsonObject = new JsonObject();
     if (pwmController != null) {

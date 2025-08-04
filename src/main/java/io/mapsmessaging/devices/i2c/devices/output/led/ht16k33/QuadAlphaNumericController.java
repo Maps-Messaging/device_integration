@@ -31,10 +31,10 @@ public class QuadAlphaNumericController extends HT16K33Controller {
   private final int[] i2cAddr = {};
 
   @Getter
-  private final String name = "Quad AlphaNumeric LED";
+  private static final String name = "Quad AlphaNumeric LED";
 
   @Getter
-  private final String description = "Quad AlphaNumeric LED";
+  private static final String description = "Quad AlphaNumeric LED";
 
   public QuadAlphaNumericController() {
   }

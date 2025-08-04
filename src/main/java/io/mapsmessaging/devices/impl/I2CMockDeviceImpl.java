@@ -32,7 +32,7 @@ public class I2CMockDeviceImpl extends I2CDeviceImpl {
 
   @Override
   public void close() {
-
+    // Nothing to do
   }
 
   @Override
@@ -43,11 +43,6 @@ public class I2CMockDeviceImpl extends I2CDeviceImpl {
   @Override
   public int write(int val) {
     return 0;
-  }
-
-  @Override
-  public int write(byte[] buffer) {
-    return super.write(buffer);
   }
 
   @Override

@@ -34,9 +34,9 @@ public class Scd41Controller extends I2CDeviceController {
   private final Scd41Sensor sensor;
 
   @Getter
-  private final String name = "SCD-41";
+  private static final String name = "SCD-41";
   @Getter
-  private final String description = "CO2 Sensor";
+  private static final String description = "CO2 Sensor";
 
 
   public Scd41Controller() {

@@ -31,13 +31,13 @@ import java.io.IOException;
 
 public class AS3935Controller extends I2CDeviceController {
 
-  private final int i2cAddr = 0x03;
+  private static final int i2cAddr = 0x03;
   private final AS3935Sensor sensor;
 
   @Getter
-  private final String name = "AS3935";
+  private static final String name = "AS3935";
   @Getter
-  private final String description = "Lightning Detector";
+  private static final String description = "Lightning Detector";
 
   // Used during ServiceLoading
   public AS3935Controller() {

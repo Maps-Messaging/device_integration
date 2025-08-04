@@ -40,6 +40,10 @@ public class Config {
   // Register addresses
   public static final int REG_CHIP_ID = 0xD0;
   public static final int REG_SOFT_RESET = 0xE0;
+
+  private Config() {
+    // private
+  }
 }
 
 

@@ -98,7 +98,7 @@ public abstract class I2CDeviceController extends DeviceController {
       }
       return convert(jsonObject);
     } catch (Throwable e) {
-      e.printStackTrace();
+      // Log this
     }
     return "{}".getBytes();
   }

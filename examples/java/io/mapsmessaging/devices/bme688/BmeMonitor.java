@@ -37,7 +37,7 @@ public class BmeMonitor implements Runnable {
 
   private final BME688Sensor device;
 
-  public BmeMonitor(BME688Sensor device) throws IOException {
+  public BmeMonitor(BME688Sensor device) {
     this.device = device;
     Thread t = new Thread(this);
     t.start();
@@ -55,7 +55,6 @@ public class BmeMonitor implements Runnable {
       System.err.println(new String(deviceController.getDeviceConfiguration()));
       I2CDevice sensor = deviceController.getDevice();
       if (sensor instanceof BME688Sensor) {
-
         new BmeMonitor((BME688Sensor) sensor);
       }
     }

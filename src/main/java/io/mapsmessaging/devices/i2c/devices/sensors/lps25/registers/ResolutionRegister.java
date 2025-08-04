@@ -67,10 +67,12 @@ public class ResolutionRegister extends SingleByteRegister {
     setControlRegister(~AVE_TEMPERATURE_MASK, (ave.getMask() << 2));
   }
 
+  @Override
   public RegisterData toData() {
     return new ResolutionData(getPressureAverage(), getTemperatureAverage());
   }
 
+  @Override
   public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof ResolutionData) {
       ResolutionData data = (ResolutionData) input;

@@ -72,6 +72,7 @@ public class StatusRegister extends SingleByteRegister {
     return sourceList.toArray(new Status[]{});
   }
 
+  @Override
   public RegisterData toData() throws IOException {
     return new StatusData(Arrays.asList(getStatus()));
   }

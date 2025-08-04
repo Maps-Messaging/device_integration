@@ -46,12 +46,14 @@ public class ReferencePressureRegister extends MultiByteRegister {
     write(val);
   }
 
+  @Override
   public RegisterData toData() {
     ReferencePressureData data = new ReferencePressureData();
     data.setReference(getReference());
     return data;
   }
 
+  @Override
   public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof ReferencePressureData) {
       ReferencePressureData data = (ReferencePressureData) input;

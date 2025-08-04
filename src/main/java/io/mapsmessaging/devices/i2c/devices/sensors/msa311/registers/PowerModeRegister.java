@@ -50,7 +50,7 @@ public class PowerModeRegister extends SingleByteRegister {
     sensor.write(address, registerValue);
   }
 
-  public PowerMode getPowerMode() throws IOException {
+  public PowerMode getPowerMode() {
     int val = registerValue >> 6;
     for (PowerMode mode : PowerMode.values()) {
       if (mode.ordinal() == val) {
@@ -64,6 +64,7 @@ public class PowerModeRegister extends SingleByteRegister {
     super.setControlRegister(0b00011110, mode.ordinal() << 6);
   }
 
+  @Override
   public RegisterData toData() throws IOException {
     return new PowerModeData(getLowPowerBandwidth(), getPowerMode());
   }

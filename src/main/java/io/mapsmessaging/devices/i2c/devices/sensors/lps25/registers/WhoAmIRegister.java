@@ -36,6 +36,7 @@ public class WhoAmIRegister extends SingleByteRegister {
     return registerValue & 0xff;
   }
 
+  @Override
   public RegisterData toData() {
     return new WhoAmIData(getWhoAmI());
   }

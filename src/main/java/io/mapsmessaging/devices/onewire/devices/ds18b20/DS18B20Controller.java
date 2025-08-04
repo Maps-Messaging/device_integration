@@ -35,9 +35,9 @@ public class DS18B20Controller extends OneWireDeviceController {
   private final DS18B20Device sensor;
 
   @Getter
-  private final String name = "DS18B20";
+  private static final String name = "DS18B20";
   @Getter
-  private final String description = "Temperature sensor";
+  private static final String description = "Temperature sensor";
 
   public DS18B20Controller() {
     sensor = null;

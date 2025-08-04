@@ -43,7 +43,7 @@ public class ThresholdRegister extends SingleByteRegister {
 
   public void setWatchdogThreshold(int threshold) throws IOException {
     registerValue &= ~(0x0F);
-    registerValue |= (threshold) & ((0x0F));
+    registerValue |= (threshold & 0x0F);
     sensor.write(address, registerValue);
   }
 

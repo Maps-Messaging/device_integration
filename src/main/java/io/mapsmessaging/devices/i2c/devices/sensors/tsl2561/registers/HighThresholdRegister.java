@@ -32,10 +32,12 @@ public class HighThresholdRegister extends MultiByteRegister {
     super(sensor, 0x84, 2, "HighThresholdRegister");
   }
 
+  @Override
   public RegisterData toData() throws IOException {
     return new HighThresholdData(asInt());
   }
 
+  @Override
   public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof HighThresholdData) {
       HighThresholdData data = (HighThresholdData) input;

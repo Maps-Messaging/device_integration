@@ -32,13 +32,13 @@ import java.io.IOException;
 
 public class BME688Controller extends I2CDeviceController {
 
-  private final int i2cAddr = 0x77;
+  private static final int i2cAddr = 0x77;
   private final BME688Sensor sensor;
 
   @Getter
-  private final String name = "BME688";
+  private static final String name = "BME688";
   @Getter
-  private final String description = "VOC, Humidity, Pressure and Temperature Module";
+  private static final String description = "VOC, Humidity, Pressure and Temperature Module";
 
   public BME688Controller() {
     sensor = null;

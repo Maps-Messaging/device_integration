@@ -26,12 +26,12 @@ import java.io.IOException;
 
 public class ExpanderConfigurationRegister extends SingleByteRegister {
 
-  private final int MIRROR = 0b01000000;
-  private final int SEQOP = 0b00100000;
-  private final int DISSLW = 0b00010000;
-  private final int HAEN = 0b00001000;
-  private final int ODR = 0b00000100;
-  private final int INTPOL = 0b00000010;
+  private static final int MIRROR = 0b01000000;
+  private static final int SEQOP = 0b00100000;
+  private static final int DISSLW = 0b00010000;
+  private static final int HAEN = 0b00001000;
+  private static final int ODR = 0b00000100;
+  private static final int INTPOL = 0b00000010;
 
 
   public ExpanderConfigurationRegister(I2CDevice sensor, byte address) throws IOException {

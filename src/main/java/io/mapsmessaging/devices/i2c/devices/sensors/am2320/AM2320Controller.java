@@ -33,12 +33,12 @@ import java.nio.charset.StandardCharsets;
 
 public class AM2320Controller extends I2CDeviceController {
 
-  private final int i2cAddr = 0x5C;
+  private static final int i2cAddr = 0x5C;
   private final AM2320Sensor sensor;
   @Getter
-  private final String name = "AM2320";
+  private static final String name = "AM2320";
   @Getter
-  private final String description = "AM2320 Pressure and Temperature Sensor";
+  private static final String description = "AM2320 Pressure and Temperature Sensor";
 
   // Used during ServiceLoading
   public AM2320Controller() {
@@ -58,6 +58,7 @@ public class AM2320Controller extends I2CDeviceController {
     return new AM2320Controller(device);
   }
 
+  @Override
   public byte[] getDeviceConfiguration() {
     return "{}".getBytes();
   }
@@ -66,6 +67,7 @@ public class AM2320Controller extends I2CDeviceController {
     return getDevice().getType();
   }
 
+  @Override
   public byte[] getDeviceState() throws IOException {
     JsonObject jsonObject = new JsonObject();
     jsonObject.addProperty("humidity", sensor.getHumidity());

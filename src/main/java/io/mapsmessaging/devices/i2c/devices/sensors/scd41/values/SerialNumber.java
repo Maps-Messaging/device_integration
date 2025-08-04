@@ -33,5 +33,5 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class SerialNumber implements RegisterData {
-  private int serialNumber;
+  private int serial;
 }

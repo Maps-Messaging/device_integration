@@ -60,6 +60,7 @@ public class FiFoControl extends SingleByteRegister {
     setControlRegister(~FIFO_THRESHOLD, (waterMark & FIFO_THRESHOLD));
   }
 
+  @Override
   public FiFoControlData toData() {
     FiFoControlData data = new FiFoControlData();
     data.setFifoMode(getFifoMode());
@@ -67,6 +68,7 @@ public class FiFoControl extends SingleByteRegister {
     return data;
   }
 
+  @Override
   public boolean fromData(RegisterData input) throws IOException {
     if (input instanceof FiFoControlData) {
       FiFoControlData data = (FiFoControlData) input;

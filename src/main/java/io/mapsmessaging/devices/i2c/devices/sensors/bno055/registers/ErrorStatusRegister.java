@@ -43,6 +43,7 @@ public class ErrorStatusRegister extends SingleByteRegister {
     return SystemErrorStatus.UNKNOWN_ERROR;
   }
 
+  @Override
   public RegisterData toData() throws IOException {
     return new ErrorStatusData(getErrorStatus());
   }

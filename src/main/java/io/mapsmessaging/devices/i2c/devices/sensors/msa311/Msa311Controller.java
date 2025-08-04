@@ -32,14 +32,14 @@ import java.io.IOException;
 
 public class Msa311Controller extends I2CDeviceController {
 
-  private final int i2cAddr = 0x62;
+  private static final int i2cAddr = 0x62;
   private final Msa311Sensor sensor;
 
   @Getter
-  private final String name = "MSA311";
+  private static final String name = "MSA311";
 
   @Getter
-  private final String description = "Digital Tri-axial Accelerometer";
+  private static final String description = "Digital Tri-axial Accelerometer";
 
   public Msa311Controller() {
     sensor = null;

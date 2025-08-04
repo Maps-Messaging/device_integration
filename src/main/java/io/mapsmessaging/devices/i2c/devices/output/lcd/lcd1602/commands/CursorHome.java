@@ -28,6 +28,7 @@ public class CursorHome extends Command {
     super(CONTROL, CURSOR_HOME);
   }
 
+  @Override
   public int getCycleTime() {
     return 2;
   }

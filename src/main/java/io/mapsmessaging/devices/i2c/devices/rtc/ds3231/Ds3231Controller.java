@@ -31,13 +31,13 @@ import java.io.IOException;
 
 public class Ds3231Controller extends I2CDeviceController {
 
-  private final int i2cAddr = 0x68;
+  private static final int i2cAddr = 0x68;
   private final Ds3231Rtc rtc;
 
   @Getter
-  private final String name = "DS3231";
+  private static final String name = "DS3231";
   @Getter
-  private final String description = "Real Time Clock with temperature calibration";
+  private static final String description = "Real Time Clock with temperature calibration";
 
   public Ds3231Controller() {
     rtc = null;

@@ -63,10 +63,13 @@ public class CalibrationData {
   }
 
   public int getByte(int idx) {
+    if (idx >= buffer.length || idx < 0) {
+      return 0;
+    }
     return buffer[idx] & 0xff;
   }
 
   public int getShort(int idx) {
-    return ((buffer[idx + 1] & 0xff) << 8) | (buffer[idx] & 0xff);
+    return ((getByte(idx + 1) << 8) | getByte(idx));
   }
 }

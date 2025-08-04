@@ -35,9 +35,9 @@ public class Lps35Controller extends I2CDeviceController {
   private final Lps35Sensor sensor;
 
   @Getter
-  private final String name = "LPS35";
+  private static final String name = "LPS35";
   @Getter
-  private final String description = "Pressure and Temperature sensor";
+  private static final String description = "Pressure and Temperature sensor";
 
 
   public Lps35Controller() {

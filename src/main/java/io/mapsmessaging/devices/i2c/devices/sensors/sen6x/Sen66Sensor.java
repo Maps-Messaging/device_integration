@@ -39,6 +39,7 @@ public class Sen66Sensor extends Sen6xSensor {
     return new Sen66MeasurementManager(helper);
   }
 
+  @Override
   protected List<SensorReading<?>> buildMeasurementReadingds(Sen6xMeasurementManager manager) {
     List<SensorReading<?>> list = super.buildMeasurementReadingds(manager);
 

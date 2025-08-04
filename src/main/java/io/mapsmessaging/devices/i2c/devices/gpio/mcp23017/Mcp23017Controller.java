@@ -36,9 +36,9 @@ public class Mcp23017Controller extends I2CDeviceController {
   private final Mcp23017Device sensor;
 
   @Getter
-  private final String name = "MCP23017";
+  private static final String name = "MCP23017";
   @Getter
-  private final String description = "MCP23017 16 pin GPIO extender";
+  private static final String description = "MCP23017 16 pin GPIO extender";
 
   // Used during ServiceLoading
   public Mcp23017Controller() {
@@ -67,6 +67,7 @@ public class Mcp23017Controller extends I2CDeviceController {
     return new Mcp23017Controller(device);
   }
 
+  @Override
   public byte[] getDeviceConfiguration() throws IOException {
     JsonObject jsonObject = new JsonObject();
     if (sensor != null) {
@@ -75,6 +76,7 @@ public class Mcp23017Controller extends I2CDeviceController {
     return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
   }
 
+  @Override
   public byte[] getDeviceState() throws IOException {
     JsonObject jsonObject = new JsonObject();
     if (sensor != null) {

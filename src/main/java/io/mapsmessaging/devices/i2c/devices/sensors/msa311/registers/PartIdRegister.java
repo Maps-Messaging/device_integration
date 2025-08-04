@@ -32,10 +32,11 @@ public class PartIdRegister extends SingleByteRegister {
     super(sensor, 0x1, "PartId");
   }
 
-  public int getId() throws IOException {
+  public int getId() {
     return registerValue & 0xff;
   }
 
+  @Override
   public RegisterData toData() throws IOException {
     return new PartIdData(getId());
   }

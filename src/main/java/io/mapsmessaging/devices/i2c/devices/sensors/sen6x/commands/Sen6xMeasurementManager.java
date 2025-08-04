@@ -32,7 +32,7 @@ public abstract class Sen6xMeasurementManager {
   private MeasurementBlock cachedBlock;
   private GetDataReadyFlagCommand getReadyFlagCommand;
 
-  public Sen6xMeasurementManager(Sen6xCommandHelper helper, int commandId, int length) {
+  protected Sen6xMeasurementManager(Sen6xCommandHelper helper, int commandId, int length) {
     this.helper = helper;
     this.length = length;
     this.commandId = commandId;

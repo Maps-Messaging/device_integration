@@ -40,7 +40,7 @@ public class Mcp3y0xDevice extends SpiDevice implements Sensor {
   @Getter
   protected final int bits;
   @Getter
-  protected final int dutyCycle = 100000;
+  protected static final int dutyCycle = 100000;
 
   protected final String name;
   @Getter

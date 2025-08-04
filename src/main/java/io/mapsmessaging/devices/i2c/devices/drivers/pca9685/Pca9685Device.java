@@ -67,6 +67,7 @@ public class Pca9685Device extends I2CDevice implements Resetable, Output {
       mode1Register.restart();
       mode1Register.setSleep(true);
     } catch (IOException e) {
+      // No Op
     }
   }
 

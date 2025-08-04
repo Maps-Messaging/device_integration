@@ -54,7 +54,7 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
   private final List<SensorReading<?>> readings;
   private final String productName;
 
-  public Sen6xSensor(AddressableDevice device) {
+  protected Sen6xSensor(AddressableDevice device) {
     super(device, LoggerFactory.getLogger(Sen6xSensor.class));
     helper = new Sen6xCommandHelper(device);
     getProductNameCommand = new GetProductNameCommand(helper);

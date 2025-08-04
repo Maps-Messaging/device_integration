@@ -33,5 +33,5 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class HeaterCurrent implements RegisterData {
-  private int[] heaterCurrent;
+  private int[] current;
 }

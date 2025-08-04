@@ -57,6 +57,7 @@ public class SystemStatusRegister extends SingleByteRegister {
     }
   }
 
+  @Override
   public RegisterData toData() throws IOException {
     return new SystemStatusData(getStatus());
   }

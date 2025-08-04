@@ -41,9 +41,9 @@ public class BNO055Controller extends I2CDeviceController {
   private final int[] i2cAddr = {0x28, 0x29};
   private final BNO055Sensor sensor;
   @Getter
-  private final String name = "BNO055";
+  private static final String name = "BNO055";
   @Getter
-  private final String description = "BNO055 orientation sensor";
+  private static final String description = "BNO055 orientation sensor";
 
   public BNO055Controller() {
     sensor = null;
@@ -78,6 +78,7 @@ public class BNO055Controller extends I2CDeviceController {
     return new BNO055Controller(device);
   }
 
+  @Override
   public byte[] getDeviceState() throws IOException {
     JsonObject jsonObject = new JsonObject();
     if (sensor != null) {
@@ -89,6 +90,7 @@ public class BNO055Controller extends I2CDeviceController {
     return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
   }
 
+  @Override
   public byte[] getDeviceConfiguration() throws IOException {
     JsonObject jsonObject = new JsonObject();
     if (sensor != null) {
