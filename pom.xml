@@ -67,6 +67,7 @@
   </scm>
 
   <properties>
+    <pi4j.version>2.8.0</pi4j.version>
     <nvd.api.key>${env.NVD_API_KEY}</nvd.api.key>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -76,11 +77,10 @@
     <gpg.keyname>matthew.buckton@mapsmessaging.io</gpg.keyname>
 
     <runSuite>**/*Suite.class</runSuite>
-    <!-- Below property indicates the pattern of the test suite -->
+    <!-- Sonar-JaCoCo properties -->
     <sonar.c.file.suffixes>-</sonar.c.file.suffixes>
     <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco</sonar.coverage.jacoco.xmlReportPaths>
 
-    <!-- Sonar-JaCoCo properties -->
     <sonar.cpp.file.suffixes>-</sonar.cpp.file.suffixes>
     <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
     <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -91,9 +91,14 @@
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <sonar.organization>maps-messaging</sonar.organization>
     <sonar.projectKey>deviceLibrary</sonar.projectKey>
+    <sonar.issue.ignore.multicriteria>s1,s2</sonar.issue.ignore.multicriteria>
 
+    <sonar.issue.ignore.multicriteria.s1.ruleKey>java:S6201</sonar.issue.ignore.multicriteria.s1.ruleKey>
+    <sonar.issue.ignore.multicriteria.s1.resourceKey>**/*.java</sonar.issue.ignore.multicriteria.s1.resourceKey>
+
+    <sonar.issue.ignore.multicriteria.s2.ruleKey>java:S115</sonar.issue.ignore.multicriteria.s2.ruleKey>
+    <sonar.issue.ignore.multicriteria.s2.resourceKey>**/hardware/**</sonar.issue.ignore.multicriteria.s2.resourceKey>
     <sonar.sources>src/main</sonar.sources>
-    <pi4j.version>2.8.0</pi4j.version>
     <sonar.test.exclusions>
       **/*Test.*,**/*IT.*, **.*JMH.*
     </sonar.test.exclusions>
