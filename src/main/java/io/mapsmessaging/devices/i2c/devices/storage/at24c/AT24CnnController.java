@@ -32,7 +32,6 @@ import io.mapsmessaging.devices.i2c.devices.storage.at24c.values.ActionType;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 
@@ -40,14 +39,19 @@ public class AT24CnnController extends I2CDeviceController {
 
   private final AT24CnnDevice sensor;
 
-  @Getter
-  private static final String name = "AT24C32/64";
-  @Getter
-  private static final String description = "AT24C32/64/128/256/512 eeprom";
-
   // Used during ServiceLoading
   public AT24CnnController() {
     sensor = null;
+  }
+
+  @Override
+  public String getName() {
+    return "AT24C32/64";
+  }
+
+  @Override
+  public String getDescription() {
+    return "AT24C32/64/128/256/512 eeprom";
   }
 
   protected AT24CnnController(AddressableDevice device) throws IOException {

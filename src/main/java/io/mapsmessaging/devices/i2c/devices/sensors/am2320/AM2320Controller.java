@@ -26,7 +26,6 @@ import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -35,14 +34,20 @@ public class AM2320Controller extends I2CDeviceController {
 
   private static final int i2cAddr = 0x5C;
   private final AM2320Sensor sensor;
-  @Getter
-  private static final String name = "AM2320";
-  @Getter
-  private static final String description = "AM2320 Pressure and Temperature Sensor";
 
   // Used during ServiceLoading
   public AM2320Controller() {
     sensor = null;
+  }
+
+  @Override
+  public String getName() {
+    return "AM2320";
+  }
+
+  @Override
+  public String getDescription() {
+    return "AM2320 Pressure and Temperature Sensor";
   }
 
   protected AM2320Controller(AddressableDevice device) throws IOException {

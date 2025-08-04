@@ -26,7 +26,6 @@ import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 
@@ -35,13 +34,18 @@ public class BME688Controller extends I2CDeviceController {
   private static final int i2cAddr = 0x77;
   private final BME688Sensor sensor;
 
-  @Getter
-  private static final String name = "BME688";
-  @Getter
-  private static final String description = "VOC, Humidity, Pressure and Temperature Module";
-
   public BME688Controller() {
     sensor = null;
+  }
+
+  @Override
+  public String getName() {
+    return "BME688";
+  }
+
+  @Override
+  public String getDescription() {
+    return "VOC, Humidity, Pressure and Temperature Module";
   }
 
   protected BME688Controller(AddressableDevice device) throws IOException {

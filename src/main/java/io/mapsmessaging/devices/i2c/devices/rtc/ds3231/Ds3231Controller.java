@@ -25,7 +25,6 @@ import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 
@@ -34,13 +33,18 @@ public class Ds3231Controller extends I2CDeviceController {
   private static final int i2cAddr = 0x68;
   private final Ds3231Rtc rtc;
 
-  @Getter
-  private static final String name = "DS3231";
-  @Getter
-  private static final String description = "Real Time Clock with temperature calibration";
-
   public Ds3231Controller() {
     rtc = null;
+  }
+
+  @Override
+  public String getName() {
+    return "DS3231";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Real Time Clock with temperature calibration";
   }
 
   public Ds3231Controller(AddressableDevice device) throws IOException {

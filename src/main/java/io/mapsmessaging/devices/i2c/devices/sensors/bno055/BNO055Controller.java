@@ -30,7 +30,6 @@ import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.sensorreadings.Orientation;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -40,13 +39,19 @@ public class BNO055Controller extends I2CDeviceController {
 
   private final int[] i2cAddr = {0x28, 0x29};
   private final BNO055Sensor sensor;
-  @Getter
-  private static final String name = "BNO055";
-  @Getter
-  private static final String description = "BNO055 orientation sensor";
 
   public BNO055Controller() {
     sensor = null;
+  }
+
+  @Override
+  public String getName() {
+    return "BNO055";
+  }
+
+  @Override
+  public String getDescription() {
+    return "BNO055 orientation sensor";
   }
 
   protected BNO055Controller(AddressableDevice device) throws IOException {

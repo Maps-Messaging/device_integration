@@ -26,7 +26,6 @@ import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -35,14 +34,19 @@ public class Mcp23017Controller extends I2CDeviceController {
 
   private final Mcp23017Device sensor;
 
-  @Getter
-  private static final String name = "MCP23017";
-  @Getter
-  private static final String description = "MCP23017 16 pin GPIO extender";
-
   // Used during ServiceLoading
   public Mcp23017Controller() {
     sensor = null;
+  }
+
+  @Override
+  public String getName() {
+    return "MCP23017";
+  }
+
+  @Override
+  public String getDescription() {
+    return "MCP23017 16 pin GPIO extender";
   }
 
   protected Mcp23017Controller(AddressableDevice device) throws IOException {

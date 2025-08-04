@@ -25,7 +25,6 @@ import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 
@@ -33,14 +32,18 @@ public class Scd41Controller extends I2CDeviceController {
 
   private final Scd41Sensor sensor;
 
-  @Getter
-  private static final String name = "SCD-41";
-  @Getter
-  private static final String description = "CO2 Sensor";
-
-
   public Scd41Controller() {
     sensor = null;
+  }
+
+  @Override
+  public String getName() {
+    return "SCD-41";
+  }
+
+  @Override
+  public String getDescription() {
+    return "CO2 Sensor";
   }
 
   public Scd41Controller(AddressableDevice device) throws IOException {

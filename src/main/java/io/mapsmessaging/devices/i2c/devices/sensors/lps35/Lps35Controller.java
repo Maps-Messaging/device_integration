@@ -26,7 +26,6 @@ import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 
@@ -34,14 +33,18 @@ public class Lps35Controller extends I2CDeviceController {
 
   private final Lps35Sensor sensor;
 
-  @Getter
-  private static final String name = "LPS35";
-  @Getter
-  private static final String description = "Pressure and Temperature sensor";
-
-
   public Lps35Controller() {
     sensor = null;
+  }
+
+  @Override
+  public String getName() {
+    return "LPS35";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Pressure and Temperature sensor";
   }
 
   public Lps35Controller(AddressableDevice device) throws IOException {

@@ -25,7 +25,6 @@ import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.onewire.OneWireDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -34,13 +33,18 @@ public class DS18B20Controller extends OneWireDeviceController {
 
   private final DS18B20Device sensor;
 
-  @Getter
-  private static final String name = "DS18B20";
-  @Getter
-  private static final String description = "Temperature sensor";
-
   public DS18B20Controller() {
     sensor = null;
+  }
+
+  @Override
+  public String getName() {
+    return "DS18B20";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Temperature sensor";
   }
 
   public DS18B20Controller(File path) {

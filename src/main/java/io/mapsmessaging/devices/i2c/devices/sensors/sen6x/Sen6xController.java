@@ -24,7 +24,6 @@ import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 
@@ -32,14 +31,18 @@ public class Sen6xController extends I2CDeviceController {
 
   private final Sen6xSensor sensor;
 
-  @Getter
-  private static final String name = "SEN6x";
-  @Getter
-  private static final String description = "Air Quality Sensor for PM, RH/T, VOC, Nox, CO2, HCOH";
-
-
   public Sen6xController() {
     sensor = null;
+  }
+
+  @Override
+  public String getName() {
+    return "SEN6x";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Air Quality Sensor for PM, RH/T, VOC, Nox, CO2, HCOH";
   }
 
   public Sen6xController(AddressableDevice device) throws IOException {
@@ -87,7 +90,7 @@ public class Sen6xController extends I2CDeviceController {
 
   public SchemaConfig getSchema() {
     JsonSchemaConfig config =  new JsonSchemaConfig(buildSchema(sensor));
-    config.setComments(description);
+    config.setComments(getDescription());
     config.setTitle(getName());
     config.setVersion(1);
     config.setResourceType("sensor");

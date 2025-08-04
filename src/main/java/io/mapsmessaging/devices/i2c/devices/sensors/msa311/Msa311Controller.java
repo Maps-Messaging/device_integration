@@ -26,7 +26,6 @@ import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 
@@ -35,14 +34,18 @@ public class Msa311Controller extends I2CDeviceController {
   private static final int i2cAddr = 0x62;
   private final Msa311Sensor sensor;
 
-  @Getter
-  private static final String name = "MSA311";
-
-  @Getter
-  private static final String description = "Digital Tri-axial Accelerometer";
-
   public Msa311Controller() {
     sensor = null;
+  }
+
+  @Override
+  public String getName() {
+    return "MSA311";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Digital Tri-axial Accelerometer";
   }
 
   public Msa311Controller(AddressableDevice device) throws IOException {
@@ -77,12 +80,12 @@ public class Msa311Controller extends I2CDeviceController {
 
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
-    config.setComments(description);
+    config.setComments(getDescription());
     config.setTitle(getName());
     config.setVersion(1);
     config.setResourceType("sensor");
     config.setUniqueId(getSchemaId());
-    config.setInterfaceDescription(description);
+    config.setInterfaceDescription(getDescription());
     return config;
   }
 

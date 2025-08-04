@@ -26,7 +26,6 @@ import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -34,11 +33,6 @@ import java.nio.charset.StandardCharsets;
 public abstract class BacklightPwmController extends I2CDeviceController {
 
   protected final BacklightPwm pwmController;
-
-  @Getter
-  private static final String name = "PwmController";
-  @Getter
-  private static final String description = "LCD1602 16*2 lcd display";
 
   // Used during ServiceLoading
   protected BacklightPwmController() {
@@ -56,6 +50,16 @@ public abstract class BacklightPwmController extends I2CDeviceController {
 
   public I2CDevice getDevice() {
     return pwmController;
+  }
+
+  @Override
+  public String getName() {
+    return "PwmController";
+  }
+
+  @Override
+  public String getDescription() {
+    return "LCD1602 16*2 lcd display";
   }
 
   @Override

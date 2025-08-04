@@ -25,7 +25,6 @@ import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 
@@ -33,13 +32,18 @@ public class TSL2561Controller extends I2CDeviceController {
 
   private final TSL2561Sensor sensor;
 
-  @Getter
-  private static final String name = "TLS2561";
-  @Getter
-  private static final String description = "Light sensor, returns light and IR light levels and computed lux level";
-
   public TSL2561Controller() {
     sensor = null;
+  }
+
+  @Override
+  public String getName() {
+    return "TLS2561";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Light sensor, returns light and IR light levels and computed lux level";
   }
 
   public TSL2561Controller(AddressableDevice device) throws IOException {

@@ -22,7 +22,6 @@ package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 
@@ -30,13 +29,17 @@ public class QuadAlphaNumericController extends HT16K33Controller {
 
   private final int[] i2cAddr = {};
 
-  @Getter
-  private static final String name = "Quad AlphaNumeric LED";
-
-  @Getter
-  private static final String description = "Quad AlphaNumeric LED";
-
   public QuadAlphaNumericController() {
+  }
+
+  @Override
+  public String getName() {
+    return "Quad AlphaNumeric LED";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Quad AlphaNumeric LED";
   }
 
   public QuadAlphaNumericController(AddressableDevice device) throws IOException {

@@ -27,7 +27,6 @@ import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -37,13 +36,18 @@ public class BMP280Controller extends I2CDeviceController {
   private static final int i2cAddr = 0x78;
   private final BMP280Sensor sensor;
 
-  @Getter
-  private static final String name = "BMP280";
-  @Getter
-  private static final String description = "Pressure and Temperature Module";
-
   public BMP280Controller() {
     sensor = null;
+  }
+
+  @Override
+  public String getName() {
+    return "BMP280";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Pressure and Temperature Module";
   }
 
   protected BMP280Controller(AddressableDevice device) throws IOException {

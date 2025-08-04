@@ -29,7 +29,6 @@ import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.*;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -41,14 +40,18 @@ public class Ina219Controller extends I2CDeviceController {
   private static final int i2cAddr = INA219_ADDRESS;
   private final Ina219Sensor sensor;
 
-  @Getter
-  private static final String name = "INA219";
-
-  @Getter
-  private static final String description = "High Side DC Current Sensor";
-
   public Ina219Controller() {
     sensor = null;
+  }
+
+  @Override
+  public String getName() {
+    return "INA219";
+  }
+
+  @Override
+  public String getDescription() {
+    return "High Side DC Current Sensor";
   }
 
   public Ina219Controller(AddressableDevice device) throws IOException {

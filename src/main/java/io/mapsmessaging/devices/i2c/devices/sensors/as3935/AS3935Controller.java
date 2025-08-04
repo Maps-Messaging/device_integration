@@ -25,7 +25,6 @@ import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 
@@ -34,14 +33,19 @@ public class AS3935Controller extends I2CDeviceController {
   private static final int i2cAddr = 0x03;
   private final AS3935Sensor sensor;
 
-  @Getter
-  private static final String name = "AS3935";
-  @Getter
-  private static final String description = "Lightning Detector";
-
   // Used during ServiceLoading
   public AS3935Controller() {
     sensor = null;
+  }
+
+  @Override
+  public String getName() {
+    return "AS3935";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Lightning Detector";
   }
 
   protected AS3935Controller(AddressableDevice device) throws IOException {

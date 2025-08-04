@@ -27,7 +27,6 @@ import io.mapsmessaging.devices.i2c.devices.demo.I2cDemoController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -37,15 +36,19 @@ public class Pmsa003iController extends I2cDemoController {
   private static final int i2cAddr = 0x12;
   private final Pmsa003iSensor sensor;
 
-  @Getter
-  private static final String name = "Demo PMSA003I";
-
-  @Getter
-  private static final String description = "Demo Air Quality sensor";
-
   public Pmsa003iController() {
     super(null);
     sensor = null;
+  }
+
+  @Override
+  public String getName() {
+    return "Demo PMSA003I";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Demo Air Quality sensor";
   }
 
   public Pmsa003iController(AddressableDevice device) {

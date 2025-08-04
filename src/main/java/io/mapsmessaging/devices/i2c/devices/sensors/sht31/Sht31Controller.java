@@ -25,7 +25,6 @@ import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 
@@ -33,13 +32,18 @@ public class Sht31Controller extends I2CDeviceController {
 
   private final Sht31Sensor sensor;
 
-  @Getter
-  private static final String name = "SHT31-D";
-  @Getter
-  private static final String description = "Humidity and Temperature Sensor";
-
   public Sht31Controller() {
     sensor = null;
+  }
+
+  @Override
+  public String getName() {
+    return "SHT31-D";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Humidity and Temperature Sensor";
   }
 
   public Sht31Controller(AddressableDevice device) throws IOException {
@@ -67,7 +71,7 @@ public class Sht31Controller extends I2CDeviceController {
 
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
-    config.setComments(description);
+    config.setComments(getDescription());
     config.setTitle(getName());
     config.setVersion(1);
     config.setResourceType("sensor");
