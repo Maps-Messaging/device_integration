@@ -91,7 +91,7 @@
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <sonar.organization>maps-messaging</sonar.organization>
     <sonar.projectKey>deviceLibrary</sonar.projectKey>
-    <sonar.issue.ignore.multicriteria>s1,s2</sonar.issue.ignore.multicriteria>
+    <sonar.issue.ignore.multicriteria>s1,s2,s3,s4</sonar.issue.ignore.multicriteria>
 
     <sonar.issue.ignore.multicriteria.s1.ruleKey>java:S6201</sonar.issue.ignore.multicriteria.s1.ruleKey>
     <sonar.issue.ignore.multicriteria.s1.resourceKey>**/*.java</sonar.issue.ignore.multicriteria.s1.resourceKey>
