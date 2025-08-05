@@ -31,6 +31,26 @@ import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import java.io.IOException;
 
 public class St7735Controller extends I2CDeviceController {
+  private static final String FIELD_TYPE = "type";
+  private static final String FIELD_PROPERTIES = "properties";
+  private static final String FIELD_DESCRIPTION = "description";
+  private static final String FIELD_SCHEMA = "$schema";
+  private static final String FIELD_TITLE = "title";
+  private static final String FIELD_DEVICE_STATIC = "deviceStatic";
+  private static final String FIELD_DEVICE_WRITE = "deviceWrite";
+
+  private static final String TYPE_OBJECT = "object";
+  private static final String TYPE_STRING = "string";
+  private static final String TYPE_NUMBER = "number";
+
+  private static final String FIELD_WIDTH = "width";
+  private static final String FIELD_HEIGHT = "height";
+  private static final String FIELD_COMMAND = "command";
+  private static final String FIELD_X = "x";
+  private static final String FIELD_Y = "y";
+  private static final String FIELD_COLOR = "color";
+  private static final String FIELD_DATA = "data";
+
 
   private static final String NAME = "ST7735";
   private static final String DESCRIPTION = "ST7735 lcd display";
@@ -74,20 +94,12 @@ public class St7735Controller extends I2CDeviceController {
 
   @Override
   public byte[] getDeviceConfiguration() throws IOException {
-    JsonObject jsonObject = new JsonObject();
-    if (display != null) {
-      //
-    }
-    return convert(jsonObject);
+    return emptyJson();
   }
 
   @Override
   public byte[] getDeviceState() throws IOException {
-    JsonObject jsonObject = new JsonObject();
-    if (display != null) {
-      //
-    }
-    return convert(jsonObject);
+    return emptyJson();
   }
 
   @Override
@@ -100,6 +112,7 @@ public class St7735Controller extends I2CDeviceController {
     return DESCRIPTION;
   }
 
+  @Override
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setComments(DESCRIPTION);
@@ -113,47 +126,45 @@ public class St7735Controller extends I2CDeviceController {
 
   private String buildSchema() {
     JsonObject configSchema = new JsonObject();
-    configSchema.addProperty("type", "object");
+    configSchema.addProperty(FIELD_TYPE, TYPE_OBJECT);
 
     JsonObject configProps = new JsonObject();
-    configProps.add("width", property("number", "Display width in pixels"));
-    configProps.add("height", property("number", "Display height in pixels"));
-    configProps.add("colorMode", property("string", "Color mode (e.g. RGB565)"));
-    configSchema.add("properties", configProps);
+    configProps.add(FIELD_WIDTH, property(TYPE_NUMBER, "Display width in pixels"));
+    configProps.add(FIELD_HEIGHT, property(TYPE_NUMBER, "Display height in pixels"));
+    configProps.add("colorMode", property(TYPE_STRING, "Color mode (e.g. RGB565)"));
+    configSchema.add(FIELD_PROPERTIES, configProps);
 
     JsonObject writeSchema = new JsonObject();
-    writeSchema.addProperty("type", "object");
+    writeSchema.addProperty(FIELD_TYPE, TYPE_OBJECT);
 
     JsonObject writeProps = new JsonObject();
-    writeProps.add("command", property("string", "Display command: DRAW_IMAGE, CLEAR, SET_PIXEL, etc."));
-    writeProps.add("x", property("number", "X coordinate"));
-    writeProps.add("y", property("number", "Y coordinate"));
-    writeProps.add("color", property("string", "Color in hex format (#RRGGBB) or named value"));
-    writeProps.add("data", property("string", "Optional image or buffer data as Base64 or string"));
-    writeSchema.add("properties", writeProps);
+    writeProps.add(FIELD_COMMAND, property(TYPE_STRING, "Display command: DRAW_IMAGE, CLEAR, SET_PIXEL, etc."));
+    writeProps.add(FIELD_X, property(TYPE_NUMBER, "X coordinate"));
+    writeProps.add(FIELD_Y, property(TYPE_NUMBER, "Y coordinate"));
+    writeProps.add(FIELD_COLOR, property(TYPE_STRING, "Color in hex format (#RRGGBB) or named value"));
+    writeProps.add(FIELD_DATA, property(TYPE_STRING, "Optional image or buffer data as Base64 or string"));
+    writeSchema.add(FIELD_PROPERTIES, writeProps);
 
     JsonObject root = new JsonObject();
-    root.addProperty("$schema", "https://json-schema.org/draft/2020-12/schema");
-    root.addProperty("title", NAME);
-    root.addProperty("description", "ST7735 RGB LCD Display");
-    root.addProperty("type", "object");
+    root.addProperty(FIELD_SCHEMA, "https://json-schema.org/draft/2020-12/schema");
+    root.addProperty(FIELD_TITLE, NAME);
+    root.addProperty(FIELD_DESCRIPTION, "ST7735 RGB LCD Display");
+    root.addProperty(FIELD_TYPE, TYPE_OBJECT);
 
     JsonObject props = new JsonObject();
-    props.add("deviceStatic", configSchema);
-    props.add("deviceWrite", writeSchema);
-    root.add("properties", props);
+    props.add(FIELD_DEVICE_STATIC, configSchema);
+    props.add(FIELD_DEVICE_WRITE, writeSchema);
+    root.add(FIELD_PROPERTIES, props);
 
     return gson.toJson(root);
   }
 
   private JsonObject property(String type, String description) {
     JsonObject obj = new JsonObject();
-    obj.addProperty("type", type);
-    obj.addProperty("description", description);
+    obj.addProperty(FIELD_TYPE, type);
+    obj.addProperty(FIELD_DESCRIPTION, description);
     return obj;
   }
-
-
   @Override
   public int[] getAddressRange() {
     return new int[]{0x18};

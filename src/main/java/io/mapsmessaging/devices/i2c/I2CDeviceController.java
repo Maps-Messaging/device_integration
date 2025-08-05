@@ -92,12 +92,12 @@ public abstract class I2CDeviceController extends DeviceController {
     try {
       I2CDevice device = getDevice();
       JsonObject jsonObject = new JsonObject();
-      if (device instanceof Sensor) {
-        List<SensorReading<?>> readings = ((Sensor) device).getReadings();
+      if (device instanceof Sensor sensor) {
+        List<SensorReading<?>> readings = sensor.getReadings();
         walkSensorReadings(jsonObject, readings);
       }
       return convert(jsonObject);
-    } catch (Throwable e) {
+    } catch (Exception e) {
       // Log this
     }
     return "{}".getBytes();
@@ -105,9 +105,9 @@ public abstract class I2CDeviceController extends DeviceController {
 
   private void walkSensorReadings(JsonObject root, List<SensorReading<?>> readings) throws IOException {
     for (SensorReading<?> reading : readings) {
-      if (reading instanceof GroupSensorReading) {
+      if (reading instanceof GroupSensorReading groupReading) {
         JsonObject readingObject = new JsonObject();
-        walkSensorReadings(new JsonObject(), ((GroupSensorReading) reading).getGroupList());
+        walkSensorReadings(new JsonObject(), groupReading.getGroupList());
         if (!readingObject.isEmpty()) {
           root.add(reading.getName(), readingObject);
         }
@@ -121,22 +121,21 @@ public abstract class I2CDeviceController extends DeviceController {
     ComputationResult<?> computationResult = reading.getValue();
     if (!computationResult.hasError()) {
       Object value = computationResult.getResult();
-      if (value instanceof Optional<?>) {
-        Optional<?> optional = (Optional<?>) value;
-        if (!optional.isPresent()) {
+      if (value instanceof Optional<?> optional) {
+        if (optional.isEmpty()) {
           return;
         }
-        value = ((Optional<?>) value).get();
+        value = optional.get();
       }
 
-      if (value instanceof Number) {
-        jsonObject.addProperty(reading.getName(), (Number) value);
-      } else if (value instanceof Boolean) {
-        jsonObject.addProperty(reading.getName(), (Boolean) value);
-      } else if (value instanceof Character) {
-        jsonObject.addProperty(reading.getName(), (Character) value);
-      } else if (value instanceof String) {
-        jsonObject.addProperty(reading.getName(), (String) value);
+      if (value instanceof Number number) {
+        jsonObject.addProperty(reading.getName(), number);
+      } else if (value instanceof Boolean bool) {
+        jsonObject.addProperty(reading.getName(), bool);
+      } else if (value instanceof Character character) {
+        jsonObject.addProperty(reading.getName(), character);
+      } else if (value instanceof String str) {
+        jsonObject.addProperty(reading.getName(), str);
       } else {
         // Fallback to stringified JSON
         jsonObject.add(reading.getName(), gson.toJsonTree(value));
@@ -167,4 +166,7 @@ public abstract class I2CDeviceController extends DeviceController {
     return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
   }
 
+  protected byte[] emptyJson(){
+    return "{}".getBytes(StandardCharsets.UTF_8);
+  }
 }

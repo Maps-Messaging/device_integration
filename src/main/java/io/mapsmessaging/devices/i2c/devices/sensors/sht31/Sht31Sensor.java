@@ -90,14 +90,14 @@ public class Sht31Sensor extends I2CDevice implements PowerManagement, Resetable
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "powerOn()");
     }
     reset();
-    periodicReadCommand.sendCommand(device);
+    periodicReadCommand.sendCommand(this, device);
   }
 
   public void powerOff() throws IOException {
     if (logger.isDebugEnabled()) {
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "powerOff()");
     }
-    softResetCommand.sendCommand(device);
+    softResetCommand.sendCommand(this, device);
   }
 
   public void initialise() throws IOException {
@@ -136,11 +136,11 @@ public class Sht31Sensor extends I2CDevice implements PowerManagement, Resetable
 
   @Override
   public void softReset() throws IOException {
-    softResetCommand.sendCommand(device);
+    softResetCommand.sendCommand(this, device);
   }
 
   private void scanForChange() {
-    readDataCommand.read(device);
+    readDataCommand.read(this, device);
   }
 
 }

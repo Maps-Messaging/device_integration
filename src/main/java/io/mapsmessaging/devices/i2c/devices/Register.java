@@ -77,6 +77,7 @@ public abstract class Register {
     return null;
   }
 
+  @SuppressWarnings("java:S1172") // input is used by extension
   public boolean fromData(RegisterData input) throws IOException {
     return false;
   }

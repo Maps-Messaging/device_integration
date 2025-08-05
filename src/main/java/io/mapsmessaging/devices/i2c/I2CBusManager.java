@@ -231,7 +231,7 @@ public class I2CBusManager {
       else if(addr == 0x44){
         SoftResetCommand command = new SoftResetCommand();
         I2CDeviceImpl deviceImpl = new I2CDeviceImpl(device);
-        command.sendCommand(deviceImpl);
+        command.sendCommand(null, deviceImpl);
         return true;
       } else {
         TimeUnit.MILLISECONDS.sleep(1);

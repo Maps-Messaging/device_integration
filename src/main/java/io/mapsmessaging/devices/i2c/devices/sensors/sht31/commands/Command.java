@@ -19,6 +19,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.sht31.commands;
 
+import io.mapsmessaging.devices.i2c.devices.sensors.sht31.Sht31Sensor;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,20 +31,16 @@ import lombok.Setter;
 public abstract class Command {
 
   private final int cmd;
-  private final long delayTime;
+  private final int delayTime;
   private final int responseSize;
 
-  public byte[] sendCommand(AddressableDevice device) {
+  public byte[] sendCommand(Sht31Sensor sensor, AddressableDevice device) {
     byte[] commandBytes = new byte[2];
     commandBytes[0] = (byte) ((cmd >> 8) & 0xFF); // MSB
     commandBytes[1] = (byte) (cmd & 0xFF);        // LSB
     device.write(commandBytes);
-    if(delayTime > 0){
-      try {
-        Thread.sleep(delayTime);
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-      }
+    if(delayTime > 0 && sensor != null) {
+      sensor.delay(delayTime);
     }
     byte[] responseBytes = new byte[responseSize];
     if(responseSize > 0){

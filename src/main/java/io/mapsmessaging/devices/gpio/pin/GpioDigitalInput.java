@@ -88,8 +88,8 @@ public class GpioDigitalInput extends BaseDigitalInput {
   }
 
   @Override
-  public void stateChange() throws IOException {
-    DigitalStateChangeEvent event = new DigitalStateChangeEvent(null, getState());
+  public void stateChange() {
+    DigitalStateChangeEvent<?> event = new DigitalStateChangeEvent<>(null, getState());
     for (DigitalStateChangeListener listener : listenerList) {
       listener.onDigitalStateChange(event);
     }

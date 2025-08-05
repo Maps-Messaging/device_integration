@@ -83,6 +83,7 @@ public class DeviceBusManager {
     return Holder.INSTANCE;
   }
 
+  @SuppressWarnings("java:S1181") // At this point we could get anything from unsatisfied linking, bus errors, file errors, we just need to know its an error and continue
   public boolean isAvailable() {
     boolean result = false;
    try {

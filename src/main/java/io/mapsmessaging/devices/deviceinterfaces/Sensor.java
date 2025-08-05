@@ -23,6 +23,7 @@ import io.mapsmessaging.devices.sensorreadings.SensorReading;
 
 import java.util.List;
 
+@SuppressWarnings("java:S1452") // At this point I am unsure of what type of readings I have
 public interface Sensor {
 
   List<SensorReading<?>> getReadings();
