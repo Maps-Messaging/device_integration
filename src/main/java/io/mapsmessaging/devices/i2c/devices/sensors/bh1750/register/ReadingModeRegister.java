@@ -63,8 +63,7 @@ public class ReadingModeRegister extends Register {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof ReadingModeData) {
-      ReadingModeData data = (ReadingModeData) input;
+    if (input instanceof ReadingModeData data) {
       setResolutionMode(data.getResolutionMode());
       setSensorReading(data.getSensorReading());
       return true;
@@ -74,12 +73,12 @@ public class ReadingModeRegister extends Register {
 
   @Override
   protected void reload() throws IOException {
-
+    // Nothing to do
   }
 
   @Override
   protected void setControlRegister(int mask, int value) throws IOException {
-
+    // Nothing to do
   }
 
   @Override

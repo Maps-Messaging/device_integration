@@ -188,18 +188,18 @@ public class Pmsa003iSensor extends I2CDevice implements Sensor {
     int[] moderateThreshold = {30, 60, 100};
     int[] poorThreshold = {40, 100, 150};
 
-    int pm1 = getPm1_0Standard();
-    int pm25 = getPm2_5Standard();
-    int pm10 = getPm10Standard();
+    int pm1t = getPm1_0Standard();
+    int pm25t = getPm2_5Standard();
+    int pm10t = getPm10Standard();
 
     // Evaluate air quality
-    if (pm1 <= pristineThreshold[0] && pm25 <= pristineThreshold[1] && pm10 <= pristineThreshold[2]) {
+    if (pm1t <= pristineThreshold[0] && pm25t <= pristineThreshold[1] && pm10t <= pristineThreshold[2]) {
       return "Pristine";
-    } else if (pm1 <= healthyThreshold[0] && pm25 <= healthyThreshold[1] && pm10 <= healthyThreshold[2]) {
+    } else if (pm1t <= healthyThreshold[0] && pm25t <= healthyThreshold[1] && pm10t <= healthyThreshold[2]) {
       return "Healthy";
-    } else if (pm1 <= moderateThreshold[0] && pm25 <= moderateThreshold[1] && pm10 <= moderateThreshold[2]) {
+    } else if (pm1t <= moderateThreshold[0] && pm25t <= moderateThreshold[1] && pm10t <= moderateThreshold[2]) {
       return "Moderate";
-    } else if (pm1 <= poorThreshold[0] && pm25 <= poorThreshold[1] && pm10 <= poorThreshold[2]) {
+    } else if (pm1t <= poorThreshold[0] && pm25t <= poorThreshold[1] && pm10t <= poorThreshold[2]) {
       return "Poor";
     } else {
       return "Hazardous";

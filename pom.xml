@@ -91,7 +91,12 @@
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <sonar.organization>maps-messaging</sonar.organization>
     <sonar.projectKey>deviceLibrary</sonar.projectKey>
-    <sonar.issue.ignore.multicriteria>s1,s2,s3,s4</sonar.issue.ignore.multicriteria>
+
+    <!--
+    We exclude the class/field name not aligned with java since we are building against hardware and hardware registers
+    so we try and keep the same name in the datasheet here in java to make it easy to read the datasheet and use the java
+     -->
+    <sonar.issue.ignore.multicriteria>s1,s2,s3,s4, s5</sonar.issue.ignore.multicriteria>
 
     <sonar.issue.ignore.multicriteria.s1.ruleKey>java:S6201</sonar.issue.ignore.multicriteria.s1.ruleKey>
     <sonar.issue.ignore.multicriteria.s1.resourceKey>**/*.java</sonar.issue.ignore.multicriteria.s1.resourceKey>
@@ -104,6 +109,10 @@
 
     <sonar.issue.ignore.multicriteria.s4.ruleKey>java:S100</sonar.issue.ignore.multicriteria.s4.ruleKey>
     <sonar.issue.ignore.multicriteria.s4.resourceKey>**/*.java</sonar.issue.ignore.multicriteria.s4.resourceKey>
+
+    <sonar.issue.ignore.multicriteria.s5.ruleKey>java:S101</sonar.issue.ignore.multicriteria.s5.ruleKey>
+    <sonar.issue.ignore.multicriteria.s5.resourceKey>**/*.java</sonar.issue.ignore.multicriteria.s5.resourceKey>
+
 
     <sonar.sources>src/main</sonar.sources>
     <sonar.test.exclusions>
