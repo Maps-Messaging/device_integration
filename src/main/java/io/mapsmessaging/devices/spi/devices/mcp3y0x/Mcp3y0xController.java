@@ -31,6 +31,7 @@ import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -108,6 +109,11 @@ public class Mcp3y0xController extends SpiDeviceController {
     return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
   }
 
+  @Override
+  public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
+    return new byte[0];
+  }
+
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setComments("SPI device Analog to Digital convertor");
@@ -120,8 +126,6 @@ public class Mcp3y0xController extends SpiDeviceController {
   }
 
   private String buildSchema() {
-    JsonObject staticSchema = new JsonObject();
-
     JsonObject resolution = new JsonObject();
     resolution.addProperty("type", "number");
     resolution.addProperty("description", "ADC resolution in bits");
@@ -143,7 +147,7 @@ public class Mcp3y0xController extends SpiDeviceController {
     schema.addProperty("type", "object");
     schema.add("properties", properties);
 
-    return buildSchema(device, schema); // calls the method using JsonObject
+    return buildSchema(device, schema);
   }
 
 }

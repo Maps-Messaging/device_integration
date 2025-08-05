@@ -27,6 +27,7 @@ import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public class DS18B20Controller extends OneWireDeviceController {
@@ -88,5 +89,10 @@ public class DS18B20Controller extends OneWireDeviceController {
       jsonObject.add("temperature", new JsonPrimitive(sensor.getCurrent()));
     }
     return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
+  }
+
+  @Override
+  public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
+    return new byte[0]; // Nothing to do
   }
 }

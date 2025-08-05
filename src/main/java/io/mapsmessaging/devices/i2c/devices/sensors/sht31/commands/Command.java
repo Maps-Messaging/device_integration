@@ -19,11 +19,10 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.sht31.commands;
 
+import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.io.IOException;
 
 @Data
 @AllArgsConstructor
@@ -33,20 +32,13 @@ public abstract class Command {
   private final long delayTime;
   private final int responseSize;
 
-  public byte[] sendCommand(AddressableDevice device) throws IOException {
+  public byte[] sendCommand(AddressableDevice device) {
     byte[] commandBytes = new byte[2];
     commandBytes[0] = (byte) ((cmd >> 8) & 0xFF); // MSB
     commandBytes[1] = (byte) (cmd & 0xFF);        // LSB
     device.write(commandBytes);
     if(delayTime > 0){
-      synchronized(device){
-        try {
-          device.wait(delayTime);
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-          throw new IOException("Sensor read was interrupted");
-        }
-      }
+      ((I2CDevice)device).delay((int)delayTime);
     }
     byte[] responseBytes = new byte[responseSize];
     if(responseSize > 0){

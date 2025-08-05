@@ -67,33 +67,19 @@ public abstract class SpiDeviceController extends DeviceController {
   }
 
   protected SpiChipSelect getChipSelect(int chipSelectInt) {
-    SpiChipSelect chipSelect;
-    switch (chipSelectInt) {
-      case 2:
-        chipSelect = SpiChipSelect.CS_2;
-        break;
-
-      case 1:
-        chipSelect = SpiChipSelect.CS_1;
-        break;
-
-      default:
-        chipSelect = SpiChipSelect.CS_0;
-    }
-    return chipSelect;
+    return switch (chipSelectInt) {
+      case 2 -> SpiChipSelect.CS_2;
+      case 1 -> SpiChipSelect.CS_1;
+      default -> SpiChipSelect.CS_0;
+    };
   }
 
   protected SpiMode getMode(int spiModeInt) {
-    switch (spiModeInt) {
-      case 1:
-        return SpiMode.MODE_1;
-      case 2:
-        return SpiMode.MODE_2;
-      case 3:
-        return SpiMode.MODE_3;
-      default:
-        return SpiMode.MODE_0;
-
-    }
+    return switch (spiModeInt) {
+      case 1 -> SpiMode.MODE_1;
+      case 2 -> SpiMode.MODE_2;
+      case 3 -> SpiMode.MODE_3;
+      default -> SpiMode.MODE_0;
+    };
   }
 }
