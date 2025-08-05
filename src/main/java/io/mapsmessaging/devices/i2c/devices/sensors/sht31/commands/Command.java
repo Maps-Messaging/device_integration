@@ -19,12 +19,13 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.sht31.commands;
 
-import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 public abstract class Command {
 
@@ -38,7 +39,11 @@ public abstract class Command {
     commandBytes[1] = (byte) (cmd & 0xFF);        // LSB
     device.write(commandBytes);
     if(delayTime > 0){
-      ((I2CDevice)device).delay((int)delayTime);
+      try {
+        Thread.sleep(delayTime);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
     }
     byte[] responseBytes = new byte[responseSize];
     if(responseSize > 0){

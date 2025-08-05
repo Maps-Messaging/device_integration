@@ -18,6 +18,10 @@
  */
 
 package io.mapsmessaging.devices.i2c.devices.sensors.sht31.commands;
+
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode(callSuper = true)
 public class PeriodicReadCommand extends Command {
   private final Repeatability repeatability;
   private final Mps mps;
@@ -29,7 +33,7 @@ public class PeriodicReadCommand extends Command {
   }
 
   public ReadDataCommand getReadCommand() {
-    return new ReadDataCommand(repeatability);
+    return new ReadDataCommand(repeatability, mps);
   }
 
   public Repeatability getRepeatability() {

@@ -43,11 +43,10 @@ public class Sht31Sensor extends I2CDevice implements PowerManagement, Resetable
   private final ReadDataCommand readDataCommand;
   private final PeriodicReadCommand periodicReadCommand;
   private final SoftResetCommand softResetCommand = new SoftResetCommand();
-  private long lastRead;
 
   public Sht31Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(Sht31Sensor.class));
-    periodicReadCommand = new PeriodicReadCommand(Repeatability.MEDIUM, Mps.MPS_0_5);
+    periodicReadCommand = new PeriodicReadCommand(Repeatability.MEDIUM, Mps.MPS_1);
     readDataCommand = periodicReadCommand.getReadCommand();
 
     FloatSensorReading temperature = new FloatSensorReading(
@@ -120,12 +119,12 @@ public class Sht31Sensor extends I2CDevice implements PowerManagement, Resetable
     return DeviceType.SENSOR;
   }
 
-  public float getTemperature() throws IOException {
+  public float getTemperature(){
     scanForChange();
     return readDataCommand.getTemperature();
   }
 
-  public float getHumidity() throws IOException {
+  public float getHumidity(){
     scanForChange();
     return readDataCommand.getHumidity();
   }
@@ -140,12 +139,8 @@ public class Sht31Sensor extends I2CDevice implements PowerManagement, Resetable
     softResetCommand.sendCommand(device);
   }
 
-
-  private void scanForChange() throws IOException {
-    if (lastRead < System.currentTimeMillis()) {
-      lastRead = System.currentTimeMillis();
-      readDataCommand.read(device);
-    }
+  private void scanForChange() {
+    readDataCommand.read(device);
   }
 
 }

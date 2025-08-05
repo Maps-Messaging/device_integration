@@ -19,22 +19,28 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.sht31.commands;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@AllArgsConstructor
 @Getter
 public enum Mps {
-  MPS_0_5(0x20, new int[]{0x32, 0x24, 0x2F}),
-  MPS_1(0x21, new int[]{0x30, 0x26, 0x2D}),
-  MPS_2(0x22, new int[]{0x36, 0x20, 0x2B}),
-  MPS_4(0x23, new int[]{0x34, 0x22, 0x29}),
-  MPS_10(0x27, new int[]{0x37, 0x21, 0x2A});
+  MPS_0_5(0x20, new int[]{0x32, 0x24, 0x2F}, 2000),
+  MPS_1(0x21, new int[]{0x30, 0x26, 0x2D}, 1000),
+  MPS_2(0x22, new int[]{0x36, 0x20, 0x2B}, 500),
+  MPS_4(0x23, new int[]{0x34, 0x22, 0x29}, 250),
+  MPS_10(0x27, new int[]{0x37, 0x21, 0x2A}, 100);
 
   private final int msb;
   private final int[] lsbByRepeatability;
+  private final int intervalMillis;
+
+  Mps(int msb, int[] lsbByRepeatability, int intervalMillis) {
+    this.msb = msb;
+    this.lsbByRepeatability = lsbByRepeatability;
+    this.intervalMillis = intervalMillis;
+  }
 
   public int getLsb(Repeatability r) {
     return lsbByRepeatability[r.ordinal()];
   }
+
 }

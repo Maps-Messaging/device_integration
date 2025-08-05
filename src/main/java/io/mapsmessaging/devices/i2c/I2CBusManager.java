@@ -25,6 +25,7 @@ import com.pi4j.io.i2c.I2CConfig;
 import com.pi4j.io.i2c.I2CProvider;
 import io.mapsmessaging.devices.DeviceController;
 import io.mapsmessaging.devices.i2c.devices.demo.I2cDemoController;
+import io.mapsmessaging.devices.i2c.devices.sensors.sht31.commands.SoftResetCommand;
 import io.mapsmessaging.devices.impl.I2CDeviceImpl;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.Logger;
@@ -226,7 +227,12 @@ public class I2CBusManager {
         byte[] response = new byte[9];
         int read = device.read(response);
         if (read == 9) return true;
-
+      }
+      else if(addr == 0x44){
+        SoftResetCommand command = new SoftResetCommand();
+        I2CDeviceImpl deviceImpl = new I2CDeviceImpl(device);
+        command.sendCommand(deviceImpl);
+        return true;
       } else {
         TimeUnit.MILLISECONDS.sleep(1);
       }
