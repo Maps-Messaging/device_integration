@@ -83,8 +83,7 @@ public class InterruptRegister extends SingleByteRegister {
   // Method to set InterruptRegister data from InterruptData
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof InterruptData) {
-      InterruptData data = (InterruptData) input;
+    if (input instanceof InterruptData data) {
       setMaskDisturberEnabled(data.isMaskDisturberEnabled());
       setEnergyDivRatio(data.getEnergyDivRatio());
       return true;

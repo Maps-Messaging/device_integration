@@ -101,8 +101,7 @@ public class Control3Register extends SingleByteRegister {
   // Method to set Control3Register data from Control3Data
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof Control3Data) {
-      Control3Data data = (Control3Data) input;
+    if (input instanceof Control3Data data) {
       enableFiFoDrainInterrupt(data.isFiFoDrainInterruptEnabled());
       enableFiFoWatermarkInterrupt(data.isFiFoWatermarkInterruptEnabled());
       enableFiFoOverrunInterrupt(data.isFiFoOverrunInterruptEnabled());

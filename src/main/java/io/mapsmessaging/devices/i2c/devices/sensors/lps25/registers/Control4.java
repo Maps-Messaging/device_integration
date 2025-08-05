@@ -83,8 +83,7 @@ public class Control4 extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof Control4Data) {
-      Control4Data data = (Control4Data) input;
+    if (input instanceof Control4Data data) {
       enabledFiFoEmptyInterrupt(data.isFifoEmptyInterruptEnabled());
       enableFiFoWatermarkInterrupt(data.isFifoWatermarkInterruptEnabled());
       enableFiFoOverrunInterrupt(data.isFifoOverrunInterruptEnabled());

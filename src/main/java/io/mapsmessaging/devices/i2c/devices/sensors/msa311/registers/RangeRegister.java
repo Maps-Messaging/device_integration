@@ -50,8 +50,7 @@ public class RangeRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof RangeData) {
-      RangeData data = (RangeData) input;
+    if (input instanceof RangeData data) {
       setRange(data.getRange());
       return true;
     }

@@ -44,8 +44,7 @@ public class MonthDayRegister extends BcdRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof MonthDayData) {
-      MonthDayData data = (MonthDayData) input;
+    if (input instanceof MonthDayData data) {
       setDate(data.getDate());
       return true;
     }

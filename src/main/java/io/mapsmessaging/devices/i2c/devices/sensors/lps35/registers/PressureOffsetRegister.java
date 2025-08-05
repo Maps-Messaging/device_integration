@@ -51,8 +51,7 @@ public class PressureOffsetRegister extends MultiByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof PressureOffsetData) {
-      PressureOffsetData data = (PressureOffsetData) input;
+    if (input instanceof PressureOffsetData data) {
       setPressureOffset(data.getPressureOffset());
       return true;
     }

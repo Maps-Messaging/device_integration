@@ -77,8 +77,7 @@ public class Alarm1ModeRegister extends Register {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof Alarm1SettingsData) {
-      Alarm1SettingsData data = (Alarm1SettingsData) input;
+    if (input instanceof Alarm1SettingsData data) {
       setAlarmSettings(data.getAlarmSettings());
       return true;
     }

@@ -92,8 +92,7 @@ public class OdrRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof OdrData) {
-      OdrData data = (OdrData) input;
+    if (input instanceof OdrData data) {
       setOdr(data.getOdr());
       disableXAxis(data.isXAxisDisabled());
       disableYAxis(data.isYAxisDisabled());

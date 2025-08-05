@@ -39,8 +39,7 @@ public class HighThresholdRegister extends MultiByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof HighThresholdData) {
-      HighThresholdData data = (HighThresholdData) input;
+    if (input instanceof HighThresholdData data) {
       super.write(data.getThreshold());
       return true;
     }

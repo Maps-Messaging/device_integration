@@ -39,7 +39,7 @@ public class ResolutionRegister extends SingleByteRegister {
   }
 
   public PressureAverage getPressureAverage() {
-    int rateVal = ((registerValue & AVE_PRESSURE_MASK));
+    int rateVal = (registerValue & AVE_PRESSURE_MASK);
     for (PressureAverage pressureAverage : PressureAverage.values()) {
       if (pressureAverage.getMask() == rateVal) {
         return pressureAverage;
@@ -74,8 +74,7 @@ public class ResolutionRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof ResolutionData) {
-      ResolutionData data = (ResolutionData) input;
+    if (input instanceof ResolutionData data) {
       setPressureAverage(data.getPressureAverage());
       setTemperatureAverage(data.getTemperatureAverage());
       return true;

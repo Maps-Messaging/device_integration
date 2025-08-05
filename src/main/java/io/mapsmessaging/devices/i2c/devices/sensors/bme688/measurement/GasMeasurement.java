@@ -29,7 +29,7 @@ public class GasMeasurement implements Measurement {
 
   private final GasReadingRegister gasReadingRegister;
 
-  public GasMeasurement(BME688Sensor sensor, int index, CalibrationData calibrationData) {
+  public GasMeasurement(BME688Sensor sensor, int index) {
     gasReadingRegister = new GasReadingRegister(sensor, GAS_ADDRESSES[index], "Gas_r_" + index);
   }
 

@@ -50,8 +50,7 @@ public class FreefallThRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof FreefallThData) {
-      FreefallThData data = (FreefallThData) input;
+    if (input instanceof FreefallThData data) {
       setFreefallThreshold((int) data.getFreefallThreshold());
       return true;
     }

@@ -80,8 +80,7 @@ public class LightningRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof LightningData) {
-      LightningData data = (LightningData) input;
+    if (input instanceof LightningData data) {
       setSpikeRejection(data.getSpikeRejection());
       setMinNumLightning(data.getMinNumLightning());
       setClearStatisticsEnabled(data.isClearStatisticsEnabled());

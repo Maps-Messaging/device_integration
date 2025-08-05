@@ -48,8 +48,7 @@ public class TapActiveStatusRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof TapActiveStatusData) {
-      TapActiveStatusData data = (TapActiveStatusData) input;
+    if (input instanceof TapActiveStatusData data) {
       List<TapActiveStatus> tapStatus = data.getTapActiveStatus();
       int value = 0;
       for (TapActiveStatus status : tapStatus) {

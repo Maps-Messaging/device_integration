@@ -78,8 +78,7 @@ public class StatusRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof StatusData) {
-      StatusData data = (StatusData) input;
+    if (input instanceof StatusData data) {
       setEnable32K(data.isEnable32K());
       if (data.isAlarm2FlagSet()) {
         clearAlarm2Flag();

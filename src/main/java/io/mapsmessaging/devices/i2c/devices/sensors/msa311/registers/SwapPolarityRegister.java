@@ -76,8 +76,7 @@ public class SwapPolarityRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof SwapPolarityData) {
-      SwapPolarityData data = (SwapPolarityData) input;
+    if (input instanceof SwapPolarityData data) {
       swapXPolarity(data.isXPolaritySwapped());
       swapYPolarity(data.isYPolaritySwapped());
       swapZPolarity(data.isZPolaritySwapped());

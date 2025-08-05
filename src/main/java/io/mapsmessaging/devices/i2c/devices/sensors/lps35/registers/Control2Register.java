@@ -84,8 +84,7 @@ public class Control2Register extends SingleByteRegister {
   // Method to set Control2Register data from Control2Data
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof Control2Data) {
-      Control2Data data = (Control2Data) input;
+    if (input instanceof Control2Data data) {
       enableFiFo(data.isFiFoEnabled());
       enableStopFiFoOnThreshold(data.isStopFiFoOnThresholdEnabled());
       enableOneShot(data.isOneShotEnabled());

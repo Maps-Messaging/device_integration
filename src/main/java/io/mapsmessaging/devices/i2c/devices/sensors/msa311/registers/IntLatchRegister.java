@@ -71,8 +71,7 @@ public class IntLatchRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof IntLatchData) {
-      IntLatchData data = (IntLatchData) input;
+    if (input instanceof IntLatchData data) {
       setLatch(data.getLatch());
       setResetFlag(data.isResetFlag());
       return true;

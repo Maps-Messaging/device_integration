@@ -48,8 +48,7 @@ public class ZBlockRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof ZBlockData) {
-      ZBlockData data = (ZBlockData) input;
+    if (input instanceof ZBlockData data) {
       int val = Math.round(data.getZBlockingThreshold() / 0.0625f);
       registerValue = (byte) ((registerValue & ~Z_BLOCKING_MASK) | val);
       sensor.write(address, registerValue);

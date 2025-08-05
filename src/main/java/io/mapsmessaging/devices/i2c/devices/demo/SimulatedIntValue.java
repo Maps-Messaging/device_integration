@@ -34,6 +34,7 @@ public class SimulatedIntValue {
     this.step = step;
   }
 
+  @SuppressWarnings("java:S2245") // this is a demo, it is NOT for prod
   private int randomTarget() {
     return min + (int) (Math.random() * (max - min));
   }

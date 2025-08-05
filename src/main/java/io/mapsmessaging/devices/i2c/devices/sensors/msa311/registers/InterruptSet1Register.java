@@ -63,8 +63,7 @@ public class InterruptSet1Register extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof InterruptSet1Data) {
-      InterruptSet1Data data = (InterruptSet1Data) input;
+    if (input instanceof InterruptSet1Data data) {
       setNewDataInterruptEnabled(data.isNewDataInterruptEnabled());
       setFreefallInterruptEnabled(data.isFreefallInterruptEnabled());
       return true;

@@ -34,6 +34,7 @@ public class SimulatedFloatValue {
     this.step = step;
   }
 
+  @SuppressWarnings("java:S2245") // this is a demo, it is NOT for prod
   private float randomTarget() {
     return min + (float) Math.random() * (max - min);
   }

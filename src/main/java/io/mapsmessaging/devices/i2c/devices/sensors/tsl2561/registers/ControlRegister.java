@@ -53,8 +53,7 @@ public class ControlRegister extends SingleByteRegister {
   // Method to set ControlRegister data from ControlData
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof ControlData) {
-      ControlData data = (ControlData) input;
+    if (input instanceof ControlData data) {
       int value = data.isPowerOn() ? 0b11 : 0b00;
       setControlRegister(~POWER_MASK, value);
       return true;

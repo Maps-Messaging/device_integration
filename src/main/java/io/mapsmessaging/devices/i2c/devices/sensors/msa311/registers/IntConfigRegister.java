@@ -60,8 +60,7 @@ public class IntConfigRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof IntConfigData) {
-      IntConfigData data = (IntConfigData) input;
+    if (input instanceof IntConfigData data) {
       setInt1OutputType(data.isInt1OutputTypeOpenDrain());
       setInt1ActiveLevel(data.isInt1ActiveLevelHigh());
       return true;

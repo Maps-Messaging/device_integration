@@ -124,8 +124,7 @@ public class Mode1Register extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof Mode1Data) {
-      Mode1Data data = (Mode1Data) input;
+    if (input instanceof Mode1Data data) {
       setExtClk(data.isExtClk());
       setAutoIncrement(data.isAutoIncrement());
       setSleep(data.isSleep());

@@ -42,8 +42,7 @@ public class SecondsRegister extends BcdRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof SecondData) {
-      SecondData data = (SecondData) input;
+    if (input instanceof SecondData data) {
       setSeconds(data.getSeconds());
       return true;
     }

@@ -42,8 +42,7 @@ public class YearRegister extends BcdRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof YearData) {
-      YearData data = (YearData) input;
+    if (input instanceof YearData data) {
       setYear(data.getYear());
       return true;
     }

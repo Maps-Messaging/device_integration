@@ -89,8 +89,7 @@ public class AfeRegister extends SingleByteRegister {
   // Method to set AfeRegister data from AfeData
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof AfeData) {
-      AfeData data = (AfeData) input;
+    if (input instanceof AfeData data) {
       setPowerDown(data.isPowerDown());
       setGainBoost(data.getGainBoost());
       return true;

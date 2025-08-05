@@ -69,7 +69,7 @@ public class Ds3231Controller extends I2CDeviceController {
     try {
       return Ds3231Rtc.detect(i2cDevice);
     } catch (IOException e) {
-
+      // ingnore, we are simply detecting if it exists, an exception is very probable
     }
     return false;
   }

@@ -93,8 +93,7 @@ public class HourRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof HourData) {
-      HourData data = (HourData) input;
+    if (input instanceof HourData data) {
       setTop(data.isTopSet());
       setClock24Mode(data.isClock24Mode());
       setPM(data.isPm());

@@ -32,8 +32,8 @@ public class ASCERegister extends RequestRegister {
 
   public boolean isASCEEnabled() {
     // Ensure the request is of the correct type and execute its specific method.
-    if (request instanceof GetASCERequest) {
-      return ((GetASCERequest) request).isASCEEnabled();
+    if (request instanceof GetASCERequest ace) {
+      return ace.isASCEEnabled();
     }
     // In case the request instance is not of expected type, consider ASCE disabled or handle appropriately.
     return false;

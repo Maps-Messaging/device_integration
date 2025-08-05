@@ -107,7 +107,7 @@ public class MultiByteRegister extends Register {
     try {
       reload();
     } catch (IOException e) {
-
+      // may fail but can continue
     }
     StringBuilder stringBuilder = new StringBuilder();
     int c = 0;

@@ -86,8 +86,7 @@ public class TunCapRegister extends SingleByteRegister {
   // Method to set Tun_Cap_Register data from TunCapData
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof TunCapData) {
-      TunCapData data = (TunCapData) input;
+    if (input instanceof TunCapData data) {
       setTuningCap(data.getTuningCap());
       setDispTRCOEnabled(data.isDispTRCOEnabled());
       setDispSRCOEnabled(data.isDispSRCOEnabled());

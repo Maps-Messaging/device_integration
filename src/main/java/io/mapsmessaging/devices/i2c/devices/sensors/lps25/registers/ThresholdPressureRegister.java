@@ -53,8 +53,7 @@ public class ThresholdPressureRegister extends MultiByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof ThresholdPressureData) {
-      ThresholdPressureData data = (ThresholdPressureData) input;
+    if (input instanceof ThresholdPressureData data) {
       setThreshold(data.getThreshold());
       return true;
     }

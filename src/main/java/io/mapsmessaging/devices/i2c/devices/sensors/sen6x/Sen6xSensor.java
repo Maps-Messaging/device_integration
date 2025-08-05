@@ -132,6 +132,7 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
     try {
       reset();
     } catch (IOException e) {
+      // it may fail, and thats ok
     }
   }
 

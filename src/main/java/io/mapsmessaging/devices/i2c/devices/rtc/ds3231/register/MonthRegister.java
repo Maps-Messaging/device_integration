@@ -53,8 +53,7 @@ public class MonthRegister extends BcdRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof MonthData) {
-      MonthData data = (MonthData) input;
+    if (input instanceof MonthData data) {
       setMonth(data.getMonth());
       setCentury(data.isCentury());
       return true;

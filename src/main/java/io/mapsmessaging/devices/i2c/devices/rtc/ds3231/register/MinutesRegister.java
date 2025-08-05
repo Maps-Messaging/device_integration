@@ -42,8 +42,7 @@ public class MinutesRegister extends BcdRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof MinuteData) {
-      MinuteData data = (MinuteData) input;
+    if (input instanceof MinuteData data) {
       setMinutes(data.getMinutes());
       return true;
     }

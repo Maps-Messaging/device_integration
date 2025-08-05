@@ -71,8 +71,7 @@ public class PowerModeRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof PowerModeData) {
-      PowerModeData data = (PowerModeData) input;
+    if (input instanceof PowerModeData data) {
       setLowPowerBandwidth(data.getLowPowerBandwidth());
       setPowerMode(data.getPowerMode());
       return true;

@@ -66,8 +66,7 @@ public class InterruptControlRegister extends SingleByteRegister {
   // Method to set InterruptControlRegister data from InterruptControlData
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof InterruptControlData) {
-      InterruptControlData data = (InterruptControlData) input;
+    if (input instanceof InterruptControlData data) {
       setControl(data.getControl());
       setPersist(data.getPersist());
       return true;

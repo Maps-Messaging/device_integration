@@ -31,7 +31,7 @@ import java.io.IOException;
 
 public class BME688Controller extends I2CDeviceController {
 
-  private static final int i2cAddr = 0x77;
+  private static final int I2C_ADDR = 0x77;
   private final BME688Sensor sensor;
 
   public BME688Controller() {
@@ -89,7 +89,7 @@ public class BME688Controller extends I2CDeviceController {
 
   @Override
   public int[] getAddressRange() {
-    return new int[]{i2cAddr};
+    return new int[]{I2C_ADDR};
   }
 
 }
