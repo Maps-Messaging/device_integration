@@ -102,6 +102,8 @@
     <sonar.issue.ignore.multicriteria.s3.ruleKey>java:S116</sonar.issue.ignore.multicriteria.s3.ruleKey>
     <sonar.issue.ignore.multicriteria.s3.resourceKey>**/*.java</sonar.issue.ignore.multicriteria.s3.resourceKey>
 
+    <sonar.issue.ignore.multicriteria.s4.ruleKey>java:S100</sonar.issue.ignore.multicriteria.s4.ruleKey>
+    <sonar.issue.ignore.multicriteria.s4.resourceKey>**/*.java</sonar.issue.ignore.multicriteria.s4.resourceKey>
 
     <sonar.sources>src/main</sonar.sources>
     <sonar.test.exclusions>
