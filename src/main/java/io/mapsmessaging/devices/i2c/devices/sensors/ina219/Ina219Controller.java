@@ -33,11 +33,9 @@ import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import static io.mapsmessaging.devices.i2c.devices.sensors.ina219.Constants.INA219_ADDRESS;
-
 public class Ina219Controller extends I2CDeviceController {
 
-  private static final int i2cAddr = INA219_ADDRESS;
+  private static final int i2cAddr = 0x42;
   private final Ina219Sensor sensor;
 
   public Ina219Controller() {
