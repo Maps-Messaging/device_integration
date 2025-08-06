@@ -131,18 +131,6 @@ public class Ina219Controller extends I2CDeviceController {
     return gson.toJson(response).getBytes(StandardCharsets.UTF_8);
   }
 
-  @Override
-  public byte[] getDeviceState() throws IOException {
-    JsonObject jsonObject = new JsonObject();
-    if (sensor != null) {
-      jsonObject.addProperty("current", sensor.getCurrent());
-      jsonObject.addProperty("shuntVoltage", sensor.getShuntVoltage());
-      jsonObject.addProperty("busVoltage", sensor.getBusVoltage());
-      jsonObject.addProperty("power", sensor.getPower());
-    }
-    return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
-  }
-
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setComments("High Side DC Current Sensor");
