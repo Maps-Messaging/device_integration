@@ -57,6 +57,7 @@ public class Ina219Controller extends I2CDeviceController {
   public Ina219Controller(AddressableDevice device) throws IOException {
     super(device);
     sensor = new Ina219Sensor(device);
+    sensor.initialize();
   }
 
   public I2CDevice getDevice() {

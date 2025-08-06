@@ -25,7 +25,6 @@ import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.*;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
-import io.mapsmessaging.devices.sensorreadings.IntegerSensorReading;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
@@ -36,6 +35,9 @@ import java.util.List;
 
 @Getter
 public class Ina219Sensor extends I2CDevice implements Sensor {
+
+  private static final double CURRENT_LSB = 0.0001; // A per bit
+  private static final double POWER_LSB = CURRENT_LSB * 20; // W per bit
 
   @Getter
   private final List<SensorReading<?>> readings;
@@ -61,7 +63,6 @@ public class Ina219Sensor extends I2CDevice implements Sensor {
     gainMask = GainMask.GAIN_8_320MV;
     operatingMode = OperatingMode.BVOLT_CONTINUOUS;
     shuntADCResolution = ShuntADCResolution.RES_12BIT_1S_532US;
-    setCalibration();
     FloatSensorReading busVoltage = new FloatSensorReading(
         "bus_voltage",
         "mV",
@@ -98,19 +99,34 @@ public class Ina219Sensor extends I2CDevice implements Sensor {
         this::getCurrent_mA
     );
 
-    IntegerSensorReading power = new IntegerSensorReading(
+    FloatSensorReading power = new FloatSensorReading(
         "power",
         "mW",
         "Power calculated by INA219",
-        500,
+        500f,
         true,
-        0,
-        65535,
+        0f,
+        65535f,
+        2,
         this::getPower
     );
 
     this.readings = List.of(busVoltage, shuntVoltage, current, power);
+  }
 
+  public void initialize() throws IOException {
+    configure();
+    setCalibration();
+  }
+
+  public void configure() throws IOException {
+    int config =
+        busVoltageRange.getValue() << 13 |
+            gainMask.getValue() << 11 |
+            adcResolution.getValue() << 7 |
+            shuntADCResolution.getValue() << 3 |
+            operatingMode.getValue(); // assumed already correct
+    writeDevice(Registers.CONFIGURATION, config);
   }
 
   @Override
@@ -118,8 +134,12 @@ public class Ina219Sensor extends I2CDevice implements Sensor {
     return true;
   }
 
-  public void setCalibration() throws IOException {
-    writeDevice(Registers.CALIBRATION, buildMask());
+  public float getCurrent_mA() throws IOException {
+    return (float) (getCurrent() * CURRENT_LSB * 1000); // to mA
+  }
+
+  public float getPower() throws IOException {
+    return (float) (readDevice(Registers.POWER) * POWER_LSB * 1000); // to mW
   }
 
   public int getBusVoltage() throws IOException {
@@ -132,10 +152,6 @@ public class Ina219Sensor extends I2CDevice implements Sensor {
     return readDevice(Registers.CURRENT);
   }
 
-  public int getPower() throws IOException {
-    return readDevice(Registers.POWER);
-  }
-
   public int getShuntVoltageRaw() throws IOException {
     return readDevice(Registers.SHUNT_VOLTAGE);
   }
@@ -145,8 +161,15 @@ public class Ina219Sensor extends I2CDevice implements Sensor {
     return rawValue * 0.01;
   }
 
-  public float getCurrent_mA() throws IOException {
-    return getCurrent();
+  public void setCalibration() throws IOException {
+    double currentLsb = 0.0001;      // 100 µA per bit
+    double shuntResistor = 0.1;      // 0.1 ohm
+    int calibration = calculateCalibration(currentLsb, shuntResistor);
+    writeDevice(Registers.CALIBRATION, calibration);
+  }
+
+  private int calculateCalibration(double currentLsb, double shuntResistanceOhms) {
+    return (int) (0.04096 / (currentLsb * shuntResistanceOhms));
   }
 
   private int readDevice(Registers register) throws IOException {
@@ -160,15 +183,6 @@ public class Ina219Sensor extends I2CDevice implements Sensor {
     buf[0] = (byte) ((data >> 8) & 0xff);
     buf[1] = (byte) (data & 0xff);
     write(register.getAddress(), buf);
-  }
-
-  private int buildMask() {
-    return
-        busVoltageRange.getValue() |
-            adcResolution.getValue() |
-            operatingMode.getValue() |
-            gainMask.getValue() |
-            shuntADCResolution.getValue();
   }
 
   @Override

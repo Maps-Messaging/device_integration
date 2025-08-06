@@ -32,5 +32,4 @@ public enum BusVoltageRange {
   BusVoltageRange(int value) {
     this.value = value;
   }
-
 }
