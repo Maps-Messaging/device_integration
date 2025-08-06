@@ -25,7 +25,6 @@ import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.*;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
-import io.mapsmessaging.devices.sensorreadings.IntegerSensorReading;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
@@ -112,7 +111,94 @@ public class Ina219Sensor extends I2CDevice implements Sensor {
         this::getPower
     );
 
-    this.readings = generateSensorReadings(List.of(busVoltage, shuntVoltage, current, power));
+    FloatSensorReading supplyVoltage = new FloatSensorReading(
+        "supply_voltage",
+        "mV",
+        "Estimated supply voltage (bus + shunt)",
+        12000f,
+        true,
+        0f,
+        33000f,
+        0,
+        () -> (float) (getBusVoltage() + getShuntVoltage())
+    );
+
+    FloatSensorReading loadResistance = new FloatSensorReading(
+        "load_resistance",
+        "Ohm",
+        "Estimated resistance of the load",
+        100f,
+        true,
+        0f,
+        1000f,
+        2,
+        () -> {
+          float currentA = getCurrent_mA() / 1000f;
+          float vBus = getBusVoltage() / 1000f;
+          return currentA > 0.0001f ? vBus / currentA : Float.NaN;
+        }
+    );
+
+    FloatSensorReading powerCalc = new FloatSensorReading(
+        "power_calculated",
+        "mW",
+        "Calculated power from V × I",
+        500f,
+        true,
+        0f,
+        65535f,
+        2,
+        () -> {
+          float currentA = getCurrent_mA() / 1000f;
+          float vBus = getBusVoltage() / 1000f;
+          return vBus * currentA * 1000f;
+        }
+    );
+
+    FloatSensorReading powerDelta = new FloatSensorReading(
+        "power_delta",
+        "mW",
+        "Difference between calculated and measured power",
+        50f,
+        true,
+        0f,
+        500f,
+        2,
+        () -> {
+          float calculated = getBusVoltage() / 1000f * getCurrent_mA();
+          float measured = getPower();
+          return Math.abs(calculated - measured);
+        }
+    );
+
+    FloatSensorReading percentUsage = new FloatSensorReading(
+        "percent_usage",
+        "%",
+        "Load as percent of max expected power (24W)",
+        100f,
+        true,
+        0f,
+        100f,
+        1,
+        () -> {
+          float p = getPower();
+          return Math.min(100f, p / 24000f * 100f);
+        }
+    );
+
+    this.readings = generateSensorReadings(
+        List.of(
+            busVoltage,
+            shuntVoltage,
+            current,
+            power,
+            supplyVoltage,
+            powerCalc,
+            powerDelta,
+            percentUsage,
+            loadResistance
+        )
+    );
   }
 
   public void initialize() throws IOException {
