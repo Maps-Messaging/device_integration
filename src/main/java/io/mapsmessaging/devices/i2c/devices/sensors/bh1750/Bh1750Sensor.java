@@ -74,7 +74,7 @@ public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor, 
         this::getLux
     );
 
-    readings = List.of(luxReading);
+    readings = generateSensorReadings(generateSensorReadings(List.of(luxReading)));
   }
 
   @Override

@@ -73,7 +73,7 @@ public class Sht31Sensor extends I2CDevice implements PowerManagement, Resetable
         this::getHumidity
     );
 
-    readings = List.of(temperature, humidity);
+    readings = generateSensorReadings(List.of(temperature, humidity));
 
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       initialise();

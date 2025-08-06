@@ -109,8 +109,7 @@ public class Ina219Sensor extends I2CDevice implements Sensor {
         this::getPower
     );
 
-    this.readings = List.of(busVoltage, shuntVoltage, current, power);
-
+    readings = generateSensorReadings(List.of(busVoltage, shuntVoltage, current, power));
   }
 
   @Override

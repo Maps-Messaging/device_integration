@@ -82,7 +82,8 @@ public class AM2315Sensor extends I2CDevice implements Sensor {
         0,
         this::getHumidity
     );
-    readings = List.of(temperatureReading, humidityReading);
+
+    readings = generateSensorReadings(List.of(temperatureReading, humidityReading));
     loadValues();
   }
 

@@ -71,7 +71,7 @@ public class AM2320Sensor extends I2CDevice implements Sensor {
         this::getHumidity
     );
 
-    readings = List.of(temperatureReading, humidityReading);
+    readings = generateSensorReadings(List.of(temperatureReading, humidityReading));
     loadValues();
   }
 

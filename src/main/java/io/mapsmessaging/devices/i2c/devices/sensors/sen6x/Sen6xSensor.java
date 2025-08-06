@@ -87,9 +87,9 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
         true,
         getSerialNumberCommand
     );
-    readings = new ArrayList<>();
-    readings.add(productNameReading);
-    readings.add(serialNumberReading);
+    List<SensorReading<?>> tmp = new ArrayList<>();
+    tmp.add(productNameReading);
+    tmp.add(serialNumberReading);
 
     /*
     String name, String unit, String description, Void example, boolean readOnly, ReadingSupplier<Void> valueSupplier
@@ -102,8 +102,9 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
         true,
         null);
     groupSensorReading.getGroupList().addAll(buildStatusReadings(new Sen6xStatusSupplier(getDeviceStatusCommand)));
-    readings.add(groupSensorReading);
-    readings.addAll(buildMeasurementReadingds(contructMeasurementManager(helper)));
+    tmp.add(groupSensorReading);
+    tmp.addAll(buildMeasurementReadingds(contructMeasurementManager(helper)));
+    readings = generateSensorReadings(tmp);
     initialise();
     try {
       powerOn();

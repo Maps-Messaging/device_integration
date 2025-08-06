@@ -25,6 +25,10 @@ public class Constants {
 
   public static final float EARTH_GRAVITY_FLOAT = 9.80665f;   // m/s^2
 
+  private Constants() {
+    // private
+  }
+
   public static String roundFloatToString(float number, int decimalPlaces) {
     // Create the pattern for DecimalFormat based on the specified decimalPlaces
     StringBuilder patternBuilder = new StringBuilder("#.");
@@ -35,9 +39,5 @@ public class Constants {
 
     // Format the number and return the rounded string representation
     return decimalFormat.format(number);
-  }
-
-  private Constants() {
-    // private
   }
 }

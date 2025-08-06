@@ -110,7 +110,7 @@ public class GasSensor extends I2CDevice implements Sensor {
         this::getTemperature
     );
 
-    readings = List.of(temperature, concentration, concentrationTempAdj);
+    readings = generateSensorReadings(List.of(temperature, concentration, concentrationTempAdj));
   }
 
 

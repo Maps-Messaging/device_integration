@@ -17,16 +17,32 @@
  *  limitations under the License
  */
 
-package io.mapsmessaging.devices.util;
+package io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands;
 
-import java.util.concurrent.locks.LockSupport;
+import io.mapsmessaging.devices.util.ComputeDewPoint;
 
-public class Delay {
-  private Delay() {
-    // No Op
+import java.io.IOException;
+
+public class DewPointCommand extends AbstractMeasurementCommand {
+
+  public DewPointCommand(Sen6xMeasurementManager manager) {
+    super(
+        manager,
+  "Dew Point",
+  "°C",
+  "Dew Point",
+  1.0f,
+  true,
+  0.0f,
+  100.0f,
+1
+    );
   }
 
-  public static void pause(long delay) {
-    LockSupport.parkNanos(delay * 1000000);
+  @Override
+  public float getValue() throws IOException {
+    float temp = manager.getMeasurementBlock().getTemperatureC();
+    float humidity = manager.getMeasurementBlock().getHumidityPercent();
+    return (float) ComputeDewPoint.computeDewPoint(temp, humidity);
   }
 }

@@ -149,7 +149,7 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
         this::getZ
     );
 
-    readings = List.of(xOrientation, yOrientation, zOrientation);
+    readings = generateSensorReadings(List.of(xOrientation, yOrientation, zOrientation));
     initialise();
   }
 

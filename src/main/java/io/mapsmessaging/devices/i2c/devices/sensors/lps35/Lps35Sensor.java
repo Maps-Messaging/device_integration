@@ -118,7 +118,7 @@ public class Lps35Sensor extends I2CDevice implements Sensor, Resetable {
         this::getTemperature
     );
 
-    readings = List.of(pressureReading, temperatureReading);
+    readings = generateSensorReadings(List.of(pressureReading, temperatureReading));
 
     if (whoAmIRegister.getWhoAmI() == 0b10110001) {
       initialise();

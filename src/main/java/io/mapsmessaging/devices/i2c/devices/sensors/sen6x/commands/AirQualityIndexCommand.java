@@ -19,7 +19,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands;
 
 
-import io.mapsmessaging.devices.i2c.devices.sensors.utils.AqiCalculator;
+import io.mapsmessaging.devices.util.AqiCalculator;
 
 import java.io.IOException;
 

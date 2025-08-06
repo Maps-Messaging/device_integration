@@ -111,7 +111,7 @@ public class TSL2561Sensor extends I2CDevice implements PowerManagement, Sensor 
         this::calculateLux
     );
 
-    readings = List.of(full, ir, lux);
+    readings = generateSensorReadings(List.of(full, ir, lux));
 
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       initialise();

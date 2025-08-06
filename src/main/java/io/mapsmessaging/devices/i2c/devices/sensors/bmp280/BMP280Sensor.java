@@ -92,8 +92,7 @@ public class BMP280Sensor extends I2CDevice implements Sensor {
         this::getPressure
     );
 
-    this.readings = List.of(temperatureReading, pressureReading);
-
+    readings = generateSensorReadings(List.of(temperatureReading, pressureReading));
   }
 
   @Override
