@@ -107,8 +107,7 @@ public class InterruptSet0Register extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof InterruptSet0Data) {
-      InterruptSet0Data data = (InterruptSet0Data) input;
+    if (input instanceof InterruptSet0Data data) {
       setOrientInterruptEnabled(data.isOrientInterruptEnabled());
       setSingleTapInterruptEnabled(data.isSingleTapInterruptEnabled());
       setDoubleTapInterruptEnabled(data.isDoubleTapInterruptEnabled());

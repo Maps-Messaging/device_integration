@@ -33,14 +33,12 @@ public abstract class BacklightPwm extends I2CDevice implements Output {
   private final byte regRed;
   private final byte regGreen;
   private final byte regBlue;
-  private final byte regOnly;
 
-  protected BacklightPwm(AddressableDevice device, byte regRed, byte regGreen, byte regBlue, byte regOnly) {
+  protected BacklightPwm(AddressableDevice device, byte regRed, byte regGreen, byte regBlue) {
     super(device, LoggerFactory.getLogger(BacklightPwm.class));
     this.regGreen = regGreen;
     this.regBlue = regBlue;
     this.regRed = regRed;
-    this.regOnly = regOnly;
     initialise();
   }
 

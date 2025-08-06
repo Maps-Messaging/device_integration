@@ -50,8 +50,7 @@ public class FreefallDurRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof FreefallDurData) {
-      FreefallDurData data = (FreefallDurData) input;
+    if (input instanceof FreefallDurData data) {
       setFreefallDuration(data.getFreefallDuration());
       return true;
     }

@@ -92,8 +92,7 @@ public class TimingRegister extends SingleByteRegister {
   // Method to set TimingRegister data from TimingData
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof TimingData) {
-      TimingData data = (TimingData) input;
+    if (input instanceof TimingData data) {
       setManual(data.isManual());
       setHighGain(data.isHighGain());
       setIntegrationTime(data.getIntegrationTime());

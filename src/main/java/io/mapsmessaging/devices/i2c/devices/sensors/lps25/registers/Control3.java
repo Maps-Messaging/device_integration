@@ -79,8 +79,7 @@ public class Control3 extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof Control3Data) {
-      Control3Data data = (Control3Data) input;
+    if (input instanceof Control3Data data) {
       setSignalOnInterrupt(data.getSignalOnInterrupt());
       enablePushPullDrainInterrupt(data.isPushPullDrainInterruptActive());
       enableInterrupts(data.isInterruptActive());

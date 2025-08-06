@@ -26,14 +26,17 @@ import io.mapsmessaging.devices.i2c.devices.BufferedRegister;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.sensorreadings.IntegerSensorReading;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
-import io.mapsmessaging.devices.sensorreadings.StringSensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
 import java.io.IOException;
 import java.util.List;
 
+@SuppressWarnings({"java:S116","java:S100"})
 public class Pmsa003iSensor extends I2CDevice implements Sensor {
+  private static final String UNITS = "µg/m³";
+  private static final String VOLUME_UNITS = "count/0.1L";
+  
   private final byte[] data;
   private final BufferedRegister pm1_0StandardRegister;
   private final BufferedRegister pm2_5StandardRegister;
@@ -74,24 +77,22 @@ public class Pmsa003iSensor extends I2CDevice implements Sensor {
     this.versionRegister = new BufferedRegister(this, 0x1c, 1, "Version", data);
     this.errorCodeRegister = new BufferedRegister(this, 0x1d, 1, "ErrorCode", data);
     lastRead = 0;
-    readings = List.of(
-        new IntegerSensorReading("pm_1_0", "µg/m³", "Standard PM1.0 concentration", 10, true, 0, 0x7ffff, this::getPm1_0Standard),
-        new IntegerSensorReading("pm_2_5", "µg/m³", "Standard PM2.5 concentration", 15, true, 0, 0x7ffff, this::getPm2_5Standard),
-        new IntegerSensorReading("pm_10", "µg/m³", "Standard PM10 concentration", 20, true, 0, 0x7ffff, this::getPm10Standard),
+    readings = generateSensorReadings(List.of(
+        new IntegerSensorReading("pm_1_0", UNITS, "Standard PM1.0 concentration", 10, true, 0, 0x7ffff, this::getPm1_0Standard),
+        new IntegerSensorReading("pm_2_5", UNITS, "Standard PM2.5 concentration", 15, true, 0, 0x7ffff, this::getPm2_5Standard),
+        new IntegerSensorReading("pm_10", UNITS, "Standard PM10 concentration", 20, true, 0, 0x7ffff, this::getPm10Standard),
 
-        new IntegerSensorReading("pm_1_0_atm", "µg/m³", "Atmospheric PM1.0 concentration", 10, true, 0, 0x7ffff, this::getPm1_0Atmospheric),
-        new IntegerSensorReading("pm_2_5_atm", "µg/m³", "Atmospheric PM2.5 concentration", 15, true, 0, 0x7ffff, this::getPm2_5Atmospheric),
-        new IntegerSensorReading("pm_10_atm", "µg/m³", "Atmospheric PM10 concentration", 20, true, 0, 0x7ffff, this::getPm10Atmospheric),
+        new IntegerSensorReading("pm_1_0_atm", UNITS, "Atmospheric PM1.0 concentration", 10, true, 0, 0x7ffff, this::getPm1_0Atmospheric),
+        new IntegerSensorReading("pm_2_5_atm", UNITS, "Atmospheric PM2.5 concentration", 15, true, 0, 0x7ffff, this::getPm2_5Atmospheric),
+        new IntegerSensorReading("pm_10_atm", UNITS, "Atmospheric PM10 concentration", 20, true, 0, 0x7ffff, this::getPm10Atmospheric),
 
-        new IntegerSensorReading("particles_gt_3", "count/0.1L", "Particles > 0.3μm per 0.1L air", 500, true, 0, 0x7ffff, this::getParticlesLargerThan3),
-        new IntegerSensorReading("particles_gt_5", "count/0.1L", "Particles > 0.5μm per 0.1L air", 300, true, 0, 0x7ffff, this::getParticlesLargerThan5),
-        new IntegerSensorReading("particles_gt_10", "count/0.1L", "Particles > 1.0μm per 0.1L air", 150, true, 0, 0x7ffff, this::getParticlesLargerThan10),
-        new IntegerSensorReading("particles_gt_25", "count/0.1L", "Particles > 2.5μm per 0.1L air", 80, true, 0, 0x7ffff, this::getParticlesLargerThan25),
-        new IntegerSensorReading("particles_gt_50", "count/0.1L", "Particles > 5.0μm per 0.1L air", 40, true, 0, 0x7ffff, this::getParticlesLargerThan50),
-        new IntegerSensorReading("particles_gt_100", "count/0.1L", "Particles > 10μm per 0.1L air", 20, true, 0, 0x7ffff, this::getParticlesLargerThan100),
-
-        new StringSensorReading("air_quality", "", "Evaluated air quality classification", "Good", true, this::evaluateAirQuality)
-    );
+        new IntegerSensorReading("particles_gt_3", VOLUME_UNITS, "Particles > 0.3μm per 0.1L air", 500, true, 0, 0x7ffff, this::getParticlesLargerThan3),
+        new IntegerSensorReading("particles_gt_5", VOLUME_UNITS, "Particles > 0.5μm per 0.1L air", 300, true, 0, 0x7ffff, this::getParticlesLargerThan5),
+        new IntegerSensorReading("particles_gt_10", VOLUME_UNITS, "Particles > 1.0μm per 0.1L air", 150, true, 0, 0x7ffff, this::getParticlesLargerThan10),
+        new IntegerSensorReading("particles_gt_25", VOLUME_UNITS, "Particles > 2.5μm per 0.1L air", 80, true, 0, 0x7ffff, this::getParticlesLargerThan25),
+        new IntegerSensorReading("particles_gt_50", VOLUME_UNITS, "Particles > 5.0μm per 0.1L air", 40, true, 0, 0x7ffff, this::getParticlesLargerThan50),
+        new IntegerSensorReading("particles_gt_100", VOLUME_UNITS, "Particles > 10μm per 0.1L air", 20, true, 0, 0x7ffff, this::getParticlesLargerThan100)
+    ));
   }
 
   @Override
@@ -175,33 +176,6 @@ public class Pmsa003iSensor extends I2CDevice implements Sensor {
       lastRead = System.currentTimeMillis() + 1000;
     }
   }
-
-
-  public String evaluateAirQuality() throws IOException {
-    // Air quality thresholds for PM1.0, PM2.5, and PM10
-    int[] pristineThreshold = {10, 10, 20};     // PM1.0, PM2.5, PM10
-    int[] healthyThreshold = {20, 30, 50};
-    int[] moderateThreshold = {30, 60, 100};
-    int[] poorThreshold = {40, 100, 150};
-
-    int pm1 = getPm1_0Standard();
-    int pm25 = getPm2_5Standard();
-    int pm10 = getPm10Standard();
-
-    // Evaluate air quality
-    if (pm1 <= pristineThreshold[0] && pm25 <= pristineThreshold[1] && pm10 <= pristineThreshold[2]) {
-      return "Pristine";
-    } else if (pm1 <= healthyThreshold[0] && pm25 <= healthyThreshold[1] && pm10 <= healthyThreshold[2]) {
-      return "Healthy";
-    } else if (pm1 <= moderateThreshold[0] && pm25 <= moderateThreshold[1] && pm10 <= moderateThreshold[2]) {
-      return "Moderate";
-    } else if (pm1 <= poorThreshold[0] && pm25 <= poorThreshold[1] && pm10 <= poorThreshold[2]) {
-      return "Poor";
-    } else {
-      return "Hazardous";
-    }
-  }
-
 
   @Override
   public String getName() {

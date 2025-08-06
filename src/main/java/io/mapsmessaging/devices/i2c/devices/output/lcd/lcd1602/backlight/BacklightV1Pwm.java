@@ -27,10 +27,9 @@ public class BacklightV1Pwm extends BacklightPwm {
   private static final byte REG_RED = 0x04;
   private static final byte REG_GREEN = 0x03;
   private static final byte REG_BLUE = 0x02;
-  private static final byte REG_ONLY = 0x02;
 
   protected BacklightV1Pwm(AddressableDevice device) {
-    super(device, REG_RED, REG_GREEN, REG_BLUE, REG_ONLY);
+    super(device, REG_RED, REG_GREEN, REG_BLUE);
   }
 
 

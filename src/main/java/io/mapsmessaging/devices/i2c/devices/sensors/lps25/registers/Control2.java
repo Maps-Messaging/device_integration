@@ -108,8 +108,7 @@ public class Control2 extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof Control2Data) {
-      Control2Data data = (Control2Data) input;
+    if (input instanceof Control2Data data) {
       enableFiFo(data.isFifoEnabled());
       enableStopFiFoOnThreshold(data.isStopFifoOnThreshold());
       enableAutoZero(data.isAutoZeroEnabled());

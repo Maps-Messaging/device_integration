@@ -46,8 +46,7 @@ public class SubAddressRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof SubAddressData) {
-      SubAddressData data = (SubAddressData) input;
+    if (input instanceof SubAddressData data) {
       setI2CAddress(data.getI2cAddress());
       return true;
     }

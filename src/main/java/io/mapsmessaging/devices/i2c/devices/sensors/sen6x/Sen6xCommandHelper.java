@@ -57,7 +57,7 @@ public class Sen6xCommandHelper {
     writeWithCRC(cmd);
   }
 
-  public void writeWithCRC(byte[] data) throws IOException {
+  public void writeWithCRC(byte[] data) {
     if (data.length % 2 != 0) {
       throw new IllegalArgumentException("Data length must be even to compute CRC per 2-byte word.");
     }
@@ -68,9 +68,9 @@ public class Sen6xCommandHelper {
       out.write(data[i + 1]);
       out.write(computeCRC(data[i], data[i + 1]));
     }
-
     device.write(out.toByteArray());
   }
+
   public byte[] requestResponse(int command, int expectedResponseLength, int delayMillis) throws IOException {
     byte[] commandBytes = new byte[] {
         (byte) ((command >> 8) & 0xFF),
@@ -135,6 +135,7 @@ public class Sen6xCommandHelper {
         device.wait(delayMs);
       }
     } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
     }
   }
 }

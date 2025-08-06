@@ -113,8 +113,7 @@ public class InterruptConfigRegister extends SingleByteRegister {
   // Method to set InterruptConfigRegister data from InterruptConfigData
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof InterruptConfigData) {
-      InterruptConfigData data = (InterruptConfigData) input;
+    if (input instanceof InterruptConfigData data) {
       enableAutoRifp(data.isAutoRifpEnabled());
       enableAutoZero(data.isAutoZeroEnabled());
       enableInterrupt(data.isInterruptEnabled());

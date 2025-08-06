@@ -32,6 +32,7 @@ import io.mapsmessaging.logging.LoggerFactory;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+@SuppressWarnings("java:S1068") // Will implement these as this is filled out
 public class St7735Device extends I2CDevice implements Output, Storage, Resetable {
   // Color definitions
   public static final int ST7735_BLACK = 0x0000;
@@ -75,14 +76,14 @@ public class St7735Device extends I2CDevice implements Output, Storage, Resetabl
     reset();
   }
 
-  public void lcdSetAddressWindow(int x0, int y0, int x1, int y1) throws IOException {
+  public void lcdSetAddressWindow(int x0, int y0, int x1, int y1)  {
     i2cWriteCommand(X_COORDINATE_REG, x0 + ST7735_XSTART, x1 + ST7735_XSTART);
     i2cWriteCommand(Y_COORDINATE_REG, y0 + ST7735_YSTART, y1 + ST7735_YSTART);
     i2cWriteCommand(CHAR_DATA_REG, 0x00, 0x00);
     i2cWriteCommand(SYNC_REG, 0x00, 0x01);
   }
 
-  public void lcdWriteChar(int x, int y, char ch, FontDef font, int color, int bgcolor) throws IOException {
+  public void lcdWriteChar(int x, int y, char ch, FontDef font, int color, int bgcolor)  {
     lcdSetAddressWindow(x, y, x + font.getWidth() - 1, y + font.getHeight() - 1);
     for (int i = 0; i < font.getHeight(); i++) {
       int b = font.getData()[(ch - 32) * font.getHeight() + i];
@@ -96,7 +97,7 @@ public class St7735Device extends I2CDevice implements Output, Storage, Resetabl
     }
   }
 
-  public void lcdWriteString(int x, int y, String str, FontDef font, int color, int bgcolor) throws IOException {
+  public void lcdWriteString(int x, int y, String str, FontDef font, int color, int bgcolor) {
     for (char ch : str.toCharArray()) {
       if (x + font.getWidth() >= ST7735_WIDTH) {
         x = 0;
@@ -111,7 +112,7 @@ public class St7735Device extends I2CDevice implements Output, Storage, Resetabl
     }
   }
 
-  public void lcdFillRectangle(int x, int y, int w, int h, int color) throws IOException {
+  public void lcdFillRectangle(int x, int y, int w, int h, int color)  {
     if (x >= ST7735_WIDTH || y >= ST7735_HEIGHT) return;
     if (x + w - 1 >= ST7735_WIDTH) w = ST7735_WIDTH - x;
     if (y + h - 1 >= ST7735_HEIGHT) h = ST7735_HEIGHT - y;
@@ -128,17 +129,17 @@ public class St7735Device extends I2CDevice implements Output, Storage, Resetabl
     }
   }
 
-  public void lcdFillScreen(int color) throws IOException {
+  public void lcdFillScreen(int color) {
     lcdFillRectangle(0, 0, ST7735_WIDTH, ST7735_HEIGHT, color);
     i2cWriteCommand(SYNC_REG, 0x00, 0x01);
   }
 
-  public void lcdDrawImage(int x, int y, int w, int h, byte[] data) throws IOException {
+  public void lcdDrawImage(int x, int y, int w, int h, byte[] data)  {
     lcdSetAddressWindow(x, y, x + w - 1, y + h - 1);
     i2cBurstTransfer(data, data.length);
   }
 
-  public void i2cWriteData(int high, int low) throws IOException {
+  public void i2cWriteData(int high, int low) {
     ByteBuffer buffer = ByteBuffer.allocate(3);
     buffer.put((byte) WRITE_DATA_REG);
     buffer.put((byte) high);
@@ -146,7 +147,7 @@ public class St7735Device extends I2CDevice implements Output, Storage, Resetabl
     device.write(buffer.array());
   }
 
-  public void i2cWriteCommand(int command, int high, int low) throws IOException {
+  public void i2cWriteCommand(int command, int high, int low) {
     ByteBuffer buffer = ByteBuffer.allocate(3);
     buffer.put((byte) command);
     buffer.put((byte) high);
@@ -154,7 +155,7 @@ public class St7735Device extends I2CDevice implements Output, Storage, Resetabl
     device.write(buffer.array());
   }
 
-  public void i2cBurstTransfer(byte[] buff, int length) throws IOException {
+  public void i2cBurstTransfer(byte[] buff, int length) {
     i2cWriteCommand(BURST_WRITE_REG, 0x00, 0x01);
     int count = 0;
     while (length > count) {
@@ -167,7 +168,7 @@ public class St7735Device extends I2CDevice implements Output, Storage, Resetabl
     i2cWriteCommand(SYNC_REG, 0x00, 0x01);
   }
 
-  public void lcdDisplayPercentage(int val, int color) throws IOException {
+  public void lcdDisplayPercentage(int val, int color) {
     val += 10;
     if (val >= 100) val = 100;
     val /= 10;
@@ -183,14 +184,14 @@ public class St7735Device extends I2CDevice implements Output, Storage, Resetabl
     }
   }
 
-  public void lcdDisplayValue(String name, int value) throws IOException {
+  public void lcdDisplayValue(String name, int value)  {
     lcdFillScreen(ST7735_BLACK);
     lcdFillRectangle(0, 20, ST7735_WIDTH, 5, ST7735_BLUE);
     lcdWriteString(0, 0, name + value + "%", Fonts.FONT_8X16, ST7735_WHITE, ST7735_BLACK);
     lcdDisplayPercentage(value, ST7735_GREEN);
   }
 
-  public void lcdDisplayPercentage(String name, int val, int max) throws IOException {
+  public void lcdDisplayPercentage(String name, int val, int max)  {
     int usedDiskPercentage = (int) ((float) val / max * 100);
     lcdFillRectangle(0, 35, ST7735_WIDTH, 20, ST7735_BLACK);
     lcdWriteString(30, 35, name + usedDiskPercentage + "%", Fonts.FONT_11X18, ST7735_WHITE, ST7735_BLACK);
@@ -228,12 +229,12 @@ public class St7735Device extends I2CDevice implements Output, Storage, Resetabl
   }
 
   @Override
-  public void writeBlock(int address, byte[] data) throws IOException {
+  public void writeBlock(int address, byte[] data)  {
     // no op
   }
 
   @Override
-  public byte[] readBlock(int address, int length) throws IOException {
+  public byte[] readBlock(int address, int length)  {
     return new byte[0];
   }
 }

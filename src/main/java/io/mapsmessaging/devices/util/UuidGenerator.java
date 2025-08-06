@@ -31,6 +31,7 @@ public class UuidGenerator {
 
   private final NameBasedGenerator namespaceGenerator;
 
+  @SuppressWarnings("java:S4790") // SHA-1 is the current best practices for UUID
   private UuidGenerator() {
     NameBasedGenerator uuidGenerator;
     try {

@@ -49,8 +49,7 @@ public class OffsetCompensationRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof OffsetCompensationData) {
-      OffsetCompensationData data = (OffsetCompensationData) input;
+    if (input instanceof OffsetCompensationData data) {
       setOffset(data.getOffset());
       return true;
     }

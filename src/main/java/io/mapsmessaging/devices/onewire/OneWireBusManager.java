@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
+@SuppressWarnings("java:S1075") // this is fixed for 1 wire devices
 public class OneWireBusManager {
   private static final String ONE_WIRE_ROOT_PATH = "/sys/bus/w1/devices/";
 

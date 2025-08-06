@@ -43,8 +43,7 @@ public class AgingRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof AgingData) {
-      AgingData data = (AgingData) input;
+    if (input instanceof AgingData data ) {
       setAging(data.getAging());
       return true;
     }

@@ -71,8 +71,7 @@ public class Mode2Register extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof Mode2Data) {
-      Mode2Data data = (Mode2Data) input;
+    if (input instanceof Mode2Data data) {
       setInvertLogic(data.isInvertLogic());
       setOutputChangeOnAck(data.isOutputChangeOnAck());
       setOutputTotemPole(data.isOutputTotemPole());

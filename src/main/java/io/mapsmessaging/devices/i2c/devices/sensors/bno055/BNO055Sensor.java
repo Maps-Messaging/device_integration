@@ -120,7 +120,7 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
 
     initialise();
 
-    readings = List.of(
+    readings = generateSensorReadings( List.of(
         new OrientationSensorReading("heading", "°", "Heading from BNO055", new Orientation(0, 0, 0), true, this::getOrientation),
         new OrientationSensorReading("euler", "°", "Euler angles from BNO055", new Orientation(0, 0, 0), true, this::getEuler),
         new OrientationSensorReading("gravity", "m/s²", "Gravity vector from BNO055", new Orientation(0, 0, 9.8), true, this::getGravity),
@@ -128,7 +128,7 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
         new OrientationSensorReading("linear_accel", "m/s²", "Linear acceleration from BNO055", new Orientation(0, 0, 0), true, this::getLinearAcceleration),
         new OrientationSensorReading("magnetometer", "µT", "Magnetic field from BNO055", new Orientation(0, 0, 0), true, this::getMagnetometer),
         new OrientationSensorReading("accelerometer", "m/s²", "Accelerometer data from BNO055", new Orientation(0, 0, 9.8), true, this::getAccelerometer)
-    );
+    ));
   }
 
 

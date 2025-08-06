@@ -25,6 +25,7 @@ import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.*;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
+import io.mapsmessaging.devices.sensorreadings.IntegerSensorReading;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
@@ -111,7 +112,7 @@ public class Ina219Sensor extends I2CDevice implements Sensor {
         this::getPower
     );
 
-    this.readings = List.of(busVoltage, shuntVoltage, current, power);
+    this.readings = generateSensorReadings(List.of(busVoltage, shuntVoltage, current, power));
   }
 
   public void initialize() throws IOException {

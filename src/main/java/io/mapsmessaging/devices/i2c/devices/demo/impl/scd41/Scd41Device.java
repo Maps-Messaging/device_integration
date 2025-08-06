@@ -45,6 +45,7 @@ public class Scd41Device extends I2CDevice implements Sensor {
 
 
 
+  @SuppressWarnings("java:S2245") // this is a demo, it is NOT for prod
   public Scd41Device(AddressableDevice device) {
     super(device, LoggerFactory.getLogger(Scd41Device.class));
     random = new Random();

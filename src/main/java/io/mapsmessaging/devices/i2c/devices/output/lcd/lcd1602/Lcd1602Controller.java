@@ -38,6 +38,22 @@ import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import java.io.IOException;
 
 public class Lcd1602Controller extends I2CDeviceController {
+  private static final String TYPE_OBJECT = "object";
+  private static final String TYPE_STRING = "string";
+  private static final String TYPE_NUMBER = "number";
+  private static final String TYPE_ARRAY = "array";
+  private static final String FIELD_ROWS = "rows";
+  private static final String FIELD_COLUMNS = "columns";
+  private static final String FIELD_ACTION = "action";
+  private static final String FIELD_ADDRESS = "address";
+  private static final String FIELD_DATA = "data";
+  private static final String FIELD_PROPERTIES = "properties";
+  private static final String FIELD_TYPE = "type";
+  private static final String FIELD_DESCRIPTION = "description";
+  private static final String FIELD_SCHEMA = "$schema";
+  private static final String FIELD_TITLE = "title";
+  private static final String FIELD_DEVICE_STATIC = "deviceStatic";
+  private static final String FIELD_DEVICE_WRITE = "deviceWrite";
 
   private static final String SUCCESS = "success";
   private static final String ERROR = "error";
@@ -118,20 +134,12 @@ public class Lcd1602Controller extends I2CDeviceController {
 
   @Override
   public byte[] getDeviceConfiguration() throws IOException {
-    JsonObject jsonObject = new JsonObject();
-    if (display != null) {
-      //
-    }
-    return convert(jsonObject);
+    return emptyJson();
   }
 
   @Override
   public byte[] getDeviceState() throws IOException {
-    JsonObject jsonObject = new JsonObject();
-    if (display != null) {
-      //
-    }
-    return convert(jsonObject);
+    return emptyJson();
   }
 
   @Override
@@ -155,46 +163,44 @@ public class Lcd1602Controller extends I2CDeviceController {
     config.setInterfaceDescription("LCD1602 accepts actions such as WRITE, CLEAR, READ. Data is a byte array.");
     return config;
   }
-
   private String buildSchema() {
     JsonObject configSchema = new JsonObject();
     JsonObject configProps = new JsonObject();
-    configProps.add("rows", property("number", "Number of display rows (typically 2)"));
-    configProps.add("columns", property("number", "Number of display columns (typically 16 or 20)"));
-    configSchema.addProperty("type", "object");
-    configSchema.add("properties", configProps);
+    configProps.add(FIELD_ROWS, property(TYPE_NUMBER, "Number of display rows (typically 2)"));
+    configProps.add(FIELD_COLUMNS, property(TYPE_NUMBER, "Number of display columns (typically 16 or 20)"));
+    configSchema.addProperty(FIELD_TYPE, TYPE_OBJECT);
+    configSchema.add(FIELD_PROPERTIES, configProps);
 
     JsonObject writeSchema = new JsonObject();
     JsonObject writeProps = new JsonObject();
-    writeProps.add("action", property("string", "Display action: WRITE, CLEAR, READ"));
-    writeProps.add("address", property("number", "Starting address in the buffer (0-based)"));
+    writeProps.add(FIELD_ACTION, property(TYPE_STRING, "Display action: WRITE, CLEAR, READ"));
+    writeProps.add(FIELD_ADDRESS, property(TYPE_NUMBER, "Starting address in the buffer (0-based)"));
     JsonObject array = new JsonObject();
-    array.addProperty("type", "array");
-    array.addProperty("description", "Array of bytes to display (ASCII values)");
-    writeProps.add("data", array);
-    writeSchema.addProperty("type", "object");
-    writeSchema.add("properties", writeProps);
+    array.addProperty(FIELD_TYPE, TYPE_ARRAY);
+    array.addProperty(FIELD_DESCRIPTION, "Array of bytes to display (ASCII values)");
+    writeProps.add(FIELD_DATA, array);
+    writeSchema.addProperty(FIELD_TYPE, TYPE_OBJECT);
+    writeSchema.add(FIELD_PROPERTIES, writeProps);
 
     JsonObject root = new JsonObject();
-    root.addProperty("$schema", "https://json-schema.org/draft/2020-12/schema");
-    root.addProperty("title", "LCD1602");
-    root.addProperty("description", "LCD1602 Character Display");
+    root.addProperty(FIELD_SCHEMA, "https://json-schema.org/draft/2020-12/schema");
+    root.addProperty(FIELD_TITLE, NAME);
+    root.addProperty(FIELD_DESCRIPTION, "LCD1602 Character Display");
     JsonObject props = new JsonObject();
-    props.add("deviceStatic", configSchema);
-    props.add("deviceWrite", writeSchema);
-    root.add("properties", props);
-    root.addProperty("type", "object");
+    props.add(FIELD_DEVICE_STATIC, configSchema);
+    props.add(FIELD_DEVICE_WRITE, writeSchema);
+    root.add(FIELD_PROPERTIES, props);
+    root.addProperty(FIELD_TYPE, TYPE_OBJECT);
 
     return gson.toJson(root);
   }
 
   private JsonObject property(String type, String description) {
     JsonObject obj = new JsonObject();
-    obj.addProperty("type", type);
-    obj.addProperty("description", description);
+    obj.addProperty(FIELD_TYPE, type);
+    obj.addProperty(FIELD_DESCRIPTION, description);
     return obj;
   }
-
 
   @Override
   public int[] getAddressRange() {

@@ -94,8 +94,7 @@ public class Control1 extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof Control1Data) {
-      Control1Data data = (Control1Data) input;
+    if (input instanceof Control1Data data) {
       setDataRate(data.getDataRate());
       setInterruptGenerationEnabled(data.isInterruptGenerationEnabled());
       setBlockUpdate(data.isBlockUpdateSet());

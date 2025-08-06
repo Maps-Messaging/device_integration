@@ -76,7 +76,7 @@ public class Sht31Controller extends I2CDeviceController {
     config.setVersion(1);
     config.setResourceType("sensor");
     config.setUniqueId(getSchemaId());
-    config.setInterfaceDescription("Returns JSON object containing light and IR light levels");
+    config.setInterfaceDescription("Returns JSON of current temperature and humidity");
     return config;
   }
 

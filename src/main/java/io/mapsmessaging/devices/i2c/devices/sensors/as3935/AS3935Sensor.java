@@ -114,7 +114,7 @@ public class AS3935Sensor extends I2CDevice implements PowerManagement, Sensor, 
         this::getInterruptReason
     );
 
-    readings = List.of(energySensor, distance, reason);
+    readings = generateSensorReadings(List.of(energySensor, distance, reason));
   }
 
   @Override

@@ -19,6 +19,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
+@SuppressWarnings("java:S125")
 public class Constants {
 
   protected static final short[] NUMERIC_MAPPING = {

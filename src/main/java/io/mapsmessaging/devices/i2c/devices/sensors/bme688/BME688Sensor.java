@@ -33,6 +33,7 @@ import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.devices.sensorreadings.StringSensorReading;
+import io.mapsmessaging.devices.util.ComputeDewPoint;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
@@ -41,17 +42,23 @@ import java.util.List;
 
 public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
 
+  @Getter
   private final ChipIdRegister chipIdRegister;
   private final ControlMeasurementRegister controlMeasurementRegister;
   private final ResetRegister resetRegister;
+  @Getter
   private final VariantIdRegister variantIdRegister;
+  @Getter
   private final ConfigRegister configRegister;
   private final ControlHumidityRegister controlHumidityRegister;
+  @Getter
   private final ControlGas0Register controlGas0Register;
   private final ControlGas1Register controlGas1Register;
+  @Getter
   private final GasWaitRegister gasWaitSharedRegister;
   private final GasWaitRegister[] gasWaitRegisters;
   private final HeaterResistanceRegister heaterResistanceRegister;
+  @Getter
   private final HeaterCurrentRegister heaterCurrentRegister;
 
   private final SensorReadings[] sensorReadings;
@@ -122,13 +129,19 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
         true,
         this::getGasProfileMode
     );
-
-
-    readings = List.of(temperature, humidity, pressure, gas, heaterStatus, gasMode);
-
+    readings = generateSensorReadings(List.of(temperature, humidity, pressure, gas, heaterStatus, gasMode));
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       initialise();
     }
+  }
+
+  public float getDewPoint(){
+    try {
+      return (float) ComputeDewPoint.computeDewPoint(getTemperature(), getHumidity());
+    } catch (IOException e) {
+      // ignore
+    }
+    return 0.0f;
   }
 
   private String getGasProfileMode() {

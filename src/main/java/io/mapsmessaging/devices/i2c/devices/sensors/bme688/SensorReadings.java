@@ -59,7 +59,7 @@ public class SensorReadings {
     humidityMeasurement = new HumidityMeasurement(sensor, index, calibrationData);
     pressureMeasurement = new PressureMeasurement(sensor, index, calibrationData);
     temperatureMeasurement = new TemperatureMeasurement(sensor, index, calibrationData);
-    gasMeasurement = new GasMeasurement(sensor, index, calibrationData);
+    gasMeasurement = new GasMeasurement(sensor, index);
 
     subMeasureIndex = new SingleByteRegister(sensor, MEASURE_IDX_ADDRESSES[index], "sub_meas_index_" + index);
     measurementStatusRegister = new MeasurementStatusRegister(sensor, MEASUREMENT_ADDRESSES[index], "meas_status_" + index);

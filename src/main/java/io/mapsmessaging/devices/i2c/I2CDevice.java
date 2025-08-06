@@ -25,12 +25,15 @@ import io.mapsmessaging.devices.DeviceBusManager;
 import io.mapsmessaging.devices.i2c.devices.RegisterMap;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.logging.Logger;
 import lombok.Getter;
 
 import java.io.IOException;
+import java.util.List;
 
 import static io.mapsmessaging.devices.logging.DeviceLogMessage.*;
+import static io.mapsmessaging.devices.util.SensorReadingAugmentor.addComputedReadings;
 
 @Getter
 public abstract class I2CDevice implements Device, AutoCloseable {
@@ -182,6 +185,10 @@ public abstract class I2CDevice implements Device, AutoCloseable {
       // Ignore the interrupt
       Thread.currentThread().interrupt(); // Pass it up
     }
+  }
+
+  protected List<SensorReading<?>> generateSensorReadings(List<SensorReading<?>> list) {
+    return addComputedReadings(list);
   }
 
   private void log(DeviceLogMessage message, Object... args) {

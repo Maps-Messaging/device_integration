@@ -96,8 +96,7 @@ public class InterruptMap0Register extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof InterruptMap0Data) {
-      InterruptMap0Data data = (InterruptMap0Data) input;
+    if (input instanceof InterruptMap0Data data) {
       mapOrientationInterruptToInt1(data.isOrientationInterruptMappedToInt1());
       mapSingleTapInterruptToInt1(data.isSingleTapInterruptMappedToInt1());
       mapDoubleTapInterruptToInt1(data.isDoubleTapInterruptMappedToInt1());

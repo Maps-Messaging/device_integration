@@ -19,7 +19,6 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.bmp280;
 
-import com.google.gson.JsonObject;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
@@ -29,7 +28,6 @@ import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 public class BMP280Controller extends I2CDeviceController {
 
@@ -77,14 +75,6 @@ public class BMP280Controller extends I2CDeviceController {
 
   public DeviceType getType() {
     return getDevice().getType();
-  }
-
-  @Override
-  public byte[] getDeviceState() throws IOException {
-    JsonObject jsonObject = new JsonObject();
-    jsonObject.addProperty("pressure", sensor.getPressure());
-    jsonObject.addProperty("temperature", sensor.getTemperature());
-    return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
   }
 
   public SchemaConfig getSchema() {

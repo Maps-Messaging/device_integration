@@ -67,8 +67,7 @@ public class FreefallHyRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof FreefallHyData) {
-      FreefallHyData data = (FreefallHyData) input;
+    if (input instanceof FreefallHyData data) {
       setFreefallMode(data.isFreefallModeEnabled());
       setHysteresis(data.getHysteresis());
       return true;

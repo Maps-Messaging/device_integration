@@ -54,8 +54,7 @@ public class ActiveThRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof ActiveThData) {
-      ActiveThData data = (ActiveThData) input;
+    if (input instanceof ActiveThData data) {
       setThreshold(data.getThreshold());
       return true;
     }

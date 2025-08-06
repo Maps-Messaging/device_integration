@@ -50,8 +50,7 @@ public class LowPowerModeRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof LowPowerMode) {
-      LowPowerMode data = (LowPowerMode) input;
+    if (input instanceof LowPowerMode data) {
       setLowCurrentMode(data.isMode());
       return true;
     }

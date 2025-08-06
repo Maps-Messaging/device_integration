@@ -30,7 +30,7 @@ import java.io.IOException;
 
 public class AS3935Controller extends I2CDeviceController {
 
-  private static final int i2cAddr = 0x03;
+  private static final int I2C_ADDR = 0x03;
   private final AS3935Sensor sensor;
 
   // Used during ServiceLoading
@@ -84,6 +84,6 @@ public class AS3935Controller extends I2CDeviceController {
 
   @Override
   public int[] getAddressRange() {
-    return new int[]{i2cAddr};
+    return new int[]{I2C_ADDR};
   }
 }

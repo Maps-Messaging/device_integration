@@ -77,8 +77,7 @@ public class OrientHyRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof OrientHyData) {
-      OrientHyData data = (OrientHyData) input;
+    if (input instanceof OrientHyData data) {
       setOrientHysteresis(data.getOrientHysteresis());
       setOrientBlocking(data.getOrientBlocking());
       setOrientMode(data.getOrientMode());

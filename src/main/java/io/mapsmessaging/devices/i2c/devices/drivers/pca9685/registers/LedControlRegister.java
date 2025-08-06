@@ -72,8 +72,7 @@ public class LedControlRegister extends MultiByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof LedControlData) {
-      LedControlData data = (LedControlData) input;
+    if (input instanceof LedControlData data) {
       setRate(data.getOn(), data.getOff());
       return true;
     }

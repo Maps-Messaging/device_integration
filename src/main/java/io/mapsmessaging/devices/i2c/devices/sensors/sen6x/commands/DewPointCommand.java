@@ -17,15 +17,32 @@
  *  limitations under the License
  */
 
-package io.mapsmessaging.devices.deviceinterfaces;
+package io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands;
 
-import io.mapsmessaging.devices.sensorreadings.SensorReading;
+import io.mapsmessaging.devices.util.ComputeDewPoint;
 
-import java.util.List;
+import java.io.IOException;
 
-@SuppressWarnings("java:S1452") // At this point I am unsure of what type of readings I have
-public interface Sensor {
+public class DewPointCommand extends AbstractMeasurementCommand {
 
-  List<SensorReading<?>> getReadings();
+  public DewPointCommand(Sen6xMeasurementManager manager) {
+    super(
+        manager,
+  "Dew Point",
+  "°C",
+  "Dew Point",
+  1.0f,
+  true,
+  0.0f,
+  100.0f,
+1
+    );
+  }
 
+  @Override
+  public float getValue() throws IOException {
+    float temp = manager.getMeasurementBlock().getTemperatureC();
+    float humidity = manager.getMeasurementBlock().getHumidityPercent();
+    return (float) ComputeDewPoint.computeDewPoint(temp, humidity);
+  }
 }

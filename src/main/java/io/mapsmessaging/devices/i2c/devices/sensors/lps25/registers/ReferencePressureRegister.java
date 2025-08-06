@@ -55,8 +55,7 @@ public class ReferencePressureRegister extends MultiByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof ReferencePressureData) {
-      ReferencePressureData data = (ReferencePressureData) input;
+    if (input instanceof ReferencePressureData data) {
       setReference(data.getReference());
       return true;
     }

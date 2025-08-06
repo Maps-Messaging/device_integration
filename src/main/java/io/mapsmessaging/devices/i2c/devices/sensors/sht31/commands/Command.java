@@ -19,34 +19,28 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.sht31.commands;
 
+import io.mapsmessaging.devices.i2c.devices.sensors.sht31.Sht31Sensor;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.io.IOException;
-
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 public abstract class Command {
 
-  private final int command;
-  private final long delayTime;
+  private final int cmd;
+  private final int delayTime;
   private final int responseSize;
 
-  public byte[] sendCommand(AddressableDevice device) throws IOException {
+  public byte[] sendCommand(Sht31Sensor sensor, AddressableDevice device) {
     byte[] commandBytes = new byte[2];
-    commandBytes[0] = (byte) ((command >> 8) & 0xFF); // MSB
-    commandBytes[1] = (byte) (command & 0xFF);        // LSB
+    commandBytes[0] = (byte) ((cmd >> 8) & 0xFF); // MSB
+    commandBytes[1] = (byte) (cmd & 0xFF);        // LSB
     device.write(commandBytes);
-    if(delayTime > 0){
-      synchronized(device){
-        try {
-          device.wait(delayTime);
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-          throw new IOException("Sensor read was interrupted");
-        }
-      }
+    if(delayTime > 0 && sensor != null) {
+      sensor.delay(delayTime);
     }
     byte[] responseBytes = new byte[responseSize];
     if(responseSize > 0){

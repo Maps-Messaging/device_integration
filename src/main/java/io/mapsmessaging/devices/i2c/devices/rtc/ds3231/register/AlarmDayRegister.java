@@ -73,8 +73,7 @@ public class AlarmDayRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof AlarmDaySettingsData) {
-      AlarmDaySettingsData data = (AlarmDaySettingsData) input;
+    if (input instanceof AlarmDaySettingsData data) {
       setTop(data.isTop());
       setDate(data.isDate());
       setDay(data.getDay());

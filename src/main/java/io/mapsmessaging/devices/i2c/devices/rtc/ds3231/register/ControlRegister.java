@@ -103,8 +103,7 @@ public class ControlRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof ControlData) {
-      ControlData data = (ControlData) input;
+    if (input instanceof ControlData data) {
       setOscillatorEnabled(data.isOscillatorEnabled());
       setSquareWaveEnabled(data.isSquareWaveEnabled());
       setConvertTemperature(data.isConvertTemperatureEnabled());

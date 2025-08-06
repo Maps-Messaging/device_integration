@@ -52,8 +52,7 @@ public class PreScaleRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof PreScaleData) {
-      PreScaleData data = (PreScaleData) input;
+    if (input instanceof PreScaleData data) {
       setPrescale(data.getPrescale());
       return true;
     }

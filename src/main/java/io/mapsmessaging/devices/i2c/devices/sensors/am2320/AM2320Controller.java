@@ -19,7 +19,6 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.am2320;
 
-import com.google.gson.JsonObject;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
@@ -28,11 +27,12 @@ import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+
 
 public class AM2320Controller extends I2CDeviceController {
 
-  private static final int i2cAddr = 0x5C;
+  private static final int I2C_ADDR = 0x5C;
+
   private final AM2320Sensor sensor;
 
   // Used during ServiceLoading
@@ -73,14 +73,6 @@ public class AM2320Controller extends I2CDeviceController {
   }
 
   @Override
-  public byte[] getDeviceState() throws IOException {
-    JsonObject jsonObject = new JsonObject();
-    jsonObject.addProperty("humidity", sensor.getHumidity());
-    jsonObject.addProperty("temperature", sensor.getTemperature());
-    return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
-  }
-
-  @Override
   public boolean detect(AddressableDevice i2cDevice) {
     return sensor != null && sensor.isConnected();
   }
@@ -98,7 +90,7 @@ public class AM2320Controller extends I2CDeviceController {
 
   @Override
   public int[] getAddressRange() {
-    return new int[]{i2cAddr};
+    return new int[]{I2C_ADDR};
   }
 
 

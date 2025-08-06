@@ -19,6 +19,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.output.lcd.st7735.font;
 
+@SuppressWarnings("java:S125") // the comments describe the char
 public class Fonts {
   public static final FontDef FONT_7X10;
   public static final FontDef FONT_8X16;
@@ -987,5 +988,9 @@ public class Fonts {
         0xF1FF, 0xF07E, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
         0x0000, 0x0000, 0x0000, 0x0000, 0x0000, // Ascii = [~]
     });
+  }
+
+  private Fonts(){
+    // make helper class
   }
 }

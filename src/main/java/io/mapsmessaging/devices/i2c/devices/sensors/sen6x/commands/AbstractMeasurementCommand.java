@@ -34,6 +34,7 @@ public abstract class AbstractMeasurementCommand {
   private final float max;
   private final int precision;
 
+  @SuppressWarnings("java:S107") // yes it exceeds the 7 but is required
   protected AbstractMeasurementCommand(
       Sen6xMeasurementManager manager,
       String name,

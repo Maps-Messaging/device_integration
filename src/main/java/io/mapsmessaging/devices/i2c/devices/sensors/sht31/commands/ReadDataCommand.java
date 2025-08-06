@@ -19,32 +19,36 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.sht31.commands;
 
+import io.mapsmessaging.devices.i2c.devices.sensors.sht31.Sht31Sensor;
 import io.mapsmessaging.devices.impl.AddressableDevice;
+import lombok.EqualsAndHashCode;
 
-import java.io.IOException;
-
+@EqualsAndHashCode(callSuper = true)
 public class ReadDataCommand extends Command {
   private float lastTemperature;
   private float lastHumidity;
   private long lastReadTime = 0;
-  private final long minimumReadIntervalMillis;
+  private final int minimumReadIntervalMillis;
+  private final int nextReadingIntervalMillis;
 
-  public ReadDataCommand(Repeatability repeatability) {
+  public ReadDataCommand(Repeatability repeatability, Mps mps) {
     super(0xE000, 0, 6);
     this.minimumReadIntervalMillis = switch (repeatability) {
-      case HIGH -> 15;
-      case MEDIUM -> 6;
-      case LOW -> 4;
+      case HIGH -> 20;
+      case MEDIUM -> 10;
+      case LOW -> 8;
     };
+    nextReadingIntervalMillis = mps.getIntervalMillis();
   }
 
-  public synchronized void read(AddressableDevice device) throws IOException {
+  public synchronized void read(Sht31Sensor sensor,  AddressableDevice device) {
     long now = System.currentTimeMillis();
-    if ((now - lastReadTime) < minimumReadIntervalMillis) {
+    if ((now - lastReadTime) < nextReadingIntervalMillis) {
       return;
     }
 
-    byte[] response = sendCommand(device);
+    byte[] response = sendCommand(sensor, device);
+    sensor.delay(minimumReadIntervalMillis);
 
     int rawTemp = ((response[0] & 0xFF) << 8) | (response[1] & 0xFF);
     int rawHumidity = ((response[3] & 0xFF) << 8) | (response[4] & 0xFF);

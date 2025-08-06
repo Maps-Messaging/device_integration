@@ -40,71 +40,41 @@ import java.util.List;
 
 import static io.mapsmessaging.devices.util.Constants.EARTH_GRAVITY_FLOAT;
 
+@SuppressWarnings("java:S6539") // yes this is a monster of a sensor
 @Getter
 public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, Resetable {
   private static final int PART_ID = 0x1;
   private final ResetRegister resetRegister;
-  @Getter
   private final PartIdRegister partIdRegister;
-  @Getter
   private final AxisRegister xAxisRegister;
-  @Getter
   private final AxisRegister yAxisRegister;
-  @Getter
   private final AxisRegister zAxisRegister;
-  @Getter
   private final MotionInterruptRegister motionInterruptRegister;
-  @Getter
   private final DataReadyRegister dataReadyRegister;
-  @Getter
   private final TapActiveStatusRegister tapActiveStatusRegister;
-  @Getter
   private final OrientationRegister orientationRegister;
-  @Getter
   private final RangeRegister rangeRegister;
-  @Getter
   private final OdrRegister odrRegister;
-  @Getter
   private final PowerModeRegister powerModeRegister;
-  @Getter
   private final SwapPolarityRegister swapPolarityRegister;
-  @Getter
   private final InterruptSet0Register interruptSetRegister;
-  @Getter
   private final InterruptSet1Register interruptSet1Register;
-  @Getter
   private final InterruptMap0Register interruptMap0Register;
-  @Getter
   private final InterruptMap1Register interruptMap1Register;
-  @Getter
   private final IntConfigRegister intConfigRegister;
-  @Getter
   private final IntLatchRegister intLatchRegister;
-  @Getter
   private final FreefallDurRegister freefallDurRegister;
-  @Getter
   private final FreefallThRegister freefallThRegister;
-  @Getter
   private final FreefallHyRegister freefallHyRegister;
-  @Getter
   private final ActiveDurRegister activeDurRegister;
-  @Getter
   private final ActiveThRegister activeThRegister;
-  @Getter
   private final TapDurRegister tapDurRegister;
-  @Getter
   private final TapThresholdRegister tapThresholdRegister;
-  @Getter
   private final OrientHyRegister orientHyRegister;
-  @Getter
   private final ZBlockRegister zBlockRegister;
-  @Getter
   private final OffsetCompensationRegister xOffsetCompensation;
-  @Getter
   private final OffsetCompensationRegister yOffsetCompensation;
-  @Getter
   private final OffsetCompensationRegister zOffsetCompensation;
-  @Getter
   private final List<SensorReading<?>> readings;
 
   public Msa311Sensor(AddressableDevice device) throws IOException {
@@ -179,7 +149,7 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
         this::getZ
     );
 
-    readings = List.of(xOrientation, yOrientation, zOrientation);
+    readings = generateSensorReadings(List.of(xOrientation, yOrientation, zOrientation));
     initialise();
   }
 

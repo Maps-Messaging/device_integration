@@ -21,22 +21,17 @@ package io.mapsmessaging.devices;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
-import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.LocalDateTimeSensorReading;
-import io.mapsmessaging.devices.sensorreadings.*;
 import io.mapsmessaging.devices.util.UuidGenerator;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class DeviceController {
-
-  private AtomicReference<UUID> uuid;
+  private final AtomicReference<UUID> uuid;
 
   protected DeviceController() {
     uuid = new AtomicReference<>();
@@ -76,128 +71,18 @@ public abstract class DeviceController {
 
   public abstract void setRaiseExceptionOnError(boolean flag);
 
-  public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
-    return new byte[0];
-  }
+  public abstract byte[] updateDeviceConfiguration(byte[] val) throws IOException;
 
   public void close() {
+    // nothing to do, simple catch all on a fall through
   }
 
   public String buildSchema(Sensor sensor) {
-    JsonObject staticSchema = new JsonObject();
-    staticSchema.addProperty("type", "object"); // Replace this with actual static schema structure
-    return buildSchema(sensor, staticSchema);
+    return SchemaBuilder.buildSchema(sensor, getName(), getDescription());
   }
 
-  public String buildSchema(Sensor sensor, JsonObject staticSchema) {
-    JsonObject sensorSchema = buildSchemaFromReadings(sensor.getReadings());
-
-    JsonObject fullSchema = new JsonObject();
-    fullSchema.addProperty("$schema", "https://json-schema.org/draft/2020-12/schema");
-    fullSchema.addProperty("title", getName());
-    fullSchema.addProperty("description", getDescription());
-    fullSchema.addProperty("type", "object");
-
-    JsonObject properties = new JsonObject();
-    properties.add(NamingConstants.DEVICE_STATIC_DATA_SCHEMA, staticSchema);
-    properties.add(NamingConstants.SENSOR_DATA_SCHEMA, sensorSchema);
-
-    fullSchema.add("properties", properties);
-    fullSchema.add("required", gson.toJsonTree(List.of(
-        NamingConstants.DEVICE_STATIC_DATA_SCHEMA,
-        NamingConstants.SENSOR_DATA_SCHEMA
-    )));
-    fullSchema.addProperty("additionalProperties", false);
-
-    return gson.toJson(fullSchema);
+  public String buildSchema(Sensor sensor, JsonObject config) {
+    return SchemaBuilder.buildSchema(sensor, config, getName(), getDescription());
   }
 
-  public JsonObject buildSchemaFromReadings(List<SensorReading<?>> readings) {
-    JsonObject schema = new JsonObject();
-    schema.addProperty("$schema", "https://json-schema.org/draft/2020-12/schema");
-    schema.addProperty("type", "object");
-
-    JsonObject properties = new JsonObject();
-    JsonArray required = new JsonArray();
-
-    processSchemaList(properties, required, readings);
-
-    schema.add("properties", properties);
-    schema.add("required", required);
-    schema.addProperty("additionalProperties", false);
-    return schema;
-  }
-
-  private void processSchemaList(JsonObject properties, JsonArray required, List<SensorReading<?>> readings) {
-    for (SensorReading<?> reading : readings) {
-      boolean isRequired = true;
-      JsonObject prop = new JsonObject();
-      if (reading instanceof GroupSensorReading) {
-        List<SensorReading<?>> list = ((GroupSensorReading) reading).getGroupList();
-        processSchemaList(prop, required, list);
-      } else if (reading instanceof FloatSensorReading) {
-        FloatSensorReading floatReading = (FloatSensorReading) reading;
-        prop.addProperty("type", "number");
-        prop.addProperty("minimum", floatReading.getMinimum());
-        prop.addProperty("maximum", floatReading.getMaximum());
-        prop.addProperty("x-precision", floatReading.getPrecision());
-        prop.addProperty("description", "Unit: " + floatReading.getUnit());
-      } else if (reading instanceof IntegerSensorReading || reading instanceof LongSensorReading) {
-        NumericSensorReading<?> num = (NumericSensorReading<?>) reading;
-        prop.addProperty("type", "integer");
-        prop.addProperty("minimum", num.getMinimum().longValue());
-        prop.addProperty("maximum", num.getMaximum().longValue());
-        prop.addProperty("description", "Unit: " + reading.getUnit());
-      } else if (reading instanceof StringSensorReading) {
-        prop.addProperty("type", "string");
-        prop.addProperty("description", "Unit: " + reading.getUnit());
-      } else if (reading instanceof OrientationSensorReading) {
-        prop.addProperty("type", "object");
-        JsonObject orientationProps = new JsonObject();
-        for (String axis : List.of("x", "y", "z")) {
-          JsonObject axisProp = new JsonObject();
-          axisProp.addProperty("type", "number");
-          orientationProps.add(axis, axisProp);
-        }
-        prop.add("properties", orientationProps);
-        prop.add("required", new Gson().toJsonTree(List.of("x", "y", "z")));
-        prop.addProperty("description", "Unit: " + reading.getUnit());
-      } else if (reading instanceof LocalDateTimeSensorReading) {
-        prop.addProperty("type", "string");
-        prop.addProperty("format", "date-time");
-        prop.addProperty("description", reading.getDescription() != null ? reading.getDescription() : "Unit: " + reading.getUnit());
-
-        if (reading.getExample() != null) {
-          prop.add("examples", new Gson().toJsonTree(List.of(reading.getExample().toString())));
-        }
-        prop.addProperty("readOnly", reading.isReadOnly());
-      } else if (reading instanceof BooleanSensorReading) {
-        prop.addProperty("type", "boolean");
-        prop.addProperty("description", "Unit: " + reading.getUnit());
-        prop.addProperty("readOnly", reading.isReadOnly());
-      } else if (reading instanceof OptionalBooleanSensorReading) {
-        prop.addProperty("type", "boolean");
-        prop.addProperty("description", "Unit: " + reading.getUnit());
-        prop.addProperty("readOnly", reading.isReadOnly());
-        isRequired = false;
-
-
-      } else {
-        // fallback: unknown type
-        prop.addProperty("type", "string");
-        prop.addProperty("description", "Unit: " + reading.getUnit());
-      }
-
-      JsonObject timestampProp = new JsonObject();
-      timestampProp.addProperty("type", "string");
-      timestampProp.addProperty("format", "date-time");
-      timestampProp.addProperty("description", "Optional ISO 8601 UTC timestamp (e.g., 2025-05-29T07:28:15.123Z)");
-      timestampProp.addProperty("readOnly", true);
-
-      properties.add("timestamp", timestampProp);
-
-      properties.add(reading.getName(), prop);
-      if (isRequired) required.add(reading.getName());
-    }
-  }
 }

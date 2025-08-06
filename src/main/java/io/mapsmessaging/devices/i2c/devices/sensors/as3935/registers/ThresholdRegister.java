@@ -66,8 +66,7 @@ public class ThresholdRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof ThresholdData) {
-      ThresholdData data = (ThresholdData) input;
+    if (input instanceof ThresholdData data) {
       setWatchdogThreshold(data.getWatchdogThreshold());
       setNoiseFloorLevel(data.getNoiseFloorLevel());
       return true;

@@ -30,7 +30,6 @@ import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
 import io.mapsmessaging.devices.sensorreadings.IntegerSensorReading;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
-import io.mapsmessaging.devices.sensorreadings.StringSensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
@@ -106,16 +105,7 @@ public class Scd41Sensor extends I2CDevice implements Sensor, Resetable, PowerMa
         readMeasurementRegister::getTemperature
     );
 
-    StringSensorReading category = new StringSensorReading(
-        "airQuality",
-        "",
-        "Air quality category based on CO₂ levels",
-        "Good",
-        true,
-        this::getAirQuality
-    );
-
-    readings = List.of(co2Sensor, humidity, temperature, category);
+    readings = generateSensorReadings(List.of(co2Sensor, humidity, temperature));
     initialise();
   }
 
@@ -156,50 +146,6 @@ public class Scd41Sensor extends I2CDevice implements Sensor, Resetable, PowerMa
     deviceStateRegister.reInitialize();
     initialise();
   }
-
-  public String getAirQuality() {
-    int co2 = readMeasurementRegister.getCo2();
-    float humidity = readMeasurementRegister.getHumidity();
-    float temperature = readMeasurementRegister.getTemperature();
-
-    String airQuality;
-    // Adjusting Excellent to reflect current outdoor CO2 levels
-    if (co2 <= 450) {
-      airQuality = "Excellent";
-    } else if (co2 <= 1000) {
-      airQuality = "Fresh";
-    } else if (co2 <= 2000) {
-      airQuality = "Moderate";
-    } else if (co2 <= 2500) {
-      airQuality = "Stuffy/Unhealthy for Sensitive Groups";
-    } else if (co2 <= 5000) {
-      airQuality = "Unhealthy";
-    } else if (co2 <= 10000) {
-      airQuality = "Very Unhealthy";
-    } else {
-      airQuality = "Hazardous";
-    }
-
-    // Adjustments based on temperature and humidity
-    if ((humidity > 60 || humidity < 30) || (temperature > 25 || temperature < 19)) {
-      switch (airQuality) {
-        case "Excellent":
-        case "Fresh":
-          airQuality = "Moderate";
-          break;
-        case "Moderate":
-          airQuality = "Stuffy/Unhealthy for Sensitive Groups";
-          break;
-        case "Stuffy/Unhealthy for Sensitive Groups":
-          airQuality = "Unhealthy";
-          break;
-      }
-      // No adjustment for higher categories to avoid overestimating the risk
-    }
-
-    return airQuality;
-  }
-
 
   @Override
   public DeviceType getType() {

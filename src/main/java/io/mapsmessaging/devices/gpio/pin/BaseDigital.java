@@ -20,12 +20,14 @@
 package io.mapsmessaging.devices.gpio.pin;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
-@Data
 @AllArgsConstructor
 @ToString
+@Getter
+@Setter
 public class BaseDigital {
   protected final int pin;
   protected final String id;

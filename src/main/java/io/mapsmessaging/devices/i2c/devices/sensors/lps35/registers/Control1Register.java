@@ -89,8 +89,7 @@ public class Control1Register extends SingleByteRegister {
   // Method to set Control1Register data from Control1Data
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof Control1Data) {
-      Control1Data data = (Control1Data) input;
+    if (input instanceof Control1Data data) {
       setDataRate(data.getDataRate());
       setLowPassFilter(data.isLowPassFilter());
       setLowPassFilterConfig(data.isLowPassFilterConfig());

@@ -44,8 +44,7 @@ public class WeekDayRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof WeekDayData) {
-      WeekDayData data = (WeekDayData) input;
+    if (input instanceof WeekDayData data) {
       setDay(data.getDay());
       return true;
     }

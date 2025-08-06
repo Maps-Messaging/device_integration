@@ -19,7 +19,6 @@
 
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.backlight;
 
-import com.google.gson.JsonObject;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
@@ -28,7 +27,6 @@ import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 public abstract class BacklightPwmController extends I2CDeviceController {
 
@@ -69,20 +67,12 @@ public abstract class BacklightPwmController extends I2CDeviceController {
 
   @Override
   public byte[] getDeviceConfiguration() throws IOException {
-    JsonObject jsonObject = new JsonObject();
-    if (pwmController != null) {
-      // Add properties as needed
-    }
-    return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
+    return emptyJson();
   }
 
   @Override
   public byte[] getDeviceState() throws IOException {
-    JsonObject jsonObject = new JsonObject();
-    if (pwmController != null) {
-      // Add properties as needed
-    }
-    return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
+    return emptyJson();
   }
 
 
