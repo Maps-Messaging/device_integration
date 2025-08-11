@@ -53,7 +53,7 @@ public class Sen0539Controller extends I2CDeviceController {
 
   @Override
   public SchemaConfig getSchema() {
-    JsonSchemaConfig cfg = new JsonSchemaConfig();
+    JsonSchemaConfig cfg = new JsonSchemaConfig(buildSchema(sensor));
     cfg.setTitle(getName());
     cfg.setComments(getDescription());
     cfg.setResourceType("sensor");

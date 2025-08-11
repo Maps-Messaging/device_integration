@@ -16,36 +16,33 @@
  *    limitations under the License
  */
 
-package io.mapsmessaging.devices.serial.devices.sensors.sen0642;
+package io.mapsmessaging.devices.i2c.devices.sensors.pn532;
 
-
-import com.google.gson.JsonObject;
-import io.mapsmessaging.devices.DeviceController;
 import io.mapsmessaging.devices.DeviceType;
+import io.mapsmessaging.devices.i2c.I2CDevice;
+import io.mapsmessaging.devices.i2c.I2CDeviceController;
+import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
-public class Sen0642Controller extends DeviceController {
+public class Pn532Controller extends I2CDeviceController {
 
-  private final Sen0642Sensor sensor;
+  private final Pn532Sensor sensor;
 
-  public Sen0642Controller(InputStream in, OutputStream out) {
-    this.sensor = new Sen0642Sensor(in, out);
+  protected Pn532Controller(AddressableDevice device) {
+    this.sensor = new Pn532Sensor(device);
   }
 
   @Override
   public String getName() {
-    return "SEN0642";
-
+    return "PN532";
   }
 
   @Override
   public String getDescription() {
-    return "DFRobot SEN0642 UV sensor (UART/Modbus)";
+    return "PN532 NFC Reader (I2C)";
   }
 
   @Override
@@ -56,34 +53,33 @@ public class Sen0642Controller extends DeviceController {
     cfg.setResourceType("sensor");
     cfg.setVersion(1);
     cfg.setUniqueId(getSchemaId());
-    cfg.setInterfaceDescription("Serial 4800 8N1");
+    cfg.setInterfaceDescription("I2C address 0x24");
     return cfg;
   }
 
   @Override
-  public byte[] getDeviceConfiguration() {
-    return "{}".getBytes();
+  public int[] getAddressRange() {
+    return new int[]{Pn532Sensor.I2C_ADDR};
+  }
+
+  @Override
+  public boolean detect(AddressableDevice dev) {
+    // Lightweight address match; you can upgrade to a real probe by sending SAMConfiguration and catching IOE.
+    return dev.getDevice() == Pn532Sensor.I2C_ADDR;
+  }
+
+  @Override
+  public I2CDeviceController mount(AddressableDevice device) throws IOException {
+    return new Pn532Controller(device);
+  }
+
+  @Override
+  public I2CDevice getDevice() {
+    return sensor;
   }
 
   @Override
   public DeviceType getType() {
     return DeviceType.SENSOR;
-  }
-
-  @Override
-  public byte[] getDeviceState() throws IOException {
-    // Defer to base helper if you prefer; here we force a refresh each call.
-    sensor.getUvMilliWPerCm2();
-    sensor.getUvi();
-    String json = buildSchema(sensor, new JsonObject());
-    return json.getBytes();
-  }
-
-  @Override
-  public void setRaiseExceptionOnError(boolean flag) { /* no-op for serial */ }
-
-  @Override
-  public byte[] updateDeviceConfiguration(byte[] val) {
-    return "{}".getBytes();
   }
 }
