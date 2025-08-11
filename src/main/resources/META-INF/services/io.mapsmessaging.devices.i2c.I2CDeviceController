@@ -36,6 +36,7 @@ io.mapsmessaging.devices.i2c.devices.sensors.tsl2561.TSL2561Controller
 io.mapsmessaging.devices.i2c.devices.sensors.scd41.Scd41Controller
 io.mapsmessaging.devices.i2c.devices.sensors.sen6x.Sen6xController
 io.mapsmessaging.devices.i2c.devices.sensors.sht31.Sht31Controller
+io.mapsmessaging.devices.i2c.devices.sensors.sen0539.Sen0539Controller
 
 #
 # GPIO Extenders
