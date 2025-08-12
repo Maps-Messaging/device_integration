@@ -33,6 +33,10 @@ public class Sen0642Controller extends DeviceController {
 
   private final Sen0642Sensor sensor;
 
+  public Sen0642Controller() {
+    sensor = null;
+  }
+
   public Sen0642Controller(InputStream in, OutputStream out) {
     this.sensor = new Sen0642Sensor(in, out);
   }

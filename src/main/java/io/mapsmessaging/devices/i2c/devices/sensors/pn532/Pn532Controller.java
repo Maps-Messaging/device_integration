@@ -31,6 +31,10 @@ public class Pn532Controller extends I2CDeviceController {
 
   private final Pn532Sensor sensor;
 
+  public Pn532Controller(){
+    sensor = null;
+  }
+
   protected Pn532Controller(AddressableDevice device) {
     this.sensor = new Pn532Sensor(device);
   }
