@@ -97,6 +97,7 @@ public class AqiCalculator {
         case EXCELLENT, FRESH -> airQuality = MODERATE;
         case MODERATE -> airQuality = UNHEALTHY_SENSITIVE;
         case UNHEALTHY_SENSITIVE -> airQuality = UNHEALTHY;
+        default -> airQuality = VERY_UNHEALTHY;
       }
     }
 

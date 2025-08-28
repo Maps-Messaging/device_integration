@@ -92,7 +92,7 @@ public class Mcp3y0xController extends SpiDeviceController {
     if (device != null) {
       jsonObject.addProperty("resolution", device.getBits());
       jsonObject.addProperty("channels", device.getChannels());
-      jsonObject.addProperty("dutyCycle", device.getDutyCycle());
+      jsonObject.addProperty("dutyCycle", Mcp3y0xDevice.getDutyCycle());
     }
     return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
   }

@@ -74,13 +74,9 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
       new StringSensorReading("last_uid", "", "Last detected tag UID (hex)", "", true, this::getLastUid)
   );
 
-  public Pn532Sensor(AddressableDevice device) {
+  public Pn532Sensor(AddressableDevice device){
     super(device, LoggerFactory.getLogger(Pn532Sensor.class));
-    try {
-      begin();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    begin();
   }
 
   // ---------- Public Sensor API ----------
@@ -93,12 +89,8 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
   @Override
   public boolean isConnected() {
     if (connected) return true;
-    try {
-      begin();
-      return connected;
-    } catch (IOException e) {
-      return false;
-    }
+    begin();
+    return connected;
   }
 
   public boolean isTagPresent() {
@@ -116,11 +108,15 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
 
   // ---------- Setup / Poll ----------
 
-  public void begin() throws IOException {
+  public void begin() {
     // SAMConfiguration: normal mode (1), timeout 0x14, use IRQ (1)
-    call(new byte[]{CMD_SAM_CONFIGURATION, 0x01, 0x14, 0x01}, 16);
-    // Expect command echo handled in readResponseFrame; arriving here means success
-    connected = true;
+    try {
+      call(new byte[]{CMD_SAM_CONFIGURATION, 0x01, 0x14, 0x01}, 16);
+      // Expect command echo handled in readResponseFrame; arriving here means success
+      connected = true;
+    } catch (IOException e) {
+      connected = false;
+    }
   }
 
   /** PN532 sets a leading status byte 0x01 when data is ready on I2C. */
