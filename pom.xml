@@ -25,7 +25,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.mapsmessaging</groupId>
   <artifactId>device_library</artifactId>
-  <version>1.0.9-SNAPSHOT</version>
+  <version>2.0.0</version>
   <packaging>jar</packaging>
 
   <name>Device Integration</name>
@@ -64,6 +64,9 @@
 
   <scm>
     <url>https://github.com/Maps-Messaging/device_integration</url>
+    <connection>scm:git:https://github.com/Maps-Messaging/device_integration.git</connection>
+    <developerConnection>scm:git:git@github.com:Maps-Messaging/device_integration.git</developerConnection>
+    <tag>HEAD</tag>
   </scm>
 
   <properties>
@@ -126,10 +129,6 @@
       <name>maps_snapshot_repository</name>
       <url>https://repository.mapsmessaging.io/repository/maps_snapshots/</url>
     </snapshotRepository>
-    <repository>
-      <id>ossrh</id>
-      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
   </distributionManagement>
 
 
@@ -337,35 +336,35 @@
         <dependency>
           <groupId>io.mapsmessaging</groupId>
           <artifactId>simple_logging</artifactId>
-          <version>2.0.12</version>
+          <version>2.1.0</version>
         </dependency>
 
         <dependency>
           <groupId>io.mapsmessaging</groupId>
           <artifactId>schemas</artifactId>
-          <version>2.1.4</version>
+          <version>2.2.0</version>
         </dependency>
       </dependencies>
-      <distributionManagement>
-        <repository>
-          <id>ossrh</id>
-          <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
-        </repository>
-      </distributionManagement>
       <build>
         <plugins>
           <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.7.0</version>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <version>0.8.0</version>
             <extensions>true</extensions>
             <configuration>
-              <serverId>mapsmessaging.io</serverId>
-              <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-              <autoReleaseAfterClose>true</autoReleaseAfterClose>
+              <publishingServerId>central</publishingServerId>
+              <autoPublish>true</autoPublish>
+            </configuration>
+          </plugin>
+
+          <!-- Disable default deploy for releases -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <version>3.1.1</version>
+            <configuration>
+              <skip>true</skip>
             </configuration>
           </plugin>
         </plugins>
@@ -378,7 +377,7 @@
         <repository>
           <id>maps_snapshots</id>
           <name>maps_snapshot_repository</name>
-          <url>https://repository.mapsmessaging.io:8081/repository/maps_snapshots/</url>
+          <url>https://repository.mapsmessaging.io/repository/maps_snapshots/</url>
           <snapshots>
             <enabled>true</enabled>
           </snapshots>
@@ -388,15 +387,14 @@
         <dependency>
           <groupId>io.mapsmessaging</groupId>
           <artifactId>simple_logging</artifactId>
-          <version>2.0.13-SNAPSHOT</version>
+          <version>2.1.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
           <groupId>io.mapsmessaging</groupId>
           <artifactId>schemas</artifactId>
-          <version>2.1.5-SNAPSHOT</version>
+          <version>2.2.1-SNAPSHOT</version>
         </dependency>
-
       </dependencies>
     </profile>
 
@@ -405,8 +403,6 @@
     <!-- Profile for the examples (with additional dependencies) -->
     <profile>
       <id>examples</id>
-      <dependencies>
-      </dependencies>
     </profile>
   </profiles>
 
