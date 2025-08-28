@@ -1,17 +1,20 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] Matthew Buckton
+ *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 with the Commons Clause
+ *  (the "License"); you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at:
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://commonsclause.com/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
  */
 
 package io.mapsmessaging.devices.i2c.devices.sensors.am2320;
@@ -32,10 +35,8 @@ import static io.mapsmessaging.devices.logging.DeviceLogMessage.I2C_BUS_DEVICE_R
 
 public class AM2320Sensor extends I2CDevice implements Sensor {
 
-  private static final int AM2320_SENSOR_VERSION = 1; ///< the sensor version
-  private static final int AM2320_CMD_READREG = 0x03; ///< read register command
-  private static final int AM2320_REG_TEMP_H = 0x02;  ///< temp register address
-  private static final int AM2320_REG_HUM_H = 0x00;   ///< humidity register address
+  private static final int AM2320_CMD_READREG = 0x03;
+  private static final int AM2320_REG_HUM_H = 0x00;
   @Getter
   private final List<SensorReading<?>> readings;
   private float temperature;
@@ -45,10 +46,32 @@ public class AM2320Sensor extends I2CDevice implements Sensor {
   public AM2320Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(AM2320Sensor.class));
     lastRead = 0;
-    FloatSensorReading temperatureReading = new FloatSensorReading("temperature", "C", -40, 80, 1, this::getTemperature);
-    FloatSensorReading humidityReading = new FloatSensorReading("humidity", "%", 0, 100, 0, this::getHumidity);
-    readings = List.of(temperatureReading, humidityReading);
 
+    FloatSensorReading temperatureReading = new FloatSensorReading(
+        "temperature",
+        "°C",
+        "Ambient temperature from AM2320 sensor",
+        22.5f,
+        true,
+        -40f,
+        80f,
+        1,
+        this::getTemperature
+    );
+
+    FloatSensorReading humidityReading = new FloatSensorReading(
+        "humidity",
+        "%",
+        "Relative humidity from AM2320 sensor",
+        55.0f,
+        true,
+        0f,
+        100f,
+        0,
+        this::getHumidity
+    );
+
+    readings = generateSensorReadings(List.of(temperatureReading, humidityReading));
     loadValues();
   }
 

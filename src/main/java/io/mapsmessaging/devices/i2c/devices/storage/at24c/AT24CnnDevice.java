@@ -1,3 +1,22 @@
+/*
+ *
+ *  Copyright [ 2020 - 2024 ] Matthew Buckton
+ *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
+ *
+ *  Licensed under the Apache License, Version 2.0 with the Commons Clause
+ *  (the "License"); you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at:
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://commonsclause.com/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
+ */
+
 package io.mapsmessaging.devices.i2c.devices.storage.at24c;
 
 import io.mapsmessaging.devices.DeviceType;
@@ -6,71 +25,109 @@ import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.IOException;
 
 @Getter
 public class AT24CnnDevice extends I2CDevice implements Storage {
+  private static final int[] possibleSizes = new int[]{65536, 32768, 16384, 8192, 4096};
+  private static final int PAGE_SIZE_AT24C32 = 32; // 32 bytes for AT24C32
+  private static final int PAGE_SIZE_AT24C512 = 128; // 128 bytes for AT24C512
 
   private final int memorySize;
+  @Setter
+  private int pageSize;
 
   protected AT24CnnDevice(AddressableDevice device) {
     super(device, LoggerFactory.getLogger(AT24CnnDevice.class));
-    int size = 8192;
-    try {
-      int val = readByte(8191);
-      if (val < 0) {
-        size = 4096;
+    int size = 4096;
+
+    for (int testSize : possibleSizes) {
+      try {
+        byte originalValue = readByte(testSize - 1);
+        writeByte(testSize - 1, (byte) (originalValue + 1)); // Temporarily modify the value.
+        byte modifiedValue = readByte(testSize - 1);
+        writeByte(testSize - 1, originalValue); // Restore original value.
+
+        // Check if the write and read back was successful.
+        if (modifiedValue == (byte) (originalValue + 1)) {
+          size = testSize;
+          break;
+        }
+      } catch (IOException e) {
+        // Failed to read/write at this address, likely out of bounds.
       }
-    } catch (IOException e) {
-      size = 4096;
     }
     memorySize = size;
+    pageSize = memorySize > 8192 ? PAGE_SIZE_AT24C512 : PAGE_SIZE_AT24C32;
   }
 
   @Override
   public void writeBlock(int address, byte[] data) throws IOException {
-    int offset = 0;
-    while (offset < data.length) {
-      int len = Math.min(32, (data.length - offset));
-      writeBlock(address + offset, data, offset, len);
-      offset += len;
-      if (offset < data.length) {
-        waitForReady();
-      }
-    }
+    // Call the more flexible writeBlock method with full data length and start offset.
+    writeBlock(address, data, data.length);
   }
 
   @Override
+// Improved readBlock method for efficiency
   public byte[] readBlock(int address, int length) throws IOException {
     byte[] buffer = new byte[length];
     int offset = 0;
     while (offset < length) {
-      int len = Math.min(32, (length - offset));
-      int read = readBlock(address + offset, buffer, offset, len);
+      int len = Math.min(pageSize, (length - offset));
+      int read = readChunk(address + offset, buffer, offset, len);
       if (read > 0) {
         offset += len;
       } else {
-        throw new IOException("Failed to write device");
+        throw new IOException("Failed to read device");
       }
     }
     return buffer;
   }
 
+  // Read a chunk of data at the given address into the specified buffer
+  private int readChunk(int address, byte[] buffer, int offset, int len) throws IOException {
+    byte[] writeBuffer = new byte[]{(byte) (address >> 8), (byte) (address & 0xFF)};
+    write(writeBuffer, 0, writeBuffer.length); // Set the EEPROM's address pointer
+    return read(buffer, offset, len); // Read the chunk into the buffer
+  }
+
+
   @Override
   public String getName() {
-    if (memorySize == 8192) {
-      return "AT24C64";
+    switch (memorySize) {
+      case 4096:
+        return "AT24C32";
+      case 8192:
+        return "AT24C64";
+      case 16384:
+        return "AT24C128";
+      case 32768:
+        return "AT24C256";
+      case 65536:
+        return "AT24C512";
+      default:
+        return "Unknown";
     }
-    return "AT24C32";
   }
 
   @Override
   public String getDescription() {
-    if (memorySize == 8192) {
-      return "64Kb eeprom";
+    switch (memorySize) {
+      case 4096:
+        return "32Kb eeprom";
+      case 8192:
+        return "64Kb eeprom";
+      case 16384:
+        return "128Kb eeprom";
+      case 32768:
+        return "256Kb eeprom";
+      case 65536:
+        return "512Kb eeprom";
+      default:
+        return "Unknown size";
     }
-    return "32Kb eeprom";
   }
 
   @Override
@@ -102,22 +159,39 @@ public class AT24CnnDevice extends I2CDevice implements Storage {
     return readBuffer[0];
   }
 
-
-  // Read a byte array at the given address
-  private int readBlock(int address, byte[] buffer, int offset, int len) throws IOException {
-    byte[] writeBuffer = new byte[]{(byte) (address >> 8), (byte) (address & 0xFF)};
+  // Read a single byte at the given address
+  private void writeByte(int address, byte val) throws IOException {
+    byte[] writeBuffer = new byte[]{(byte) (address >> 8), (byte) (address & 0xFF), val};
     write(writeBuffer, 0, writeBuffer.length);
-    return read(buffer, offset, len);
   }
 
-  // Write a byte array at the given address
-  private void writeBlock(int address, byte[] data, int offset, int len) throws IOException {
-    byte[] buffer = new byte[len + 2];
-    buffer[0] = (byte) (address >> 8);
-    buffer[1] = (byte) (address & 0xFF);
-    System.arraycopy(data, offset, buffer, 2, len);
-    write(buffer, 0, buffer.length);
+
+  // Make this the primary write method with detailed parameters
+  private void writeBlock(int address, byte[] data, int len) throws IOException {
+    int bytesToWrite = len;
+    int currentOffset = 0;
+    int currentAddress = address;
+
+    while (bytesToWrite > 0) {
+      int pageOffset = currentAddress % pageSize;
+      int bytesToEndOfPage = pageSize - pageOffset;
+      int writeLength = Math.min(bytesToEndOfPage, bytesToWrite);
+
+      byte[] buffer = new byte[writeLength + 2];
+      buffer[0] = (byte) (currentAddress >> 8);
+      buffer[1] = (byte) (currentAddress & 0xFF);
+      System.arraycopy(data, currentOffset, buffer, 2, writeLength);
+
+      write(buffer, 0, buffer.length);
+      waitForReady();
+
+      bytesToWrite -= writeLength;
+      currentOffset += writeLength;
+      currentAddress += writeLength;
+    }
   }
+
+
   @Override
   public DeviceType getType() {
     return DeviceType.STORAGE;

@@ -1,17 +1,20 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] Matthew Buckton
+ *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 with the Commons Clause
+ *  (the "License"); you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at:
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://commonsclause.com/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
  */
 
 package io.mapsmessaging.devices.i2c.devices.gpio.mcp23017;
@@ -23,10 +26,14 @@ import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.gpio.mcp23017.register.*;
 import io.mapsmessaging.devices.impl.AddressableDevice;
+import io.mapsmessaging.devices.sensorreadings.BooleanSensorReading;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 public class Mcp23017Device extends I2CDevice implements Sensor, Resetable, Gpio {
@@ -42,6 +49,7 @@ public class Mcp23017Device extends I2CDevice implements Sensor, Resetable, Gpio
   private final GpioPortRegister gpio;
   private final OutputLatchRegister olat;
   private final ExpanderConfigurationRegister iocon;
+  private final List<SensorReading<?>> readings;
 
   public Mcp23017Device(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(Mcp23017Device.class));
@@ -57,6 +65,22 @@ public class Mcp23017Device extends I2CDevice implements Sensor, Resetable, Gpio
     gpio = new GpioPortRegister(this);
     olat = new OutputLatchRegister(this);
     reset();
+    List<SensorReading<?>> sensorReadings = new ArrayList<>();
+
+    for (int pin = 0; pin < 16; pin++) {
+      final int p = pin;
+      sensorReadings.add(new BooleanSensorReading(
+          "gpio_" + p,
+          "",
+          "Pin " + p + " digital state (0=Low, 1=High)",
+          true,
+          true,
+          () -> isSet(p)
+      ));
+    }
+
+    this.readings = sensorReadings;
+
   }
 
   public void reset() throws IOException {

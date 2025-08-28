@@ -1,17 +1,20 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] Matthew Buckton
+ *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 with the Commons Clause
+ *  (the "License"); you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at:
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://commonsclause.com/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
  */
 
 package io.mapsmessaging.devices.i2c.devices.sensors.tsl2561;
@@ -22,7 +25,6 @@ import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 
@@ -30,13 +32,18 @@ public class TSL2561Controller extends I2CDeviceController {
 
   private final TSL2561Sensor sensor;
 
-  @Getter
-  private final String name = "TLS2561";
-  @Getter
-  private final String description = "Light sensor, returns light and IR light levels and computed lux level";
-
   public TSL2561Controller() {
     sensor = null;
+  }
+
+  @Override
+  public String getName() {
+    return "TLS2561";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Light sensor, returns light and IR light levels and computed lux level";
   }
 
   public TSL2561Controller(AddressableDevice device) throws IOException {
@@ -47,7 +54,8 @@ public class TSL2561Controller extends I2CDeviceController {
   public I2CDevice getDevice() {
     return sensor;
   }
-  public DeviceType getType(){
+
+  public DeviceType getType() {
     return getDevice().getType();
   }
 
@@ -62,11 +70,12 @@ public class TSL2561Controller extends I2CDeviceController {
 
 
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig();
+    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
     config.setComments("i2c device TLS2561 light sensor, returns light and IR light levels and computed lux level");
-    config.setSource(getName());
-    config.setVersion("1.0");
+    config.setTitle(getName());
+    config.setVersion(1);
     config.setResourceType("sensor");
+    config.setUniqueId(getSchemaId());
     config.setInterfaceDescription("Returns JSON object containing light and IR light levels");
     return config;
   }

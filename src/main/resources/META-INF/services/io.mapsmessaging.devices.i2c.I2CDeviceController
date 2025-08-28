@@ -1,18 +1,20 @@
 #
 #
-#     Copyright [ 2020 - 2023 ] [Matthew Buckton]
+#  Copyright [ 2020 - 2024 ] Matthew Buckton
+#  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
 #
-#     Licensed under the Apache License, Version 2.0 (the "License");
-#     you may not use this file except in compliance with the License.
-#     You may obtain a copy of the License at
+#  Licensed under the Apache License, Version 2.0 with the Commons Clause
+#  (the "License"); you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at:
 #
-#         http://www.apache.org/licenses/LICENSE-2.0
+#      http://www.apache.org/licenses/LICENSE-2.0
+#      https://commonsclause.com/
 #
-#     Unless required by applicable law or agreed to in writing, software
-#     distributed under the License is distributed on an "AS IS" BASIS,
-#     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#     See the License for the specific language governing permissions and
-#     limitations under the License.
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License
 #
 
 #
@@ -22,6 +24,7 @@ io.mapsmessaging.devices.i2c.devices.sensors.am2315.AM2315Controller
 io.mapsmessaging.devices.i2c.devices.sensors.am2320.AM2320Controller
 io.mapsmessaging.devices.i2c.devices.sensors.as3935.AS3935Controller
 io.mapsmessaging.devices.i2c.devices.sensors.bh1750.Bh1750Controller
+io.mapsmessaging.devices.i2c.devices.sensors.bme688.BME688Controller
 io.mapsmessaging.devices.i2c.devices.sensors.bmp280.BMP280Controller
 io.mapsmessaging.devices.i2c.devices.sensors.bno055.BNO055Controller
 io.mapsmessaging.devices.i2c.devices.sensors.ina219.Ina219Controller
@@ -30,6 +33,11 @@ io.mapsmessaging.devices.i2c.devices.sensors.lps35.Lps35Controller
 io.mapsmessaging.devices.i2c.devices.sensors.msa311.Msa311Controller
 io.mapsmessaging.devices.i2c.devices.sensors.pmsa003i.Pmsa003iController
 io.mapsmessaging.devices.i2c.devices.sensors.tsl2561.TSL2561Controller
+io.mapsmessaging.devices.i2c.devices.sensors.scd41.Scd41Controller
+io.mapsmessaging.devices.i2c.devices.sensors.sen6x.Sen6xController
+io.mapsmessaging.devices.i2c.devices.sensors.sht31.Sht31Controller
+io.mapsmessaging.devices.i2c.devices.sensors.sen0539.Sen0539Controller
+io.mapsmessaging.devices.i2c.devices.sensors.pn532.Pn532Controller
 
 #
 # GPIO Extenders
@@ -61,6 +69,7 @@ io.mapsmessaging.devices.i2c.devices.drivers.pca9685.Pca9685Controller
 #
 io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.Quad7SegmentController
 io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.QuadAlphaNumericController
+io.mapsmessaging.devices.i2c.devices.output.lcd.st7735.St7735Controller
 io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.Lcd1602Controller
 io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.backlight.BacklightV1PwmController
 io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.backlight.BacklightV1_1PwmController
@@ -70,4 +79,7 @@ io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.backlight.BacklightRGBV2
 #
 # Debug/ testing sensors
 #
-io.mapsmessaging.devices.i2c.devices.debug.i2cDebugController
+io.mapsmessaging.devices.i2c.devices.demo.impl.scd41.Scd41Controller
+io.mapsmessaging.devices.i2c.devices.demo.impl.pmsca003i.Pmsa003iController
+io.mapsmessaging.devices.i2c.devices.demo.impl.tls2561.TSL2561Controller
+

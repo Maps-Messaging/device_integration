@@ -1,3 +1,22 @@
+/*
+ *
+ *  Copyright [ 2020 - 2024 ] Matthew Buckton
+ *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
+ *
+ *  Licensed under the Apache License, Version 2.0 with the Commons Clause
+ *  (the "License"); you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at:
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://commonsclause.com/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
+ */
+
 package io.mapsmessaging.devices.i2c.devices.storage.at24c;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -13,7 +32,6 @@ import io.mapsmessaging.devices.i2c.devices.storage.at24c.values.ActionType;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 
@@ -21,14 +39,19 @@ public class AT24CnnController extends I2CDeviceController {
 
   private final AT24CnnDevice sensor;
 
-  @Getter
-  private final String name = "AT24C32/64";
-  @Getter
-  private final String description = "AT24C32/64 eeprom";
-
   // Used during ServiceLoading
   public AT24CnnController() {
     sensor = null;
+  }
+
+  @Override
+  public String getName() {
+    return "AT24C32/64";
+  }
+
+  @Override
+  public String getDescription() {
+    return "AT24C32/64/128/256/512 eeprom";
   }
 
   protected AT24CnnController(AddressableDevice device) throws IOException {
@@ -39,7 +62,8 @@ public class AT24CnnController extends I2CDeviceController {
   public I2CDevice getDevice() {
     return sensor;
   }
-  public DeviceType getType(){
+
+  public DeviceType getType() {
     return getDevice().getType();
   }
 
@@ -52,10 +76,12 @@ public class AT24CnnController extends I2CDeviceController {
     return new AT24CnnController(device);
   }
 
+  @Override
   public byte[] getDeviceConfiguration() throws IOException {
     return getDeviceState();
   }
 
+  @Override
   public byte[] getDeviceState() throws IOException {
     if (sensor != null) {
       Details details = new Details(sensor.getName(), sensor.getMemorySize());
@@ -90,16 +116,16 @@ public class AT24CnnController extends I2CDeviceController {
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig();
     config.setComments("i2c device AT24C32/64 eeprom");
-    config.setSource(getName());
-    config.setVersion("1.0");
+    config.setTitle(getName());
+    config.setVersion(1);
     config.setResourceType("storage");
+    config.setUniqueId(getSchemaId());
     config.setInterfaceDescription("Serial EEPROM");
     return config;
   }
 
   @Override
   public int[] getAddressRange() {
-    int i2cAddr = 0x57;
-    return new int[]{i2cAddr};
+    return new int[]{0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57};
   }
 }

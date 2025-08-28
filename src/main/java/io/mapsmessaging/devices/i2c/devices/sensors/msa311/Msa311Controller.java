@@ -1,17 +1,20 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] Matthew Buckton
+ *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 with the Commons Clause
+ *  (the "License"); you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at:
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://commonsclause.com/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
  */
 
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311;
@@ -23,23 +26,26 @@ import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 
 public class Msa311Controller extends I2CDeviceController {
 
-  private final int i2cAddr = 0x62;
+  private static final int i2cAddr = 0x62;
   private final Msa311Sensor sensor;
-
-  @Getter
-  private final String name = "MSA311";
-
-  @Getter
-  private final String description = "Digital Tri-axial Accelerometer";
 
   public Msa311Controller() {
     sensor = null;
+  }
+
+  @Override
+  public String getName() {
+    return "MSA311";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Digital Tri-axial Accelerometer";
   }
 
   public Msa311Controller(AddressableDevice device) throws IOException {
@@ -52,7 +58,8 @@ public class Msa311Controller extends I2CDeviceController {
   public I2CDevice getDevice() {
     return sensor;
   }
-  public DeviceType getType(){
+
+  public DeviceType getType() {
     return getDevice().getType();
   }
 
@@ -72,12 +79,13 @@ public class Msa311Controller extends I2CDeviceController {
   }
 
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig();
-    config.setComments("Digital Tri-axial Accelerometer");
-    config.setSource(getName());
-    config.setVersion("1.0");
+    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
+    config.setComments(getDescription());
+    config.setTitle(getName());
+    config.setVersion(1);
     config.setResourceType("sensor");
-    config.setInterfaceDescription("Digital Tri-axial Accelerometer");
+    config.setUniqueId(getSchemaId());
+    config.setInterfaceDescription(getDescription());
     return config;
   }
 

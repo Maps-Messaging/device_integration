@@ -1,17 +1,20 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] Matthew Buckton
+ *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 with the Commons Clause
+ *  (the "License"); you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at:
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://commonsclause.com/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
  */
 
 package io.mapsmessaging.devices.i2c.devices.sensors.bno055;
@@ -33,7 +36,6 @@ import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -77,6 +79,7 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
 
   public BNO055Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(BNO055Sensor.class));
+
     calibrationStatusRegister = new CalibrationStatusRegister(this);
     systemStatusRegister = new SystemStatusRegister(this);
     errorStatusRegister = new ErrorStatusRegister(this);
@@ -116,15 +119,18 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
     axisMapSign = new SingleByteRegister(this, 0x42, "AXIS_MAP_SIGN");
 
     initialise();
-    readings = new ArrayList<>();
-    readings.add(new OrientationSensorReading("Heading", "degrees", this::getOrientation));
-    readings.add(new OrientationSensorReading("Euler", "", this::getEuler));
-    readings.add(new OrientationSensorReading("Gravity", "m/s^2", this::getGravity));
-    readings.add(new OrientationSensorReading("Gyroscope", "", this::getGyroscope));
-    readings.add(new OrientationSensorReading("Linear_Accel", "", this::getLinearAcceleration));
-    readings.add(new OrientationSensorReading("Magnetometer", "", this::getMagnetometer));
-    readings.add(new OrientationSensorReading("Accelerometer", "m/s^2", this::getAccelerometer));
+
+    readings = generateSensorReadings( List.of(
+        new OrientationSensorReading("heading", "°", "Heading from BNO055", new Orientation(0, 0, 0), true, this::getOrientation),
+        new OrientationSensorReading("euler", "°", "Euler angles from BNO055", new Orientation(0, 0, 0), true, this::getEuler),
+        new OrientationSensorReading("gravity", "m/s²", "Gravity vector from BNO055", new Orientation(0, 0, 9.8), true, this::getGravity),
+        new OrientationSensorReading("gyroscope", "°/s", "Gyroscopic data from BNO055", new Orientation(0, 0, 0), true, this::getGyroscope),
+        new OrientationSensorReading("linear_accel", "m/s²", "Linear acceleration from BNO055", new Orientation(0, 0, 0), true, this::getLinearAcceleration),
+        new OrientationSensorReading("magnetometer", "µT", "Magnetic field from BNO055", new Orientation(0, 0, 0), true, this::getMagnetometer),
+        new OrientationSensorReading("accelerometer", "m/s²", "Accelerometer data from BNO055", new Orientation(0, 0, 9.8), true, this::getAccelerometer)
+    ));
   }
+
 
   public static int getId(AddressableDevice device) {
     return device.readRegister(BNO055Constants.BNO055_CHIP_ID_ADDR);

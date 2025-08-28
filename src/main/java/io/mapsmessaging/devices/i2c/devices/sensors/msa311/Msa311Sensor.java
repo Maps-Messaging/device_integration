@@ -1,17 +1,20 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] Matthew Buckton
+ *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 with the Commons Clause
+ *  (the "License"); you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at:
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://commonsclause.com/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
  */
 
 package io.mapsmessaging.devices.i2c.devices.sensors.msa311;
@@ -37,75 +40,46 @@ import java.util.List;
 
 import static io.mapsmessaging.devices.util.Constants.EARTH_GRAVITY_FLOAT;
 
+@SuppressWarnings("java:S6539") // yes this is a monster of a sensor
 @Getter
 public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, Resetable {
   private static final int PART_ID = 0x1;
   private final ResetRegister resetRegister;
-  @Getter
   private final PartIdRegister partIdRegister;
-  @Getter
   private final AxisRegister xAxisRegister;
-  @Getter
   private final AxisRegister yAxisRegister;
-  @Getter
   private final AxisRegister zAxisRegister;
-  @Getter
   private final MotionInterruptRegister motionInterruptRegister;
-  @Getter
   private final DataReadyRegister dataReadyRegister;
-  @Getter
   private final TapActiveStatusRegister tapActiveStatusRegister;
-  @Getter
   private final OrientationRegister orientationRegister;
-  @Getter
   private final RangeRegister rangeRegister;
-  @Getter
   private final OdrRegister odrRegister;
-  @Getter
   private final PowerModeRegister powerModeRegister;
-  @Getter
   private final SwapPolarityRegister swapPolarityRegister;
-  @Getter
   private final InterruptSet0Register interruptSetRegister;
-  @Getter
   private final InterruptSet1Register interruptSet1Register;
-  @Getter
   private final InterruptMap0Register interruptMap0Register;
-  @Getter
   private final InterruptMap1Register interruptMap1Register;
-  @Getter
   private final IntConfigRegister intConfigRegister;
-  @Getter
   private final IntLatchRegister intLatchRegister;
-  @Getter
   private final FreefallDurRegister freefallDurRegister;
-  @Getter
   private final FreefallThRegister freefallThRegister;
-  @Getter
   private final FreefallHyRegister freefallHyRegister;
-  @Getter
   private final ActiveDurRegister activeDurRegister;
-  @Getter
   private final ActiveThRegister activeThRegister;
-  @Getter
   private final TapDurRegister tapDurRegister;
-  @Getter
   private final TapThresholdRegister tapThresholdRegister;
-  @Getter
   private final OrientHyRegister orientHyRegister;
-  @Getter
   private final ZBlockRegister zBlockRegister;
-  @Getter
   private final OffsetCompensationRegister xOffsetCompensation;
-  @Getter
   private final OffsetCompensationRegister yOffsetCompensation;
-  @Getter
   private final OffsetCompensationRegister zOffsetCompensation;
-  @Getter
   private final List<SensorReading<?>> readings;
 
   public Msa311Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(Msa311Sensor.class));
+
     resetRegister = new ResetRegister(this);
     partIdRegister = new PartIdRegister(this);
     rangeRegister = new RangeRegister(this);
@@ -139,12 +113,43 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
     yOffsetCompensation = new OffsetCompensationRegister(this, 0x39, "Y offset compensation");
     zOffsetCompensation = new OffsetCompensationRegister(this, 0x3A, "Z offset compensation");
 
+    FloatSensorReading xOrientation = new FloatSensorReading(
+        "x_orientation",
+        "m/s²",
+        "X-axis acceleration from MSA311 sensor",
+        0.0f,
+        true,
+        -100f,
+        100f,
+        2,
+        this::getX
+    );
 
-    FloatSensorReading xOrientation = new FloatSensorReading("x_orientation", "m/s^2", -100, 100, 2, this::getX);
-    FloatSensorReading yOrientation = new FloatSensorReading("y_orientation", "m/s^2", -100, 100, 2, this::getY);
-    FloatSensorReading zOrientation = new FloatSensorReading("z_orientation", "m/s^2", -100, 100, 2, this::getZ);
+    FloatSensorReading yOrientation = new FloatSensorReading(
+        "y_orientation",
+        "m/s²",
+        "Y-axis acceleration from MSA311 sensor",
+        0.0f,
+        true,
+        -100f,
+        100f,
+        2,
+        this::getY
+    );
 
-    readings = List.of(xOrientation, yOrientation, zOrientation);
+    FloatSensorReading zOrientation = new FloatSensorReading(
+        "z_orientation",
+        "m/s²",
+        "Z-axis acceleration from MSA311 sensor",
+        9.8f,
+        true,
+        -100f,
+        100f,
+        2,
+        this::getZ
+    );
+
+    readings = generateSensorReadings(List.of(xOrientation, yOrientation, zOrientation));
     initialise();
   }
 
@@ -225,6 +230,7 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
   private Range getRange() {
     return rangeRegister.getRange();
   }
+
   @Override
   public DeviceType getType() {
     return DeviceType.SENSOR;

@@ -1,17 +1,20 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] Matthew Buckton
+ *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 with the Commons Clause
+ *  (the "License"); you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at:
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://commonsclause.com/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
  */
 
 package io.mapsmessaging.devices.i2c.devices.sensors.as3935.registers;
@@ -33,7 +36,7 @@ public class LightningRegister extends SingleByteRegister {
     super(sensor, 0x02, "Lightning");
   }
 
-  public int getSpikeRejection() throws IOException {
+  public int getSpikeRejection() {
     return (registerValue >> LIGHTNING_REG_SREJ_BITS) & 0x0F;
   }
 
@@ -43,7 +46,7 @@ public class LightningRegister extends SingleByteRegister {
     sensor.write(address, registerValue);
   }
 
-  public int getMinNumLightning() throws IOException {
+  public int getMinNumLightning() {
     return (registerValue >> LIGHTNING_REG_MIN_NUM_LIGH_BITS) & 0x03;
   }
 
@@ -53,7 +56,7 @@ public class LightningRegister extends SingleByteRegister {
     sensor.write(address, registerValue);
   }
 
-  public boolean isClearStatisticsEnabled() throws IOException {
+  public boolean isClearStatisticsEnabled() {
     return ((registerValue & 0xff) & (1 << LIGHTNING_REG_CL_STAT_BIT)) != 0;
   }
 
@@ -77,8 +80,7 @@ public class LightningRegister extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof LightningData) {
-      LightningData data = (LightningData) input;
+    if (input instanceof LightningData data) {
       setSpikeRejection(data.getSpikeRejection());
       setMinNumLightning(data.getMinNumLightning());
       setClearStatisticsEnabled(data.isClearStatisticsEnabled());

@@ -1,17 +1,20 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] Matthew Buckton
+ *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 with the Commons Clause
+ *  (the "License"); you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at:
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://commonsclause.com/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
  */
 
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.backlight;
@@ -22,19 +25,12 @@ import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
-import org.json.JSONObject;
 
 import java.io.IOException;
 
 public abstract class BacklightPwmController extends I2CDeviceController {
 
   protected final BacklightPwm pwmController;
-
-  @Getter
-  private final String name = "PwmController";
-  @Getter
-  private final String description = "LCD1602 16*2 lcd display";
 
   // Used during ServiceLoading
   protected BacklightPwmController() {
@@ -46,7 +42,7 @@ public abstract class BacklightPwmController extends I2CDeviceController {
     this.pwmController = pwmController;
   }
 
-  public DeviceType getType(){
+  public DeviceType getType() {
     return pwmController.getType();
   }
 
@@ -55,29 +51,36 @@ public abstract class BacklightPwmController extends I2CDeviceController {
   }
 
   @Override
+  public String getName() {
+    return "PwmController";
+  }
+
+  @Override
+  public String getDescription() {
+    return "LCD1602 16*2 lcd display";
+  }
+
+  @Override
   public boolean detect(AddressableDevice i2cDevice) {
     return pwmController != null && pwmController.isConnected();
   }
 
+  @Override
   public byte[] getDeviceConfiguration() throws IOException {
-    JSONObject jsonObject = new JSONObject();
-    if (pwmController != null) {
-    }
-    return jsonObject.toString(2).getBytes();
+    return emptyJson();
   }
 
+  @Override
   public byte[] getDeviceState() throws IOException {
-    JSONObject jsonObject = new JSONObject();
-    if (pwmController != null) {
-    }
-    return jsonObject.toString(2).getBytes();
+    return emptyJson();
   }
+
 
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig();
     config.setComments("i2c device AM2315 encased Temperature and Humidity Sensor https://www.adafruit.com/product/1293");
     config.setSource("I2C bus address : 0x5C");
-    config.setVersion("1.0");
+    config.setVersion(1);
     config.setResourceType("sensor");
     config.setInterfaceDescription("temperature, humidity");
     return config;

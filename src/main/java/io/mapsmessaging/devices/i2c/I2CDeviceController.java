@@ -1,39 +1,54 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] Matthew Buckton
+ *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 with the Commons Clause
+ *  (the "License"); you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at:
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://commonsclause.com/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
  */
 
 package io.mapsmessaging.devices.i2c;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import io.mapsmessaging.devices.DeviceController;
 import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.io.SerialisationHelper;
 import io.mapsmessaging.devices.sensorreadings.ComputationResult;
+import io.mapsmessaging.devices.sensorreadings.GroupSensorReading;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import lombok.Getter;
 import lombok.Setter;
-import org.json.JSONObject;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Getter
 @Setter
-public abstract class I2CDeviceController implements DeviceController {
+public abstract class I2CDeviceController extends DeviceController {
+
+  @Getter
+  @Setter
+  private static boolean timestampReadings = true;
+
+  protected static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
   private final int mountedAddress;
   private final SerialisationHelper serialisationHelper = new SerialisationHelper();
@@ -65,34 +80,74 @@ public abstract class I2CDeviceController implements DeviceController {
   @Override
   public byte[] getDeviceConfiguration() throws IOException {
     I2CDevice device = getDevice();
-    JSONObject jsonObject = new JSONObject();
+    JsonObject jsonObject = new JsonObject();
     if (device != null) {
       return serialisationHelper.serialise(device.getRegisterMap().getData());
     }
-    return jsonObject.toString(2).getBytes();
+    return convert(jsonObject);
   }
 
   @Override
   public byte[] getDeviceState() throws IOException {
-    I2CDevice device = getDevice();
-    JSONObject jsonObject = new JSONObject();
-    if (device instanceof Sensor) {
-      List<SensorReading<?>> readings = ((Sensor) device).getReadings();
-      for (SensorReading<?> reading : readings) {
-        ComputationResult<?> computationResult = reading.getValue();
-        if (!computationResult.hasError()) {
-          jsonObject.put(reading.getName(), computationResult.getResult());
-        } else {
-          if(raiseExceptionOnError){
-            throw new IOException(computationResult.getError());
-          }
-          jsonObject.put(reading.getName(), computationResult.getError().getMessage());
-        }
+    try {
+      I2CDevice device = getDevice();
+      JsonObject jsonObject = new JsonObject();
+      if (device instanceof Sensor sensor) {
+        List<SensorReading<?>> readings = sensor.getReadings();
+        walkSensorReadings(jsonObject, readings);
       }
+      return convert(jsonObject);
+    } catch (Exception e) {
+      // Log this
     }
-    return jsonObject.toString(2).getBytes();
+    return "{}".getBytes();
   }
 
+  private void walkSensorReadings(JsonObject root, List<SensorReading<?>> readings) throws IOException {
+    for (SensorReading<?> reading : readings) {
+      if (reading instanceof GroupSensorReading groupReading) {
+        JsonObject readingObject = new JsonObject();
+        walkSensorReadings(new JsonObject(), groupReading.getGroupList());
+        if (!readingObject.isEmpty()) {
+          root.add(reading.getName(), readingObject);
+        }
+      } else {
+        addProperty(reading, root);
+      }
+    }
+  }
+
+  private void addProperty(SensorReading<?> reading, JsonObject jsonObject) throws IOException {
+    ComputationResult<?> computationResult = reading.getValue();
+    if (!computationResult.hasError()) {
+      Object value = computationResult.getResult();
+      if (value instanceof Optional<?> optional) {
+        if (optional.isEmpty()) {
+          return;
+        }
+        value = optional.get();
+      }
+
+      if (value instanceof Number number) {
+        jsonObject.addProperty(reading.getName(), number);
+      } else if (value instanceof Boolean bool) {
+        jsonObject.addProperty(reading.getName(), bool);
+      } else if (value instanceof Character character) {
+        jsonObject.addProperty(reading.getName(), character);
+      } else if (value instanceof String str) {
+        jsonObject.addProperty(reading.getName(), str);
+      } else {
+        // Fallback to stringified JSON
+        jsonObject.add(reading.getName(), gson.toJsonTree(value));
+      }
+    } else {
+      if (raiseExceptionOnError) {
+        throw new IOException(computationResult.getError());
+      }
+      jsonObject.addProperty(reading.getName(), computationResult.getError().getMessage());
+    }
+    jsonObject.addProperty("timestamp", Instant.now().toString());
+  }
 
   public boolean canDetect() {
     return false;
@@ -106,4 +161,12 @@ public abstract class I2CDeviceController implements DeviceController {
 
   public abstract I2CDevice getDevice();
 
+
+  protected byte[] convert(JsonObject jsonObject) {
+    return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
+  }
+
+  protected byte[] emptyJson(){
+    return "{}".getBytes(StandardCharsets.UTF_8);
+  }
 }

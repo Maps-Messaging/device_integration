@@ -1,3 +1,22 @@
+/*
+ *
+ *  Copyright [ 2020 - 2024 ] Matthew Buckton
+ *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
+ *
+ *  Licensed under the Apache License, Version 2.0 with the Commons Clause
+ *  (the "License"); you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at:
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://commonsclause.com/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
+ */
+
 package io.mapsmessaging.devices.i2c.devices.sensors.lps35;
 
 import io.mapsmessaging.devices.DeviceType;
@@ -58,6 +77,7 @@ public class Lps35Sensor extends I2CDevice implements Sensor, Resetable {
 
   public Lps35Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(Lps35Sensor.class));
+
     interruptConfigRegister = new InterruptConfigRegister(this);
     referencePressureRegister = new ReferencePressureRegister(this);
     thresholdPressureRegister = new ThresholdPressureRegister(this);
@@ -74,18 +94,44 @@ public class Lps35Sensor extends I2CDevice implements Sensor, Resetable {
     control2Register = new Control2Register(this);
     control3Register = new Control3Register(this);
 
-    FloatSensorReading pressureReading = new FloatSensorReading("pressure", "hPa", 260, 1260, 0, this::getPressure);
-    FloatSensorReading temperatureReading = new FloatSensorReading("temperature", "C", -30, 70, 1, this::getTemperature);
-    readings = List.of(pressureReading, temperatureReading);
-    initialise();
+    FloatSensorReading pressureReading = new FloatSensorReading(
+        "pressure",
+        "hPa",
+        "Absolute pressure from LPS35 sensor",
+        1013.25f,
+        true,
+        260f,
+        1260f,
+        0,
+        this::getPressure
+    );
+
+    FloatSensorReading temperatureReading = new FloatSensorReading(
+        "temperature",
+        "°C",
+        "Temperature reading from LPS35 sensor",
+        25.0f,
+        true,
+        -30f,
+        70f,
+        1,
+        this::getTemperature
+    );
+
+    readings = generateSensorReadings(List.of(pressureReading, temperatureReading));
+
+    if (whoAmIRegister.getWhoAmI() == 0b10110001) {
+      initialise();
+    }
   }
+
 
   public static int getId(AddressableDevice device) {
     return device.readRegister(WHO_AM_I);
   }
 
-  private void initialise() throws IOException {
-    control1Register.setDataRate(DataRate.RATE_10_HZ);
+  protected void initialise() throws IOException {
+    control1Register.setDataRate(DataRate.RATE_1_HZ);
   }
 
   @Override

@@ -1,17 +1,20 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] Matthew Buckton
+ *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 with the Commons Clause
+ *  (the "License"); you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at:
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://commonsclause.com/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
  */
 
 package io.mapsmessaging.devices.spi.devices.mcp3y0x;
@@ -37,21 +40,33 @@ public class Mcp3y0xDevice extends SpiDevice implements Sensor {
   @Getter
   protected final int bits;
   @Getter
-  protected final int dutyCycle = 100000;
+  protected static final int dutyCycle = 100000;
 
   protected final String name;
   @Getter
-  private final List<SensorReading<?>> sensors;
+  private final List<SensorReading<?>> readings;
 
   public Mcp3y0xDevice(Spi spi, int bits, int channels) {
     super(spi);
     this.channels = channels;
     this.bits = bits;
+
     name = "MCP3" + (bits == 12 ? "2" : "0") + "0" + (channels == 8 ? "8" : "4");
-    sensors = new ArrayList<>();
+    readings = new ArrayList<>();
+
     int max = (1 << (bits + 1)) - 1;
+
     for (short x = 0; x < channels; x++) {
-      sensors.add(new IntegerSensorReading("Channel-" + x, "", 0, max, new ReadFromChannel(x)));
+      readings.add(new IntegerSensorReading(
+          "channel_" + x,
+          "digital",
+          "Raw digital reading from MCP3 ADC channel " + x,
+          0,
+          true,
+          0,
+          max,
+          new ReadFromChannel(x)
+      ));
     }
   }
 
@@ -59,7 +74,7 @@ public class Mcp3y0xDevice extends SpiDevice implements Sensor {
    * Communicate to the ADC chip via SPI to get single-ended conversion value for a specified channel.
    *
    * @param differential, use the differential between the 2 pins
-   * @param channel analog input channel on ADC chip
+   * @param channel       analog input channel on ADC chip
    * @return conversion value for specified analog input channel
    */
   public int readFromChannel(boolean differential, short channel) {
@@ -104,6 +119,10 @@ public class Mcp3y0xDevice extends SpiDevice implements Sensor {
     return "Microchip Technology Analog to Digital " + channels + " channel " + bits + " bit convertor";
   }
 
+  @Override
+  public DeviceType getType() {
+    return DeviceType.SENSOR;
+  }
 
   private class ReadFromChannel implements ReadingSupplier<Integer> {
 
@@ -117,11 +136,6 @@ public class Mcp3y0xDevice extends SpiDevice implements Sensor {
     public Integer get() throws IOException {
       return readFromChannel(false, channel);
     }
-  }
-
-  @Override
-  public DeviceType getType() {
-    return DeviceType.SENSOR;
   }
 
 }

@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~
-  ~     Copyright [ 2020 - 2023 ] [Matthew Buckton]
+  ~  Copyright [ 2020 - 2024 ] Matthew Buckton
+  ~  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
   ~
-  ~     Licensed under the Apache License, Version 2.0 (the "License");
-  ~     you may not use this file except in compliance with the License.
-  ~     You may obtain a copy of the License at
+  ~  Licensed under the Apache License, Version 2.0 with the Commons Clause
+  ~  (the "License"); you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at:
   ~
-  ~         http://www.apache.org/licenses/LICENSE-2.0
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~      https://commonsclause.com/
   ~
-  ~     Unless required by applicable law or agreed to in writing, software
-  ~     distributed under the License is distributed on an "AS IS" BASIS,
-  ~     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~     See the License for the specific language governing permissions and
-  ~     limitations under the License.
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License
   -->
 
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -23,7 +25,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.mapsmessaging</groupId>
   <artifactId>device_library</artifactId>
-  <version>1.0.8</version>
+  <version>1.0.9-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Device Integration</name>
@@ -32,27 +34,31 @@
 
   <developers>
     <developer>
-      <id>mbuckton</id>
-      <name>Matthew Buckton</name>
-      <organization>Maps Messaging</organization>
-      <organizationUrl>http://mapsmessaging.io/</organizationUrl>
+      <id>mapsmessaging</id>
+      <name>MapsMessaging B.V.</name>
+      <organization>MapsMessaging B.V.</organization>
+      <organizationUrl>https://mapsmessaging.io/</organizationUrl>
       <roles>
-        <role>founder</role>
+        <role>developer</role>
+        <role>maintainer</role>
       </roles>
-      <timezone>Australia/Sydney</timezone>
+      <timezone>Europe/Amsterdam</timezone>
+      <properties>
+        <location>Eindhoven, Netherlands</location>
+      </properties>
     </developer>
   </developers>
 
   <licenses>
     <license>
+      <name>Apache License, Version 2.0 with Commons Clause</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
       <distribution>repo</distribution>
-      <name>Mozilla Public License Version 2.0</name>
-      <url>https://www.mozilla.org/en-US/MPL/2.0/</url>
     </license>
     <license>
-      <distribution>repo</distribution>
-      <name>CommonsClause</name>
+      <name>Commons Clause</name>
       <url>https://commonsclause.com/</url>
+      <distribution>repo</distribution>
     </license>
   </licenses>
 
@@ -61,19 +67,20 @@
   </scm>
 
   <properties>
+    <pi4j.version>2.8.0</pi4j.version>
+    <nvd.api.key>${env.NVD_API_KEY}</nvd.api.key>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <maven.compiler.source>11</maven.compiler.source>
-    <maven.compiler.target>11</maven.compiler.target>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <gpg.keyname>matthew.buckton@mapsmessaging.io</gpg.keyname>
 
     <runSuite>**/*Suite.class</runSuite>
-    <!-- Below property indicates the pattern of the test suite -->
+    <!-- Sonar-JaCoCo properties -->
     <sonar.c.file.suffixes>-</sonar.c.file.suffixes>
     <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco</sonar.coverage.jacoco.xmlReportPaths>
 
-    <!-- Sonar-JaCoCo properties -->
     <sonar.cpp.file.suffixes>-</sonar.cpp.file.suffixes>
     <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
     <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -85,8 +92,29 @@
     <sonar.organization>maps-messaging</sonar.organization>
     <sonar.projectKey>deviceLibrary</sonar.projectKey>
 
+    <!--
+    We exclude the class/field name not aligned with java since we are building against hardware and hardware registers
+    so we try and keep the same name in the datasheet here in java to make it easy to read the datasheet and use the java
+     -->
+    <sonar.issue.ignore.multicriteria>s1,s2,s3,s4, s5</sonar.issue.ignore.multicriteria>
+
+    <sonar.issue.ignore.multicriteria.s1.ruleKey>java:S6201</sonar.issue.ignore.multicriteria.s1.ruleKey>
+    <sonar.issue.ignore.multicriteria.s1.resourceKey>**/*.java</sonar.issue.ignore.multicriteria.s1.resourceKey>
+
+    <sonar.issue.ignore.multicriteria.s2.ruleKey>java:S115</sonar.issue.ignore.multicriteria.s2.ruleKey>
+    <sonar.issue.ignore.multicriteria.s2.resourceKey>**/*.java</sonar.issue.ignore.multicriteria.s2.resourceKey>
+
+    <sonar.issue.ignore.multicriteria.s3.ruleKey>java:S116</sonar.issue.ignore.multicriteria.s3.ruleKey>
+    <sonar.issue.ignore.multicriteria.s3.resourceKey>**/*.java</sonar.issue.ignore.multicriteria.s3.resourceKey>
+
+    <sonar.issue.ignore.multicriteria.s4.ruleKey>java:S100</sonar.issue.ignore.multicriteria.s4.ruleKey>
+    <sonar.issue.ignore.multicriteria.s4.resourceKey>**/*.java</sonar.issue.ignore.multicriteria.s4.resourceKey>
+
+    <sonar.issue.ignore.multicriteria.s5.ruleKey>java:S101</sonar.issue.ignore.multicriteria.s5.ruleKey>
+    <sonar.issue.ignore.multicriteria.s5.resourceKey>**/*.java</sonar.issue.ignore.multicriteria.s5.resourceKey>
+
+
     <sonar.sources>src/main</sonar.sources>
-    <pi4j.version>2.4.0</pi4j.version>
     <sonar.test.exclusions>
       **/*Test.*,**/*IT.*, **.*JMH.*
     </sonar.test.exclusions>
@@ -96,7 +124,7 @@
     <snapshotRepository>
       <id>maps_snapshots</id>
       <name>maps_snapshot_repository</name>
-      <url>https://repository.mapsmessaging.io:8081/repository/maps_snapshots/</url>
+      <url>https://repository.mapsmessaging.io/repository/maps_snapshots/</url>
     </snapshotRepository>
     <repository>
       <id>ossrh</id>
@@ -110,7 +138,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-gpg-plugin</artifactId>
-        <version>3.1.0</version>
+        <version>3.2.8</version>
         <executions>
           <execution>
             <id>sign-artifacts</id>
@@ -128,7 +156,7 @@
       <plugin>
         <groupId>org.sonatype.plugins</groupId>
         <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>1.6.13</version>
+        <version>1.7.0</version>
         <extensions>true</extensions>
         <configuration>
           <serverId>mapsmessaging.io</serverId>
@@ -142,7 +170,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-        <version>3.3.0</version>
+        <version>3.3.1</version>
         <executions>
           <execution>
             <id>attach-sources</id>
@@ -161,6 +189,7 @@
             <!-- test code, lets not track the testing -->
             <exclude>**/*Test.*</exclude>
             <exclude>**/Test*.*</exclude>
+            <exclude>examples/**</exclude>
           </excludes>
         </configuration>
         <executions>
@@ -179,7 +208,7 @@
           </execution>
         </executions>
         <groupId>org.jacoco</groupId>
-        <version>0.8.11</version>
+        <version>0.8.13</version>
       </plugin>
 
       <!-- Setup the JUnit tests runner -->
@@ -194,7 +223,7 @@
           </includes>
         </configuration>
         <groupId>org.apache.maven.plugins</groupId>
-        <version>3.2.5</version>
+        <version>3.5.3</version>
       </plugin>
 
       <!-- JavaDoc -->
@@ -204,7 +233,7 @@
           <charset>UTF-8</charset>
           <encoding>UTF-8</encoding>
           <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
-          <reportOutputDirectory>${project.build.directory}/site/docs</reportOutputDirectory>
+          <outputDirectory>${project.build.directory}/site/docs</outputDirectory>
           <show>public</show>
           <sourceFileExcludes>
             <sourceFileExclude>**/*Test.java</sourceFileExclude>
@@ -221,12 +250,12 @@
           </execution>
         </executions>
         <groupId>org.apache.maven.plugins</groupId>
-        <version>3.6.3</version>
+        <version>3.11.3</version>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <version>3.5.0</version>
+        <version>3.6.1</version>
         <executions>
           <execution>
             <id>add-test-sources</id>
@@ -245,22 +274,57 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.12.1</version>
+        <version>3.14.0</version>
         <configuration>
-          <source>11</source>
-          <target>11</target>
+          <source>17</source>
+          <target>17</target>
         </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>3.3.0</version>
+        <version>3.4.2</version>
         <configuration>
           <excludes>
             <!-- Exclude example source code from the build jar -->
             <exclude>examples/**</exclude>
           </excludes>
         </configuration>
+      </plugin>
+
+      <!-- sBOM  generator -->
+      <plugin>
+        <groupId>org.cyclonedx</groupId>
+        <artifactId>cyclonedx-maven-plugin</artifactId>
+        <version>2.9.1</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>makeAggregateBom</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.owasp</groupId>
+        <artifactId>dependency-check-maven</artifactId>
+        <version>12.1.3</version>
+        <configuration>
+          <nvdApiKey>${nvd.api.key}</nvdApiKey>
+          <failBuildOnCVSS>10</failBuildOnCVSS>
+          <failOnError>false</failOnError>
+          <skipArtifactType>test-jar</skipArtifactType>
+          <skipTestScope>true</skipTestScope>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
@@ -296,7 +360,7 @@
           <plugin>
             <groupId>org.sonatype.plugins</groupId>
             <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.13</version>
+            <version>1.7.0</version>
             <extensions>true</extensions>
             <configuration>
               <serverId>mapsmessaging.io</serverId>
@@ -352,67 +416,71 @@
         <artifactId>pi4j-core</artifactId>
         <version>${pi4j.version}</version>
       </dependency>
-
       <dependency>
         <groupId>com.pi4j</groupId>
         <artifactId>pi4j-plugin-raspberrypi</artifactId>
         <version>${pi4j.version}</version>
       </dependency>
-      <!-- https://mvnrepository.com/artifact/com.pi4j/pi4j-plugin-linuxfs -->
-      <dependency>
-        <groupId>com.pi4j</groupId>
-        <artifactId>pi4j-plugin-linuxfs</artifactId>
-        <version>${pi4j.version}</version>
-      </dependency>
-      <!-- https://mvnrepository.com/artifact/com.pi4j/pi4j-library-linuxfs -->
-      <dependency>
-        <groupId>com.pi4j</groupId>
-        <artifactId>pi4j-library-linuxfs</artifactId>
-        <version>${pi4j.version}</version>
-      </dependency>
-
+      <!-- https://mvnrepository.com/artifact/com.pi4j/pi4j-plugin-pigpio -->
       <dependency>
         <groupId>com.pi4j</groupId>
         <artifactId>pi4j-plugin-pigpio</artifactId>
         <version>${pi4j.version}</version>
       </dependency>
-
+      <dependency>
+        <groupId>com.pi4j</groupId>
+        <artifactId>pi4j-plugin-gpiod</artifactId>
+        <version>${pi4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.pi4j</groupId>
+        <artifactId>pi4j-plugin-linuxfs</artifactId>
+        <version>${pi4j.version}</version>
+      </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>2.16.1</version>  <!-- use the latest version available -->
+        <version>2.19.2</version>  <!-- use the latest version available -->
       </dependency>
 
-      <!-- https://mvnrepository.com/artifact/org.json/json -->
+      <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
       <dependency>
-        <groupId>org.json</groupId>
-        <artifactId>json</artifactId>
-        <version>20240303</version>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+        <version>2.13.1</version>
       </dependency>
       <dependency>
         <groupId>io.javalin</groupId>
         <artifactId>javalin</artifactId>
-        <version>6.1.3</version>
+        <version>6.7.0</version>
       </dependency>
+
+      <!-- https://mvnrepository.com/artifact/com.fasterxml.uuid/java-uuid-generator -->
+      <dependency>
+        <groupId>com.fasterxml.uuid</groupId>
+        <artifactId>java-uuid-generator</artifactId>
+        <version>5.1.0</version>
+      </dependency>
+
+      <dependency>
+        <artifactId>lombok</artifactId>
+        <groupId>org.projectlombok</groupId>
+        <version>1.18.38</version>
+        <scope>provided</scope>
+      </dependency>
+
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-simple</artifactId>
-        <version>2.0.12</version>
+        <version>2.0.17</version>
+        <scope>provided</scope>
       </dependency>
-
-      <!-- https://mvnrepository.com/artifact/org.everit.json/org.everit.json.schema -->
-      <dependency>
-        <groupId>org.everit.json</groupId>
-        <artifactId>org.everit.json.schema</artifactId>
-        <version>1.5.1</version>
-      </dependency>
-
       <!-- Junit5 -->
       <dependency>
         <artifactId>junit-jupiter-engine</artifactId>
         <groupId>org.junit.jupiter</groupId>
         <scope>test</scope>
-        <version>5.10.2</version>
+        <version>5.13.4</version>
       </dependency>
   </dependencies>
 

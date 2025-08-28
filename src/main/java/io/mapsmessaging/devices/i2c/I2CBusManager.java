@@ -1,17 +1,20 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] Matthew Buckton
+ *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 with the Commons Clause
+ *  (the "License"); you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at:
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://commonsclause.com/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
  */
 
 package io.mapsmessaging.devices.i2c;
@@ -21,6 +24,8 @@ import com.pi4j.io.i2c.I2C;
 import com.pi4j.io.i2c.I2CConfig;
 import com.pi4j.io.i2c.I2CProvider;
 import io.mapsmessaging.devices.DeviceController;
+import io.mapsmessaging.devices.i2c.devices.demo.I2cDemoController;
+import io.mapsmessaging.devices.i2c.devices.sensors.sht31.commands.SoftResetCommand;
 import io.mapsmessaging.devices.impl.I2CDeviceImpl;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.logging.Logger;
@@ -36,17 +41,30 @@ import static io.mapsmessaging.devices.logging.DeviceLogMessage.I2C_BUS_SCAN_MUL
 
 public class I2CBusManager {
 
-  private final Logger logger = LoggerFactory.getLogger(I2CBusManager.class);
+  protected final Logger logger = LoggerFactory.getLogger(I2CBusManager.class);
 
-  private final Map<String, I2CDeviceController> knownDevices;
-  private final Map<Integer, List<I2CDeviceController>> mappedDevices;
-  private final Map<String, DeviceController> activeDevices;
-  private final Map<Integer, I2C> physicalDevices;
+  protected final Map<String, I2CDeviceController> knownDevices;
+  protected final Map<Integer, List<I2CDeviceController>> mappedDevices;
+  protected final Map<String, DeviceController> activeDevices;
+  protected final Map<Integer, I2C> physicalDevices;
 
   private final Context pi4j;
   private final I2CProvider i2cProvider;
-  private final int i2cBus;
-  private final boolean active;
+  protected final int i2cBus;
+  protected final boolean active;
+
+
+  protected I2CBusManager(int bus) {
+    active = true;
+    i2cBus = bus;
+    this.pi4j = null;
+    this.i2cProvider = null;
+    mappedDevices = new LinkedHashMap<>();
+    activeDevices = new ConcurrentHashMap<>();
+    knownDevices = new ConcurrentHashMap<>();
+    physicalDevices = new ConcurrentHashMap<>();
+
+  }
 
   public I2CBusManager(Context pi4j, I2CProvider i2cProvider, int bus) {
     logger.log(DeviceLogMessage.I2C_BUS_MANAGER_STARTUP);
@@ -59,14 +77,17 @@ public class I2CBusManager {
     activeDevices = new ConcurrentHashMap<>();
     knownDevices = new ConcurrentHashMap<>();
     physicalDevices = new ConcurrentHashMap<>();
+
     ServiceLoader<I2CDeviceController> deviceEntries = ServiceLoader.load(I2CDeviceController.class);
     for (I2CDeviceController device : deviceEntries) {
-      knownDevices.put(device.getName(), device);
-      logger.log(DeviceLogMessage.I2C_BUS_LOADED_DEVICE, device.getName());
-      int[] addressRange = device.getAddressRange();
-      for (int i : addressRange) {
-        logger.log(DeviceLogMessage.I2C_BUS_ALLOCATING_ADDRESS, "0x" + Integer.toHexString(i), device.getName());
-        mappedDevices.computeIfAbsent(i, k -> new ArrayList<>()).add(device);
+      if(!(device instanceof I2cDemoController)) {
+        knownDevices.put(device.getName(), device);
+        logger.log(DeviceLogMessage.I2C_BUS_LOADED_DEVICE, device.getName());
+        int[] addressRange = device.getAddressRange();
+        for (int i : addressRange) {
+          logger.log(DeviceLogMessage.I2C_BUS_ALLOCATING_ADDRESS, "0x" + Integer.toHexString(i), device.getName());
+          mappedDevices.computeIfAbsent(i, k -> new ArrayList<>()).add(device);
+        }
       }
     }
   }
@@ -174,7 +195,7 @@ public class I2CBusManager {
           // Ignore since we are simply looking for devices
         }
       }
-      if(pollDelay>0) TimeUnit.MILLISECONDS.sleep(pollDelay);
+      if (pollDelay > 0) TimeUnit.MILLISECONDS.sleep(pollDelay);
     }
     listDetected(found);
     return found;
@@ -198,8 +219,23 @@ public class I2CBusManager {
       if (addr == 0x5c) {
         device.read(buf, 0, 1);
         TimeUnit.MILLISECONDS.sleep(20);
+      } else if (addr == 0x62) {
+        // special case for the SCD41 device
+        byte[] req = {0x36, (byte) 0x82};
+        device.write(req);
+        TimeUnit.MILLISECONDS.sleep(1);
+        byte[] response = new byte[9];
+        int read = device.read(response);
+        if (read == 9) return true;
       }
-      TimeUnit.MILLISECONDS.sleep(1);
+      else if(addr == 0x44){
+        SoftResetCommand command = new SoftResetCommand();
+        I2CDeviceImpl deviceImpl = new I2CDeviceImpl(device);
+        command.sendCommand(null, deviceImpl);
+        return true;
+      } else {
+        TimeUnit.MILLISECONDS.sleep(1);
+      }
       return device.read(buf, 0, 1) == 1;
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();

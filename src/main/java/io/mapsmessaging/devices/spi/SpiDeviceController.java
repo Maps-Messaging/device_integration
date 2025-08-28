@@ -1,17 +1,20 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] Matthew Buckton
+ *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 with the Commons Clause
+ *  (the "License"); you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at:
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://commonsclause.com/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
  */
 
 package io.mapsmessaging.devices.spi;
@@ -30,7 +33,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public abstract class SpiDeviceController implements DeviceController {
+public abstract class SpiDeviceController extends DeviceController {
   private boolean raiseExceptionOnError = false;
 
   public abstract SpiDeviceController mount(Context pi4j, Map<String, String> config);
@@ -64,33 +67,19 @@ public abstract class SpiDeviceController implements DeviceController {
   }
 
   protected SpiChipSelect getChipSelect(int chipSelectInt) {
-    SpiChipSelect chipSelect;
-    switch (chipSelectInt) {
-      case 2:
-        chipSelect = SpiChipSelect.CS_2;
-        break;
-
-      case 1:
-        chipSelect = SpiChipSelect.CS_1;
-        break;
-
-      default:
-        chipSelect = SpiChipSelect.CS_0;
-    }
-    return chipSelect;
+    return switch (chipSelectInt) {
+      case 2 -> SpiChipSelect.CS_2;
+      case 1 -> SpiChipSelect.CS_1;
+      default -> SpiChipSelect.CS_0;
+    };
   }
 
   protected SpiMode getMode(int spiModeInt) {
-    switch (spiModeInt) {
-      case 1:
-        return SpiMode.MODE_1;
-      case 2:
-        return SpiMode.MODE_2;
-      case 3:
-        return SpiMode.MODE_3;
-      default:
-        return SpiMode.MODE_0;
-
-    }
+    return switch (spiModeInt) {
+      case 1 -> SpiMode.MODE_1;
+      case 2 -> SpiMode.MODE_2;
+      case 3 -> SpiMode.MODE_3;
+      default -> SpiMode.MODE_0;
+    };
   }
 }

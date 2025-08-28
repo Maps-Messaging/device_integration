@@ -1,44 +1,51 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] Matthew Buckton
+ *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 with the Commons Clause
+ *  (the "License"); you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at:
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://commonsclause.com/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
  */
 
 package io.mapsmessaging.devices.onewire.devices.ds18b20;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import io.mapsmessaging.devices.DeviceType;
-import io.mapsmessaging.devices.NamingConstants;
 import io.mapsmessaging.devices.onewire.OneWireDeviceController;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
-import org.everit.json.schema.NumberSchema;
-import org.everit.json.schema.ObjectSchema;
-import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class DS18B20Controller extends OneWireDeviceController {
 
   private final DS18B20Device sensor;
 
-  @Getter
-  private final String name = "DS18B20";
-  @Getter
-  private final String description = "Temperature sensor";
-
   public DS18B20Controller() {
     sensor = null;
+  }
+
+  @Override
+  public String getName() {
+    return "DS18B20";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Temperature sensor";
   }
 
   public DS18B20Controller(File path) {
@@ -53,15 +60,17 @@ public class DS18B20Controller extends OneWireDeviceController {
   public OneWireDeviceController mount(File path) {
     return new DS18B20Controller(path);
   }
-  public DeviceType getType(){
+
+  public DeviceType getType() {
     return DeviceType.SENSOR;
   }
 
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
+    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
     config.setComments("1-Wire temperature sensor");
-    config.setSource(getName());
-    config.setVersion("1.0");
+    config.setTitle(getName());
+    config.setUniqueId(getSchemaId());
+    config.setVersion(1);
     config.setResourceType("sensor");
     config.setInterfaceDescription("Returns JSON object containing temperature, minimum and maximum, Model, Status and Version");
     return config;
@@ -74,30 +83,16 @@ public class DS18B20Controller extends OneWireDeviceController {
 
   @Override
   public byte[] getDeviceState() {
-    JSONObject jsonObject = new JSONObject();
+    JsonObject jsonObject = new JsonObject();
     if (sensor != null) {
       sensor.update();
-      jsonObject.put("temperature", sensor.getCurrent());
+      jsonObject.add("temperature", new JsonPrimitive(sensor.getCurrent()));
     }
-    return jsonObject.toString(2).getBytes();
+    return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
   }
 
-  private String buildSchema() {
-    ObjectSchema.Builder updateSchema = ObjectSchema.builder()
-        .addPropertySchema("temperature",
-            NumberSchema.builder()
-                .minimum(-55.0)
-                .maximum(125.0)
-                .description("Temperature")
-                .build()
-        );
-
-    ObjectSchema.Builder schemaBuilder = ObjectSchema.builder();
-    schemaBuilder
-        .addPropertySchema(NamingConstants.SENSOR_DATA_SCHEMA, updateSchema.build())
-        .description("Temperature Module")
-        .title("DS18B20");
-
-    return schemaToString(schemaBuilder.build());
+  @Override
+  public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
+    return new byte[0]; // Nothing to do
   }
 }

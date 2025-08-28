@@ -1,17 +1,20 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] Matthew Buckton
+ *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 with the Commons Clause
+ *  (the "License"); you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at:
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://commonsclause.com/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
  */
 
 package io.mapsmessaging.devices.i2c.devices.sensors.bh1750;
@@ -22,23 +25,25 @@ import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 
-@Getter
 public class Bh1750Controller extends I2CDeviceController {
-
-  private final String name = "BH1750";
-
-  @Getter
-  private final String description = "16bit Serial Output Type Ambient Light Sensor ";
 
   private final Bh1750Sensor sensor;
 
-
   public Bh1750Controller() {
     sensor = null;
+  }
+
+  @Override
+  public String getName() {
+    return "BH1750";
+  }
+
+  @Override
+  public String getDescription() {
+    return "16bit Serial Output Type Ambient Light Sensor ";
   }
 
   public Bh1750Controller(AddressableDevice device) throws IOException {
@@ -58,19 +63,23 @@ public class Bh1750Controller extends I2CDeviceController {
   public I2CDeviceController mount(AddressableDevice device) throws IOException {
     return new Bh1750Controller(device);
   }
-  public DeviceType getType(){
+
+  public DeviceType getType() {
     return getDevice().getType();
   }
 
+  @Override
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig();
-    config.setComments(description);
-    config.setSource(getName());
-    config.setVersion("1.0");
+    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
+    config.setComments(getDescription());
+    config.setTitle(getName());
+    config.setVersion(1);
+    config.setUniqueId(getSchemaId());
     config.setResourceType("sensor");
     config.setInterfaceDescription("Returns JSON object containing current lux level");
     return config;
   }
+
 
   @Override
   public int[] getAddressRange() {

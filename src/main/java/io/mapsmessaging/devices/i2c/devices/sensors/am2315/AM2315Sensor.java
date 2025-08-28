@@ -1,17 +1,20 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] Matthew Buckton
+ *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 with the Commons Clause
+ *  (the "License"); you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at:
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://commonsclause.com/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
  */
 
 package io.mapsmessaging.devices.i2c.devices.sensors.am2315;
@@ -35,11 +38,8 @@ public class AM2315Sensor extends I2CDevice implements Sensor {
   //
   // Command Codes
   //
-  private static final byte READ_REGISTER = 0x03; // Read data from one or more registers
-  private static final byte WRITE_REGISTER = 0x10; // Multiple sets of binary data is written to mutliple registers
+  private static final byte READ_FUNCTION = 0x03;
 
-  @Getter
-  private final List<SensorReading<?>> readings;
   //
   // Registers
   //
@@ -49,7 +49,8 @@ public class AM2315Sensor extends I2CDevice implements Sensor {
   private static final byte VERSION = 0x0A;
   private static final byte ID_24_31 = 0x0B;
   private static final byte STATUS = 0x0F;
-
+  @Getter
+  private final List<SensorReading<?>> readings;
   private float temperature;
   private float humidity;
   private long lastRead;
@@ -58,9 +59,31 @@ public class AM2315Sensor extends I2CDevice implements Sensor {
   public AM2315Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(AM2315Sensor.class));
     lastRead = 0;
-    FloatSensorReading temperatureReading = new FloatSensorReading("temperature", "C", -40, 80, 1, this::getTemperature);
-    FloatSensorReading humidityReading = new FloatSensorReading("humidity", "%", 0, 100, 0, this::getHumidity);
-    readings = List.of(temperatureReading, humidityReading);
+    FloatSensorReading temperatureReading = new FloatSensorReading(
+        "temperature",
+        "°C",
+        "Ambient temperature from AM2315 sensor",
+        22.5f,
+        true,
+        -40f,
+        80f,
+        1,
+        this::getTemperature
+    );
+
+    FloatSensorReading humidityReading = new FloatSensorReading(
+        "humidity",
+        "%",
+        "Relative humidity from AM2315 sensor",
+        55.0f,
+        true,
+        0f,
+        100f,
+        0,
+        this::getHumidity
+    );
+
+    readings = generateSensorReadings(List.of(temperatureReading, humidityReading));
     loadValues();
   }
 
@@ -148,7 +171,7 @@ public class AM2315Sensor extends I2CDevice implements Sensor {
     while (count < 10) {
       try {
         return readRegisters(start, end);
-      } catch (Throwable th) {
+      } catch (Exception th) {
         count++;
         delay(10);
       }
@@ -158,7 +181,7 @@ public class AM2315Sensor extends I2CDevice implements Sensor {
 
   private byte[] readRegisters(byte startReg, byte endReg) throws IOException {
     byte[] sendPacket = new byte[3];
-    sendPacket[0] = READ_REGISTER;
+    sendPacket[0] = READ_FUNCTION;
     sendPacket[1] = startReg;
     sendPacket[2] = endReg;
     write(sendPacket);

@@ -1,17 +1,20 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] Matthew Buckton
+ *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 with the Commons Clause
+ *  (the "License"); you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at:
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://commonsclause.com/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
  */
 
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231;
@@ -40,12 +43,6 @@ import static io.mapsmessaging.devices.logging.DeviceLogMessage.I2C_BUS_INVALID_
 
 @Getter
 public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
-
-  public static boolean detect(AddressableDevice i2cDevice) throws IOException {
-    try (Ds3231Rtc t = new Ds3231Rtc(i2cDevice)){
-      return t.isConnected();
-    }
-  }
 
   private final SecondsRegister secondsRegister;
   @Getter
@@ -88,7 +85,6 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
   private final Alarm2ModeRegister alarm2ModeRegister;
   @Getter
   private final List<SensorReading<?>> readings;
-
   public Ds3231Rtc(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(Ds3231Rtc.class));
     secondsRegister = new SecondsRegister(this, 0x0, "SECONDS");
@@ -116,21 +112,46 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
     alarm1ModeRegister = new Alarm1ModeRegister(this, alarm1Seconds, alarm1Minutes, alarm1Hours, alarm1DayRegister);
     alarm2ModeRegister = new Alarm2ModeRegister(this, alarm2Minutes, alarm2Hours, alarm2DayRegister);
 
-    SensorReading<Float> temperature = new FloatSensorReading("temperature", "C", -10, 60, 1, this::getTemperature);
-    SensorReading<LocalDateTime> dateTime = new LocalDateTimeSensorReading("date", "", this::getDateTime);
+    SensorReading<Float> temperature = new FloatSensorReading(
+        "temperature",
+        "°C",
+        "Temperature reading from DS3231 RTC",
+        25.0f,
+        true,
+        -10f,
+        60f,
+        1,
+        this::getTemperature
+    );
+
+    SensorReading<LocalDateTime> dateTime = new LocalDateTimeSensorReading(
+        "date",
+        "UTC",
+        "Timestamp from DS3231 RTC",
+        LocalDateTime.of(2024, 1, 1, 0, 0),
+        true,
+        this::getDateTime
+    );
+
 
     readings = List.of(temperature, dateTime);
+  }
+
+  public static boolean detect(AddressableDevice i2cDevice) throws IOException {
+    try (Ds3231Rtc t = new Ds3231Rtc(i2cDevice)) {
+      return t.isConnected();
+    }
   }
 
   @Override
   public boolean isConnected() {
 
     try {
-      int t = (secondsRegister.getSeconds()+1) % 60;
+      int t = (secondsRegister.getSeconds() + 1) % 60;
       long end = System.currentTimeMillis() + 1000;
-      while(end > System.currentTimeMillis()){
+      while (end > System.currentTimeMillis()) {
         int next = secondsRegister.getSeconds();
-        if(t == next){
+        if (t == next) {
           return true;
         }
       }

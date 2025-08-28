@@ -1,17 +1,20 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] Matthew Buckton
+ *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 with the Commons Clause
+ *  (the "License"); you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at:
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://commonsclause.com/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
  */
 
 package io.mapsmessaging.devices.i2c.devices.sensors.lps25.registers;
@@ -30,7 +33,7 @@ public class Control2 extends SingleByteRegister {
   private static final byte BOOT = (byte) 0b10000000;
   private static final byte FIFO_ENABLED = 0b01000000;
   private static final byte STOP_ON_FIFO_THRESHOLD = 0b00100000;
-
+  private static final byte FIFO_MEAN_DEC = 0b10000;
   private static final byte RESET = 0b00000100;
   private static final byte ENABLE_AUTO_ZERO = 0b00000010;
   private static final byte ENABLE_ONE_SHOT = 0b00000001;
@@ -54,6 +57,17 @@ public class Control2 extends SingleByteRegister {
   public boolean isFiFoEnabled() {
     return (registerValue & FIFO_ENABLED) != 0;
   }
+
+
+  public void setFiFoMeanDec(boolean flag) throws IOException {
+    int value = flag ? FIFO_MEAN_DEC : 0;
+    setControlRegister(~FIFO_MEAN_DEC, value);
+  }
+
+  public boolean isFiFoMeanDecEnabled() {
+    return (registerValue & FIFO_MEAN_DEC) != 0;
+  }
+
 
   public void enableStopFiFoOnThreshold(boolean flag) throws IOException {
     int value = flag ? STOP_ON_FIFO_THRESHOLD : 0;
@@ -94,8 +108,7 @@ public class Control2 extends SingleByteRegister {
 
   @Override
   public boolean fromData(RegisterData input) throws IOException {
-    if (input instanceof Control2Data) {
-      Control2Data data = (Control2Data) input;
+    if (input instanceof Control2Data data) {
       enableFiFo(data.isFifoEnabled());
       enableStopFiFoOnThreshold(data.isStopFifoOnThreshold());
       enableAutoZero(data.isAutoZeroEnabled());

@@ -1,17 +1,20 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] Matthew Buckton
+ *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 with the Commons Clause
+ *  (the "License"); you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at:
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://commonsclause.com/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
  */
 
 package io.mapsmessaging.devices.i2c.devices.rtc.ds3231;
@@ -22,22 +25,26 @@ import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import lombok.Getter;
 
 import java.io.IOException;
 
 public class Ds3231Controller extends I2CDeviceController {
 
-  private final int i2cAddr = 0x68;
+  private static final int i2cAddr = 0x68;
   private final Ds3231Rtc rtc;
-
-  @Getter
-  private final String name = "DS3231";
-  @Getter
-  private final String description = "Real Time Clock with temperature calibration";
 
   public Ds3231Controller() {
     rtc = null;
+  }
+
+  @Override
+  public String getName() {
+    return "DS3231";
+  }
+
+  @Override
+  public String getDescription() {
+    return "Real Time Clock with temperature calibration";
   }
 
   public Ds3231Controller(AddressableDevice device) throws IOException {
@@ -53,7 +60,7 @@ public class Ds3231Controller extends I2CDeviceController {
     return true;
   }
 
-  public DeviceType getType(){
+  public DeviceType getType() {
     return getDevice().getType();
   }
 
@@ -62,7 +69,7 @@ public class Ds3231Controller extends I2CDeviceController {
     try {
       return Ds3231Rtc.detect(i2cDevice);
     } catch (IOException e) {
-
+      // ingnore, we are simply detecting if it exists, an exception is very probable
     }
     return false;
   }
@@ -72,10 +79,11 @@ public class Ds3231Controller extends I2CDeviceController {
   }
 
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig();
+    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(rtc));
     config.setComments("i2c RTC");
-    config.setSource(getName());
-    config.setVersion("1.0");
+    config.setTitle(getName());
+    config.setVersion(1);
+    config.setUniqueId(getSchemaId());
     config.setResourceType("rtc");
     config.setInterfaceDescription("Returns JSON object containing the latest rtc");
     return config;

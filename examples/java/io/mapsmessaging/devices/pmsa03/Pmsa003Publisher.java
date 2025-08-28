@@ -1,17 +1,20 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] Matthew Buckton
+ *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 with the Commons Clause
+ *  (the "License"); you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at:
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://commonsclause.com/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
  */
 
 package io.mapsmessaging.devices.pmsa03;
@@ -20,22 +23,17 @@ import io.mapsmessaging.devices.DeviceBusManager;
 import io.mapsmessaging.devices.i2c.I2CBusManager;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
-import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.i2c.devices.sensors.pmsa003i.Pmsa003iSensor;
-import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import lombok.SneakyThrows;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.util.List;
 
 public class Pmsa003Publisher implements Runnable {
 
-  private final Pmsa003iSensor device;
+  private final I2CDeviceController deviceController;
 
-  public Pmsa003Publisher(Pmsa003iSensor device) {
-    this.device = device;
+  public Pmsa003Publisher(I2CDeviceController deviceController) {
+    this.deviceController = deviceController;
     Thread t = new Thread(this);
     t.start();
   }
@@ -51,34 +49,17 @@ public class Pmsa003Publisher implements Runnable {
     if (deviceController != null) {
       I2CDevice sensor = deviceController.getDevice();
       if (sensor instanceof Pmsa003iSensor) {
-        new Pmsa003Publisher((Pmsa003iSensor) sensor);
+        new Pmsa003Publisher(deviceController);
       }
     }
   }
 
   @SneakyThrows
   public void run() {
-    List<SensorReading<?>> readings = device.getReadings();
-    OutputStream outputStream = new FileOutputStream("/home/pi/pmsa003.csv", false);
-    String header = "time,";
-    for(SensorReading<?> sensor:readings){
-      header += sensor.getName()+",";
-    }
-    header +="\n";
-    outputStream.write(header.getBytes());
-    outputStream.flush();
-
-    while (!readings.isEmpty()) {
-      StringBuilder sb = new StringBuilder(""+System.currentTimeMillis()+",");
-      synchronized (I2CDeviceScheduler.getI2cBusLock()) {
-        for (SensorReading<?> reading : readings) {
-          sb.append(""+ reading.getValue().getResult()).append(",");
-        }
-      }
-      sb.append("\n");
-      outputStream.write(sb.toString().getBytes());
-      outputStream.flush();
-      Thread.sleep(30000);
+    deviceController.setRaiseExceptionOnError(true);
+    for(int x=0;x<100000;x++){
+      System.err.println(new String(deviceController.getDeviceState()));
+      Thread.sleep(3000);
     }
   }
 }

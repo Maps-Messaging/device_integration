@@ -1,17 +1,20 @@
 /*
- *      Copyright [ 2020 - 2023 ] [Matthew Buckton]
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
+ *  Copyright [ 2020 - 2024 ] Matthew Buckton
+ *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
  *
- *          http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 with the Commons Clause
+ *  (the "License"); you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at:
  *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://commonsclause.com/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
  */
 
 package io.mapsmessaging.devices.i2c.devices.sensors.gravity;
@@ -61,6 +64,7 @@ public class GasSensor extends I2CDevice implements Sensor {
 
   public GasSensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(GasSensor.class));
+
     concentrationRegister = new ConcentrationRegister(this);
     sensorType = concentrationRegister.getSensorType();
     i2CRegister = new I2CRegister(this);
@@ -69,11 +73,46 @@ public class GasSensor extends I2CDevice implements Sensor {
     temperatureRegister = new TemperatureRegister(this);
     sensorReadingRegister = new SensorReadingRegister(this);
     voltageRegister = new VoltageRegister(this);
-    FloatSensorReading concentration = new FloatSensorReading("concentration", sensorType.getUnits(), sensorType.getMinimumRange(), sensorType.getMaximumRange(), sensorType.getResolution(), this::getConcentration);
-    FloatSensorReading concentrationTempAdj = new FloatSensorReading("concentrationTempAdj", sensorType.getUnits(), sensorType.getMinimumRange(), sensorType.getMaximumRange(), sensorType.getResolution(), this::getConcentration);
-    FloatSensorReading temperature = new FloatSensorReading("temperature", "C", -30, 70, 1, this::getTemperature);
-    readings = List.of(temperature, concentration, concentrationTempAdj);
+
+    FloatSensorReading concentration = new FloatSensorReading(
+        sensorType.getGasType(),
+        sensorType.getUnits(),
+        "Raw gas concentration from sensor type: " + sensorType.getName(),
+        0.0f + sensorType.getMinimumRange(),
+        true,
+        sensorType.getMinimumRange(),
+        sensorType.getMaximumRange(),
+        sensorType.getResolution(),
+        this::getConcentration
+    );
+
+    FloatSensorReading concentrationTempAdj = new FloatSensorReading(
+        "concentrationTempAdj",
+        sensorType.getUnits(),
+        "Temperature-compensated concentration from sensor type: " + sensorType.getName(),
+        0.0f + sensorType.getMinimumRange(),
+        true,
+        sensorType.getMinimumRange(),
+        sensorType.getMaximumRange(),
+        sensorType.getResolution(),
+        this::getConcentration
+    );
+
+    FloatSensorReading temperature = new FloatSensorReading(
+        "temperature",
+        "°C",
+        "Internal sensor temperature",
+        25.0f,
+        true,
+        -30f,
+        70f,
+        1,
+        this::getTemperature
+    );
+
+    readings = generateSensorReadings(List.of(temperature, concentration, concentrationTempAdj));
   }
+
 
   protected float getTemperatureAdjustedConcentration() throws IOException {
     float concentration = concentrationRegister.getConcentration();
@@ -115,6 +154,7 @@ public class GasSensor extends I2CDevice implements Sensor {
     }
     return "Generic Gas Sensor";
   }
+
   @Override
   public DeviceType getType() {
     return DeviceType.SENSOR;
