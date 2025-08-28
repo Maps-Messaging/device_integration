@@ -152,17 +152,6 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>1.7.0</version>
-        <extensions>true</extensions>
-        <configuration>
-          <serverId>mapsmessaging.io</serverId>
-          <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-          <autoReleaseAfterClose>true</autoReleaseAfterClose>
-        </configuration>
-      </plugin>
 
       <!-- Allow JDKs greater than 1.8 to be used by maven -->
       <!-- build the source jar as well -->
