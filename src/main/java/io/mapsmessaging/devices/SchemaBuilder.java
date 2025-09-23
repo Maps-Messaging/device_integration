@@ -68,8 +68,7 @@ public class SchemaBuilder {
         NamingConstants.DEVICE_STATIC_DATA_SCHEMA,
         NamingConstants.SENSOR_DATA_SCHEMA
     )));
-    fullSchema.addProperty("additionalProperties", false);
-
+    fullSchema.addProperty("additionalProperties", true);
     return gson.toJson(fullSchema);
   }
 
@@ -85,7 +84,7 @@ public class SchemaBuilder {
 
     schema.add(PROPERTIES, properties);
     schema.add(REQUIRED, required);
-    schema.addProperty("additionalProperties", false);
+    schema.addProperty("additionalProperties", true);
     return schema;
   }
 
