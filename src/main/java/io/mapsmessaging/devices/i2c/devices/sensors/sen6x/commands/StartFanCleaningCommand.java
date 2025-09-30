@@ -23,7 +23,7 @@ import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.Sen6xCommandHelper;
 import java.io.IOException;
 
 public class StartFanCleaningCommand implements Sen6xCommand<Void> {
-  private static final int CMD_ID = 0xD209;
+  private static final int CMD_ID = 0x5607;
 
   private final Sen6xCommandHelper helper;
 

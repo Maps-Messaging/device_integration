@@ -18,11 +18,15 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands;
 
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.ResetMonitor;
+
 import java.io.IOException;
 
 public class Co2MeasurementCommand extends AbstractMeasurementCommand {
 
-  public Co2MeasurementCommand(Sen6xMeasurementManager manager) {
+  private final ResetMonitor resetMonitor;
+
+  public Co2MeasurementCommand(ResetMonitor resetMonitor, Sen6xMeasurementManager manager) {
     super(
         manager,
         "CO₂",                     // name
@@ -34,11 +38,14 @@ public class Co2MeasurementCommand extends AbstractMeasurementCommand {
         5000.0f,                  // max
         0                         // precision (integer ppm)
     );
+    this.resetMonitor = resetMonitor;
   }
 
   @Override
   public float getValue() throws IOException {
-    return manager.getMeasurementBlock().getCo2ppm();
+    float val =manager.getMeasurementBlock().getCo2ppm();
+    resetMonitor.check();
+    return val;
   }
 
 }

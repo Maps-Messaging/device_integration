@@ -40,6 +40,10 @@ public abstract class Sen6xMeasurementManager {
     cachedBlock = new MeasurementBlock();
   }
 
+  public synchronized boolean hasLocked(){
+    return (System.currentTimeMillis() - 15000 ) > lastReadTime;
+  }
+
   public synchronized MeasurementBlock getMeasurementBlock() throws IOException {
     if (getReadyFlagCommand.isReady()) {
       long now = System.currentTimeMillis();
