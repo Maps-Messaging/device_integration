@@ -23,8 +23,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.onewire.OneWireDeviceController;
+import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import io.mapsmessaging.schemas.model.XRegistrySchemaVersion;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,12 +65,12 @@ public class DS18B20Controller extends OneWireDeviceController {
     return DeviceType.SENSOR;
   }
 
-  public XRegistrySchemaVersion getSchema() {
+  public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
-    config.setDescription("1-Wire temperature sensor");
-    config.setComments(getName());
+    config.setComments("1-Wire temperature sensor");
+    config.setTitle(getName());
     config.setUniqueId(getSchemaId());
-    config.setVersion("1");
+    config.setVersion(1);
     config.setResourceType("sensor");
     config.setInterfaceDescription("Returns JSON object containing temperature, minimum and maximum, Model, Status and Version");
     return config;

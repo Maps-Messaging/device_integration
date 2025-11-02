@@ -21,7 +21,7 @@ package io.mapsmessaging.devices.spi;
 
 import com.pi4j.context.Context;
 import io.mapsmessaging.devices.DeviceType;
-import io.mapsmessaging.schemas.model.XRegistrySchemaVersion;
+import io.mapsmessaging.schemas.config.SchemaConfig;
 
 import java.io.IOException;
 import java.util.Map;
@@ -48,7 +48,7 @@ public class SpiDeviceScheduler extends SpiDeviceController {
   }
 
   @Override
-  public XRegistrySchemaVersion getSchema() {
+  public SchemaConfig getSchema() {
     return deviceController.getSchema();
   }
 

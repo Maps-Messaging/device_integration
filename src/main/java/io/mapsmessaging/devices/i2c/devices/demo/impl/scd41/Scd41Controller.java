@@ -25,8 +25,8 @@ import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.i2c.devices.demo.I2cDemoController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
+import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import io.mapsmessaging.schemas.model.XRegistrySchemaVersion;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -84,11 +84,11 @@ public class Scd41Controller extends I2cDemoController {
     return DESCRIPTION;
   }
 
-  public XRegistrySchemaVersion getSchema() {
+  public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(device));
-    config.setDescription(DESCRIPTION);
-    config.setComments(getName());
-    config.setVersion("1");
+    config.setComments(DESCRIPTION);
+    config.setTitle(getName());
+    config.setVersion(1);
     config.setUniqueId(getSchemaId());
     config.setResourceType("sensor");
     config.setInterfaceDescription("Debug device, updates time");

@@ -26,8 +26,8 @@ import com.pi4j.io.spi.Spi;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.devices.spi.SpiDeviceController;
+import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import io.mapsmessaging.schemas.model.XRegistrySchemaVersion;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -114,11 +114,11 @@ public class Mcp3y0xController extends SpiDeviceController {
     return new byte[0];
   }
 
-  public XRegistrySchemaVersion getSchema() {
+  public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
-    config.setDescription("SPI device Analog to Digital convertor");
-    config.setComments(getName());
-    config.setVersion("1");
+    config.setComments("SPI device Analog to Digital convertor");
+    config.setTitle(getName());
+    config.setVersion(1);
     config.setResourceType("sensor");
     config.setUniqueId(getSchemaId());
     config.setInterfaceDescription("Returns JSON object containing the latest readings from all channels");
