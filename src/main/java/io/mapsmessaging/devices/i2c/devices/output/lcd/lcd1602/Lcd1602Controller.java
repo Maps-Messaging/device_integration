@@ -32,8 +32,8 @@ import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.data.ActionType;
 import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.data.Lcd1602Command;
 import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.data.Lcd1602Response;
 import io.mapsmessaging.devices.impl.AddressableDevice;
-import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
+import io.mapsmessaging.schemas.model.XRegistrySchemaVersion;
 
 import java.io.IOException;
 
@@ -153,12 +153,12 @@ public class Lcd1602Controller extends I2CDeviceController {
   }
 
   @Override
-  public SchemaConfig getSchema() {
+  public XRegistrySchemaVersion getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema());
     config.setComments(DESCRIPTION);
-    config.setTitle(getName());
+    config.setComments(getName());
     config.setUniqueId(getSchemaId());
-    config.setVersion(1);
+    config.setVersion("1");
     config.setResourceType("display");
     config.setInterfaceDescription("LCD1602 accepts actions such as WRITE, CLEAR, READ. Data is a byte array.");
     return config;

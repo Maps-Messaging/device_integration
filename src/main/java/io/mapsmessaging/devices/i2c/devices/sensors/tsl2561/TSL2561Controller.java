@@ -23,8 +23,8 @@ import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
-import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
+import io.mapsmessaging.schemas.model.XRegistrySchemaVersion;
 
 import java.io.IOException;
 
@@ -69,11 +69,11 @@ public class TSL2561Controller extends I2CDeviceController {
   }
 
 
-  public SchemaConfig getSchema() {
+  public XRegistrySchemaVersion getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
     config.setComments("i2c device TLS2561 light sensor, returns light and IR light levels and computed lux level");
-    config.setTitle(getName());
-    config.setVersion(1);
+    config.setComments(getName());
+    config.setVersion("1");
     config.setResourceType("sensor");
     config.setUniqueId(getSchemaId());
     config.setInterfaceDescription("Returns JSON object containing light and IR light levels");

@@ -30,8 +30,8 @@ import io.mapsmessaging.devices.i2c.devices.storage.at24c.data.AT24CnnResponse;
 import io.mapsmessaging.devices.i2c.devices.storage.at24c.data.Details;
 import io.mapsmessaging.devices.i2c.devices.storage.at24c.values.ActionType;
 import io.mapsmessaging.devices.impl.AddressableDevice;
-import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
+import io.mapsmessaging.schemas.model.XRegistrySchemaVersion;
 
 import java.io.IOException;
 
@@ -113,11 +113,11 @@ public class AT24CnnController extends I2CDeviceController {
     return objectMapper2.writeValueAsString(response).getBytes();
   }
 
-  public SchemaConfig getSchema() {
+  public XRegistrySchemaVersion getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig();
     config.setComments("i2c device AT24C32/64 eeprom");
-    config.setTitle(getName());
-    config.setVersion(1);
+    config.setComments(getName());
+    config.setVersion("1");
     config.setResourceType("storage");
     config.setUniqueId(getSchemaId());
     config.setInterfaceDescription("Serial EEPROM");

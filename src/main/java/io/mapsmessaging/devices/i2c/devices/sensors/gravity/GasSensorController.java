@@ -25,8 +25,8 @@ import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.util.UuidGenerator;
-import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
+import io.mapsmessaging.schemas.model.XRegistrySchemaVersion;
 
 import java.io.IOException;
 
@@ -78,16 +78,16 @@ public class GasSensorController extends I2CDeviceController {
   }
 
 
-  public SchemaConfig getSchema() {
+  public XRegistrySchemaVersion getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
-    config.setComments(getName());
-    config.setVersion(1);
+    config.setDescription(getName());
+    config.setVersion("1");
     config.setResourceType("sensor");
     if (sensor != null) {
       config.setUniqueId(UuidGenerator.getInstance().generateUuid(getName() + "-" + sensor.getSensorType().getSku() + "-" + sensor.getSensorType().getGasType()));
-      config.setTitle(getName() + "-" + sensor.getSensorType().getGasType());
+      config.setComments(getName() + "-" + sensor.getSensorType().getGasType());
     } else {
-      config.setTitle(getName());
+      config.setComments(getName());
       config.setUniqueId(getSchemaId());
     }
     config.setInterfaceDescription("Gravity Gas sensor");

@@ -22,7 +22,6 @@ package io.mapsmessaging.devices.web;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.mapsmessaging.devices.DeviceBusManager;
@@ -334,9 +333,8 @@ public class SimpleWebAccess {
   }
 
 
-  private void handleGetSchema(Context ctx, DeviceController deviceController) throws IOException {
-    String schema = deviceController.getSchema().pack();
-    JsonObject schemaObject = JsonParser.parseString(schema).getAsJsonObject();
+  private void handleGetSchema(Context ctx, DeviceController deviceController) {
+    com.google.gson.JsonObject schemaObject = deviceController.getSchema().getSchema();
 
     JsonObject obj1 = schemaObject.getAsJsonObject("schema");
     if (obj1 != null && obj1.has("jsonSchema")) {

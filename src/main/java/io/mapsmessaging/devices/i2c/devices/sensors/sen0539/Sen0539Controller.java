@@ -22,8 +22,8 @@ import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
-import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
+import io.mapsmessaging.schemas.model.XRegistrySchemaVersion;
 
 import java.io.IOException;
 
@@ -52,12 +52,12 @@ public class Sen0539Controller extends I2CDeviceController {
   }
 
   @Override
-  public SchemaConfig getSchema() {
+  public XRegistrySchemaVersion getSchema() {
     JsonSchemaConfig cfg = new JsonSchemaConfig(buildSchema(sensor));
-    cfg.setTitle(getName());
-    cfg.setComments(getDescription());
+    cfg.setComments(getName());
+    cfg.setDescription(getDescription());
     cfg.setResourceType("sensor");
-    cfg.setVersion(1);
+    cfg.setVersion("1");
     cfg.setUniqueId(getSchemaId());
     cfg.setInterfaceDescription("I2C address 0x64");
     return cfg;
