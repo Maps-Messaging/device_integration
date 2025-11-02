@@ -28,8 +28,8 @@ import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.i2c.devices.sensors.bno055.values.SystemStatus;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.sensorreadings.Orientation;
-import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
+import io.mapsmessaging.schemas.model.XRegistrySchemaVersion;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -122,11 +122,11 @@ public class BNO055Controller extends I2CDeviceController {
     return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
   }
 
-  public SchemaConfig getSchema() {
+  public XRegistrySchemaVersion getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
-    config.setComments("i2c device BNO055 orientation sensor");
-    config.setTitle(getName());
-    config.setVersion(1);
+    config.setDescription("i2c device BNO055 orientation sensor");
+    config.setComments(getName());
+    config.setVersion("1");
     config.setResourceType("sensor");
     config.setUniqueId(getSchemaId());
     config.setInterfaceDescription("Returns JSON object containing Temperature and Pressure");

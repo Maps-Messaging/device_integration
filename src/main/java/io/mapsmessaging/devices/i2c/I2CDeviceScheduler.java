@@ -21,7 +21,7 @@ package io.mapsmessaging.devices.i2c;
 
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.impl.AddressableDevice;
-import io.mapsmessaging.schemas.config.SchemaConfig;
+import io.mapsmessaging.schemas.model.XRegistrySchemaVersion;
 import lombok.Getter;
 
 import java.io.IOException;
@@ -80,7 +80,7 @@ public class I2CDeviceScheduler extends I2CDeviceController {
   }
 
   @Override
-  public SchemaConfig getSchema() {
+  public XRegistrySchemaVersion getSchema() {
     return deviceController.getSchema();
   }
 

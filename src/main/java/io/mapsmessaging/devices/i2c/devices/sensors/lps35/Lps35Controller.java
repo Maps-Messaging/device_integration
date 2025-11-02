@@ -24,8 +24,8 @@ import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.impl.AddressableDevice;
-import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
+import io.mapsmessaging.schemas.model.XRegistrySchemaVersion;
 
 import java.io.IOException;
 
@@ -76,11 +76,11 @@ public class Lps35Controller extends I2CDeviceController {
     return new Lps35Controller(device);
   }
 
-  public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
-    config.setComments("i2c device LPS35 pressure sensor: 260-1260 hPa");
-    config.setTitle(getName());
-    config.setVersion(1);
+  public XRegistrySchemaVersion getSchema() {
+    var config = new JsonSchemaConfig(buildSchema(sensor));
+    config.setDescription("i2c device LPS35 pressure sensor: 260-1260 hPa");
+    config.setComments(getName());
+    config.setVersion("1");
     config.setUniqueId(getSchemaId());
     config.setResourceType("sensor");
     config.setInterfaceDescription("Returns JSON object containing pressure and temperature");

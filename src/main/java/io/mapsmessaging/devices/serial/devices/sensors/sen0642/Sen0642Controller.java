@@ -22,8 +22,8 @@ package io.mapsmessaging.devices.serial.devices.sensors.sen0642;
 import com.google.gson.JsonObject;
 import io.mapsmessaging.devices.DeviceController;
 import io.mapsmessaging.devices.DeviceType;
-import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
+import io.mapsmessaging.schemas.model.XRegistrySchemaVersion;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,12 +53,12 @@ public class Sen0642Controller extends DeviceController {
   }
 
   @Override
-  public SchemaConfig getSchema() {
+  public XRegistrySchemaVersion getSchema() {
     JsonSchemaConfig cfg = new JsonSchemaConfig(buildSchema(sensor));
-    cfg.setTitle(getName());
-    cfg.setComments(getDescription());
+    cfg.setComments(getName());
+    cfg.setDescription(getDescription());
     cfg.setResourceType("sensor");
-    cfg.setVersion(1);
+    cfg.setVersion("1");
     cfg.setUniqueId(getSchemaId());
     cfg.setInterfaceDescription("Serial 4800 8N1");
     return cfg;

@@ -23,8 +23,8 @@ import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
-import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
+import io.mapsmessaging.schemas.model.XRegistrySchemaVersion;
 
 import java.io.IOException;
 
@@ -78,11 +78,11 @@ public class Ds3231Controller extends I2CDeviceController {
     return new Ds3231Controller(device);
   }
 
-  public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(rtc));
-    config.setComments("i2c RTC");
-    config.setTitle(getName());
-    config.setVersion(1);
+  public XRegistrySchemaVersion getSchema() {
+    var config = new JsonSchemaConfig(buildSchema(rtc));
+    config.setDescription("i2c RTC");
+    config.setComments(getName());
+    config.setVersion("1");
     config.setUniqueId(getSchemaId());
     config.setResourceType("rtc");
     config.setInterfaceDescription("Returns JSON object containing the latest rtc");
