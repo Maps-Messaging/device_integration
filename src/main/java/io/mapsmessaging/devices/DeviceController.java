@@ -24,7 +24,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.util.UuidGenerator;
-import io.mapsmessaging.schemas.model.XRegistrySchemaVersion;
+import io.mapsmessaging.schemas.config.SchemaConfig;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -57,7 +57,7 @@ public abstract class DeviceController {
 
   public abstract String getDescription();
 
-  public abstract XRegistrySchemaVersion getSchema();
+  public abstract SchemaConfig getSchema();
 
   public abstract byte[] getDeviceConfiguration() throws IOException;
 

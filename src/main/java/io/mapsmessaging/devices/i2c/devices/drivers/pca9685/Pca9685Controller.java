@@ -24,8 +24,8 @@ import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.impl.AddressableDevice;
+import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import io.mapsmessaging.schemas.model.XRegistrySchemaVersion;
 
 import java.io.IOException;
 
@@ -75,12 +75,12 @@ public class Pca9685Controller extends I2CDeviceController {
     return DESCRIPTION;
   }
 
-  public XRegistrySchemaVersion getSchema() {
+  public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig();
     config.setComments(DESCRIPTION);
     config.setUniqueId(getSchemaId());
-    config.setComments(getName());
-    config.setVersion("1");
+    config.setTitle(getName());
+    config.setVersion(1);
     config.setResourceType("driver");
     config.setInterfaceDescription("Manages the output of 16 PWM devices");
     return config;

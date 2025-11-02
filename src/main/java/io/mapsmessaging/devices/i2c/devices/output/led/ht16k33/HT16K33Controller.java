@@ -28,8 +28,8 @@ import io.mapsmessaging.devices.i2c.devices.output.Task;
 import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks.Clock;
 import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.tasks.TestTask;
 import io.mapsmessaging.devices.impl.AddressableDevice;
+import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
-import io.mapsmessaging.schemas.model.XRegistrySchemaVersion;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -201,10 +201,10 @@ public abstract class HT16K33Controller extends I2CDeviceController {
     }
   }
 
-  public XRegistrySchemaVersion getSchema(String schema) {
+  public SchemaConfig getSchema(String schema) {
     JsonSchemaConfig config = new JsonSchemaConfig(schema);
-    config.setComments(getName());
-    config.setVersion("1");
+    config.setTitle(getName());
+    config.setVersion(1);
     config.setResourceType("LED");
     config.setUniqueId(getSchemaId());
     config.setInterfaceDescription("Controls the LED segments");

@@ -21,7 +21,7 @@ package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.impl.AddressableDevice;
-import io.mapsmessaging.schemas.model.XRegistrySchemaVersion;
+import io.mapsmessaging.schemas.config.SchemaConfig;
 
 import java.io.IOException;
 
@@ -51,9 +51,9 @@ public class Quad7SegmentController extends HT16K33Controller {
   }
 
   @Override
-  public XRegistrySchemaVersion getSchema() {
-    XRegistrySchemaVersion config = super.getSchema(buildSchema(getName(), getDescription()));
-    config.setDescription("I2C HT16K33 device drives 4 7 segment LEDs with a : in the center");
+  public SchemaConfig getSchema() {
+    SchemaConfig config = super.getSchema(buildSchema(getName(), getDescription()));
+    config.setComments("I2C HT16K33 device drives 4 7 segment LEDs with a : in the center");
     return config;
   }
 
