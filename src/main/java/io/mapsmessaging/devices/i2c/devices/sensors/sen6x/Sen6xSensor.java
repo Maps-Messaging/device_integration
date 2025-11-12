@@ -101,6 +101,7 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
         null,
         true,
         null);
+
     groupSensorReading.getGroupList().addAll(buildStatusReadings(new Sen6xStatusSupplier(getDeviceStatusCommand)));
     tmp.add(groupSensorReading);
     tmp.addAll(buildMeasurementReadingds(contructMeasurementManager(helper)));
@@ -206,12 +207,13 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
 
   protected List<SensorReading<?>> buildMeasurementReadingds(Sen6xMeasurementManager manager) {
     List<SensorReading<?>> tempReadings = new ArrayList<>();
+    ResetMonitor resetMonitor = new ResetMonitor(manager, this);
 
     EnumSet<Sen6xSensorType> supported = SENSOR_SUPPORT_MAP.getOrDefault(productName.trim().toUpperCase(), EnumSet.of(Sen6xSensorType.CO2));
 
     for (Sen6xSensorType type : supported) {
       switch (type) {
-        case CO2 -> tempReadings.add(new Co2MeasurementCommand(manager).asSensorReading());
+        case CO2 -> tempReadings.add(new Co2MeasurementCommand(resetMonitor, manager).asSensorReading());
         case TEMP -> tempReadings.add(new TemperatureMeasurementCommand(manager).asSensorReading());
         case HUMIDITY -> tempReadings.add(new HumidityMeasurementCommand(manager).asSensorReading());
         case VOC -> tempReadings.add(new VocIndexMeasurementCommand(manager).asSensorReading());
