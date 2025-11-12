@@ -335,8 +335,7 @@ public class SimpleWebAccess {
 
 
   private void handleGetSchema(Context ctx, DeviceController deviceController) throws IOException {
-    String schema = deviceController.getSchema().pack();
-    JsonObject schemaObject = JsonParser.parseString(schema).getAsJsonObject();
+    JsonObject schemaObject = deviceController.getSchema().getSchema();
 
     JsonObject obj1 = schemaObject.getAsJsonObject("schema");
     if (obj1 != null && obj1.has("jsonSchema")) {
