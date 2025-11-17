@@ -95,7 +95,7 @@ public class Sen6xController extends I2CDeviceController {
     config.setVersion(1);
     config.setResourceType("sensor");
     config.setUniqueId(getSchemaId());
-    config.setInterfaceDescription("Returns Air Quality valies in JSON");
+    config.setDescription("Returns Air Quality valies in JSON");
     return config;
   }
 

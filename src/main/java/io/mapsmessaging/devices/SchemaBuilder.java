@@ -20,15 +20,13 @@
 package io.mapsmessaging.devices;
 
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.LocalDateTimeSensorReading;
 import io.mapsmessaging.devices.sensorreadings.*;
 
 import java.util.List;
+import java.util.Map;
 
 public class SchemaBuilder {
 
@@ -44,31 +42,17 @@ public class SchemaBuilder {
 
   private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-  public static String buildSchema(Sensor sensor, String name, String description) {
-    JsonObject staticSchema = new JsonObject();
-    staticSchema.addProperty(TYPE, OBJECT);
-    return buildSchema(sensor, staticSchema, name, description);
-  }
-
-  public static String buildSchema(Sensor sensor, JsonObject staticSchema, String name, String description) {
-    JsonObject sensorSchema = buildSchemaFromReadings(sensor.getReadings());
-
-    JsonObject fullSchema = new JsonObject();
-    fullSchema.addProperty(SCHEMA, "https://json-schema.org/draft/2020-12/schema");
-    fullSchema.addProperty("title", name);
-    fullSchema.addProperty(DESCRIPTION, description);
+  public static String buildSchema(Sensor sensor, JsonObject additional) {
+    JsonObject fullSchema = buildSchemaFromReadings(sensor.getReadings());
     fullSchema.addProperty(TYPE, OBJECT);
-
-    JsonObject properties = new JsonObject();
-    properties.add(NamingConstants.DEVICE_STATIC_DATA_SCHEMA, staticSchema);
-    properties.add(NamingConstants.SENSOR_DATA_SCHEMA, sensorSchema);
-
-    fullSchema.add(PROPERTIES, properties);
-    fullSchema.add(REQUIRED, gson.toJsonTree(List.of(
-        NamingConstants.DEVICE_STATIC_DATA_SCHEMA,
-        NamingConstants.SENSOR_DATA_SCHEMA
-    )));
-    fullSchema.addProperty("additionalProperties", true);
+    JsonObject properties = fullSchema.getAsJsonObject(PROPERTIES);
+    if(additional != null) {
+      Map<String, JsonElement> map = additional.asMap();
+      for (Map.Entry<String, JsonElement> entry : map.entrySet()) {
+        properties.add(entry.getKey(), gson.toJsonTree(entry.getValue()));
+      }
+      fullSchema.addProperty("additionalProperties", true);
+    }
     return gson.toJson(fullSchema);
   }
 
@@ -84,7 +68,6 @@ public class SchemaBuilder {
 
     schema.add(PROPERTIES, properties);
     schema.add(REQUIRED, required);
-    schema.addProperty("additionalProperties", true);
     return schema;
   }
 
@@ -122,7 +105,9 @@ public class SchemaBuilder {
       handleLongRegister(prop, (NumericSensorReading<?>) reading);
     } else if (reading instanceof StringSensorReading) {
       prop.addProperty(TYPE, STRING);
-      prop.addProperty(DESCRIPTION, UNIT + reading.getUnit());
+      if(reading.getUnit() != null && !reading.getUnit().isEmpty()) {
+        prop.addProperty(DESCRIPTION, UNIT + reading.getUnit());
+      }
     } else if (reading instanceof OrientationSensorReading orientationReading) {
       handleOrientationRegister(prop, orientationReading);
     } else if (reading instanceof LocalDateTimeSensorReading dateTime) {
@@ -132,21 +117,27 @@ public class SchemaBuilder {
     } else {
       // fallback: unknown type
       prop.addProperty(TYPE, STRING);
-      prop.addProperty(DESCRIPTION, UNIT + reading.getUnit());
+      if(reading.getUnit() != null && !reading.getUnit().isEmpty()) {
+        prop.addProperty(DESCRIPTION, UNIT + reading.getUnit());
+      }
     }
     return prop;
   }
 
   private static void handleBooleanRegister(JsonObject prop, SensorReading<?> reading) {
     prop.addProperty(TYPE, "boolean");
-    prop.addProperty(DESCRIPTION, UNIT + reading.getUnit());
+    if(reading.getUnit() != null && !reading.getUnit().isEmpty()) {
+      prop.addProperty(DESCRIPTION, UNIT + reading.getUnit());
+    }
     prop.addProperty(READ_ONLY, reading.isReadOnly());
   }
 
   private static void handleDateTimeRegister(JsonObject prop, LocalDateTimeSensorReading reading) {
     prop.addProperty(TYPE, STRING);
     prop.addProperty("format", "date-time");
-    prop.addProperty(DESCRIPTION, reading.getDescription() != null ? reading.getDescription() : UNIT + reading.getUnit());
+    if(reading.getUnit() != null && !reading.getUnit().isEmpty()) {
+      prop.addProperty(DESCRIPTION, UNIT + reading.getUnit());
+    }
     if (reading.getExample() != null) {
       prop.add("examples", gson.toJsonTree(List.of(reading.getExample().toString())));
     }
@@ -163,7 +154,10 @@ public class SchemaBuilder {
     }
     prop.add(PROPERTIES, orientationProps);
     prop.add(REQUIRED, gson.toJsonTree(List.of("x", "y", "z")));
-    prop.addProperty(DESCRIPTION, UNIT + orientation.getUnit());
+    if(orientation.getUnit() != null && !orientation.getUnit().isEmpty()) {
+      prop.addProperty(DESCRIPTION, UNIT + orientation.getUnit());
+    }
+
   }
 
   private static void handleFloatRegister(JsonObject prop, FloatSensorReading floatReading){
@@ -171,14 +165,18 @@ public class SchemaBuilder {
     prop.addProperty("minimum", floatReading.getMinimum());
     prop.addProperty("maximum", floatReading.getMaximum());
     prop.addProperty("x-precision", floatReading.getPrecision());
-    prop.addProperty(DESCRIPTION, UNIT + floatReading.getUnit());
+    if(floatReading.getUnit() != null && !floatReading.getUnit().isEmpty()) {
+      prop.addProperty(DESCRIPTION, UNIT + floatReading.getUnit());
+    }
   }
 
   private static void handleLongRegister(JsonObject prop, NumericSensorReading<?> num){
     prop.addProperty(TYPE, "integer");
     prop.addProperty("minimum", num.getMinimum().longValue());
     prop.addProperty("maximum", num.getMaximum().longValue());
-    prop.addProperty(DESCRIPTION, UNIT + num.getUnit());
+    if(num.getUnit() != null && !num.getUnit().isEmpty()) {
+      prop.addProperty(DESCRIPTION, UNIT + num.getUnit());
+    }
   }
 
   private SchemaBuilder(){

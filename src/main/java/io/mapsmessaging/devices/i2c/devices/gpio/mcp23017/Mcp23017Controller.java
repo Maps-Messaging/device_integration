@@ -86,7 +86,7 @@ public class Mcp23017Controller extends I2CDeviceController {
     config.setUniqueId(getSchemaId());
     config.setVersion(1);
     config.setResourceType("gpio");
-    config.setInterfaceDescription("gpio extender");
+    config.setDescription("gpio extender");
     return config;
   }
 

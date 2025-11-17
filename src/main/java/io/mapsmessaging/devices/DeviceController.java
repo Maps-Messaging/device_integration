@@ -78,11 +78,10 @@ public abstract class DeviceController {
   }
 
   public String buildSchema(Sensor sensor) {
-    return SchemaBuilder.buildSchema(sensor, getName(), getDescription());
+    return SchemaBuilder.buildSchema(sensor, null);
   }
 
-  public String buildSchema(Sensor sensor, JsonObject config) {
-    return SchemaBuilder.buildSchema(sensor, config, getName(), getDescription());
+  public String buildSchema(Sensor sensor, JsonObject additionalValues) {
+    return SchemaBuilder.buildSchema(sensor, additionalValues);
   }
-
 }

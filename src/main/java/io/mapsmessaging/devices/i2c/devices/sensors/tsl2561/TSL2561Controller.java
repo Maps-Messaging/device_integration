@@ -76,7 +76,7 @@ public class TSL2561Controller extends I2CDeviceController {
     config.setVersion(1);
     config.setResourceType("sensor");
     config.setUniqueId(getSchemaId());
-    config.setInterfaceDescription("Returns JSON object containing light and IR light levels");
+    config.setDescription("Returns JSON object containing light and IR light levels");
     return config;
   }
 

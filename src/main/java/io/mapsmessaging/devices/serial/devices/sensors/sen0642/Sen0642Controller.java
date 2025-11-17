@@ -60,7 +60,7 @@ public class Sen0642Controller extends DeviceController {
     cfg.setResourceType("sensor");
     cfg.setVersion(1);
     cfg.setUniqueId(getSchemaId());
-    cfg.setInterfaceDescription("Serial 4800 8N1");
+    cfg.setDescription("Serial 4800 8N1");
     return cfg;
   }
 

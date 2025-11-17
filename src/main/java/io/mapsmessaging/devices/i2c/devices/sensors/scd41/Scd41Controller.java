@@ -80,7 +80,7 @@ public class Scd41Controller extends I2CDeviceController {
     config.setVersion(1);
     config.setResourceType("sensor");
     config.setUniqueId(getSchemaId());
-    config.setInterfaceDescription("Returns JSON object containing CO2 levels");
+    config.setDescription("Returns JSON object containing CO2 levels");
     return config;
   }
 

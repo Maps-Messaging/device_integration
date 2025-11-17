@@ -85,7 +85,7 @@ public class Ds3231Controller extends I2CDeviceController {
     config.setVersion(1);
     config.setUniqueId(getSchemaId());
     config.setResourceType("rtc");
-    config.setInterfaceDescription("Returns JSON object containing the latest rtc");
+    config.setDescription("Returns JSON object containing the latest rtc");
     return config;
   }
 

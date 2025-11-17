@@ -93,7 +93,7 @@ public class Pmsa003iController extends I2cDemoController {
     config.setVersion(1);
     config.setResourceType("sensor");
     config.setUniqueId(getSchemaId());
-    config.setInterfaceDescription("Air Quality Breakout");
+    config.setDescription("Air Quality Breakout");
     return config;
   }
 

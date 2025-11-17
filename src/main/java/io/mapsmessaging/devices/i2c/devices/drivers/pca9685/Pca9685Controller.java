@@ -82,7 +82,7 @@ public class Pca9685Controller extends I2CDeviceController {
     config.setTitle(getName());
     config.setVersion(1);
     config.setResourceType("driver");
-    config.setInterfaceDescription("Manages the output of 16 PWM devices");
+    config.setDescription("Manages the output of 16 PWM devices");
     return config;
   }
 

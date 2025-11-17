@@ -83,7 +83,7 @@ public class Lps25Controller extends I2CDeviceController {
     config.setVersion(1);
     config.setUniqueId(getSchemaId());
     config.setResourceType("sensor");
-    config.setInterfaceDescription("Returns JSON object containing pressure and temperature");
+    config.setDescription("Returns JSON object containing pressure and temperature");
     return config;
   }
 
