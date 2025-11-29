@@ -16,40 +16,41 @@
  *    limitations under the License
  */
 
-package io.mapsmessaging.devices.serial.devices.sensors.sen0642;
+package io.mapsmessaging.devices.serial.devices.sensors.sen0640;
 
 
 import com.google.gson.JsonObject;
 import io.mapsmessaging.devices.DeviceController;
 import io.mapsmessaging.devices.DeviceType;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
+import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.util.List;
 
-public class Sen0642Controller extends DeviceController {
+public class Sen0640Controller extends DeviceController {
 
-  private final Sen0642Sensor sensor;
+  private final Sen0640Sensor sensor;
 
-  public Sen0642Controller() {
+  public Sen0640Controller() {
     sensor = null;
   }
 
-  public Sen0642Controller(InputStream in, OutputStream out) {
-    this.sensor = new Sen0642Sensor(in, out);
+  public Sen0640Controller(SerialDevice serial) throws IOException {
+    this.sensor = new Sen0640Sensor(serial);
   }
 
   @Override
   public String getName() {
-    return "SEN0642";
+    return "SEN0640";
 
   }
 
   @Override
   public String getDescription() {
-    return "DFRobot SEN0642 UV sensor (UART/Modbus)";
+    return "DFRobot SEN0640 Solar Radiation sensor (UART/Modbus)";
   }
 
   @Override
@@ -76,11 +77,15 @@ public class Sen0642Controller extends DeviceController {
 
   @Override
   public byte[] getDeviceState() throws IOException {
-    // Defer to base helper if you prefer; here we force a refresh each call.
-    sensor.getUvMilliWPerCm2();
-    sensor.getUvi();
-    String json = buildSchema(sensor, new JsonObject());
-    return json.getBytes();
+    try {
+      JsonObject jsonObject = new JsonObject();
+      List<SensorReading<?>> readings = sensor.getReadings();
+      walkSensorReadings(jsonObject, readings);
+      return convert(jsonObject);
+    } catch (Exception e) {
+      // Log this
+    }
+    return "{}".getBytes();
   }
 
   @Override
