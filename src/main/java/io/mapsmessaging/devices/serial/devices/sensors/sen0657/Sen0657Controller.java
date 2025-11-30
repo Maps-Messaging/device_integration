@@ -20,9 +20,9 @@ package io.mapsmessaging.devices.serial.devices.sensors.sen0657;
 
 
 import com.google.gson.JsonObject;
-import io.mapsmessaging.devices.DeviceController;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
+import io.mapsmessaging.devices.serial.SerialDeviceController;
 import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -30,7 +30,7 @@ import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import java.io.IOException;
 import java.util.List;
 
-public class Sen0657Controller extends DeviceController {
+public class Sen0657Controller extends SerialDeviceController {
 
   private final Sen0657Sensor sensor;
 
@@ -44,7 +44,7 @@ public class Sen0657Controller extends DeviceController {
 
   @Override
   public String getName() {
-    return "SEN0640";
+    return "SEN0657";
 
   }
 
@@ -95,5 +95,10 @@ public class Sen0657Controller extends DeviceController {
   @Override
   public byte[] updateDeviceConfiguration(byte[] val) {
     return "{}".getBytes();
+  }
+
+  @Override
+  public SerialDeviceController mount(SerialDevice serialDevice) throws IOException {
+    return new Sen0657Controller(serialDevice);
   }
 }

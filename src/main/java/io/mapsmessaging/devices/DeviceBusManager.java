@@ -31,6 +31,7 @@ import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2cmock.I2CMockBusManager;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.devices.onewire.OneWireBusManager;
+import io.mapsmessaging.devices.serial.SerialBusManager;
 import io.mapsmessaging.devices.spi.SpiBusManager;
 import io.mapsmessaging.logging.Logger;
 import io.mapsmessaging.logging.LoggerFactory;
@@ -50,6 +51,7 @@ public class DeviceBusManager {
   private final OneWireBusManager oneWireBusManager;
   private final SpiBusManager spiBusManager;
   private final Pi4JPinManagement pinManagement;
+  private final SerialBusManager serialBusManager;
   private final InterruptFactory interruptFactory;
   private final boolean supportsLengthResponse;
   private boolean timestamp;
@@ -76,6 +78,7 @@ public class DeviceBusManager {
     spiBusManager = new SpiBusManager(pi4j);
     pinManagement = new Pi4JPinManagement(pi4j);
     interruptFactory = new PiInterruptFactory(pi4j);
+    serialBusManager = new SerialBusManager();
   }
 
   // Global access point to get the Singleton instance
