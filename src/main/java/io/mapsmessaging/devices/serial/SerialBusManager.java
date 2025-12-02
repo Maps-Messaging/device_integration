@@ -18,6 +18,10 @@
 
 package io.mapsmessaging.devices.serial;
 
+import io.mapsmessaging.devices.DeviceController;
+import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
+
+import java.io.IOException;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,9 +29,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SerialBusManager {
 
   private Map<String, SerialDeviceController> knownDevices;
+  private Map<String, DeviceController> activeDevices;
 
   public SerialBusManager() {
     knownDevices = new ConcurrentHashMap<>();
+    activeDevices = new ConcurrentHashMap<>();
     ServiceLoader<SerialDeviceController> known = ServiceLoader.load(SerialDeviceController.class);
     for (SerialDeviceController device : known) {
       knownDevices.put(device.getName(), device);
@@ -38,5 +44,22 @@ public class SerialBusManager {
     return knownDevices.get(name);
   }
 
+
+  public Map<String, DeviceController> getActive() {
+    return activeDevices;
+  }
+
+  public SerialDeviceController mount(String name, SerialDevice serialDevice) throws IOException {
+    SerialDeviceController controller = knownDevices.get(name);
+    if (controller != null) {
+      controller = controller.mount(serialDevice);
+      activeDevices.put(name, controller);
+    }
+    return controller;
+  }
+
+  public void unmount (SerialDeviceController serialDevice) throws IOException {
+    activeDevices.remove(serialDevice.getName());
+  }
 
 }
