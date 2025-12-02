@@ -58,7 +58,6 @@ public class SchemaBuilder {
 
   private static JsonObject buildSchemaFromReadings(List<SensorReading<?>> readings) {
     JsonObject schema = new JsonObject();
-    schema.addProperty(SCHEMA, "https://json-schema.org/draft/2020-12/schema");
     schema.addProperty(TYPE, OBJECT);
 
     JsonObject properties = new JsonObject();

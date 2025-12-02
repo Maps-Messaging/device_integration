@@ -41,16 +41,16 @@ public class WeatherMonitor {
   }
 
   public static void main(String[] args) throws IOException, InterruptedException {
-    SerialPort serialPort0 = SerialPort.getCommPort("/dev/ttyAMA1");
-    SerialPort serialPort1 = SerialPort.getCommPort("/dev/ttyAMA0");
+    SerialPort serialPort0 = SerialPort.getCommPort("/dev/ttyAMA0");
+    SerialPort serialPort1 = SerialPort.getCommPort("/dev/ttyAMA1");
 
     setupSerial(serialPort0);
     setupSerial(serialPort1);
 
     SerialDeviceController solarCfg = DeviceBusManager.getInstance().getSerialBusManager().getDevice("SEN0640");
     SerialDeviceController weatherCfg = DeviceBusManager.getInstance().getSerialBusManager().getDevice("SEN0657");
-    Sen0640Controller solar = (Sen0640Controller) solarCfg.mount(new Serial(serialPort0));
-    Sen0657Controller weather = (Sen0657Controller) weatherCfg.mount(new Serial(serialPort1));
+    Sen0657Controller weather = (Sen0657Controller) weatherCfg.mount(new Serial(serialPort0));
+    Sen0640Controller solar = (Sen0640Controller) solarCfg.mount(new Serial(serialPort1));
 
     int count = 3000;
     while (count > 0) {
