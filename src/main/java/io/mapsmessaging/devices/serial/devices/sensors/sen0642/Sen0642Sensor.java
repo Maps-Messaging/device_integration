@@ -16,11 +16,12 @@
  *    limitations under the License
  */
 
-package io.mapsmessaging.devices.serial.devices.sensors.sen0640;
+package io.mapsmessaging.devices.serial.devices.sensors.sen0642;
 
 import io.mapsmessaging.devices.Device;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
+import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
 import io.mapsmessaging.devices.sensorreadings.IntegerSensorReading;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
@@ -31,16 +32,22 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 
-public class Sen0640Sensor implements Device, Sensor {
+public class Sen0642Sensor implements Device, Sensor {
 
   private static final int FUNCTION_READ_HOLDING_REGISTER = 0x03;
   private static final int FUNCTION_WRITE_SINGLE_REGISTER = 0x06;
 
-  private static final int REGISTER_SOLAR_RADIATION = 0x0000;
-  private static final int REGISTER_SOLAR_INDEX = 0x0001;
+  private static final int REGISTER_UV_IRRADIANCE = 0x0000; // UV (mW/cm²) * 100
+  private static final int REGISTER_UV_INDEX = 0x0001;      // UVI (integer)
   private static final int REGISTER_DEVIATION = 0x0052;
   private static final int REGISTER_DEVICE_ADDRESS = 0x07D0;
   private static final int REGISTER_BAUD_RATE = 0x07D1;
+
+  private static final int MIN_UV_RAW = 0;
+  private static final int MAX_UV_RAW = 65535; // allow full 16-bit range, sensor will constrain
+
+  private static final int MIN_UVI = 0;
+  private static final int MAX_UVI = 20;
 
   private static final int MIN_SOLAR_VALUE = 0;
   private static final int MAX_SOLAR_VALUE = 1800;
@@ -49,35 +56,49 @@ public class Sen0640Sensor implements Device, Sensor {
   private static final int MAX_DEVICE_ADDRESS = 254;
 
   private final SerialDevice serialPort;
+
   @Getter
   private final List<SensorReading<?>> readings;
 
   private int deviceAddress = 0x01;
   private Duration responseTimeout = Duration.ofMillis(500);
 
-  public Sen0640Sensor(SerialDevice serialPort) throws IOException {
+  public Sen0642Sensor(SerialDevice serialPort) throws IOException {
     this.serialPort = serialPort;
     open();
     this.readings = List.of(
-        new IntegerSensorReading(
-            "TSR", "W/m²", "Total Solar Radiation (400-1100nm)",
-            5,
+        new FloatSensorReading(
+            "uvIrradiance",
+            "mW/cm²",
+            "Ultraviolet irradiance (SEN0642)",
+            1.23f,
             true,
-            0,
-            1800,
-            this::getSolarRadiation
-        ))
-    ;
+            0.0f,
+            100.0f,
+            2,
+            this::getUvIrradiance
+        ),
+        new IntegerSensorReading(
+            "uvIndex",
+            "idx",
+            "Ultraviolet Index (SEN0642)",
+            3,
+            true,
+            MIN_UVI,
+            MAX_UVI,
+            this::getUvIndex
+        )
+    );
   }
 
   @Override
   public String getName() {
-    return "SEN0640";
+    return "SEN0642";
   }
 
   @Override
   public String getDescription() {
-    return "DFRobot SEN0640 Solar Radiation sensor (UART/Modbus)";
+    return "DFRobot SEN0642 UV sensor (UART/Modbus)";
   }
 
   @Override
@@ -120,12 +141,25 @@ public class Sen0640Sensor implements Device, Sensor {
   // -------------------------------------------------------------------------
 
   /**
-   * Read current solar radiation in W/m² from register 0x0000.
+   * UV irradiance in mW/cm².
+   * Arduino: data = (Data[3] * 256 + Data[4]) / 100.00;
    */
-  public int getSolarRadiation() throws IOException {
-    int value = readSingleRegister(REGISTER_SOLAR_RADIATION);
-    if (value < MIN_SOLAR_VALUE || value > MAX_SOLAR_VALUE) {
-      throw new IOException("Solar radiation value out of expected range: " + value);
+  public float getUvIrradiance() throws IOException {
+    int rawValue = readSingleRegister(REGISTER_UV_IRRADIANCE);
+    if (rawValue < MIN_UV_RAW || rawValue > MAX_UV_RAW) {
+      throw new IOException("UV irradiance raw value out of range: " + rawValue);
+    }
+    return rawValue / 100.0f;
+  }
+
+  /**
+   * UV Index (unitless).
+   * Arduino: data1 = Data1[3] * 256 + Data1[4];
+   */
+  public int getUvIndex() throws IOException {
+    int value = readSingleRegister(REGISTER_UV_INDEX);
+    if (value < MIN_UVI || value > MAX_UVI) {
+      throw new IOException("UVI value out of range: " + value);
     }
     return value;
   }
@@ -263,7 +297,6 @@ public class Sen0640Sensor implements Device, Sensor {
         throw new IOException("Error reading from serial port, readBytes=" + readCount);
       }
       if (readCount == 0) {
-        // nothing this round, let the timeout logic handle it
         continue;
       }
 

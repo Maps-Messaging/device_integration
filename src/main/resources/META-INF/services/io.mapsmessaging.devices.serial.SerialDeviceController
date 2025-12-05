@@ -17,4 +17,5 @@
 #
 
 io.mapsmessaging.devices.serial.devices.sensors.sen0640.Sen0640Controller
+io.mapsmessaging.devices.serial.devices.sensors.sen0642.Sen0642Controller
 io.mapsmessaging.devices.serial.devices.sensors.sen0657.Sen0657Controller
