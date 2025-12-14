@@ -113,6 +113,9 @@ public class SchemaBuilder {
       handleDateTimeRegister(prop, dateTime);
     } else if (reading instanceof BooleanSensorReading || reading instanceof OptionalBooleanSensorReading) {
       handleBooleanRegister(prop, reading);
+    }
+    else if(reading instanceof StatefulFloatSensorReading statefulFloatSensorReading){
+      handleStatefulRegister(prop, statefulFloatSensorReading);
     } else {
       // fallback: unknown type
       prop.addProperty(TYPE, STRING);
@@ -166,6 +169,16 @@ public class SchemaBuilder {
     prop.addProperty("x-precision", floatReading.getPrecision());
     if(floatReading.getUnit() != null && !floatReading.getUnit().isEmpty()) {
       prop.addProperty(DESCRIPTION, UNIT + floatReading.getUnit());
+    }
+  }
+
+  private static void handleStatefulRegister(JsonObject prop, StatefulFloatSensorReading statefulFloatSensorReading){
+    prop.addProperty(TYPE, "number");
+    prop.addProperty("minimum", statefulFloatSensorReading.getMinimum());
+    prop.addProperty("maximum", statefulFloatSensorReading.getMaximum());
+    prop.addProperty("x-precision", statefulFloatSensorReading.getPrecision());
+    if(statefulFloatSensorReading.getUnit() != null && !statefulFloatSensorReading.getUnit().isEmpty()) {
+      prop.addProperty(DESCRIPTION, UNIT + statefulFloatSensorReading.getUnit());
     }
   }
 
