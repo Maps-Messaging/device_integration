@@ -251,29 +251,17 @@ public class Sen0657Sensor implements Device, Sensor {
                   pressureTrendHpaPer3Hours.getSupplier().get()
               )
           ),
-          new StringSensorReading(
+          new BooleanSensorReading(
               "stormWarning",
               "",
               "Storm warning flag derived from low pressure and rapid pressure fall",
-              "0",
-              false,
+              true,
+              true,
               () -> stormWarning(
                   this.getAtmosphericPressureHpa(),
                   pressureTrendHpaPer3Hours.getSupplier().get()
-              ) ? "1" : "0"
+              )
           ),
-          new StringSensorReading(
-              "stormRisk",
-              "",
-              "Storm risk score (0..1) derived from pressure and trend",
-              "0.0",
-              false,
-              () -> Float.toString(io.mapsmessaging.devices.util.StormHeuristics.stormRisk(
-                  this.getAtmosphericPressureHpa(),
-                  pressureTrendHpaPer3Hours.getSupplier().get()
-              ))
-          ),
-
           new StatefulFloatSensorReading(
               "rainLast10Minutes",
               "mm",
