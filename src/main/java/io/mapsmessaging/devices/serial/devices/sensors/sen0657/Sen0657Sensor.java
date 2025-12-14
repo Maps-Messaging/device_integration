@@ -262,6 +262,18 @@ public class Sen0657Sensor implements Device, Sensor {
                   pressureTrendHpaPer3Hours.getSupplier().get()
               )
           ),
+          new FloatSensorReading(
+              "stormRisk",
+              "",
+              "Storm risk score (0..1) derived from pressure and trend",
+              0.0f,
+              true,
+              0.0f,
+              1.0f,
+              2,
+              () -> stormRisk(getAtmosphericPressureHpa(), pressureTrendHpaPer3Hours.getSupplier().get())
+          ),
+
           new StatefulFloatSensorReading(
               "rainLast10Minutes",
               "mm",
