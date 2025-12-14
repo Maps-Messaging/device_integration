@@ -76,10 +76,10 @@ public class Sen0657Sensor implements Device, Sensor {
             "pressure",
             "hPa",
             "Atmospheric pressure at sensor height",
-            101.3f,
+            1013f,
             true,
             0.0f,
-            120.0f,
+            1200.0f,
             1,
             this::getAtmosphericPressureHpa
         ),
