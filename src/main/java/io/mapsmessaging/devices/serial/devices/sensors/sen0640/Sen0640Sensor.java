@@ -58,7 +58,7 @@ public class Sen0640Sensor implements Device, Sensor {
   public Sen0640Sensor(SerialDevice serialPort) throws IOException {
     this.serialPort = serialPort;
     open();
-    this.readings = List.of(
+    List<SensorReading<?>> physicalList = List.of(
         new IntegerSensorReading(
             "TSR", "W/m²", "Total Solar Radiation (400-1100nm)",
             5,
@@ -66,8 +66,10 @@ public class Sen0640Sensor implements Device, Sensor {
             0,
             1800,
             this::getSolarRadiation
-        ))
-    ;
+        ));
+
+    readings = generateSensorReadings(physicalList);
+
   }
 
   @Override

@@ -21,17 +21,20 @@ package io.mapsmessaging.devices.serial.devices.sensors.sen0657;
 import io.mapsmessaging.devices.Device;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
-import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
-import io.mapsmessaging.devices.sensorreadings.IntegerSensorReading;
-import io.mapsmessaging.devices.sensorreadings.LongSensorReading;
-import io.mapsmessaging.devices.sensorreadings.SensorReading;
+import io.mapsmessaging.devices.sensorreadings.*;
 import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
+import io.mapsmessaging.devices.util.AccumulatingCounterDelta;
+import io.mapsmessaging.devices.util.RollingBucketAccumulator;
+import io.mapsmessaging.devices.util.RollingComputations;
+import io.mapsmessaging.devices.util.SensorReadingAugmentor;
 import lombok.Getter;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
+
+import static io.mapsmessaging.devices.util.StormHeuristics.*;
 
 public class Sen0657Sensor implements Device, Sensor {
 
@@ -67,9 +70,10 @@ public class Sen0657Sensor implements Device, Sensor {
     this.serialPort = serialPort;
     open();
     nextReadCycle = 0;
-    readings = List.of(
+
+    List<SensorReading<?>>  physicalList = List.of(
         new FloatSensorReading(
-            "atmosphericPressureKpa",
+            "pressure",
             "kPa",
             "Atmospheric pressure at sensor height",
             101.3f,
@@ -80,7 +84,7 @@ public class Sen0657Sensor implements Device, Sensor {
             this::getAtmosphericPressureKpa
         ),
         new FloatSensorReading(
-            "rainfallMillimeters",
+            "rainfall",
             "mm",
             "Accumulated rainfall since last reset",
             0.0f,
@@ -91,7 +95,7 @@ public class Sen0657Sensor implements Device, Sensor {
             this::getRainfallMillimeters
         ),
         new FloatSensorReading(
-            "temperatureCelsius",
+            "temperature",
             "°C",
             "Ambient air temperature",
             22.5f,
@@ -102,7 +106,7 @@ public class Sen0657Sensor implements Device, Sensor {
             this::getTemperatureCelsius
         ),
         new FloatSensorReading(
-            "humidityRelativePercent",
+            "humidity",
             "%RH",
             "Relative humidity",
             55.0f,
@@ -113,7 +117,7 @@ public class Sen0657Sensor implements Device, Sensor {
             this::getHumidityRelativePercent
         ),
         new FloatSensorReading(
-            "windSpeedMetersPerSecond",
+            "windspeed",
             "m/s",
             "Horizontal wind speed",
             3.4f,
@@ -124,7 +128,7 @@ public class Sen0657Sensor implements Device, Sensor {
             this::getWindSpeedMetersPerSecond
         ),
         new LongSensorReading(
-            "lightIntensityLux",
+            "lux",
             "lx",
             "Ambient light level measured by the weather station",
             5000L,
@@ -134,7 +138,7 @@ public class Sen0657Sensor implements Device, Sensor {
             this::getLightIntensityLux
         ),
         new IntegerSensorReading(
-            "windDirectionCode",
+            "windDirection",
             "",
             "Raw wind direction code from the weather station",
             0,
@@ -145,7 +149,7 @@ public class Sen0657Sensor implements Device, Sensor {
         ),
 
         new IntegerSensorReading(
-            "windDirectionAngleDegrees",
+            "windDirectionAngle",
             "°",
             "Wind direction in degrees clockwise from North",
             0,
@@ -153,9 +157,249 @@ public class Sen0657Sensor implements Device, Sensor {
             0,
             359,
             this::getWindDirectionAngleDegrees
+        ),
+        new StatefulFloatSensorReading(
+            "windGust",
+            "m/s",
+            "Wind gust (max windspeed over last 10 seconds)",
+            0.0f,
+            false,
+            0.0f,
+            60.0f,
+            1,
+            this::getWindSpeedMetersPerSecond,
+            50,
+            10_000L,
+            RollingComputations.max()
         )
-
     );
+    readings = generateSensorReadings(physicalList);
+  }
+
+  private List<SensorReading<?>> addAugmented( List<SensorReading<?>> physical){
+    if(SensorReadingAugmentor.isENABLE_COMPUTED_READINGS()) {
+
+
+
+      AccumulatingCounterDelta rainfallDelta = new AccumulatingCounterDelta();
+
+      RollingBucketAccumulator rain10Min = new RollingBucketAccumulator(10L * 60_000L, 5_000L);        // 5s buckets
+      RollingBucketAccumulator rain1Hour = new RollingBucketAccumulator(60L * 60_000L, 60_000L);       // 1m buckets
+      RollingBucketAccumulator rain24Hour = new RollingBucketAccumulator(24L * 60L * 60_000L, 60_000L);// 1m buckets
+
+      ReadingSupplier<Float> rainUpdateAndReturn10Min = () -> {
+        long now = System.currentTimeMillis();
+        float total = getRainfallMillimeters();
+        float delta = rainfallDelta.computeDelta(total);
+
+        if (!Float.isNaN(delta)) {
+          rain10Min.add(now, delta);
+          rain1Hour.add(now, delta);
+          rain24Hour.add(now, delta);
+        }
+
+        return rain10Min.getSum();
+      };
+
+
+      StatefulFloatSensorReading pressureTrendKpaPerHour = new StatefulFloatSensorReading(
+          "pressureTrendKpaPerHour",
+          "kPa/h",
+          "Pressure trend (least-squares) over the last 3 hours",
+          0.0f,
+          false,
+          -5.0f,
+          5.0f,
+          3,
+          this::getAtmosphericPressureKpa,
+          180,              // up to 180 samples
+          3L * 3_600_000L,  // 3 hours
+          RollingComputations.slopeLeastSquaresPerHour()
+      );
+
+      StatefulFloatSensorReading pressureTrendKpaPer3Hours = new StatefulFloatSensorReading(
+          "pressureTrendKpaPer3Hours",
+          "kPa/3h",
+          "Pressure trend converted to kPa per 3 hours",
+          0.0f,
+          false,
+          -10.0f,
+          10.0f,
+          3,
+          () -> pressureTrendKpaPerHour.getSupplier().get(),
+          1,
+          1_000L,
+          samples -> {
+            TimedFloatSample last = null;
+            for (TimedFloatSample s : samples) {
+              last = s;
+            }
+            if (last == null) {
+              return Float.NaN;
+            }
+            return toKpaPer3Hours(last.value());
+          }
+      );
+      List<SensorReading<?>> tmp = List.of(
+          pressureTrendKpaPerHour,
+          pressureTrendKpaPer3Hours,
+          new StringSensorReading(
+              "pressureTendency",
+              "",
+              "Pressure tendency category derived from pressure trend",
+              "Unknown",
+              false,
+              () -> describePressureTendency(
+                  pressureTrendKpaPer3Hours.getSupplier().get()
+              )
+          ),
+          new StringSensorReading(
+              "stormWarning",
+              "",
+              "Storm warning flag derived from low pressure and rapid pressure fall",
+              "0",
+              false,
+              () -> stormWarning(
+                  this.getAtmosphericPressureKpa(),
+                  pressureTrendKpaPer3Hours.getSupplier().get()
+              ) ? "1" : "0"
+          ),
+          new StringSensorReading(
+              "stormRisk",
+              "",
+              "Storm risk score (0..1) derived from pressure and trend",
+              "0.0",
+              false,
+              () -> Float.toString(io.mapsmessaging.devices.util.StormHeuristics.stormRisk(
+                  this.getAtmosphericPressureKpa(),
+                  pressureTrendKpaPer3Hours.getSupplier().get()
+              ))
+          ),
+
+          new StatefulFloatSensorReading(
+              "rainLast10Minutes",
+              "mm",
+              "Accumulated rainfall over the last 10 minutes",
+              0.0f,
+              false,
+              0.0f,
+              100.0f,
+              1,
+              this::getRainfallMillimeters,
+              600,              // if you sample ~1 Hz
+              10L * 60_000L,
+              RollingComputations.deltaFirstToLastNonNegative()
+          ),
+
+          new StatefulFloatSensorReading(
+              "rainLast1Hour",
+              "mm",
+              "Accumulated rainfall over the last 1 hour",
+              0.0f,
+              false,
+              0.0f,
+              500.0f,
+              1,
+              this::getRainfallMillimeters,
+              3_600,            // ~1 Hz
+              60L * 60_000L,
+              RollingComputations.deltaFirstToLastNonNegative()
+          ),
+
+          new StatefulFloatSensorReading(
+              "rainLast24Hours",
+              "mm",
+              "Accumulated rainfall over the last 24 hours",
+              0.0f,
+              false,
+              0.0f,
+              2_000.0f,
+              1,
+              this::getRainfallMillimeters,
+              86_400,           // ~1 Hz, yes it’s a lot, tune this if needed
+              24L * 60L * 60_000L,
+              RollingComputations.deltaFirstToLastNonNegative()
+          ),
+          new StatefulFloatSensorReading(
+              "rainRate",
+              "mm/h",
+              "Rain rate derived from rainfall accumulator (last 10 minutes)",
+              0.0f,
+              false,
+              0.0f,
+              500.0f,
+              1,
+              this::getRainfallMillimeters,
+              600,
+              10L * 60_000L,
+              RollingComputations.ratePerHourFirstToLastNonNegative()
+          ),
+          new FloatSensorReading(
+              "rainLast10Minutes",
+              "mm",
+              "Accumulated rainfall over the last 10 minutes",
+              0.0f,
+              false,
+              0.0f,
+              200.0f,
+              1,
+              rainUpdateAndReturn10Min
+          ),
+          new FloatSensorReading(
+              "rainLast1Hour",
+              "mm",
+              "Accumulated rainfall over the last 1 hour",
+              0.0f,
+              false,
+              0.0f,
+              500.0f,
+              1,
+              () -> {
+                rainUpdateAndReturn10Min.get();
+                return rain1Hour.getSum();
+              }
+          ),
+          new FloatSensorReading(
+              "rainLast24Hours",
+              "mm",
+              "Accumulated rainfall over the last 24 hours",
+              0.0f,
+              false,
+              0.0f,
+              2_000.0f,
+              1,
+              () -> {
+                rainUpdateAndReturn10Min.get();
+                return rain24Hour.getSum();
+              }
+          ),
+          new FloatSensorReading(
+              "rainRate",
+              "mm/h",
+              "Rain rate derived from last 10 minutes total",
+              0.0f,
+              false,
+              0.0f,
+              500.0f,
+              1,
+              () -> {
+                float mm10 = rainUpdateAndReturn10Min.get();
+                if (Float.isNaN(mm10)) {
+                  return Float.NaN;
+                }
+                return (mm10 / 10.0f) * 60.0f;
+              }
+          )
+      );
+      physical.addAll(tmp);
+
+
+
+    }
+
+
+
+    return physical;
   }
 
   public void open() throws IOException {

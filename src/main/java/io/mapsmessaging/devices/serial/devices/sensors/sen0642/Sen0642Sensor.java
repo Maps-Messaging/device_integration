@@ -66,7 +66,7 @@ public class Sen0642Sensor implements Device, Sensor {
   public Sen0642Sensor(SerialDevice serialPort) throws IOException {
     this.serialPort = serialPort;
     open();
-    this.readings = List.of(
+    List<SensorReading<?>> physicalList = List.of(
         new FloatSensorReading(
             "uvIrradiance",
             "mW/cm²",
@@ -89,6 +89,9 @@ public class Sen0642Sensor implements Device, Sensor {
             this::getUvIndex
         )
     );
+
+    readings = generateSensorReadings(physicalList);
+
   }
 
   @Override
