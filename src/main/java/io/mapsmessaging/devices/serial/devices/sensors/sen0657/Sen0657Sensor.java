@@ -56,7 +56,7 @@ public class Sen0657Sensor implements Device, Sensor {
   private long nextReadCycle;
   private int windDirectionCode;
   private int windDirectionAngleDegrees;
-  private float atmosphericPressureKpa;
+  private float atmosphericPressureHpa;
   private float rainfallMillimeters;
   private float temperatureCelsius;
   private float humidityRelativePercent;
@@ -74,14 +74,14 @@ public class Sen0657Sensor implements Device, Sensor {
     List<SensorReading<?>>  physicalList = List.of(
         new FloatSensorReading(
             "pressure",
-            "kPa",
+            "hPa",
             "Atmospheric pressure at sensor height",
             101.3f,
             true,
             0.0f,
             120.0f,
             1,
-            this::getAtmosphericPressureKpa
+            this::getAtmosphericPressureHpa
         ),
         new FloatSensorReading(
             "rainfall",
@@ -173,14 +173,12 @@ public class Sen0657Sensor implements Device, Sensor {
             RollingComputations.max()
         )
     );
-    readings = generateSensorReadings(physicalList);
+
+    readings =  addAugmented(generateSensorReadings(physicalList));
   }
 
   private List<SensorReading<?>> addAugmented( List<SensorReading<?>> physical){
     if(SensorReadingAugmentor.isENABLE_COMPUTED_READINGS()) {
-
-
-
       AccumulatingCounterDelta rainfallDelta = new AccumulatingCounterDelta();
 
       RollingBucketAccumulator rain10Min = new RollingBucketAccumulator(10L * 60_000L, 5_000L);        // 5s buckets
@@ -202,31 +200,31 @@ public class Sen0657Sensor implements Device, Sensor {
       };
 
 
-      StatefulFloatSensorReading pressureTrendKpaPerHour = new StatefulFloatSensorReading(
-          "pressureTrendKpaPerHour",
-          "kPa/h",
+      StatefulFloatSensorReading pressureTrendHpaPerHour = new StatefulFloatSensorReading(
+          "pressureTrendHpaPerHour",
+          "hPa/h",
           "Pressure trend (least-squares) over the last 3 hours",
           0.0f,
           false,
           -5.0f,
           5.0f,
           3,
-          this::getAtmosphericPressureKpa,
+          this::getAtmosphericPressureHpa,
           180,              // up to 180 samples
           3L * 3_600_000L,  // 3 hours
           RollingComputations.slopeLeastSquaresPerHour()
       );
 
-      StatefulFloatSensorReading pressureTrendKpaPer3Hours = new StatefulFloatSensorReading(
-          "pressureTrendKpaPer3Hours",
-          "kPa/3h",
-          "Pressure trend converted to kPa per 3 hours",
+      StatefulFloatSensorReading pressureTrendHpaPer3Hours = new StatefulFloatSensorReading(
+          "pressureTrendHpaPer3Hours",
+          "hPa/3h",
+          "Pressure trend converted to hPa per 3 hours",
           0.0f,
           false,
           -10.0f,
           10.0f,
           3,
-          () -> pressureTrendKpaPerHour.getSupplier().get(),
+          () -> pressureTrendHpaPerHour.getSupplier().get(),
           1,
           1_000L,
           samples -> {
@@ -237,12 +235,12 @@ public class Sen0657Sensor implements Device, Sensor {
             if (last == null) {
               return Float.NaN;
             }
-            return toKpaPer3Hours(last.value());
+            return toHpaPer3Hours(last.value());
           }
       );
       List<SensorReading<?>> tmp = List.of(
-          pressureTrendKpaPerHour,
-          pressureTrendKpaPer3Hours,
+          pressureTrendHpaPerHour,
+          pressureTrendHpaPer3Hours,
           new StringSensorReading(
               "pressureTendency",
               "",
@@ -250,7 +248,7 @@ public class Sen0657Sensor implements Device, Sensor {
               "Unknown",
               false,
               () -> describePressureTendency(
-                  pressureTrendKpaPer3Hours.getSupplier().get()
+                  pressureTrendHpaPer3Hours.getSupplier().get()
               )
           ),
           new StringSensorReading(
@@ -260,8 +258,8 @@ public class Sen0657Sensor implements Device, Sensor {
               "0",
               false,
               () -> stormWarning(
-                  this.getAtmosphericPressureKpa(),
-                  pressureTrendKpaPer3Hours.getSupplier().get()
+                  this.getAtmosphericPressureHpa(),
+                  pressureTrendHpaPer3Hours.getSupplier().get()
               ) ? "1" : "0"
           ),
           new StringSensorReading(
@@ -271,8 +269,8 @@ public class Sen0657Sensor implements Device, Sensor {
               "0.0",
               false,
               () -> Float.toString(io.mapsmessaging.devices.util.StormHeuristics.stormRisk(
-                  this.getAtmosphericPressureKpa(),
-                  pressureTrendKpaPer3Hours.getSupplier().get()
+                  this.getAtmosphericPressureHpa(),
+                  pressureTrendHpaPer3Hours.getSupplier().get()
               ))
           ),
 
@@ -392,13 +390,7 @@ public class Sen0657Sensor implements Device, Sensor {
           )
       );
       physical.addAll(tmp);
-
-
-
     }
-
-
-
     return physical;
   }
 
@@ -458,9 +450,9 @@ public class Sen0657Sensor implements Device, Sensor {
     return windDirectionAngleDegrees;
   }
 
-  public float getAtmosphericPressureKpa() {
+  public float getAtmosphericPressureHpa() {
     readSensors();
-    return atmosphericPressureKpa;
+    return atmosphericPressureHpa;
   }
 
   public float getRainfallMillimeters() {
@@ -507,7 +499,7 @@ public class Sen0657Sensor implements Device, Sensor {
     validateHeader(response, REGISTER_PRESSURE_LIGHT_COUNT);
 
     int pressureRaw = getU16(response, 3);
-    atmosphericPressureKpa = pressureRaw / 10.0f;
+    atmosphericPressureHpa = pressureRaw / 1.0f;
 
     long b0 = response[5] & 0xFFL;
     long b1 = response[6] & 0xFFL;

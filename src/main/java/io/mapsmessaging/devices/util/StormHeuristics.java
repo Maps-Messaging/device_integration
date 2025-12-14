@@ -26,30 +26,30 @@ public class StormHeuristics {
   }
 
   /**
-   * @param trendKpaPerHour negative means falling pressure
-   * @return kPa per 3 hours (meteorology convention)
+   * @param trendHpaPerHour negative means falling pressure
+   * @return hpa per 3 hours (meteorology convention)
    */
-  public static float toKpaPer3Hours(float trendKpaPerHour) {
-    if (Float.isNaN(trendKpaPerHour) || Float.isInfinite(trendKpaPerHour)) {
+  public static float toHpaPer3Hours(float trendHpaPerHour) {
+    if (Float.isNaN(trendHpaPerHour) || Float.isInfinite(trendHpaPerHour)) {
       return Float.NaN;
     }
-    return trendKpaPerHour * 3.0f;
+    return trendHpaPerHour * 3.0f;
   }
 
-  public static String describePressureTendency(float trendKpaPer3Hours) {
-    if (Float.isNaN(trendKpaPer3Hours)) {
+  public static String describePressureTendency(float trendHpaPer3Hours) {
+    if (Float.isNaN(trendHpaPer3Hours)) {
       return "Unknown";
     }
-    if (trendKpaPer3Hours <= -0.30f) {
+    if (trendHpaPer3Hours <= -0.30f) {
       return "Falling Fast";
     }
-    if (trendKpaPer3Hours <= -0.10f) {
+    if (trendHpaPer3Hours <= -0.10f) {
       return "Falling";
     }
-    if (trendKpaPer3Hours >= 0.30f) {
+    if (trendHpaPer3Hours >= 0.30f) {
       return "Rising Fast";
     }
-    if (trendKpaPer3Hours >= 0.10f) {
+    if (trendHpaPer3Hours >= 0.10f) {
       return "Rising";
     }
     return "Steady";
@@ -62,12 +62,12 @@ public class StormHeuristics {
    *
    * @return 0..1 risk score
    */
-  public static float stormRisk(float currentPressureKpa, float trendKpaPer3Hours) {
-    if (Float.isNaN(currentPressureKpa) || Float.isNaN(trendKpaPer3Hours)) {
+  public static float stormRisk(float currentPressureHpa, float trendHpaPer3Hours) {
+    if (Float.isNaN(currentPressureHpa) || Float.isNaN(trendHpaPer3Hours)) {
       return Float.NaN;
     }
 
-    float fall = -trendKpaPer3Hours;
+    float fall = -trendHpaPer3Hours;
     float fallScore;
     if (fall <= 0.10f) {
       fallScore = 0.0f;
@@ -78,9 +78,9 @@ public class StormHeuristics {
     }
 
     float lowPressureBoost = 0.0f;
-    if (currentPressureKpa <= 99.0f) {
+    if (currentPressureHpa <= 99.0f) {
       lowPressureBoost = 0.25f;
-    } else if (currentPressureKpa <= 100.0f) {
+    } else if (currentPressureHpa <= 100.0f) {
       lowPressureBoost = 0.10f;
     }
 
@@ -94,13 +94,13 @@ public class StormHeuristics {
     return risk;
   }
 
-  public static boolean stormWarning(float currentPressureKpa, float trendKpaPer3Hours) {
-    if (Float.isNaN(currentPressureKpa) || Float.isNaN(trendKpaPer3Hours)) {
+  public static boolean stormWarning(float currentPressureHpa, float trendHpaPer3Hours) {
+    if (Float.isNaN(currentPressureHpa) || Float.isNaN(trendHpaPer3Hours)) {
       return false;
     }
 
-    boolean rapidlyFalling = trendKpaPer3Hours <= -0.30f;
-    boolean lowPressure = currentPressureKpa <= 100.0f;
+    boolean rapidlyFalling = trendHpaPer3Hours <= -0.30f;
+    boolean lowPressure = currentPressureHpa <= 100.0f;
     return rapidlyFalling && lowPressure;
   }
 }

@@ -35,7 +35,6 @@ public class SensorReadingAugmentor {
 
   private static final String TEMPERATURE = "temperature";
   private static final String HUMIDITY = "humidity";
-  private static final String PRESSURE = "pressure";
 
   private static final String WINDSPEED = "windspeed";
   private static final String WIND_DIRECTION_ANGLE = "windDirectionAngle";
@@ -71,19 +70,11 @@ public class SensorReadingAugmentor {
   private static void scanForDewPoint(Map<String, SensorReading<?>> lookup, List<SensorReading<?>> computed) {
     boolean hasTemp = lookup.containsKey(TEMPERATURE);
     boolean hasHumidity = lookup.containsKey(HUMIDITY);
-    boolean hasPressure = lookup.containsKey(PRESSURE);
 
 
     if (hasTemp && hasHumidity) {
       var tempSupplier = getFloatSupplier(lookup.get(TEMPERATURE));
       var humiditySupplier = getFloatSupplier(lookup.get(HUMIDITY));
-      ReadingSupplier<Float> pressureSupplier;
-      if (hasPressure) {
-        pressureSupplier = getFloatSupplier(lookup.get(PRESSURE));
-      } else {
-        pressureSupplier = () -> Float.NaN;
-      }
-
       computed.add(new FloatSensorReading(
           "dewPoint",
           "°C",
@@ -95,23 +86,16 @@ public class SensorReadingAugmentor {
           1,
           () -> (float) ComputeDewPoint.computeDewPoint(
               tempSupplier.get(),
-              humiditySupplier.get(),
-              pressureSupplier.get())
+              humiditySupplier.get())
       ));
 
-      computed.add(new FloatSensorReading(
+      computed.add(new BooleanSensorReading(
           "condensationRisk",
           "",
           "1 if condensation risk (dew point within 2°C of temp), 0 otherwise",
-          0f,
+          true,
           false,
-          0f,
-          1f,
-          0,
-          () -> ComputeDewPoint.dewPointWarning(
-              tempSupplier.get(),
-              humiditySupplier.get(),
-              pressureSupplier.get()) ? 1f : 0f
+          () -> ComputeDewPoint.dewPointWarning(tempSupplier.get(), humiditySupplier.get())
       ));
     }
   }
@@ -314,7 +298,7 @@ public class SensorReadingAugmentor {
         () -> {
           float tempCelsius = temperature.get();
           float rh = humidity.get();
-          float dewPoint = (float) ComputeDewPoint.computeDewPoint(tempCelsius, rh, Float.NaN);
+          float dewPoint = (float) ComputeDewPoint.computeDewPoint(tempCelsius, rh);
           if (Float.isNaN(dewPoint) || Float.isNaN(tempCelsius)) {
             return Float.NaN;
           }
@@ -436,7 +420,7 @@ public class SensorReadingAugmentor {
       return Double.NaN;
     }
 
-    double dewPoint = ComputeDewPoint.computeDewPoint(temperatureCelsius, relativeHumidityPercent, Float.NaN);
+    double dewPoint = ComputeDewPoint.computeDewPoint(temperatureCelsius, relativeHumidityPercent);
     if (Double.isNaN(dewPoint)) {
       return Double.NaN;
     }
