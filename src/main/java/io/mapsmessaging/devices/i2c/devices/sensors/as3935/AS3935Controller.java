@@ -78,7 +78,7 @@ public class AS3935Controller extends I2CDeviceController {
     config.setVersion(1);
     config.setUniqueId(getSchemaId());
     config.setResourceType("sensor");
-    config.setInterfaceDescription("Returns JSON object containing details about the latest detection");
+    config.setDescription("Returns JSON object containing details about the latest detection");
     return config;
   }
 

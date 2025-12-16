@@ -82,7 +82,8 @@ public class BME688Controller extends I2CDeviceController {
     config.setVersion(1);
     config.setUniqueId(getSchemaId());
     config.setResourceType("sensor");
-    config.setInterfaceDescription("Returns JSON object containing Temperature, Humidity, Pressure, Gas Resistance, Heater status and Gas mode");
+    config.setDescription("Returns JSON object containing Temperature, Humidity, Pressure, Gas Resistance, Heater status and Gas mode");
+    config.setInterfaceDescription("sensor.bme688");
     return config;
   }
 

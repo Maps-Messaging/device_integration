@@ -207,7 +207,7 @@ public abstract class HT16K33Controller extends I2CDeviceController {
     config.setVersion(1);
     config.setResourceType("LED");
     config.setUniqueId(getSchemaId());
-    config.setInterfaceDescription("Controls the LED segments");
+    config.setDescription("Controls the LED segments");
     return config;
   }
 

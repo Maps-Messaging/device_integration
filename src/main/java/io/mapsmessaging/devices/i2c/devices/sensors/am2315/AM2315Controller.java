@@ -89,7 +89,7 @@ public class AM2315Controller extends I2CDeviceController {
     config.setVersion(1);
     config.setUniqueId(getSchemaId());
     config.setResourceType("sensor");
-    config.setInterfaceDescription("temperature, humidity");
+    config.setDescription("temperature, humidity");
     return config;
   }
 

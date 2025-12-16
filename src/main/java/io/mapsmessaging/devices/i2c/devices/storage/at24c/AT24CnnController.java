@@ -120,7 +120,7 @@ public class AT24CnnController extends I2CDeviceController {
     config.setVersion(1);
     config.setResourceType("storage");
     config.setUniqueId(getSchemaId());
-    config.setInterfaceDescription("Serial EEPROM");
+    config.setDescription("Serial EEPROM");
     return config;
   }
 

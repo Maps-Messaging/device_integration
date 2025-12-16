@@ -91,7 +91,7 @@ public class Scd41Controller extends I2cDemoController {
     config.setVersion(1);
     config.setUniqueId(getSchemaId());
     config.setResourceType("sensor");
-    config.setInterfaceDescription("Debug device, updates time");
+    config.setDescription("Debug device, updates time");
     return config;
   }
 

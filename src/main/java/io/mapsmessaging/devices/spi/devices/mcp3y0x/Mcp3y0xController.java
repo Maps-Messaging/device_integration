@@ -121,7 +121,7 @@ public class Mcp3y0xController extends SpiDeviceController {
     config.setVersion(1);
     config.setResourceType("sensor");
     config.setUniqueId(getSchemaId());
-    config.setInterfaceDescription("Returns JSON object containing the latest readings from all channels");
+    config.setDescription("Returns JSON object containing the latest readings from all channels");
     return config;
   }
 
@@ -143,11 +143,7 @@ public class Mcp3y0xController extends SpiDeviceController {
     properties.add("channels", channels);
     properties.add("dutyCycle", dutyCycle);
 
-    JsonObject schema = new JsonObject();
-    schema.addProperty("type", "object");
-    schema.add("properties", properties);
-
-    return buildSchema(device, schema);
+    return buildSchema(device, properties);
   }
 
 }

@@ -59,7 +59,7 @@ public class Sen0539Controller extends I2CDeviceController {
     cfg.setResourceType("sensor");
     cfg.setVersion(1);
     cfg.setUniqueId(getSchemaId());
-    cfg.setInterfaceDescription("I2C address 0x64");
+    cfg.setDescription("I2C address 0x64");
     return cfg;
   }
 

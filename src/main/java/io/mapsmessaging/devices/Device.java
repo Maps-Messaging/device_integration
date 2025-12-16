@@ -19,7 +19,12 @@
 
 package io.mapsmessaging.devices;
 
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
+
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import static io.mapsmessaging.devices.util.SensorReadingAugmentor.addComputedReadings;
 
 public interface Device {
 
@@ -51,6 +56,11 @@ public interface Device {
       sb.append(String.format("%02X", buffer[x] & 0xff));
     }
     return sb.toString();
+  }
+
+
+  default List<SensorReading<?>> generateSensorReadings(List<SensorReading<?>> list) {
+    return addComputedReadings(list);
   }
 
 }

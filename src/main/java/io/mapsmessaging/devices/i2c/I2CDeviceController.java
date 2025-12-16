@@ -27,18 +27,14 @@ import io.mapsmessaging.devices.deviceinterfaces.RegisterData;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.io.SerialisationHelper;
-import io.mapsmessaging.devices.sensorreadings.ComputationResult;
-import io.mapsmessaging.devices.sensorreadings.GroupSensorReading;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Getter
 @Setter
@@ -52,8 +48,6 @@ public abstract class I2CDeviceController extends DeviceController {
 
   private final int mountedAddress;
   private final SerialisationHelper serialisationHelper = new SerialisationHelper();
-
-  private boolean raiseExceptionOnError = false;
 
   protected I2CDeviceController() {
     this(null);
@@ -103,52 +97,6 @@ public abstract class I2CDeviceController extends DeviceController {
     return "{}".getBytes();
   }
 
-  private void walkSensorReadings(JsonObject root, List<SensorReading<?>> readings) throws IOException {
-    for (SensorReading<?> reading : readings) {
-      if (reading instanceof GroupSensorReading groupReading) {
-        JsonObject readingObject = new JsonObject();
-        walkSensorReadings(new JsonObject(), groupReading.getGroupList());
-        if (!readingObject.isEmpty()) {
-          root.add(reading.getName(), readingObject);
-        }
-      } else {
-        addProperty(reading, root);
-      }
-    }
-  }
-
-  private void addProperty(SensorReading<?> reading, JsonObject jsonObject) throws IOException {
-    ComputationResult<?> computationResult = reading.getValue();
-    if (!computationResult.hasError()) {
-      Object value = computationResult.getResult();
-      if (value instanceof Optional<?> optional) {
-        if (optional.isEmpty()) {
-          return;
-        }
-        value = optional.get();
-      }
-
-      if (value instanceof Number number) {
-        jsonObject.addProperty(reading.getName(), number);
-      } else if (value instanceof Boolean bool) {
-        jsonObject.addProperty(reading.getName(), bool);
-      } else if (value instanceof Character character) {
-        jsonObject.addProperty(reading.getName(), character);
-      } else if (value instanceof String str) {
-        jsonObject.addProperty(reading.getName(), str);
-      } else {
-        // Fallback to stringified JSON
-        jsonObject.add(reading.getName(), gson.toJsonTree(value));
-      }
-    } else {
-      if (raiseExceptionOnError) {
-        throw new IOException(computationResult.getError());
-      }
-      jsonObject.addProperty(reading.getName(), computationResult.getError().getMessage());
-    }
-    jsonObject.addProperty("timestamp", Instant.now().toString());
-  }
-
   public boolean canDetect() {
     return false;
   }
@@ -160,11 +108,6 @@ public abstract class I2CDeviceController extends DeviceController {
   public abstract boolean detect(AddressableDevice i2cDevice);
 
   public abstract I2CDevice getDevice();
-
-
-  protected byte[] convert(JsonObject jsonObject) {
-    return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
-  }
 
   protected byte[] emptyJson(){
     return "{}".getBytes(StandardCharsets.UTF_8);

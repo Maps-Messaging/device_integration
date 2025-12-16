@@ -16,7 +16,7 @@
  *    limitations under the License
  */
 
-package io.mapsmessaging.devices.serial.devices.sensors.sen0642;
+package io.mapsmessaging.devices.serial.devices.sensors.sen0640;
 
 
 import com.google.gson.JsonObject;
@@ -30,32 +30,32 @@ import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import java.io.IOException;
 import java.util.List;
 
-public class Sen0642Controller extends SerialDeviceController {
+public class Sen0640Controller extends SerialDeviceController {
 
-  private final Sen0642Sensor sensor;
+  private final Sen0640Sensor sensor;
 
-  public Sen0642Controller() {
+  public Sen0640Controller() {
     sensor = null;
   }
 
-  public Sen0642Controller(SerialDevice serial) throws IOException {
-    this.sensor = new Sen0642Sensor(serial);
+  public Sen0640Controller(SerialDevice serial) throws IOException {
+    this.sensor = new Sen0640Sensor(serial);
   }
 
   @Override
   public SerialDeviceController mount(SerialDevice serialDevice) throws IOException {
-    return new Sen0642Controller(serialDevice);
+    return new Sen0640Controller(serialDevice);
   }
 
   @Override
   public String getName() {
-    return "SEN0642";
+    return "SEN0640";
 
   }
 
   @Override
   public String getDescription() {
-    return "DFRobot SEN0642 UV Radiation sensor (UART/Modbus)";
+    return "DFRobot SEN0640 Solar Radiation sensor (UART/Modbus)";
   }
 
   @Override

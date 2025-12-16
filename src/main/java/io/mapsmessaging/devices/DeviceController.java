@@ -23,15 +23,29 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
+import io.mapsmessaging.devices.sensorreadings.ComputationResult;
+import io.mapsmessaging.devices.sensorreadings.GroupSensorReading;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.devices.util.UuidGenerator;
 import io.mapsmessaging.schemas.config.SchemaConfig;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class DeviceController {
   private final AtomicReference<UUID> uuid;
+
+  @Getter
+  @Setter
+  private boolean raiseExceptionOnError = false;
+
 
   protected DeviceController() {
     uuid = new AtomicReference<>();
@@ -69,8 +83,6 @@ public abstract class DeviceController {
     return true;
   }
 
-  public abstract void setRaiseExceptionOnError(boolean flag);
-
   public abstract byte[] updateDeviceConfiguration(byte[] val) throws IOException;
 
   public void close() {
@@ -78,11 +90,61 @@ public abstract class DeviceController {
   }
 
   public String buildSchema(Sensor sensor) {
-    return SchemaBuilder.buildSchema(sensor, getName(), getDescription());
+    return SchemaBuilder.buildSchema(sensor, null);
   }
 
-  public String buildSchema(Sensor sensor, JsonObject config) {
-    return SchemaBuilder.buildSchema(sensor, config, getName(), getDescription());
+  public String buildSchema(Sensor sensor, JsonObject additionalValues) {
+    return SchemaBuilder.buildSchema(sensor, additionalValues);
+  }
+
+  protected void walkSensorReadings(JsonObject root, List<SensorReading<?>> readings) throws IOException {
+    for (SensorReading<?> reading : readings) {
+      if (reading instanceof GroupSensorReading groupReading) {
+        JsonObject readingObject = new JsonObject();
+        walkSensorReadings(new JsonObject(), groupReading.getGroupList());
+        if (!readingObject.isEmpty()) {
+          root.add(reading.getName(), readingObject);
+        }
+      } else {
+        addProperty(reading, root);
+      }
+    }
+  }
+
+  private void addProperty(SensorReading<?> reading, JsonObject jsonObject) throws IOException {
+    ComputationResult<?> computationResult = reading.getValue();
+    if (!computationResult.hasError()) {
+      Object value = computationResult.getResult();
+      if (value instanceof Optional<?> optional) {
+        if (optional.isEmpty()) {
+          return;
+        }
+        value = optional.get();
+      }
+
+      if (value instanceof Number number) {
+        jsonObject.addProperty(reading.getName(), number);
+      } else if (value instanceof Boolean bool) {
+        jsonObject.addProperty(reading.getName(), bool);
+      } else if (value instanceof Character character) {
+        jsonObject.addProperty(reading.getName(), character);
+      } else if (value instanceof String str) {
+        jsonObject.addProperty(reading.getName(), str);
+      } else {
+        // Fallback to stringified JSON
+        jsonObject.add(reading.getName(), gson.toJsonTree(value));
+      }
+    } else {
+      if (raiseExceptionOnError) {
+        throw new IOException(computationResult.getError());
+      }
+      jsonObject.addProperty(reading.getName(), computationResult.getError().getMessage());
+    }
+    jsonObject.addProperty("timestamp", Instant.now().toString());
+  }
+
+  protected byte[] convert(JsonObject jsonObject) {
+    return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
   }
 
 }

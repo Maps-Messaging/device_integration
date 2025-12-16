@@ -84,7 +84,7 @@ public class AM2320Controller extends I2CDeviceController {
     config.setVersion(1);
     config.setUniqueId(getSchemaId());
     config.setResourceType("sensor");
-    config.setInterfaceDescription("Returns JSON object containing Temperature and Pressure");
+    config.setDescription("Returns JSON object containing Temperature and Pressure");
     return config;
   }
 

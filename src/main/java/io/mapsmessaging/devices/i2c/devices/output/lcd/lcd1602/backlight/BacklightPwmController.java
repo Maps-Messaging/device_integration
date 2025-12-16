@@ -82,7 +82,7 @@ public abstract class BacklightPwmController extends I2CDeviceController {
     config.setSource("I2C bus address : 0x5C");
     config.setVersion(1);
     config.setResourceType("sensor");
-    config.setInterfaceDescription("temperature, humidity");
+    config.setDescription("temperature, humidity");
     return config;
   }
 }

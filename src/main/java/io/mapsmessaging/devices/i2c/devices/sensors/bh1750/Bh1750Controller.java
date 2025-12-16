@@ -76,7 +76,7 @@ public class Bh1750Controller extends I2CDeviceController {
     config.setVersion(1);
     config.setUniqueId(getSchemaId());
     config.setResourceType("sensor");
-    config.setInterfaceDescription("Returns JSON object containing current lux level");
+    config.setDescription("Returns JSON object containing current lux level");
     return config;
   }
 

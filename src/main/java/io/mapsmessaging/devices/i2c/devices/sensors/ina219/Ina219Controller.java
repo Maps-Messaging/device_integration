@@ -136,7 +136,7 @@ public class Ina219Controller extends I2CDeviceController {
     config.setVersion(1);
     config.setResourceType("sensor");
     config.setUniqueId(getSchemaId());
-    config.setInterfaceDescription("Returns json object with current readings from sensor");
+    config.setDescription("Returns json object with current readings from sensor");
     return config;
   }
 
@@ -191,12 +191,7 @@ public class Ina219Controller extends I2CDeviceController {
         OperatingMode.BVOLT_CONTINUOUS,
         OperatingMode.SANDBVOLT_CONTINUOUS
     ));
-
-    JsonObject staticSchema = new JsonObject();
-    staticSchema.addProperty("type", "object");
-    staticSchema.add("properties", properties);
-
-    return buildSchema(sensor, staticSchema);
+    return buildSchema(sensor, properties);
   }
 
   @SafeVarargs
