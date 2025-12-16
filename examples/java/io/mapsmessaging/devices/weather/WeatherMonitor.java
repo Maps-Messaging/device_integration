@@ -21,7 +21,7 @@ package io.mapsmessaging.devices.weather;
 import com.fazecast.jSerialComm.SerialPort;
 import io.mapsmessaging.devices.DeviceBusManager;
 import io.mapsmessaging.devices.serial.SerialDeviceController;
-import io.mapsmessaging.devices.serial.devices.sensors.sen0640.Sen0640Controller;
+import io.mapsmessaging.devices.serial.devices.sensors.sen0642.Sen0642Controller;
 import io.mapsmessaging.devices.serial.devices.sensors.sen0657.Sen0657Controller;
 
 import java.io.IOException;
@@ -47,10 +47,11 @@ public class WeatherMonitor {
     setupSerial(serialPort0);
     setupSerial(serialPort1);
 
-    SerialDeviceController solarCfg = DeviceBusManager.getInstance().getSerialBusManager().getDevice("SEN0640");
     SerialDeviceController weatherCfg = DeviceBusManager.getInstance().getSerialBusManager().getDevice("SEN0657");
     Sen0657Controller weather = (Sen0657Controller) weatherCfg.mount(new Serial(serialPort0));
-    Sen0640Controller solar = (Sen0640Controller) solarCfg.mount(new Serial(serialPort1));
+
+    SerialDeviceController solarCfg = DeviceBusManager.getInstance().getSerialBusManager().getDevice("SEN0642");
+    Sen0642Controller solar = (Sen0642Controller) solarCfg.mount(new Serial(serialPort1));
 
     int count = 3000;
     while (count > 0) {
