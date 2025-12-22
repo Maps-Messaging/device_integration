@@ -101,14 +101,14 @@ public class SensorReadingAugmentor {
   }
 
   private static void scanForAQI(Map<String, SensorReading<?>> lookup, List<SensorReading<?>> computed) {
-    boolean hasPM25 = lookup.containsKey("pm2_5");
-    boolean hasPM10 = lookup.containsKey("pm10");
+    boolean hasPM25 = lookup.containsKey("pm_2_5");
+    boolean hasPM10 = lookup.containsKey("pm_10");
     boolean hasVOC = lookup.containsKey("vocIndex");
     boolean hasNOx = lookup.containsKey("noxIndex");
 
     if (hasPM25 && hasPM10) {
-      var pm25 = getFloatSupplier(lookup.get("pm2_5"));
-      var pm10 = getFloatSupplier(lookup.get("pm10"));
+      var pm25 = getFloatSupplier(lookup.get("pm_2_5"));
+      var pm10 = getFloatSupplier(lookup.get("pm_10"));
 
       computed.add(new FloatSensorReading(
           "AQI",

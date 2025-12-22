@@ -25,7 +25,7 @@ public class Pm1_0MeasurementCommand extends AbstractMeasurementCommand {
   public Pm1_0MeasurementCommand(Sen6xMeasurementManager manager) {
     super(
         manager,
-        "pm1_0",
+        "pm_1_0",
         "µg/m³",
         "Particulate Matter 1.0 concentration",
         5.0f,
