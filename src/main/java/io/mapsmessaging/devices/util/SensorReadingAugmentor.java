@@ -119,7 +119,7 @@ public class SensorReadingAugmentor {
           0f,
           500f,
           0,
-          () -> AqiCalculator.computeFromPMSA003I(pm25.get(), pm10.get())
+          () -> AqiCalculator.computePmAqiFromPmsa003I(pm25.get(), pm10.get())
       ));
       computed.add(new StringSensorReading(
           "AQICategory",
@@ -128,7 +128,7 @@ public class SensorReadingAugmentor {
           "Good",
           false,
           () -> {
-            float aqi = AqiCalculator.computeFromPMSA003I(pm25.get(), pm10.get());
+            float aqi = AqiCalculator.computePmAqiFromPmsa003I(pm25.get(), pm10.get());
             return AqiCalculator.describeAqi(aqi);
           }
       ));
