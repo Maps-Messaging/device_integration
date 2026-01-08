@@ -1,7 +1,7 @@
 /*
  *
  *  Copyright [ 2020 - 2024 ] Matthew Buckton
- *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
+ *  Copyright [ 2024 - 2026 ] MapsMessaging B.V.
  *
  *  Licensed under the Apache License, Version 2.0 with the Commons Clause
  *  (the "License"); you may not use this file except in compliance with the License.
@@ -54,7 +54,6 @@ public class SensorReadingAugmentor {
     List<SensorReading<?>> computed = new ArrayList<>();
     scanForDewPoint(lookup, computed);
     scanForAQI(lookup, computed);
-    scanForCO2Quality(lookup, computed);
 
     scanForThermalComfort(lookup, computed);
     scanForMoistureMetrics(lookup, computed);
@@ -103,8 +102,6 @@ public class SensorReadingAugmentor {
   private static void scanForAQI(Map<String, SensorReading<?>> lookup, List<SensorReading<?>> computed) {
     boolean hasPM25 = lookup.containsKey("pm_2_5");
     boolean hasPM10 = lookup.containsKey("pm_10");
-    boolean hasVOC = lookup.containsKey("vocIndex");
-    boolean hasNOx = lookup.containsKey("noxIndex");
 
     if (hasPM25 && hasPM10) {
       var pm25 = getFloatSupplier(lookup.get("pm_2_5"));
@@ -129,61 +126,10 @@ public class SensorReadingAugmentor {
           false,
           () -> {
             float aqi = AqiCalculator.computePmAqiFromPmsa003I(pm25.get(), pm10.get());
-            return AqiCalculator.describeAqi(aqi);
+            return AqiCalculator.describePmAqi(aqi);
           }
       ));
 
-    } else if (hasVOC && hasNOx) {
-      var voc = getFloatSupplier(lookup.get("vocIndex"));
-      var nox = getFloatSupplier(lookup.get("noxIndex"));
-
-      computed.add(new FloatSensorReading(
-          "AQI",
-          "",
-          "Air Quality Index (VOC and NOx Index)",
-          0f,
-          false,
-          0f,
-          500f,
-          0,
-          () -> AqiCalculator.computeFromSEN66(voc.get(), voc.get(), nox.get())
-      ));
-      computed.add(new StringSensorReading(
-          "AQICategory",
-          "",
-          "Air Quality Category from AQI",
-          "Good",
-          false,
-          () -> {
-            float aqi = AqiCalculator.computeFromSEN66(Float.NaN, voc.get(), nox.get());
-            return AqiCalculator.describeAqi(aqi);
-          }
-      ));
-
-    }
-
-  }
-
-  private static void scanForCO2Quality(Map<String, SensorReading<?>> lookup, List<SensorReading<?>> computed) {
-    boolean hasCO2 = lookup.containsKey("CO₂");
-    boolean hasHumidity = lookup.containsKey(HUMIDITY);
-    boolean hasTemperature = lookup.containsKey(TEMPERATURE);
-
-    if (hasCO2 && hasHumidity && hasTemperature) {
-      var co2 = getFloatSupplier(lookup.get("CO₂"));
-      var humidity = getFloatSupplier(lookup.get(HUMIDITY));
-      var temperature = getFloatSupplier(lookup.get(TEMPERATURE));
-
-      computed.add(new StringSensorReading(
-          "CO₂ Category",
-          "",
-          "CO₂-based air quality classification",
-          "Unknown",
-          false,
-          () -> AqiCalculator.describeCo2Quality(
-              Math.round(co2.get()), humidity.get(), temperature.get()
-          )
-      ));
     }
   }
 

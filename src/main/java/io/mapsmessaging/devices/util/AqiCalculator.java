@@ -1,7 +1,7 @@
 /*
  *
  *  Copyright [ 2020 - 2024 ] Matthew Buckton
- *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
+ *  Copyright [ 2024 - 2026 ] MapsMessaging B.V.
  *
  *  Licensed under the Apache License, Version 2.0 with the Commons Clause
  *  (the "License"); you may not use this file except in compliance with the License.
@@ -18,47 +18,86 @@
  */
 package io.mapsmessaging.devices.util;
 
-public class AqiCalculator {
 
-  private static final String EXCELLENT = "Excellent";
-  private static final String FRESH = "Fresh";
-  private static final String GOOD = "Good";
-  private static final String MODERATE = "Moderate";
-  private static final String UNHEALTHY_SENSITIVE = "Unhealthy for Sensitive Groups";
-  private static final String UNHEALTHY = "Unhealthy";
-  private static final String VERY_UNHEALTHY = "Very Unhealthy";
-  private static final String HAZARDOUS = "Hazardous";
+public class AqiCalculator {
 
   private AqiCalculator() {
     // Hidden
   }
 
-  /**
-   * PM-based AQI categories (EPA-style bands).
-   */
-  public static String describeAqi(float aqi) {
-    if (aqi <= 50) {
-      return GOOD;
+  // -----------------------------
+  // PM AQI (EPA-style bands)
+  // -----------------------------
+
+  public static String describePmAqi(float aqi) {
+    if (Float.isNaN(aqi)) {
+      return "Unknown";
     }
-    if (aqi <= 100) {
-      return MODERATE;
+    if (aqi <= 50.0f) {
+      return "Good";
     }
-    if (aqi <= 150) {
-      return UNHEALTHY_SENSITIVE;
+    if (aqi <= 100.0f) {
+      return "Moderate";
     }
-    if (aqi <= 200) {
-      return UNHEALTHY;
+    if (aqi <= 150.0f) {
+      return "Unhealthy for Sensitive Groups";
     }
-    if (aqi <= 300) {
-      return VERY_UNHEALTHY;
+    if (aqi <= 200.0f) {
+      return "Unhealthy";
     }
-    return HAZARDOUS;
+    if (aqi <= 300.0f) {
+      return "Very Unhealthy";
+    }
+    return "Hazardous";
   }
 
-  /**
-   * Compute PM-based AQI using PM2.5 only (EPA-style breakpoint interpolation).
-   * Caller should provide a suitably averaged PM2.5 value (not raw instantaneous).
-   */
+  // -----------------------------
+  // Indoor GAS score bands
+  // -----------------------------
+
+  public static String describeGasScore(float score) {
+    if (Float.isNaN(score)) {
+      return "Unknown";
+    }
+    if (score <= 50.0f) {
+      return "Fresh";
+    }
+    if (score <= 100.0f) {
+      return "Normal";
+    }
+    if (score <= 150.0f) {
+      return "Noticeable";
+    }
+    if (score <= 200.0f) {
+      return "Stale";
+    }
+    if (score <= 300.0f) {
+      return "Strong";
+    }
+    return "Very Strong";
+  }
+
+  // -----------------------------
+  // Existing methods you already have
+  // (computePm25Aqi, computePm10Aqi, computePmAqiFromPmsa003I,
+  //  computeIndoorGasScoreFromSen66, computeOverallIndoorScore, etc.)
+  // -----------------------------
+
+  public static float computeOverallIndoorScore(float pm2_5, float pm10, float vocIndex, float noxIndex) {
+    float pmAqi = computePmAqiFromPmsa003I(pm2_5, pm10);
+    float gasScore = computeIndoorGasScoreFromSen66(vocIndex, noxIndex);
+    return Math.max(pmAqi, gasScore);
+  }
+
+  public static float computePmComponent(float pm2_5, float pm10) {
+    return computePmAqiFromPmsa003I(pm2_5, pm10);
+  }
+
+  public static float computeGasComponent(float vocIndex, float noxIndex) {
+    return computeIndoorGasScoreFromSen66(vocIndex, noxIndex);
+  }
+
+
   public static float computePm25Aqi(float pm2_5) {
     return computeAqi(pm2_5,
         new float[]{0f, 12f, 35.4f, 55.4f, 150.4f, 250.4f, 500f},
@@ -100,53 +139,6 @@ public class AqiCalculator {
     return Math.max(vocScore, noxScore);
   }
 
-  /**
-   * Overall indoor score (NOT AQI): max(PM AQI, GAS score).
-   * PM component is EPA-style AQI; GAS component is an indoor heuristic.
-   */
-  public static float computeOverallIndoorScore(float pm2_5, float pm10, float vocIndex, float noxIndex) {
-    float pmAqi = computePmAqiFromPmsa003I(pm2_5, pm10);
-    float gasScore = computeIndoorGasScoreFromSen66(vocIndex, noxIndex);
-    return Math.max(pmAqi, gasScore);
-  }
-
-  public static int toDisplayAqi(float value) {
-    return Math.round(value);
-  }
-
-  public static String describeCo2Quality(int co2, float humidity, float temperature) {
-    String airQuality;
-
-    if (co2 <= 450) {
-      airQuality = EXCELLENT;
-    } else if (co2 <= 1000) {
-      airQuality = FRESH;
-    } else if (co2 <= 2000) {
-      airQuality = MODERATE;
-    } else if (co2 <= 2500) {
-      airQuality = UNHEALTHY_SENSITIVE;
-    } else if (co2 <= 5000) {
-      airQuality = UNHEALTHY;
-    } else if (co2 <= 10000) {
-      airQuality = VERY_UNHEALTHY;
-    } else {
-      airQuality = HAZARDOUS;
-    }
-
-    boolean humidityOutOfComfort = humidity > 60.0f || humidity < 30.0f;
-    boolean temperatureOutOfComfort = temperature > 28.0f || temperature < 18.0f;
-
-    if (humidityOutOfComfort || temperatureOutOfComfort) {
-      switch (airQuality) {
-        case EXCELLENT, FRESH -> airQuality = MODERATE;
-        case MODERATE -> airQuality = UNHEALTHY_SENSITIVE;
-        case UNHEALTHY_SENSITIVE -> airQuality = UNHEALTHY;
-        default -> airQuality = VERY_UNHEALTHY;
-      }
-    }
-
-    return airQuality;
-  }
 
   private static float computeAqi(float value, float[] breakpoints, int[] aqiLevels) {
     for (int i = 0; i < breakpoints.length - 1; i++) {
@@ -214,20 +206,5 @@ public class AqiCalculator {
       return outputHigh;
     }
     return outputLow + (value - inputLow) * (outputHigh - outputLow) / (inputHigh - inputLow);
-  }
-
-  // --------------------------------------------------------------------------
-  // Backwards-compatible wrappers (kept to avoid breakage, but NO LONGER "AQI")
-  // --------------------------------------------------------------------------
-
-  /**
-   * @deprecated SEN66 VOC/NOx indices are not AQI. Use {@link #computeIndoorGasScoreFromSen66(float, float)}
-   * and/or {@link #computeOverallIndoorScore(float, float, float, float)}.
-   */
-  @Deprecated
-  public static float computeFromSEN66(float pm2_5, float vocIndex, float noxIndex) {
-    float pmAqi = computePm25Aqi(pm2_5);
-    float gasScore = computeIndoorGasScoreFromSen66(vocIndex, noxIndex);
-    return Math.max(pmAqi, gasScore);
   }
 }
