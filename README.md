@@ -13,6 +13,9 @@ The controller can automatically detect known devices on the bus and provide acc
 - **1-Wire Device Entries**: Scans and autoloads any 1-wire device found within the filesystems namespace
 - **I2C Bus Scanning**: The controller can automatically scan the I2C bus to detect connected devices.
 
+Want to dive deeper into the code? 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Maps-Messaging/device_integration)
+
 ## Device Configuration
 
 ### SPI Device Configuration
