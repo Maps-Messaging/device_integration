@@ -437,7 +437,7 @@
       <dependency>
         <groupId>io.javalin</groupId>
         <artifactId>javalin</artifactId>
-        <version>7.0.0</version>
+        <version>7.2.2</version>
       </dependency>
 
       <!-- https://mvnrepository.com/artifact/com.fasterxml.uuid/java-uuid-generator -->
