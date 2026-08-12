@@ -21,6 +21,8 @@ package io.mapsmessaging.devices.serial.devices.sensors.sen0547;
 
 import io.mapsmessaging.devices.Device;
 import io.mapsmessaging.devices.DeviceType;
+import io.mapsmessaging.devices.deviceinterfaces.Sensor;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
 import java.io.IOException;
 import java.time.Duration;
@@ -32,7 +34,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
-public class Stl19pSensor implements Device {
+public class Stl19pSensor implements Device, Sensor {
 
   static final int FRAME_LENGTH = 47;
   static final int POINTS_PER_FRAME = 12;
@@ -45,6 +47,7 @@ public class Stl19pSensor implements Device {
   private final byte[] readBuffer = new byte[1024];
   private final List<Point> currentScan = new ArrayList<>(600);
   private final ArrayDeque<Scan> scanQueue = new ArrayDeque<>(MAX_QUEUED_SCANS);
+  private final List<SensorReading<?>> readings;
   private final Thread readerThread;
 
   private int frameIndex;
@@ -58,6 +61,7 @@ public class Stl19pSensor implements Device {
   public Stl19pSensor(SerialDevice serialPort) throws IOException {
     this.serialPort = Objects.requireNonNull(serialPort, "serialPort");
     open();
+    readings = List.of(new Stl19pScanReading(this::readScan));
     running = true;
     readerThread = new Thread(this::readLoop, "stl19p-" + serialPort.getSystemPortName());
     readerThread.setDaemon(true);
@@ -77,6 +81,11 @@ public class Stl19pSensor implements Device {
   @Override
   public DeviceType getType() {
     return DeviceType.SENSOR;
+  }
+
+  @Override
+  public List<SensorReading<?>> getReadings() {
+    return readings;
   }
 
   public void open() throws IOException {
