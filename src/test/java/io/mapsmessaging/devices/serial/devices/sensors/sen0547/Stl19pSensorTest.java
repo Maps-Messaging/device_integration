@@ -20,12 +20,14 @@
 package io.mapsmessaging.devices.serial.devices.sensors.sen0547;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.Instant;
 import org.junit.jupiter.api.Test;
 
 class Stl19pSensorTest {
@@ -39,20 +41,21 @@ class Stl19pSensorTest {
   @Test
   void testCompleteScanAssembly() throws IOException {
     ByteArrayOutputStream stream = new ByteArrayOutputStream();
-    stream.writeBytes(buildFrame(35000, 35900, 1000));
-    stream.writeBytes(buildFrame(100, 1100, 1100));
-    stream.writeBytes(buildFrame(35000, 35900, 1200));
-    stream.writeBytes(buildFrame(100, 1100, 1300));
+    stream.writeBytes(buildFrame(35000, 35900, 1000, 1000));
+    stream.writeBytes(buildFrame(100, 1100, 1100, 1100));
+    stream.writeBytes(buildFrame(35000, 35900, 1200, 1200));
+    stream.writeBytes(buildFrame(100, 1100, 1300, 1300));
 
     Stl19pSensor sensor = new Stl19pSensor(new TestSerialDevice(stream.toByteArray()));
     try {
       Stl19pSensor.Scan scan = sensor.readScan();
 
-      assertEquals(10.0, scan.getScanFrequencyHz(), 0.001);
-      assertEquals(1200, scan.getSensorTimestampMs());
+      Instant.parse(scan.getTimestamp());
       assertEquals(24, scan.getPoints().size());
       assertEquals(1.0, scan.getPoints().get(0).getAngleDegrees(), 0.001);
+      assertEquals(1100, scan.getPoints().get(0).getDistanceMm());
       assertEquals(359.0, scan.getPoints().get(scan.getPoints().size() - 1).getAngleDegrees(), 0.001);
+      assertEquals(1211, scan.getPoints().get(scan.getPoints().size() - 1).getDistanceMm());
     } finally {
       sensor.close();
     }
@@ -61,30 +64,32 @@ class Stl19pSensorTest {
   @Test
   void testScanQueueDropsOldestWhenFull() throws Exception {
     ByteArrayOutputStream stream = new ByteArrayOutputStream();
-    stream.writeBytes(buildFrame(35000, 35900, 900));
-    stream.writeBytes(buildFrame(100, 1100, 950));
+    stream.writeBytes(buildFrame(35000, 35900, 100, 900));
+    stream.writeBytes(buildFrame(100, 1100, 200, 950));
     for (int index = 0; index < 25; index++) {
-      stream.writeBytes(buildFrame(35000, 35900, 1000 + index));
-      stream.writeBytes(buildFrame(100, 1100, 2000 + index));
+      stream.writeBytes(buildFrame(35000, 35900, 1000 + (index * 100), 1000 + index));
+      stream.writeBytes(buildFrame(100, 1100, 2000 + (index * 100), 2000 + index));
     }
 
-    Stl19pSensor sensor = new Stl19pSensor(new TestSerialDevice(stream.toByteArray()));
+    TestSerialDevice serialDevice = new TestSerialDevice(stream.toByteArray());
+    Stl19pSensor sensor = new Stl19pSensor(serialDevice);
     sensor.setResponseTimeout(Duration.ofSeconds(1));
     try {
       long deadline = System.nanoTime() + Duration.ofSeconds(1).toNanos();
-      while (sensor.getQueuedScanCount() < Stl19pSensor.MAX_QUEUED_SCANS && System.nanoTime() < deadline) {
+      while (!serialDevice.isExhausted() && System.nanoTime() < deadline) {
         Thread.sleep(1);
       }
 
+      assertTrue(serialDevice.isExhausted());
       assertEquals(Stl19pSensor.MAX_QUEUED_SCANS, sensor.getQueuedScanCount());
       Stl19pSensor.Scan oldestRetained = sensor.readScan();
-      assertEquals(1005, oldestRetained.getSensorTimestampMs());
+      assertEquals(2400, oldestRetained.getPoints().get(0).getDistanceMm());
     } finally {
       sensor.close();
     }
   }
 
-  private static byte[] buildFrame(int startAngle, int endAngle, int timestamp) {
+  private static byte[] buildFrame(int startAngle, int endAngle, int distanceBase, int timestamp) {
     byte[] frame = new byte[Stl19pSensor.FRAME_LENGTH];
     frame[0] = (byte) Stl19pSensor.FRAME_HEADER;
     frame[1] = (byte) Stl19pSensor.FRAME_VER_LEN;
@@ -93,7 +98,7 @@ class Stl19pSensorTest {
 
     for (int index = 0; index < Stl19pSensor.POINTS_PER_FRAME; index++) {
       int offset = 6 + (index * 3);
-      writeUnsignedShortLittleEndian(frame, offset, 1000 + index);
+      writeUnsignedShortLittleEndian(frame, offset, distanceBase + index);
       frame[offset + 2] = (byte) (100 + index);
     }
 
@@ -112,6 +117,7 @@ class Stl19pSensorTest {
     private final byte[] data;
     private int offset;
     private boolean open;
+    private volatile boolean exhausted;
 
     private TestSerialDevice(byte[] data) {
       this.data = data;
@@ -146,12 +152,17 @@ class Stl19pSensorTest {
     @Override
     public int readBytes(byte[] buffer, int remaining) {
       if (offset >= data.length) {
+        exhausted = true;
         return 0;
       }
       int length = Math.min(remaining, data.length - offset);
       System.arraycopy(data, offset, buffer, 0, length);
       offset += length;
       return length;
+    }
+
+    private boolean isExhausted() {
+      return exhausted;
     }
   }
 }
