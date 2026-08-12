@@ -26,9 +26,12 @@ import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
 
 public class Stl19pSensor implements Device, Sensor {
 
@@ -36,25 +39,33 @@ public class Stl19pSensor implements Device, Sensor {
   static final int POINTS_PER_FRAME = 12;
   static final int FRAME_HEADER = 0x54;
   static final int FRAME_VER_LEN = 0x2C;
+  static final int MAX_QUEUED_SCANS = 20;
 
   private final SerialDevice serialPort;
   private final byte[] frameBuffer = new byte[FRAME_LENGTH];
   private final byte[] readBuffer = new byte[1024];
   private final List<Point> currentScan = new ArrayList<>(600);
+  private final ArrayDeque<Scan> scanQueue = new ArrayDeque<>(MAX_QUEUED_SCANS);
   private final List<SensorReading<?>> readings;
+  private final Thread readerThread;
 
   private int frameIndex;
   private boolean scanStarted;
   private double previousAngleDegrees = Double.NaN;
   private double currentScanFrequencyHz;
   private int currentScanTimestampMs;
-  private Scan completedScan;
   private Duration responseTimeout = Duration.ofSeconds(1);
+  private volatile boolean running;
+  private volatile IOException readerException;
 
   public Stl19pSensor(SerialDevice serialPort) throws IOException {
     this.serialPort = Objects.requireNonNull(serialPort, "serialPort");
     open();
     readings = List.of(new Stl19pScanReading(this::readScan));
+    running = true;
+    readerThread = new Thread(this::readLoop, "stl19p-" + serialPort.getSystemPortName());
+    readerThread.setDaemon(true);
+    readerThread.start();
   }
 
   @Override
@@ -87,41 +98,75 @@ public class Stl19pSensor implements Device, Sensor {
   }
 
   public void close() {
+    running = false;
     if (serialPort.isOpen()) {
       serialPort.closePort();
     }
+    readerThread.interrupt();
   }
 
   public void setResponseTimeout(Duration responseTimeout) {
     this.responseTimeout = Objects.requireNonNull(responseTimeout, "responseTimeout");
   }
 
-  public synchronized Scan readScan() throws IOException {
-    if (!serialPort.isOpen()) {
-      throw new IOException("Serial port is not open");
-    }
-
+  public Scan readScan() throws IOException {
     long deadline = System.nanoTime() + responseTimeout.toNanos();
-    while (completedScan == null) {
-      if (System.nanoTime() >= deadline) {
+    while (true) {
+      synchronized (scanQueue) {
+        Scan scan = scanQueue.pollFirst();
+        if (scan != null) {
+          return scan;
+        }
+      }
+
+      IOException exception = readerException;
+      if (exception != null) {
+        throw exception;
+      }
+
+      long remaining = deadline - System.nanoTime();
+      if (remaining <= 0) {
         throw new IOException("Timeout waiting for complete STL-19P scan");
       }
 
-      int count = serialPort.readBytes(readBuffer, readBuffer.length);
+      LockSupport.parkNanos(Math.min(remaining, TimeUnit.MILLISECONDS.toNanos(1)));
+      if (Thread.interrupted()) {
+        Thread.currentThread().interrupt();
+        throw new IOException("Interrupted waiting for complete STL-19P scan");
+      }
+    }
+  }
+
+  int getQueuedScanCount() {
+    synchronized (scanQueue) {
+      return scanQueue.size();
+    }
+  }
+
+  private void readLoop() {
+    while (running) {
+      int count;
+      try {
+        count = serialPort.readBytes(readBuffer, readBuffer.length);
+      } catch (RuntimeException e) {
+        readerException = new IOException("Error reading STL-19P serial port", e);
+        return;
+      }
+
+      if (!running) {
+        return;
+      }
       if (count < 0) {
-        throw new IOException("Error reading from serial port, readBytes=" + count);
+        readerException = new IOException("Error reading from serial port, readBytes=" + count);
+        return;
       }
       if (count == 0) {
-        Thread.onSpinWait();
+        LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(1));
         continue;
       }
 
       processBytes(readBuffer, count);
     }
-
-    Scan result = completedScan;
-    completedScan = null;
-    return result;
   }
 
   private void processBytes(byte[] data, int length) {
@@ -182,8 +227,8 @@ public class Stl19pSensor implements Device, Sensor {
   private void processPoint(Point point, double frameFrequencyHz, int frameTimestampMs) {
     boolean wrapped = !Double.isNaN(previousAngleDegrees) && point.angleDegrees < 20.0 && previousAngleDegrees > 340.0;
     if (wrapped) {
-      if (scanStarted && !currentScan.isEmpty() && completedScan == null) {
-        completedScan = new Scan(currentScanFrequencyHz, currentScanTimestampMs, currentScan);
+      if (scanStarted && !currentScan.isEmpty()) {
+        enqueueScan(new Scan(currentScanFrequencyHz, currentScanTimestampMs, currentScan));
       }
       currentScan.clear();
       scanStarted = true;
@@ -195,6 +240,15 @@ public class Stl19pSensor implements Device, Sensor {
       currentScanTimestampMs = frameTimestampMs;
     }
     previousAngleDegrees = point.angleDegrees;
+  }
+
+  private void enqueueScan(Scan scan) {
+    synchronized (scanQueue) {
+      if (scanQueue.size() == MAX_QUEUED_SCANS) {
+        scanQueue.pollFirst();
+      }
+      scanQueue.offerLast(scan);
+    }
   }
 
   static int crc8(byte[] data, int length) {
