@@ -79,9 +79,8 @@ public class Stl19pController extends SerialDeviceController {
 
   @Override
   public byte[] getDeviceState() throws IOException {
-    JsonObject jsonObject = new JsonObject();
-    walkSensorReadings(jsonObject, sensor.getReadings());
-    return convert(jsonObject);
+    Stl19pSensor.Scan scan = sensor.readScan();
+    return convert(gson.toJsonTree(scan).getAsJsonObject());
   }
 
   @Override
@@ -101,44 +100,13 @@ public class Stl19pController extends SerialDeviceController {
     root.addProperty("type", "object");
 
     JsonObject properties = new JsonObject();
-    properties.add("scan", buildScanSchema());
 
     JsonObject timestamp = new JsonObject();
     timestamp.addProperty("type", "string");
     timestamp.addProperty("format", "date-time");
-    timestamp.addProperty("description", "ISO 8601 UTC timestamp for the completed scan");
+    timestamp.addProperty("description", "ISO 8601 UTC timestamp at the start of scan acquisition");
     timestamp.addProperty("readOnly", true);
     properties.add("timestamp", timestamp);
-
-    root.add("properties", properties);
-    JsonArray required = new JsonArray();
-    required.add("scan");
-    root.add("required", required);
-    return gson.toJson(root);
-  }
-
-  private JsonObject buildScanSchema() {
-    JsonObject scan = new JsonObject();
-    scan.addProperty("type", "object");
-    scan.addProperty("description", "One complete 360 degree STL-19P scan");
-    scan.addProperty("readOnly", true);
-
-    JsonObject properties = new JsonObject();
-
-    JsonObject frequency = new JsonObject();
-    frequency.addProperty("type", "number");
-    frequency.addProperty("minimum", 0);
-    frequency.addProperty("description", "LiDAR rotation frequency in Hz");
-    frequency.addProperty("readOnly", true);
-    properties.add("scanFrequencyHz", frequency);
-
-    JsonObject sensorTimestamp = new JsonObject();
-    sensorTimestamp.addProperty("type", "integer");
-    sensorTimestamp.addProperty("minimum", 0);
-    sensorTimestamp.addProperty("maximum", 65535);
-    sensorTimestamp.addProperty("description", "Timestamp from the final LiDAR packet in milliseconds");
-    sensorTimestamp.addProperty("readOnly", true);
-    properties.add("sensorTimestampMs", sensorTimestamp);
 
     JsonObject points = new JsonObject();
     points.addProperty("type", "array");
@@ -146,13 +114,12 @@ public class Stl19pController extends SerialDeviceController {
     points.add("items", buildPointSchema());
     properties.add("points", points);
 
-    scan.add("properties", properties);
+    root.add("properties", properties);
     JsonArray required = new JsonArray();
-    required.add("scanFrequencyHz");
-    required.add("sensorTimestampMs");
+    required.add("timestamp");
     required.add("points");
-    scan.add("required", required);
-    return scan;
+    root.add("required", required);
+    return gson.toJson(root);
   }
 
   private JsonObject buildPointSchema() {
