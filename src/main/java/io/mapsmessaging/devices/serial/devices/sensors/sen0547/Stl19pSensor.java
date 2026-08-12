@@ -26,10 +26,10 @@ import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
 import java.io.IOException;
 import java.time.Duration;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
@@ -45,7 +45,7 @@ public class Stl19pSensor implements Device, Sensor {
   private final byte[] frameBuffer = new byte[FRAME_LENGTH];
   private final byte[] readBuffer = new byte[1024];
   private final List<Point> currentScan = new ArrayList<>(600);
-  private final ArrayDeque<Scan> scanQueue = new ArrayDeque<>(MAX_QUEUED_SCANS);
+  private final ArrayBlockingQueue<Scan> scanQueue = new ArrayBlockingQueue<>(MAX_QUEUED_SCANS);
   private final List<SensorReading<?>> readings;
   private final Thread readerThread;
 
@@ -110,37 +110,30 @@ public class Stl19pSensor implements Device, Sensor {
   }
 
   public Scan readScan() throws IOException {
-    long deadline = System.nanoTime() + responseTimeout.toNanos();
-    while (true) {
-      synchronized (scanQueue) {
-        Scan scan = scanQueue.pollFirst();
-        if (scan != null) {
-          return scan;
-        }
-      }
-
-      IOException exception = readerException;
-      if (exception != null) {
-        throw exception;
-      }
-
-      long remaining = deadline - System.nanoTime();
-      if (remaining <= 0) {
-        throw new IOException("Timeout waiting for complete STL-19P scan");
-      }
-
-      LockSupport.parkNanos(Math.min(remaining, TimeUnit.MILLISECONDS.toNanos(1)));
-      if (Thread.interrupted()) {
-        Thread.currentThread().interrupt();
-        throw new IOException("Interrupted waiting for complete STL-19P scan");
-      }
+    IOException exception = readerException;
+    if (exception != null && scanQueue.isEmpty()) {
+      throw exception;
     }
+
+    try {
+      Scan scan = scanQueue.poll(responseTimeout.toNanos(), TimeUnit.NANOSECONDS);
+      if (scan != null) {
+        return scan;
+      }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IOException("Interrupted waiting for complete STL-19P scan", e);
+    }
+
+    exception = readerException;
+    if (exception != null) {
+      throw exception;
+    }
+    throw new IOException("Timeout waiting for complete STL-19P scan");
   }
 
   int getQueuedScanCount() {
-    synchronized (scanQueue) {
-      return scanQueue.size();
-    }
+    return scanQueue.size();
   }
 
   private void readLoop() {
@@ -243,12 +236,11 @@ public class Stl19pSensor implements Device, Sensor {
   }
 
   private void enqueueScan(Scan scan) {
-    synchronized (scanQueue) {
-      if (scanQueue.size() == MAX_QUEUED_SCANS) {
-        scanQueue.pollFirst();
-      }
-      scanQueue.offerLast(scan);
+    if (scanQueue.offer(scan)) {
+      return;
     }
+    scanQueue.poll();
+    scanQueue.offer(scan);
   }
 
   static int crc8(byte[] data, int length) {
