@@ -25,6 +25,7 @@ import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import org.junit.jupiter.api.Test;
 
 class Stl19pSensorTest {
@@ -44,13 +45,43 @@ class Stl19pSensorTest {
     stream.writeBytes(buildFrame(100, 1100, 1300));
 
     Stl19pSensor sensor = new Stl19pSensor(new TestSerialDevice(stream.toByteArray()));
-    Stl19pSensor.Scan scan = sensor.readScan();
+    try {
+      Stl19pSensor.Scan scan = sensor.readScan();
 
-    assertEquals(10.0, scan.getScanFrequencyHz(), 0.001);
-    assertEquals(1200, scan.getSensorTimestampMs());
-    assertEquals(24, scan.getPoints().size());
-    assertEquals(1.0, scan.getPoints().get(0).getAngleDegrees(), 0.001);
-    assertEquals(359.0, scan.getPoints().get(scan.getPoints().size() - 1).getAngleDegrees(), 0.001);
+      assertEquals(10.0, scan.getScanFrequencyHz(), 0.001);
+      assertEquals(1200, scan.getSensorTimestampMs());
+      assertEquals(24, scan.getPoints().size());
+      assertEquals(1.0, scan.getPoints().get(0).getAngleDegrees(), 0.001);
+      assertEquals(359.0, scan.getPoints().get(scan.getPoints().size() - 1).getAngleDegrees(), 0.001);
+    } finally {
+      sensor.close();
+    }
+  }
+
+  @Test
+  void testScanQueueDropsOldestWhenFull() throws Exception {
+    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+    stream.writeBytes(buildFrame(35000, 35900, 900));
+    stream.writeBytes(buildFrame(100, 1100, 950));
+    for (int index = 0; index < 25; index++) {
+      stream.writeBytes(buildFrame(35000, 35900, 1000 + index));
+      stream.writeBytes(buildFrame(100, 1100, 2000 + index));
+    }
+
+    Stl19pSensor sensor = new Stl19pSensor(new TestSerialDevice(stream.toByteArray()));
+    sensor.setResponseTimeout(Duration.ofSeconds(1));
+    try {
+      long deadline = System.nanoTime() + Duration.ofSeconds(1).toNanos();
+      while (sensor.getQueuedScanCount() < Stl19pSensor.MAX_QUEUED_SCANS && System.nanoTime() < deadline) {
+        Thread.sleep(1);
+      }
+
+      assertEquals(Stl19pSensor.MAX_QUEUED_SCANS, sensor.getQueuedScanCount());
+      Stl19pSensor.Scan oldestRetained = sensor.readScan();
+      assertEquals(1005, oldestRetained.getSensorTimestampMs());
+    } finally {
+      sensor.close();
+    }
   }
 
   private static byte[] buildFrame(int startAngle, int endAngle, int timestamp) {
