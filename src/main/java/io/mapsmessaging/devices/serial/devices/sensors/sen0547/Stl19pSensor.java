@@ -21,11 +21,10 @@ package io.mapsmessaging.devices.serial.devices.sensors.sen0547;
 
 import io.mapsmessaging.devices.Device;
 import io.mapsmessaging.devices.DeviceType;
-import io.mapsmessaging.devices.deviceinterfaces.Sensor;
-import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
 import java.io.IOException;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +32,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
-public class Stl19pSensor implements Device, Sensor {
+public class Stl19pSensor implements Device {
 
   static final int FRAME_LENGTH = 47;
   static final int POINTS_PER_FRAME = 12;
@@ -46,14 +45,12 @@ public class Stl19pSensor implements Device, Sensor {
   private final byte[] readBuffer = new byte[1024];
   private final List<Point> currentScan = new ArrayList<>(600);
   private final ArrayDeque<Scan> scanQueue = new ArrayDeque<>(MAX_QUEUED_SCANS);
-  private final List<SensorReading<?>> readings;
   private final Thread readerThread;
 
   private int frameIndex;
   private boolean scanStarted;
   private double previousAngleDegrees = Double.NaN;
-  private double currentScanFrequencyHz;
-  private int currentScanTimestampMs;
+  private String currentScanTimestamp;
   private Duration responseTimeout = Duration.ofSeconds(1);
   private volatile boolean running;
   private volatile IOException readerException;
@@ -61,7 +58,6 @@ public class Stl19pSensor implements Device, Sensor {
   public Stl19pSensor(SerialDevice serialPort) throws IOException {
     this.serialPort = Objects.requireNonNull(serialPort, "serialPort");
     open();
-    readings = List.of(new Stl19pScanReading(this::readScan));
     running = true;
     readerThread = new Thread(this::readLoop, "stl19p-" + serialPort.getSystemPortName());
     readerThread.setDaemon(true);
@@ -81,11 +77,6 @@ public class Stl19pSensor implements Device, Sensor {
   @Override
   public DeviceType getType() {
     return DeviceType.SENSOR;
-  }
-
-  @Override
-  public List<SensorReading<?>> getReadings() {
-    return readings;
   }
 
   public void open() throws IOException {
@@ -217,10 +208,8 @@ public class Stl19pSensor implements Device, Sensor {
   }
 
   private void parseFrame() {
-    double frameFrequencyHz = unsignedShortLittleEndian(frameBuffer, 2) / 360.0;
     double startAngleDegrees = unsignedShortLittleEndian(frameBuffer, 4) / 100.0;
     double endAngleDegrees = unsignedShortLittleEndian(frameBuffer, 42) / 100.0;
-    int frameTimestampMs = unsignedShortLittleEndian(frameBuffer, 44);
     double angleSpanDegrees = (endAngleDegrees + 360.0 - startAngleDegrees) % 360.0;
     double angleStepDegrees = angleSpanDegrees / (POINTS_PER_FRAME - 1);
 
@@ -232,24 +221,23 @@ public class Stl19pSensor implements Device, Sensor {
       if (angleDegrees >= 360.0) {
         angleDegrees -= 360.0;
       }
-      processPoint(new Point(angleDegrees, distanceMm, intensity), frameFrequencyHz, frameTimestampMs);
+      processPoint(new Point(angleDegrees, distanceMm, intensity));
     }
   }
 
-  private void processPoint(Point point, double frameFrequencyHz, int frameTimestampMs) {
+  private void processPoint(Point point) {
     boolean wrapped = !Double.isNaN(previousAngleDegrees) && point.angleDegrees < 20.0 && previousAngleDegrees > 340.0;
     if (wrapped) {
       if (scanStarted && !currentScan.isEmpty()) {
-        enqueueScan(new Scan(currentScanFrequencyHz, currentScanTimestampMs, currentScan));
+        enqueueScan(new Scan(currentScanTimestamp, currentScan));
       }
       currentScan.clear();
       scanStarted = true;
+      currentScanTimestamp = Instant.now().toString();
     }
 
     if (scanStarted) {
       currentScan.add(point);
-      currentScanFrequencyHz = frameFrequencyHz;
-      currentScanTimestampMs = frameTimestampMs;
     }
     previousAngleDegrees = point.angleDegrees;
   }
@@ -284,22 +272,16 @@ public class Stl19pSensor implements Device, Sensor {
   }
 
   public static final class Scan {
-    private final double scanFrequencyHz;
-    private final int sensorTimestampMs;
+    private final String timestamp;
     private final List<Point> points;
 
-    private Scan(double scanFrequencyHz, int sensorTimestampMs, List<Point> points) {
-      this.scanFrequencyHz = scanFrequencyHz;
-      this.sensorTimestampMs = sensorTimestampMs;
+    private Scan(String timestamp, List<Point> points) {
+      this.timestamp = timestamp;
       this.points = List.copyOf(points);
     }
 
-    public double getScanFrequencyHz() {
-      return scanFrequencyHz;
-    }
-
-    public int getSensorTimestampMs() {
-      return sensorTimestampMs;
+    public String getTimestamp() {
+      return timestamp;
     }
 
     public List<Point> getPoints() {
