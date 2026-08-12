@@ -1,0 +1,266 @@
+/*
+ *
+ *  Copyright [ 2020 - 2024 ] Matthew Buckton
+ *  Copyright [ 2024 - 2026 ] MapsMessaging B.V.
+ *
+ *  Licensed under the Apache License, Version 2.0 with the Commons Clause
+ *  (the "License"); you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at:
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://commonsclause.com/
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License
+ */
+
+package io.mapsmessaging.devices.serial.devices.sensors.sen0547;
+
+import io.mapsmessaging.devices.Device;
+import io.mapsmessaging.devices.DeviceType;
+import io.mapsmessaging.devices.deviceinterfaces.Sensor;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
+import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+public class Stl19pSensor implements Device, Sensor {
+
+  static final int FRAME_LENGTH = 47;
+  static final int POINTS_PER_FRAME = 12;
+  static final int FRAME_HEADER = 0x54;
+  static final int FRAME_VER_LEN = 0x2C;
+
+  private final SerialDevice serialPort;
+  private final byte[] frameBuffer = new byte[FRAME_LENGTH];
+  private final byte[] readBuffer = new byte[1024];
+  private final List<Point> currentScan = new ArrayList<>(600);
+  private final List<SensorReading<?>> readings;
+
+  private int frameIndex;
+  private boolean scanStarted;
+  private double previousAngleDegrees = Double.NaN;
+  private double currentScanFrequencyHz;
+  private int currentScanTimestampMs;
+  private Scan completedScan;
+  private Duration responseTimeout = Duration.ofSeconds(1);
+
+  public Stl19pSensor(SerialDevice serialPort) throws IOException {
+    this.serialPort = Objects.requireNonNull(serialPort, "serialPort");
+    open();
+    readings = List.of(new Stl19pScanReading(this::readScan));
+  }
+
+  @Override
+  public String getName() {
+    return "SEN0547";
+  }
+
+  @Override
+  public String getDescription() {
+    return "DFRobot SEN0547 STL-19P 360 degree LiDAR";
+  }
+
+  @Override
+  public DeviceType getType() {
+    return DeviceType.SENSOR;
+  }
+
+  @Override
+  public List<SensorReading<?>> getReadings() {
+    return readings;
+  }
+
+  public void open() throws IOException {
+    if (serialPort.isOpen()) {
+      return;
+    }
+    if (!serialPort.openPort()) {
+      throw new IOException("Failed to open serial port: " + serialPort.getSystemPortName());
+    }
+  }
+
+  public void close() {
+    if (serialPort.isOpen()) {
+      serialPort.closePort();
+    }
+  }
+
+  public void setResponseTimeout(Duration responseTimeout) {
+    this.responseTimeout = Objects.requireNonNull(responseTimeout, "responseTimeout");
+  }
+
+  public synchronized Scan readScan() throws IOException {
+    if (!serialPort.isOpen()) {
+      throw new IOException("Serial port is not open");
+    }
+
+    long deadline = System.nanoTime() + responseTimeout.toNanos();
+    while (completedScan == null) {
+      if (System.nanoTime() >= deadline) {
+        throw new IOException("Timeout waiting for complete STL-19P scan");
+      }
+
+      int count = serialPort.readBytes(readBuffer, readBuffer.length);
+      if (count < 0) {
+        throw new IOException("Error reading from serial port, readBytes=" + count);
+      }
+      if (count == 0) {
+        Thread.onSpinWait();
+        continue;
+      }
+
+      processBytes(readBuffer, count);
+    }
+
+    Scan result = completedScan;
+    completedScan = null;
+    return result;
+  }
+
+  private void processBytes(byte[] data, int length) {
+    for (int index = 0; index < length; index++) {
+      processByte(data[index] & 0xFF);
+    }
+  }
+
+  private void processByte(int value) {
+    if (frameIndex == 0) {
+      if (value == FRAME_HEADER) {
+        frameBuffer[frameIndex++] = (byte) value;
+      }
+      return;
+    }
+
+    if (frameIndex == 1) {
+      if (value == FRAME_VER_LEN) {
+        frameBuffer[frameIndex++] = (byte) value;
+      } else if (value == FRAME_HEADER) {
+        frameBuffer[0] = (byte) value;
+        frameIndex = 1;
+      } else {
+        frameIndex = 0;
+      }
+      return;
+    }
+
+    frameBuffer[frameIndex++] = (byte) value;
+    if (frameIndex == FRAME_LENGTH) {
+      if (crc8(frameBuffer, FRAME_LENGTH - 1) == (frameBuffer[FRAME_LENGTH - 1] & 0xFF)) {
+        parseFrame();
+      }
+      frameIndex = 0;
+    }
+  }
+
+  private void parseFrame() {
+    double frameFrequencyHz = unsignedShortLittleEndian(frameBuffer, 2) / 360.0;
+    double startAngleDegrees = unsignedShortLittleEndian(frameBuffer, 4) / 100.0;
+    double endAngleDegrees = unsignedShortLittleEndian(frameBuffer, 42) / 100.0;
+    int frameTimestampMs = unsignedShortLittleEndian(frameBuffer, 44);
+    double angleSpanDegrees = (endAngleDegrees + 360.0 - startAngleDegrees) % 360.0;
+    double angleStepDegrees = angleSpanDegrees / (POINTS_PER_FRAME - 1);
+
+    for (int pointIndex = 0; pointIndex < POINTS_PER_FRAME; pointIndex++) {
+      int offset = 6 + (pointIndex * 3);
+      int distanceMm = unsignedShortLittleEndian(frameBuffer, offset);
+      int intensity = frameBuffer[offset + 2] & 0xFF;
+      double angleDegrees = startAngleDegrees + (pointIndex * angleStepDegrees);
+      if (angleDegrees >= 360.0) {
+        angleDegrees -= 360.0;
+      }
+      processPoint(new Point(angleDegrees, distanceMm, intensity), frameFrequencyHz, frameTimestampMs);
+    }
+  }
+
+  private void processPoint(Point point, double frameFrequencyHz, int frameTimestampMs) {
+    boolean wrapped = !Double.isNaN(previousAngleDegrees) && point.angleDegrees < 20.0 && previousAngleDegrees > 340.0;
+    if (wrapped) {
+      if (scanStarted && !currentScan.isEmpty() && completedScan == null) {
+        completedScan = new Scan(currentScanFrequencyHz, currentScanTimestampMs, currentScan);
+      }
+      currentScan.clear();
+      scanStarted = true;
+    }
+
+    if (scanStarted) {
+      currentScan.add(point);
+      currentScanFrequencyHz = frameFrequencyHz;
+      currentScanTimestampMs = frameTimestampMs;
+    }
+    previousAngleDegrees = point.angleDegrees;
+  }
+
+  static int crc8(byte[] data, int length) {
+    int crc = 0;
+    for (int index = 0; index < length; index++) {
+      crc ^= data[index] & 0xFF;
+      for (int bit = 0; bit < 8; bit++) {
+        if ((crc & 0x80) != 0) {
+          crc = ((crc << 1) ^ 0x4D) & 0xFF;
+        } else {
+          crc = (crc << 1) & 0xFF;
+        }
+      }
+    }
+    return crc;
+  }
+
+  private static int unsignedShortLittleEndian(byte[] data, int offset) {
+    return (data[offset] & 0xFF) | ((data[offset + 1] & 0xFF) << 8);
+  }
+
+  public static final class Scan {
+    private final double scanFrequencyHz;
+    private final int sensorTimestampMs;
+    private final List<Point> points;
+
+    private Scan(double scanFrequencyHz, int sensorTimestampMs, List<Point> points) {
+      this.scanFrequencyHz = scanFrequencyHz;
+      this.sensorTimestampMs = sensorTimestampMs;
+      this.points = List.copyOf(points);
+    }
+
+    public double getScanFrequencyHz() {
+      return scanFrequencyHz;
+    }
+
+    public int getSensorTimestampMs() {
+      return sensorTimestampMs;
+    }
+
+    public List<Point> getPoints() {
+      return points;
+    }
+  }
+
+  public static final class Point {
+    private final double angleDegrees;
+    private final int distanceMm;
+    private final int intensity;
+
+    private Point(double angleDegrees, int distanceMm, int intensity) {
+      this.angleDegrees = angleDegrees;
+      this.distanceMm = distanceMm;
+      this.intensity = intensity;
+    }
+
+    public double getAngleDegrees() {
+      return angleDegrees;
+    }
+
+    public int getDistanceMm() {
+      return distanceMm;
+    }
+
+    public int getIntensity() {
+      return intensity;
+    }
+  }
+}
