@@ -1,6 +1,7 @@
 package io.mapsmessaging.devices.i2c.devices.sensors;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 import io.mapsmessaging.devices.i2c.devices.sensors.scd41.functions.ReadMeasurementRequest;
 import io.mapsmessaging.devices.i2c.devices.sensors.scd41.functions.SerialNumberRequest;
@@ -11,6 +12,7 @@ import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.GetFanCleanin
 import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.GetVersionCommand;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import java.io.IOException;
+import java.time.Duration;
 import org.junit.jupiter.api.Test;
 
 class SensorResponseLengthTest {
@@ -25,7 +27,8 @@ class SensorResponseLengthTest {
   @Test
   void sen6xRejectsShortHardwareReads() {
     Sen6xCommandHelper helper = new Sen6xCommandHelper(new StubDevice(2));
-    assertThrows(IOException.class, () -> helper.requestResponse(0x0202, 3, 0));
+    assertTimeoutPreemptively(Duration.ofSeconds(1),
+        () -> assertThrows(IOException.class, () -> helper.requestResponse(0x0202, 3, 0)));
   }
 
   @Test

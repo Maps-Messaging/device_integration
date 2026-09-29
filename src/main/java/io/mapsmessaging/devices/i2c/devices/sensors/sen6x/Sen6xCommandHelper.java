@@ -131,6 +131,9 @@ public class Sen6xCommandHelper {
   }
 
   public void delay(int delayMs) {
+    if (delayMs <= 0) {
+      return;
+    }
     try {
       synchronized (device) {
         device.wait(delayMs);
