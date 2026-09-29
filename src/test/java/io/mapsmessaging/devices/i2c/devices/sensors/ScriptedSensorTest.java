@@ -7,9 +7,12 @@ import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.devices.sensors.am2320.AM2320Controller;
 import io.mapsmessaging.devices.i2c.devices.sensors.am2320.AM2320Sensor;
 import io.mapsmessaging.devices.i2c.devices.sensors.bh1750.Bh1750Controller;
+import io.mapsmessaging.devices.i2c.devices.sensors.pmsa003i.Pmsa003iController;
 import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.Sen6xCommandHelper;
 import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.GetDataReadyFlagCommand;
 import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.GetFanCleaningIntervalCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sht31.Sht31Controller;
+import io.mapsmessaging.devices.i2c.devices.sensors.sht31.Sht31Sensor;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
@@ -71,6 +74,60 @@ class ScriptedSensorTest {
     assertEquals(0x1234, new GetFanCleaningIntervalCommand(helper).execute());
     assertArrayEquals(new byte[] {0x02, 0x02}, bus.writes().get(0));
     assertArrayEquals(new byte[] {(byte) 0xd2, 0x10}, bus.writes().get(1));
+  }
+
+  @Test
+  void pmsa003iReadsParticulateCountsFromScriptedRegisterBlock() throws Exception {
+    byte[] frame = new byte[32];
+    frame[4] = 0;
+    frame[5] = 12;
+    frame[6] = 0;
+    frame[7] = 25;
+    frame[8] = 0;
+    frame[9] = 40;
+    frame[28] = 3;
+    ScriptedI2CDevice bus = new ScriptedI2CDevice(0x12, frame);
+    I2CDeviceController controller = new Pmsa003iController().mount(bus);
+    try {
+      var state = JsonParser.parseString(new String(controller.getDeviceState())).getAsJsonObject();
+      assertEquals(12, state.get("pm_1_0").getAsInt());
+      assertEquals(25, state.get("pm_2_5").getAsInt());
+      assertEquals(40, state.get("pm_10").getAsInt());
+      assertEquals(3, JsonParser.parseString(new String(controller.getDeviceConfiguration()))
+          .getAsJsonObject().get("version").getAsInt());
+    } finally {
+      controller.close();
+    }
+  }
+
+  @Test
+  void sht31ReadsTemperatureAndHumidityWithValidCrc() throws Exception {
+    byte[] frame = {0x60, 0, crc((byte) 0x60, (byte) 0),
+        (byte) 0x80, 0, crc((byte) 0x80, (byte) 0)};
+    ScriptedI2CDevice bus = new ScriptedI2CDevice(0x44, frame);
+    I2CDeviceController controller = new Sht31Controller().mount(bus);
+    try {
+      Sht31Sensor sensor = (Sht31Sensor) controller.getDevice();
+      assertEquals(20.6f, sensor.getTemperature(), 0.2f);
+      assertEquals(50.0f, sensor.getHumidity(), 0.2f);
+      assertArrayEquals(new byte[] {0x30, (byte) 0xa2}, bus.writes().get(0));
+      assertArrayEquals(new byte[] {(byte) 0xe0, 0}, bus.writes().get(2));
+    } finally {
+      controller.close();
+    }
+  }
+
+  @Test
+  void sht31RejectsCorruptMeasurementCrc() throws Exception {
+    ScriptedI2CDevice bus = new ScriptedI2CDevice(0x44,
+        new byte[] {0x60, 0, 0, (byte) 0x80, 0, 0});
+    I2CDeviceController controller = new Sht31Controller().mount(bus);
+    try {
+      Sht31Sensor sensor = (Sht31Sensor) controller.getDevice();
+      assertThrows(IllegalStateException.class, sensor::getTemperature);
+    } finally {
+      controller.close();
+    }
   }
 
   private static byte crc(byte first, byte second) {
