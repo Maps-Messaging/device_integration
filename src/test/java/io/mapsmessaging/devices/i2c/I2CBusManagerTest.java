@@ -27,7 +27,13 @@ class I2CBusManagerTest {
       }
     }
     assertFalse(registered.isEmpty());
-    assertEquals(registered, manager.knownDevices.values().stream().map(Object::getClass).collect(java.util.stream.Collectors.toSet()));
+    Set<Class<?>> mapped = new HashSet<>();
+    for (List<I2CDeviceController> candidates : manager.mappedDevices.values()) {
+      for (I2CDeviceController candidate : candidates) {
+        mapped.add(candidate.getClass());
+      }
+    }
+    assertEquals(registered, mapped);
     assertNull(manager.configureDevice(0x77, "unknown-controller"));
     assertNull(manager.configureDevices(Map.of()));
     assertTrue(manager.getActive().isEmpty());
