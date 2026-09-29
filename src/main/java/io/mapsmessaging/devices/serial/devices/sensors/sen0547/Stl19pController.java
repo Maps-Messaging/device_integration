@@ -30,6 +30,10 @@ import java.io.IOException;
 
 public class Stl19pController extends SerialDeviceController {
 
+  private static final String DESCRIPTION = "description";
+  private static final String MINIMUM = "minimum";
+  private static final String MAXIMUM = "maximum";
+
   private final Stl19pSensor sensor;
 
   public Stl19pController() {
@@ -104,13 +108,13 @@ public class Stl19pController extends SerialDeviceController {
     JsonObject timestamp = new JsonObject();
     timestamp.addProperty("type", "string");
     timestamp.addProperty("format", "date-time");
-    timestamp.addProperty("description", "ISO 8601 UTC timestamp at the start of scan acquisition");
+    timestamp.addProperty(DESCRIPTION, "ISO 8601 UTC timestamp at the start of scan acquisition");
     timestamp.addProperty("readOnly", true);
     properties.add("timestamp", timestamp);
 
     JsonObject points = new JsonObject();
     points.addProperty("type", "array");
-    points.addProperty("description", "Polar range samples ordered in scan acquisition order");
+    points.addProperty(DESCRIPTION, "Polar range samples ordered in scan acquisition order");
     points.add("items", buildPointSchema());
     properties.add("points", points);
 
@@ -130,23 +134,23 @@ public class Stl19pController extends SerialDeviceController {
 
     JsonObject angle = new JsonObject();
     angle.addProperty("type", "number");
-    angle.addProperty("minimum", 0);
-    angle.addProperty("maximum", 360);
-    angle.addProperty("description", "Bearing in degrees");
+    angle.addProperty(MINIMUM, 0);
+    angle.addProperty(MAXIMUM, 360);
+    angle.addProperty(DESCRIPTION, "Bearing in degrees");
     properties.add("angleDegrees", angle);
 
     JsonObject distance = new JsonObject();
     distance.addProperty("type", "integer");
-    distance.addProperty("minimum", 0);
-    distance.addProperty("maximum", 65535);
-    distance.addProperty("description", "Distance in millimetres");
+    distance.addProperty(MINIMUM, 0);
+    distance.addProperty(MAXIMUM, 65535);
+    distance.addProperty(DESCRIPTION, "Distance in millimetres");
     properties.add("distanceMm", distance);
 
     JsonObject intensity = new JsonObject();
     intensity.addProperty("type", "integer");
-    intensity.addProperty("minimum", 0);
-    intensity.addProperty("maximum", 255);
-    intensity.addProperty("description", "Return intensity");
+    intensity.addProperty(MINIMUM, 0);
+    intensity.addProperty(MAXIMUM, 255);
+    intensity.addProperty(DESCRIPTION, "Return intensity");
     properties.add("intensity", intensity);
 
     point.add("properties", properties);

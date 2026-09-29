@@ -36,6 +36,10 @@ import java.nio.charset.StandardCharsets;
 
 public abstract class HT16K33Controller extends I2CDeviceController {
 
+  private static final String OBJECT = "object";
+  private static final String PROPERTIES = "properties";
+  private static final String STRING = "string";
+
   private static final String BRIGHTNESS = "brightness";
   private static final String BLINK = "blink";
   private static final String ENABLED = "enabled";
@@ -213,33 +217,33 @@ public abstract class HT16K33Controller extends I2CDeviceController {
 
   protected String buildSchema(String title, String description) {
     JsonObject configSchema = new JsonObject();
-    configSchema.addProperty("type", "object");
+    configSchema.addProperty("type", OBJECT);
 
     JsonObject configProps = new JsonObject();
-    configProps.add("brightness", property("integer", "Brightness level (0–15)"));
+    configProps.add(BRIGHTNESS, property("integer", "Brightness level (0–15)"));
     configProps.add("blinkRate", property("integer", "Blink rate (0 = off, 1 = 2Hz, 2 = 1Hz, 3 = 0.5Hz)"));
-    configProps.add("enabled", property("boolean", "Turn the display on or off"));
-    configSchema.add("properties", configProps);
+    configProps.add(ENABLED, property("boolean", "Turn the display on or off"));
+    configSchema.add(PROPERTIES, configProps);
 
     JsonObject writeSchema = new JsonObject();
-    writeSchema.addProperty("type", "object");
+    writeSchema.addProperty("type", OBJECT);
 
     JsonObject writeProps = new JsonObject();
-    writeProps.add("display", property("string", "String to display (up to 4 characters)"));
-    writeProps.add("raw", property("string", "Raw segment data as hex"));
-    writeProps.add("task", property("string", "Task to run (CLOCK, TEST)"));
-    writeSchema.add("properties", writeProps);
+    writeProps.add(DISPLAY, property(STRING, "String to display (up to 4 characters)"));
+    writeProps.add("raw", property(STRING, "Raw segment data as hex"));
+    writeProps.add("task", property(STRING, "Task to run (CLOCK, TEST)"));
+    writeSchema.add(PROPERTIES, writeProps);
 
     JsonObject root = new JsonObject();
     root.addProperty("$schema", "https://json-schema.org/draft/2020-12/schema");
     root.addProperty("title", title);
     root.addProperty("description", description);
-    root.addProperty("type", "object");
+    root.addProperty("type", OBJECT);
 
     JsonObject props = new JsonObject();
     props.add("deviceStatic", configSchema);
     props.add("deviceWrite", writeSchema);
-    root.add("properties", props);
+    root.add(PROPERTIES, props);
 
     return gson.toJson(root);
   }

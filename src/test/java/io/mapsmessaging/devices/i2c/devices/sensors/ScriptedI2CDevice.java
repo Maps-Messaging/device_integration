@@ -22,7 +22,9 @@ final class ScriptedI2CDevice implements AddressableDevice {
     return writes;
   }
 
-  @Override public void close() { }
+  @Override public void close() {
+    // This in-memory device owns no external resources.
+  }
   @Override public int getBus() { return 1; }
   @Override public int getDevice() { return address; }
   @Override public int write(int value) { writes.add(new byte[] {(byte) value}); return 1; }

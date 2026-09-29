@@ -258,10 +258,9 @@ public class I2CBusManager {
   }
 
   public List<String> listDetected(List<Integer> found) {
-    List<Integer> activeList = new ArrayList<>();
-    for (DeviceController controller : activeDevices.values()) {
-      activeList.add(((I2CDeviceController) controller).getMountedAddress());
-    }
+    List<Integer> activeList = activeDevices.values().stream()
+        .map(controller -> ((I2CDeviceController) controller).getMountedAddress())
+        .toList();
     int addr = 0;
     List<String> scanResult = new ArrayList<>();
     scanResult.add("I2C Device on bus " + i2cBus);

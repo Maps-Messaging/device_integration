@@ -175,7 +175,7 @@ public class BMP280Sensor extends I2CDevice implements Sensor {
       conversion();
       long dT = D2 - (C5 << 8);
       long t = dT * C6;
-      float temp = (t >> 23);
+      float temp = (float) (t >> 23);
       temp += 2000;
       temperature = temp / 100.0f;
 

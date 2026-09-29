@@ -38,7 +38,7 @@ public class RegisterMap {
   public void addRegister(Register register) {
     if (map.containsKey(register.getAddress())) {
       Register existing = map.get(register.getAddress());
-      throw new RuntimeException("Register address collision for address " + register.getAddress() + " Existing:" + existing.name + " New:" + register.name);
+      throw new IllegalArgumentException("Register address collision for address " + register.getAddress() + " Existing:" + existing.name + " New:" + register.name);
     }
     map.put(register.getAddress(), register);
   }

@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class SensorReadingAugmentor {
+
+  private static final String UNKNOWN = "Unknown";
   @Getter
   @Setter
   private static boolean ENABLE_COMPUTED_READINGS = true;
@@ -261,7 +263,7 @@ public final class SensorReadingAugmentor {
         "humidityCategory",
         "",
         "Simple humidity comfort classification",
-        "Unknown",
+        UNKNOWN,
         false,
         () -> describeHumidityCategory(humidity.get())
     ));
@@ -321,7 +323,7 @@ public final class SensorReadingAugmentor {
         "daylightState",
         "",
         "Simple daylight state derived from lux",
-        "Unknown",
+        UNKNOWN,
         false,
         () -> describeDaylightState(lux.get())
     ));
@@ -428,7 +430,7 @@ public final class SensorReadingAugmentor {
 
   private static String describeHumidityCategory(float relativeHumidityPercent) {
     if (Float.isNaN(relativeHumidityPercent)) {
-      return "Unknown";
+      return UNKNOWN;
     }
     if (relativeHumidityPercent < 30.0f) {
       return "Dry";
@@ -475,7 +477,7 @@ public final class SensorReadingAugmentor {
 
   private static String toCompass16(float angleDegrees) {
     if (Float.isNaN(angleDegrees)) {
-      return "Unknown";
+      return UNKNOWN;
     }
 
     double normalized = angleDegrees % 360.0;
@@ -496,7 +498,7 @@ public final class SensorReadingAugmentor {
 
   private static String describeDaylightState(float lux) {
     if (Float.isNaN(lux)) {
-      return "Unknown";
+      return UNKNOWN;
     }
     if (lux < 10.0f) {
       return "Night";

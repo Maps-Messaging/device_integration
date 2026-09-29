@@ -30,12 +30,15 @@ import java.util.Map;
 
 public class SchemaBuilder {
 
+  private static final String NUMBER = "number";
+  private static final String MINIMUM = "minimum";
+  private static final String MAXIMUM = "maximum";
+
   private static final String TYPE = "type";
   private static final String OBJECT="object";
   private static final String DESCRIPTION="description";
   private static final String PROPERTIES="properties";
   private static final String REQUIRED="required";
-  private static final String SCHEMA = "$schema";
   private static final String STRING = "string";
   private static final String READ_ONLY = "readOnly";
   private static final String UNIT = "Unit: ";
@@ -103,10 +106,7 @@ public class SchemaBuilder {
     } else if (reading instanceof IntegerSensorReading || reading instanceof LongSensorReading) {
       handleLongRegister(prop, (NumericSensorReading<?>) reading);
     } else if (reading instanceof StringSensorReading) {
-      prop.addProperty(TYPE, STRING);
-      if(reading.getUnit() != null && !reading.getUnit().isEmpty()) {
-        prop.addProperty(DESCRIPTION, UNIT + reading.getUnit());
-      }
+      handleStringRegister(prop, reading);
     } else if (reading instanceof OrientationSensorReading orientationReading) {
       handleOrientationRegister(prop, orientationReading);
     } else if (reading instanceof LocalDateTimeSensorReading dateTime) {
@@ -118,12 +118,16 @@ public class SchemaBuilder {
       handleStatefulRegister(prop, statefulFloatSensorReading);
     } else {
       // fallback: unknown type
-      prop.addProperty(TYPE, STRING);
-      if(reading.getUnit() != null && !reading.getUnit().isEmpty()) {
-        prop.addProperty(DESCRIPTION, UNIT + reading.getUnit());
-      }
+      handleStringRegister(prop, reading);
     }
     return prop;
+  }
+
+  private static void handleStringRegister(JsonObject prop, SensorReading<?> reading) {
+    prop.addProperty(TYPE, STRING);
+    if (reading.getUnit() != null && !reading.getUnit().isEmpty()) {
+      prop.addProperty(DESCRIPTION, UNIT + reading.getUnit());
+    }
   }
 
   private static void handleBooleanRegister(JsonObject prop, SensorReading<?> reading) {
@@ -151,7 +155,7 @@ public class SchemaBuilder {
     JsonObject orientationProps = new JsonObject();
     for (String axis : List.of("x", "y", "z")) {
       JsonObject axisProp = new JsonObject();
-      axisProp.addProperty(TYPE, "number");
+      axisProp.addProperty(TYPE, NUMBER);
       orientationProps.add(axis, axisProp);
     }
     prop.add(PROPERTIES, orientationProps);
@@ -163,9 +167,9 @@ public class SchemaBuilder {
   }
 
   private static void handleFloatRegister(JsonObject prop, FloatSensorReading floatReading){
-    prop.addProperty(TYPE, "number");
-    prop.addProperty("minimum", floatReading.getMinimum());
-    prop.addProperty("maximum", floatReading.getMaximum());
+    prop.addProperty(TYPE, NUMBER);
+    prop.addProperty(MINIMUM, floatReading.getMinimum());
+    prop.addProperty(MAXIMUM, floatReading.getMaximum());
     prop.addProperty("x-precision", floatReading.getPrecision());
     if(floatReading.getUnit() != null && !floatReading.getUnit().isEmpty()) {
       prop.addProperty(DESCRIPTION, UNIT + floatReading.getUnit());
@@ -173,9 +177,9 @@ public class SchemaBuilder {
   }
 
   private static void handleStatefulRegister(JsonObject prop, StatefulFloatSensorReading statefulFloatSensorReading){
-    prop.addProperty(TYPE, "number");
-    prop.addProperty("minimum", statefulFloatSensorReading.getMinimum());
-    prop.addProperty("maximum", statefulFloatSensorReading.getMaximum());
+    prop.addProperty(TYPE, NUMBER);
+    prop.addProperty(MINIMUM, statefulFloatSensorReading.getMinimum());
+    prop.addProperty(MAXIMUM, statefulFloatSensorReading.getMaximum());
     prop.addProperty("x-precision", statefulFloatSensorReading.getPrecision());
     if(statefulFloatSensorReading.getUnit() != null && !statefulFloatSensorReading.getUnit().isEmpty()) {
       prop.addProperty(DESCRIPTION, UNIT + statefulFloatSensorReading.getUnit());
@@ -184,8 +188,8 @@ public class SchemaBuilder {
 
   private static void handleLongRegister(JsonObject prop, NumericSensorReading<?> num){
     prop.addProperty(TYPE, "integer");
-    prop.addProperty("minimum", num.getMinimum().longValue());
-    prop.addProperty("maximum", num.getMaximum().longValue());
+    prop.addProperty(MINIMUM, num.getMinimum().longValue());
+    prop.addProperty(MAXIMUM, num.getMaximum().longValue());
     if(num.getUnit() != null && !num.getUnit().isEmpty()) {
       prop.addProperty(DESCRIPTION, UNIT + num.getUnit());
     }
