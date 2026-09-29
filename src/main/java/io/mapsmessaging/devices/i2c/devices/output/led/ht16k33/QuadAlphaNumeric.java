@@ -23,6 +23,7 @@ import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class QuadAlphaNumeric extends HT16K33Driver {
 
@@ -33,17 +34,19 @@ public class QuadAlphaNumeric extends HT16K33Driver {
   }
 
   public byte[] encode(String val) {
-    for (int x = 0; x < buf.length; x++)
-      buf[0] = 0;
+    Arrays.fill(buf, (byte) 0);
     int len = val.length();
     int bufIdx = 0;
-    for (int x = 0; x < len; x++) {
+    int x = 0;
+    while (x < len) {
       short map = font[val.charAt(x)];
       buf[bufIdx * 2] = (byte) (map & 0xff);
       buf[bufIdx * 2 + 1] = (byte) ((map >> 8) & 0xff);
       if (x + 1 < len && val.charAt(x + 1) == '.') {
         buf[bufIdx * 2 + 1] = (byte) (buf[bufIdx * 2 + 1] | 0x40);
-        x++; // Set the . and skip to the next char
+        x += 2; // Consume the character and its decimal point.
+      } else {
+        x++;
       }
       bufIdx++;
       if (bufIdx > 3)
