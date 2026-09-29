@@ -77,6 +77,10 @@ public class SpiBusManager {
     return activeDevices;
   }
 
+  public SpiDeviceController getDevice(String name) {
+    return knownDevices.get(name);
+  }
+
   public SpiDeviceController get(String id) {
     return (SpiDeviceController) activeDevices.get(id);
   }
