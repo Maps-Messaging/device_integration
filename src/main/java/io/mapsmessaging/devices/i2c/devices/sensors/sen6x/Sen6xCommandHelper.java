@@ -135,9 +135,7 @@ public class Sen6xCommandHelper {
       return;
     }
     try {
-      synchronized (device) {
-        device.wait(delayMs);
-      }
+      Thread.sleep(delayMs);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     }
