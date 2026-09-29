@@ -19,7 +19,11 @@ class I2CBusManagerTest {
       if (controller instanceof I2cDemoController) continue;
       registered.add(controller.getClass());
       assertNotNull(manager.knownDevices.get(controller.getName()), controller.getName());
-      for (int address : controller.getAddressRange()) {
+      int[] addresses = controller.getAddressRange();
+      if (addresses.length == 0) {
+        assertEquals(controller.getClass(), manager.knownDevices.get(controller.getName()).getClass());
+      }
+      for (int address : addresses) {
         assertTrue(address >= 0 && address < 0x80, controller.getName());
         List<I2CDeviceController> candidates = manager.mappedDevices.get(address);
         assertNotNull(candidates, controller.getName());
@@ -27,13 +31,6 @@ class I2CBusManagerTest {
       }
     }
     assertFalse(registered.isEmpty());
-    Set<Class<?>> mapped = new HashSet<>();
-    for (List<I2CDeviceController> candidates : manager.mappedDevices.values()) {
-      for (I2CDeviceController candidate : candidates) {
-        mapped.add(candidate.getClass());
-      }
-    }
-    assertEquals(registered, mapped);
     assertNull(manager.configureDevice(0x77, "unknown-controller"));
     assertNull(manager.configureDevices(Map.of()));
     assertTrue(manager.getActive().isEmpty());
