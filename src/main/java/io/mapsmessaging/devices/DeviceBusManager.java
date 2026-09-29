@@ -81,6 +81,18 @@ public class DeviceBusManager {
     serialBusManager = new SerialBusManager();
   }
 
+  // Test seam for routing configuration without starting Pi4J or opening physical buses.
+  DeviceBusManager(I2CBusManager[] i2cManagers, SpiBusManager spiManager) {
+    pi4j = null;
+    i2cBusManager = i2cManagers;
+    spiBusManager = spiManager;
+    oneWireBusManager = null;
+    pinManagement = null;
+    interruptFactory = null;
+    serialBusManager = null;
+    supportsLengthResponse = false;
+  }
+
   // Global access point to get the Singleton instance
   public static DeviceBusManager getInstance() {
     return Holder.INSTANCE;

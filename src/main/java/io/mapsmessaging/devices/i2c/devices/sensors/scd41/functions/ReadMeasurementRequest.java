@@ -45,6 +45,9 @@ public class ReadMeasurementRequest extends Request {
     temperature = Float.NaN;
     humidity = Float.NaN;
     byte[] response = super.getResponse();
+    if (response.length < 9) {
+      throw new IllegalStateException("SCD41 measurement response must contain 9 bytes");
+    }
     if (generateCrc(response, 0) == response[2]) {
       co2 = (response[0] & 0xff) << 8 | (response[1] & 0xff);
     }

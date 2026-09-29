@@ -63,7 +63,10 @@ public abstract class Request {
     if (msDelay > 0) pause();
     byte[] response = new byte[responseLength];
     if (responseLength > 0) {
-      device.read(response, 0, responseLength);
+      int read = device.read(response, 0, responseLength);
+      if (read != responseLength) {
+        throw new IllegalStateException("Incomplete SCD41 response: expected " + responseLength + " bytes, read " + read);
+      }
     }
     return response;
   }
@@ -71,6 +74,9 @@ public abstract class Request {
   protected int readValue() {
     int value = Integer.MIN_VALUE;
     byte[] response = getResponse();
+    if (response.length < 3) {
+      throw new IllegalStateException("SCD41 response must contain a 2-byte value and CRC");
+    }
     if (generateCrc(response, 0) == response[2]) {
       value = response[0] << 8 | (response[1] & 0xff);
     }

@@ -29,6 +29,7 @@ import io.mapsmessaging.logging.Logger;
 import lombok.Getter;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import static io.mapsmessaging.devices.logging.DeviceLogMessage.*;
 
@@ -40,8 +41,8 @@ public abstract class I2CDevice implements Device, AutoCloseable {
   protected final AddressableDevice device;
 
   protected I2CDevice(AddressableDevice device, Logger logger) {
-    this.device = device;
-    this.logger = logger;
+    this.device = Objects.requireNonNull(device, "device");
+    this.logger = Objects.requireNonNull(logger, "logger");
     registerMap = new RegisterMap();
     log(I2C_BUS_DEVICE_ALLOCATED);
   }

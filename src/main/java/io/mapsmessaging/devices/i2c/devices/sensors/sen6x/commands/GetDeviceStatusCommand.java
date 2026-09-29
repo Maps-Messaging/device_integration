@@ -42,6 +42,9 @@ public class GetDeviceStatusCommand implements Sen6xCommand<Sen6xStatus> {
   public Sen6xStatus execute() throws IOException {
     if (nextQuery < System.currentTimeMillis()) {
       byte[] data = helper.requestResponse(CMD_ID, RESPONSE_LENGTH, DELAY_MS);
+      if (data.length < 2) {
+        throw new IOException("Incomplete SEN6x device-status response");
+      }
       int status = ((data[0] & 0xFF) << 8) | (data[1] & 0xFF);
       sen6xstatus = new Sen6xStatus(status);
       nextQuery = System.currentTimeMillis() + 1000;

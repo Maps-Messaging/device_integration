@@ -83,8 +83,8 @@ public class Sen6xCommandHelper {
     delay(delayMillis);
     byte[] response = new byte[expectedResponseLength];
     int read = device.read(response, 0, response.length);
-    if (read < 0) {
-      return new byte[0];
+    if (read != expectedResponseLength) {
+      throw new IOException("Incomplete SEN6x response: expected " + expectedResponseLength + " bytes, read " + read);
     }
     byte[] actualResponse = new byte[read];
     System.arraycopy(response, 0, actualResponse, 0, read);
@@ -131,6 +131,9 @@ public class Sen6xCommandHelper {
   }
 
   public void delay(int delayMs) {
+    if (delayMs <= 0) {
+      return;
+    }
     try {
       synchronized (device) {
         device.wait(delayMs);

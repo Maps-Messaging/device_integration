@@ -28,6 +28,9 @@ public class SerialNumberRequest extends Request {
 
   public int getSerialNumber() {
     byte[] response = getResponse();
+    if (response.length < 9) {
+      throw new IllegalStateException("SCD41 serial number response must contain 9 bytes");
+    }
     int val = 0;
     if (generateCrc(response, 0) == response[2]) {
       val = response[0] << 8 | (response[1] & 0xff);

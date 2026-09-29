@@ -38,6 +38,8 @@ public class ResetMonitor {
         sen6xSensor.softReset();
         Thread.sleep(100);
         sen6xSensor.powerOn();
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
       } catch (Exception e) {
       }
 

@@ -20,6 +20,7 @@
 package io.mapsmessaging.devices.i2c.devices.output;
 
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 public class TimeHelper {
@@ -39,7 +40,7 @@ public class TimeHelper {
     }
 
     // Get the current time
-    LocalTime currentTime = LocalTime.now();
+    LocalTime currentTime = LocalTime.now(ZoneId.systemDefault());
 
     // Format and return the time string
     return currentTime.format(DateTimeFormatter.ofPattern(formatPattern));
