@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
 
 public class Stl19pSensor implements Device, Sensor {
@@ -56,7 +57,7 @@ public class Stl19pSensor implements Device, Sensor {
   private String currentScanTimestamp;
   private Duration responseTimeout = Duration.ofSeconds(1);
   private volatile boolean running;
-  private volatile IOException readerException;
+  private final AtomicReference<IOException> readerException = new AtomicReference<>();
 
   public Stl19pSensor(SerialDevice serialPort) throws IOException {
     this.serialPort = Objects.requireNonNull(serialPort, "serialPort");
@@ -116,7 +117,7 @@ public class Stl19pSensor implements Device, Sensor {
     long deadline = System.nanoTime() + responseTimeout.toNanos();
     synchronized (scanQueue) {
       while (scanQueue.isEmpty()) {
-        IOException exception = readerException;
+        IOException exception = readerException.get();
         if (exception != null) {
           throw exception;
         }
@@ -175,7 +176,7 @@ public class Stl19pSensor implements Device, Sensor {
   }
 
   private void setReaderException(IOException exception) {
-    readerException = exception;
+    readerException.set(exception);
     synchronized (scanQueue) {
       scanQueue.notifyAll();
     }

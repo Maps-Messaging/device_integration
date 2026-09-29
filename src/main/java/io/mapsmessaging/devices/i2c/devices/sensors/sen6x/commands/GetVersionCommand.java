@@ -37,6 +37,9 @@ public class GetVersionCommand implements Sen6xCommand<String> {
   @Override
   public String execute() throws IOException {
     byte[] data = helper.requestResponse(CMD_ID, RESPONSE_LENGTH, DELAY_MS);
+    if (data.length < 4) {
+      throw new IOException("Incomplete SEN6x version response");
+    }
     int firmwareMajor = data[0] & 0xFF;
     int firmwareMinor = data[1] & 0xFF;
     int hardwareMajor = data[2] & 0xFF;

@@ -36,6 +36,9 @@ public class GetDataReadyFlagCommand implements Sen6xCommand<Boolean> {
   @Override
   public Boolean execute() throws IOException {
     byte[] status = helper.requestResponse(CMD_ID, 3, DELAY_MS);
+    if (status.length < 2) {
+      throw new IOException("Incomplete SEN6x data-ready response");
+    }
     return status[0] == 0 && status[1] == 1;
   }
 
