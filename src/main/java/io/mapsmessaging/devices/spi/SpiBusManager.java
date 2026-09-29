@@ -38,13 +38,16 @@ public class SpiBusManager {
   private final Context pi4j;
 
   public SpiBusManager(Context pi4j) {
+    this(pi4j, ServiceLoader.load(SpiDeviceController.class));
+  }
+
+  SpiBusManager(Context pi4j, Iterable<SpiDeviceController> controllers) {
     logger.log(DeviceLogMessage.SPI_BUS_MANAGER_STARTUP);
 
     this.pi4j = pi4j;
     knownDevices = new LinkedHashMap<>();
     activeDevices = new ConcurrentHashMap<>();
-    ServiceLoader<SpiDeviceController> deviceEntries = ServiceLoader.load(SpiDeviceController.class);
-    for (SpiDeviceController controller : deviceEntries) {
+    for (SpiDeviceController controller : controllers) {
       knownDevices.putIfAbsent(controller.getName(), controller);
     }
   }
