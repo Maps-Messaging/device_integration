@@ -19,22 +19,23 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.sen6x;
 
-
+import com.pi4j.exception.Pi4JException;
 import io.mapsmessaging.devices.impl.AddressableDevice;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 public class Sen6xCommandHelper {
 
   private static final int CRC8_POLY = 0x31;
   private static final int CRC8_INIT = 0xFF;
-
   private final AddressableDevice device;
 
   public Sen6xCommandHelper(AddressableDevice device) {
-    this.device = device;
+    this.device = Objects.requireNonNull(device, "device");
   }
 
   public byte[] requestResponse(int command, int expectedResponseLength) throws IOException {
@@ -47,87 +48,110 @@ public class Sen6xCommandHelper {
 
   public String requestAsciiResponse(int command, int expectedResponseLength, int delayMillis) throws IOException {
     byte[] raw = requestResponse(command, expectedResponseLength, delayMillis);
-    return new String(raw, StandardCharsets.US_ASCII).trim();
+    int end = 0;
+    while (end < raw.length && raw[end] != 0) {
+      end++;
+    }
+    return new String(raw, 0, end, StandardCharsets.US_ASCII).trim();
   }
-
 
   public void sendCommand(int commandId) throws IOException {
-    byte[] cmd = new byte[2];
-    cmd[0] = (byte) ((commandId >> 8) & 0xFF);
-    cmd[1] = (byte) (commandId & 0xFF);
-    writeWithCRC(cmd);
+    requestResponse(commandId, 0, 20);
   }
 
+  /** Writes a two-byte command followed by data words; CRC applies only to data words. */
   public void writeWithCRC(byte[] data) {
-    if (data.length % 2 != 0) {
-      throw new IllegalArgumentException("Data length must be even to compute CRC per 2-byte word.");
+    if (data.length < 2 || data.length % 2 != 0) {
+      throw new IllegalArgumentException("SEN6x writes require a command and complete two-byte data words");
     }
-
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    for (int i = 0; i < data.length; i += 2) {
-      out.write(data[i]);
-      out.write(data[i + 1]);
-      out.write(computeCRC(data[i], data[i + 1]));
+    out.write(data[0]);
+    out.write(data[1]);
+    for (int index = 2; index < data.length; index += 2) {
+      out.write(data[index]);
+      out.write(data[index + 1]);
+      out.write(computeCRC(data[index], data[index + 1]));
     }
-    device.write(out.toByteArray());
+    synchronized (device) {
+      try {
+        checkInterrupted();
+        writeChecked(out.toByteArray());
+        delay(20);
+        checkInterrupted();
+      } catch (IOException exception) {
+        throw new UncheckedIOException(exception);
+      }
+    }
   }
 
   public byte[] requestResponse(int command, int expectedResponseLength, int delayMillis) throws IOException {
-    byte[] commandBytes = new byte[] {
-        (byte) ((command >> 8) & 0xFF),
-        (byte) (command & 0xFF)
-    };
-    device.write(commandBytes);
-
-    // Delay if needed; typically 20ms for most read ops
-    delay(delayMillis);
-    byte[] response = new byte[expectedResponseLength];
-    int read = device.read(response, 0, response.length);
-    if (read != expectedResponseLength) {
-      throw new IOException("Incomplete SEN6x response: expected " + expectedResponseLength + " bytes, read " + read);
+    if (command < 0 || command > 0xffff || expectedResponseLength < 0
+        || expectedResponseLength % 3 != 0 || delayMillis < 0) {
+      throw new IllegalArgumentException("Invalid SEN6x command, response length or delay");
     }
-    byte[] actualResponse = new byte[read];
-    System.arraycopy(response, 0, actualResponse, 0, read);
-    return decodeRawData(actualResponse);
+    synchronized (device) {
+      checkInterrupted();
+      writeChecked(new byte[] {(byte) (command >>> 8), (byte) command});
+      delay(delayMillis);
+      checkInterrupted();
+      if (expectedResponseLength == 0) {
+        return new byte[0];
+      }
+      byte[] response = new byte[expectedResponseLength];
+      int read;
+      try {
+        read = device.read(response, 0, response.length);
+      } catch (Pi4JException exception) {
+        throw new IOException("Unable to read SEN6x response", exception);
+      }
+      if (read != expectedResponseLength) {
+        throw new IOException("Incomplete SEN6x response: expected " + expectedResponseLength + " bytes, read " + read);
+      }
+      return decodeRawData(response);
+    }
+  }
+
+  private void writeChecked(byte[] data) throws IOException {
+    int written;
+    try {
+      written = device.write(data);
+    } catch (Pi4JException exception) {
+      throw new IOException("Unable to write SEN6x command", exception);
+    }
+    if (written != data.length) {
+      throw new IOException("Incomplete SEN6x write: expected " + data.length + " bytes, wrote " + written);
+    }
   }
 
   private byte[] decodeRawData(byte[] raw) throws IOException {
-    int count = raw.length / 3;
-    byte[] result = new byte[count * 2];
-
-    for (int i = 0; i < count; i++) {
-      int offset = i * 3;
+    byte[] result = new byte[raw.length / 3 * 2];
+    for (int offset = 0; offset < raw.length; offset += 3) {
       byte msb = raw[offset];
       byte lsb = raw[offset + 1];
-      byte crc = raw[offset + 2];
-      int computed = computeCRC(msb, lsb);
-      if (crc != -1 && (crc & 0xff) != (computed & 0xff)) {
-        throw new IOException("CRC mismatch at word " + i + " CRC:" + crc + " computed:" + computed);
+      if (raw[offset + 2] != computeCRC(msb, lsb)) {
+        throw new IOException("SEN6x CRC mismatch at word " + offset / 3);
       }
-
-      result[i * 2] = msb;
-      result[i * 2 + 1] = lsb;
+      result[offset / 3 * 2] = msb;
+      result[offset / 3 * 2 + 1] = lsb;
     }
-
     return result;
   }
 
   private byte computeCRC(byte msb, byte lsb) {
-    byte[] data = { msb, lsb };
-    byte crc = (byte) CRC8_INIT;
-
-    for (byte b : data) {
-      crc ^= b;
-      for (int i = 0; i < 8; i++) {
-        if ((crc & 0x80) != 0) {
-          crc = (byte) ((crc << 1) ^ CRC8_POLY);
-        } else {
-          crc <<= 1;
-        }
+    int crc = CRC8_INIT;
+    for (byte value : new byte[] {msb, lsb}) {
+      crc ^= value & 0xff;
+      for (int bit = 0; bit < 8; bit++) {
+        crc = ((crc & 0x80) != 0 ? (crc << 1) ^ CRC8_POLY : crc << 1) & 0xff;
       }
     }
+    return (byte) crc;
+  }
 
-    return crc;
+  private void checkInterrupted() throws InterruptedIOException {
+    if (Thread.currentThread().isInterrupted()) {
+      throw new InterruptedIOException("Interrupted during SEN6x command");
+    }
   }
 
   public void delay(int delayMs) {
@@ -135,10 +159,8 @@ public class Sen6xCommandHelper {
       return;
     }
     try {
-      synchronized (device) {
-        device.wait(delayMs);
-      }
-    } catch (InterruptedException e) {
+      Thread.sleep(delayMs);
+    } catch (InterruptedException exception) {
       Thread.currentThread().interrupt();
     }
   }

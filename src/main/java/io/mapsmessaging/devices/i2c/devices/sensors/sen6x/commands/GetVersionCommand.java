@@ -24,9 +24,9 @@ import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.Sen6xCommandHelper;
 import java.io.IOException;
 
 public class GetVersionCommand implements Sen6xCommand<String> {
-  private static final int CMD_ID = 0xD202;
+  private static final int CMD_ID = 0xD100;
   private static final int DELAY_MS = 20;
-  private static final int RESPONSE_LENGTH = 6;
+  private static final int RESPONSE_LENGTH = 3;
 
   private final Sen6xCommandHelper helper;
 
@@ -37,13 +37,11 @@ public class GetVersionCommand implements Sen6xCommand<String> {
   @Override
   public String execute() throws IOException {
     byte[] data = helper.requestResponse(CMD_ID, RESPONSE_LENGTH, DELAY_MS);
-    if (data.length < 4) {
+    if (data.length != 2) {
       throw new IOException("Incomplete SEN6x version response");
     }
     int firmwareMajor = data[0] & 0xFF;
     int firmwareMinor = data[1] & 0xFF;
-    int hardwareMajor = data[2] & 0xFF;
-    int hardwareMinor = data[3] & 0xFF;
-    return String.format("FW %d.%d, HW %d.%d", firmwareMajor, firmwareMinor, hardwareMajor, hardwareMinor);
+    return firmwareMajor + "." + firmwareMinor;
   }
 }

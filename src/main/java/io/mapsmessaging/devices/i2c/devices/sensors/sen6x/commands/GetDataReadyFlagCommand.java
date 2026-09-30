@@ -26,7 +26,7 @@ import java.io.IOException;
 public class GetDataReadyFlagCommand implements Sen6xCommand<Boolean> {
 
   private static final int CMD_ID = 0x0202;
-  private static final int DELAY_MS = 200;
+  private static final int DELAY_MS = 20;
   private final Sen6xCommandHelper helper;
 
   public GetDataReadyFlagCommand(Sen6xCommandHelper helper) {

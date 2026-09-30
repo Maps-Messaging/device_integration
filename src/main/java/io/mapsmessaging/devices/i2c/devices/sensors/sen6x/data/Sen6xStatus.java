@@ -37,7 +37,9 @@ public class Sen6xStatus {
   public boolean isHchoError()        { return bits.get(10); }
   public boolean isPmError()          { return bits.get(11); }
   public boolean isCo2_1Error()       { return bits.get(12); }
-  public boolean isCompensationActive()  { return bits.get(15); }
+  /** Bit 15 is reserved; retained for source compatibility. */
+  @Deprecated
+  public boolean isCompensationActive()  { return false; }
   public boolean isSpeedWarning()     { return bits.get(21); }
 
   public boolean anyError() {

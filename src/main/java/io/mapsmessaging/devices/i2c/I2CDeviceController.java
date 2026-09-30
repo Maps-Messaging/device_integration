@@ -46,6 +46,7 @@ public abstract class I2CDeviceController extends DeviceController {
 
   protected static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
+  private boolean closed;
   private final int mountedAddress;
   private final SerialisationHelper serialisationHelper = new SerialisationHelper();
 
@@ -58,6 +59,17 @@ public abstract class I2CDeviceController extends DeviceController {
       mountedAddress = device.getDevice();
     } else {
       mountedAddress = -1;
+    }
+  }
+
+  @Override
+  public synchronized void close() {
+    if (!closed) {
+      closed = true;
+      I2CDevice device = getDevice();
+      if (device != null) {
+        device.close();
+      }
     }
   }
 

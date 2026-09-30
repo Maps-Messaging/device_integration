@@ -47,6 +47,15 @@ public class I2CDeviceScheduler extends I2CDeviceController {
   }
 
   @Override
+  public void close() {
+    synchronized (deviceController) {
+      synchronized (I2C_BUS_LOCK) {
+        deviceController.close();
+      }
+    }
+  }
+
+  @Override
   public boolean getRaiseExceptionOnError() {
     return deviceController.getRaiseExceptionOnError();
   }

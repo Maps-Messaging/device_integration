@@ -65,6 +65,8 @@ public abstract class HT16K33Driver extends I2CDevice implements Display {
       turnOff();
     } catch (IOException ex) {
       // we might have lost the device, so this will fail
+    } finally {
+      super.close();
     }
   }
 

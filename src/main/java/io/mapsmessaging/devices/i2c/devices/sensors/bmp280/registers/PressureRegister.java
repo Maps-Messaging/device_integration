@@ -32,6 +32,6 @@ public class PressureRegister extends MultiByteRegister {
 
   public double getRawPressure() throws IOException {
     reload();
-    return asLong();
+    return (double) asLong();
   }
 }

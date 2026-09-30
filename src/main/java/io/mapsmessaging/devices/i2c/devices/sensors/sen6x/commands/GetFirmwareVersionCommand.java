@@ -25,9 +25,6 @@ import java.io.IOException;
 
 public class GetFirmwareVersionCommand implements Sen6xCommand<String> {
 
-  private static final int CMD_ID = 0xD100;
-  private static final int RESPONSE_LENGTH = 48; // 16 words * 3 bytes (MSB, LSB, CRC)
-  private static final int DELAY_MS = 20;
 
   private final Sen6xCommandHelper helper;
 
@@ -37,7 +34,7 @@ public class GetFirmwareVersionCommand implements Sen6xCommand<String> {
 
   @Override
   public String execute() throws IOException {
-    return helper.requestAsciiResponse(CMD_ID, RESPONSE_LENGTH, DELAY_MS);
+    return new GetVersionCommand(helper).execute();
   }
 
   public String get() {

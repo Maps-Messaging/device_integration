@@ -39,16 +39,16 @@ public class MeasurementBlock {
   private final float hchoPpb;
 
   public MeasurementBlock() {
-    co2ppm = 0.0f;
-    temperatureC = 0.0f;
-    humidityPercent = 0.0f;
-    vocIndex = 0.0f;
-    noxIndex = 0.0f;
-    pm1_0 = 0.0f;
-    pm2_5 = 0.0f;
-    pm4_0 = 0.0f;
-    pm10_0 = 0.0f;
-    hchoPpb = 0.0f;
+    co2ppm = Float.NaN;
+    temperatureC = Float.NaN;
+    humidityPercent = Float.NaN;
+    vocIndex = Float.NaN;
+    noxIndex = Float.NaN;
+    pm1_0 = Float.NaN;
+    pm2_5 = Float.NaN;
+    pm4_0 = Float.NaN;
+    pm10_0 = Float.NaN;
+    hchoPpb = Float.NaN;
   }
 
   public MeasurementBlock(float pm1_0, float pm2_5, float pm4_0, float pm10_0,

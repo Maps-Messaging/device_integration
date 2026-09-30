@@ -27,7 +27,6 @@ import java.io.IOException;
 
 public class QuadAlphaNumericController extends HT16K33Controller {
 
-  private final int[] i2cAddr = {};
 
   public QuadAlphaNumericController() {
   }

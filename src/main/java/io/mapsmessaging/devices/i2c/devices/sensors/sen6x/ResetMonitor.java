@@ -31,18 +31,12 @@ public class ResetMonitor {
     this.sen6xMeasurementManager = sen6xMeasurementManager;
   }
 
-  public void check(){
-    if(sen6xMeasurementManager.hasLocked()){
-      try {
-        sen6xSensor.powerOff();
-        sen6xSensor.softReset();
-        Thread.sleep(100);
+  public void check() throws java.io.IOException {
+    synchronized (sen6xSensor) {
+      if (sen6xSensor.isMeasuring() && sen6xMeasurementManager.hasLocked()) {
+        sen6xSensor.reset();
         sen6xSensor.powerOn();
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-      } catch (Exception e) {
       }
-
     }
   }
 }

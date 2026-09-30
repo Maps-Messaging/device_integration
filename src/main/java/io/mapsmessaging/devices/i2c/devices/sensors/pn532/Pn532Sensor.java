@@ -36,6 +36,9 @@ import java.util.Locale;
 
 public class Pn532Sensor extends I2CDevice implements Sensor {
 
+  private static final String TYPE_A_RF_TECH = "ISO/IEC14443-3,Type A";
+  private static final String ULTRALIGHT = "Ultralight";
+
   // DFRobot PN532 I2C 7-bit address: 0x48 >> 1 = 0x24
   public static final int I2C_ADDR = 0x24;
   private static final int DATA_PORT = 0x00;
@@ -276,41 +279,45 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
     boolean isTypeA = (ci.atqa0 == 0x00) && (ci.atqa1 == 0x44 || ci.atqa1 == 0x04 || ci.atqa1 == 0x02);
     if (isTypeA) {
       if (ci.atqa1 == 0x04) {
-        ci.rfTech = "ISO/IEC14443-3,Type A";
+        ci.rfTech = TYPE_A_RF_TECH;
         ci.cardType = "MIFARE Classic 1k";
         ci.manufacturer = "NXP";
         ci.sizeBytes = 1024; ci.userBytes = 752; ci.blockSize = 16; ci.blockNumber = 64; ci.sectorSize = 16;
         return ci;
       }
       if (ci.atqa1 == 0x02) {
-        ci.rfTech = "ISO/IEC14443-3,Type A";
+        ci.rfTech = TYPE_A_RF_TECH;
         ci.cardType = "MIFARE Classic 4k";
         ci.manufacturer = "NXP";
         ci.sizeBytes = 4096; ci.userBytes = 3440; ci.blockSize = 16; ci.blockNumber = 256; ci.sectorSize = 39;
         return ci;
       }
 
-      // 0x44 → NTAG / Ultralight; probe pages
-      if (getUltraversion(230)) {
-        fillNTAG(ci, "NTAG 216", 924, 888, 4, 231, 1);
-      } else if (getUltraversion(134)) {
-        fillNTAG(ci, "NTAG 215", 540, 504, 4, 135, 1);
-      } else if (getUltraversion(44)) {
-        fillNTAG(ci, "NTAG 213", 180, 144, 4, 45, 1);
-      } else if (getUltraversion(40)) {
-        fillNTAG(ci, "Ultralight", 164, 128, 4, 41, 1);
-      } else if (getUltraversion(19)) {
-        fillNTAG(ci, "Ultralight", 80, 48, 4, 20, 1);
-      } else if (getUltraversion(14)) {
-        // Ultralight C (approx values used by Arduino example)
-        fillNTAG(ci, "Ultralight", 164, 320, 4, 41, 1); // usersize 320 in Arduino code (likely typo); kept for parity
-      }
+      identifyUltralight(ci);
     }
     return ci;
   }
 
+  private void identifyUltralight(CardInfo ci) throws IOException {
+    // 0x44 → NTAG / Ultralight; probe pages
+    if (getUltraversion(230)) {
+      fillNTAG(ci, "NTAG 216", 924, 888, 4, 231, 1);
+    } else if (getUltraversion(134)) {
+      fillNTAG(ci, "NTAG 215", 540, 504, 4, 135, 1);
+    } else if (getUltraversion(44)) {
+      fillNTAG(ci, "NTAG 213", 180, 144, 4, 45, 1);
+    } else if (getUltraversion(40)) {
+      fillNTAG(ci, ULTRALIGHT, 164, 128, 4, 41, 1);
+    } else if (getUltraversion(19)) {
+      fillNTAG(ci, ULTRALIGHT, 80, 48, 4, 20, 1);
+    } else if (getUltraversion(14)) {
+      // Ultralight C (approx values used by Arduino example)
+      fillNTAG(ci, ULTRALIGHT, 164, 320, 4, 41, 1); // usersize 320 in Arduino code (likely typo); kept for parity
+    }
+  }
+
   private void fillNTAG(CardInfo ci, String type, int size, int user, int blockSz, int blocks, int sectorSz) {
-    ci.rfTech = "ISO/IEC14443-3,Type A";
+    ci.rfTech = TYPE_A_RF_TECH;
     ci.cardType = type;
     ci.manufacturer = "NXP";
     ci.sizeBytes = size;

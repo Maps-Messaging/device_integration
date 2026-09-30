@@ -78,10 +78,10 @@ public class GasSensor extends I2CDevice implements Sensor {
         sensorType.getGasType(),
         sensorType.getUnits(),
         "Raw gas concentration from sensor type: " + sensorType.getName(),
-        0.0f + sensorType.getMinimumRange(),
+        (float) sensorType.getMinimumRange(),
         true,
-        sensorType.getMinimumRange(),
-        sensorType.getMaximumRange(),
+        (float) sensorType.getMinimumRange(),
+        (float) sensorType.getMaximumRange(),
         sensorType.getResolution(),
         this::getConcentration
     );
@@ -90,10 +90,10 @@ public class GasSensor extends I2CDevice implements Sensor {
         "concentrationTempAdj",
         sensorType.getUnits(),
         "Temperature-compensated concentration from sensor type: " + sensorType.getName(),
-        0.0f + sensorType.getMinimumRange(),
+        (float) sensorType.getMinimumRange(),
         true,
-        sensorType.getMinimumRange(),
-        sensorType.getMaximumRange(),
+        (float) sensorType.getMinimumRange(),
+        (float) sensorType.getMaximumRange(),
         sensorType.getResolution(),
         this::getConcentration
     );
