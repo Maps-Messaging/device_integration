@@ -28,7 +28,7 @@ public class GetDeviceStatusCommand implements Sen6xCommand<Sen6xStatus> {
 
   private static final int CMD_ID = 0xD206;
   private static final int DELAY_MS = 20;
-  private static final int RESPONSE_LENGTH = 3; // 2 bytes + 1 CRC
+  private static final int RESPONSE_LENGTH = 6; // uint32 and one CRC per word
 
   private final Sen6xCommandHelper helper;
   private long nextQuery;
@@ -42,10 +42,11 @@ public class GetDeviceStatusCommand implements Sen6xCommand<Sen6xStatus> {
   public Sen6xStatus execute() throws IOException {
     if (nextQuery < System.currentTimeMillis()) {
       byte[] data = helper.requestResponse(CMD_ID, RESPONSE_LENGTH, DELAY_MS);
-      if (data.length < 2) {
+      if (data.length != 4) {
         throw new IOException("Incomplete SEN6x device-status response");
       }
-      int status = ((data[0] & 0xFF) << 8) | (data[1] & 0xFF);
+      int status = ((data[0] & 0xFF) << 24) | ((data[1] & 0xFF) << 16)
+          | ((data[2] & 0xFF) << 8) | (data[3] & 0xFF);
       sen6xstatus = new Sen6xStatus(status);
       nextQuery = System.currentTimeMillis() + 1000;
     }

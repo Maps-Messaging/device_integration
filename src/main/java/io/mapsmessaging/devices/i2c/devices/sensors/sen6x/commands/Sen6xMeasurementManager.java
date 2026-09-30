@@ -29,8 +29,9 @@ public abstract class Sen6xMeasurementManager {
   private final Sen6xCommandHelper helper;
   private final int commandId;
   private final int length;
-  private long lastReadTime = 0;
+  private long lastReadTime = System.currentTimeMillis();
   private MeasurementBlock cachedBlock;
+  private boolean receivedMeasurement;
   private GetDataReadyFlagCommand getReadyFlagCommand;
 
   protected Sen6xMeasurementManager(Sen6xCommandHelper helper, int commandId, int length) {
@@ -46,12 +47,13 @@ public abstract class Sen6xMeasurementManager {
   }
 
   public synchronized MeasurementBlock getMeasurementBlock() throws IOException {
-    if (getReadyFlagCommand.isReady()) {
+    if (getReadyFlagCommand.execute()) {
       long now = System.currentTimeMillis();
-      if (cachedBlock == null || now - lastReadTime > 1000) {
+      if (!receivedMeasurement || now - lastReadTime >= 1000) {
         byte[] raw = helper.requestResponse(commandId, length);
         cachedBlock = processResponse(raw);
         lastReadTime = now;
+        receivedMeasurement = true;
       }
     }
     return cachedBlock;
@@ -59,6 +61,22 @@ public abstract class Sen6xMeasurementManager {
 
   protected abstract MeasurementBlock processResponse(byte[] data) throws IOException;
 
+
+  protected static float parseUnsignedMeasurement(byte[] raw, int offset) {
+    int value = parseUInt16(raw, offset);
+    return value == 0xffff ? Float.NaN : (float) value;
+  }
+
+  protected static float parseSignedMeasurement(byte[] raw, int offset) {
+    short value = parseInt16(raw, offset);
+    return value == 0x7fff ? Float.NaN : (float) value;
+  }
+
+  public synchronized void invalidate() {
+    cachedBlock = new MeasurementBlock();
+    receivedMeasurement = false;
+    lastReadTime = System.currentTimeMillis();
+  }
 
   protected static int parseUInt16(byte[] raw, int offset) {
     return ((raw[offset] & 0xFF) << 8) | (raw[offset + 1] & 0xFF);

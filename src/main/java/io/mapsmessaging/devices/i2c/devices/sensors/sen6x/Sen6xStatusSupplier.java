@@ -28,14 +28,14 @@ public class Sen6xStatusSupplier {
     this.command = command;
   }
 
-  public boolean isFanError()     { return command.get().isFanError(); }
-  public boolean isRhtError()     { return command.get().isRhtError(); }
-  public boolean isGasError()     { return command.get().isGasError(); }
-  public boolean isCo2_2Error()   { return command.get().isCo2_2Error(); }
-  public boolean isHchoError()    { return command.get().isHchoError(); }
-  public boolean isPmError()      { return command.get().isPmError(); }
-  public boolean isCo2_1Error()   { return command.get().isCo2_1Error(); }
-  public boolean isSpeedWarning() { return command.get().isSpeedWarning(); }
-  public boolean isCompensationActive() { return command.get().isCompensationActive(); }
+  public boolean isFanError() throws java.io.IOException     { return command.execute().isFanError(); }
+  public boolean isRhtError() throws java.io.IOException     { return command.execute().isRhtError(); }
+  public boolean isGasError() throws java.io.IOException     { return command.execute().isGasError(); }
+  public boolean isCo2_2Error() throws java.io.IOException   { return command.execute().isCo2_2Error(); }
+  public boolean isHchoError() throws java.io.IOException    { return command.execute().isHchoError(); }
+  public boolean isPmError() throws java.io.IOException      { return command.execute().isPmError(); }
+  public boolean isCo2_1Error() throws java.io.IOException   { return command.execute().isCo2_1Error(); }
+  public boolean isSpeedWarning() throws java.io.IOException { return command.execute().isSpeedWarning(); }
+  public boolean isCompensationActive() throws java.io.IOException { return command.execute().isCompensationActive(); }
 
 }

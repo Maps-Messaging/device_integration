@@ -8,7 +8,6 @@ import io.mapsmessaging.devices.i2c.devices.sensors.scd41.functions.SerialNumber
 import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.Sen6xCommandHelper;
 import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.GetDataReadyFlagCommand;
 import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.GetDeviceStatusCommand;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.GetFanCleaningIntervalCommand;
 import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.GetVersionCommand;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import java.io.IOException;
@@ -41,7 +40,6 @@ class SensorResponseLengthTest {
     };
     assertThrows(IOException.class, () -> new GetDataReadyFlagCommand(helper).execute());
     assertThrows(IOException.class, () -> new GetDeviceStatusCommand(helper).execute());
-    assertThrows(IOException.class, () -> new GetFanCleaningIntervalCommand(helper).execute());
     assertThrows(IOException.class, () -> new GetVersionCommand(helper).execute());
   }
 

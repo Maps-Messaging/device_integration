@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Queue;
 
 /** In-memory I2C device with ordered response frames and captured writes. */
-final class ScriptedI2CDevice implements AddressableDevice {
+class ScriptedI2CDevice implements AddressableDevice {
   private final int address;
   private final Queue<byte[]> responses = new ArrayDeque<>();
   private final List<byte[]> writes = new ArrayList<>();

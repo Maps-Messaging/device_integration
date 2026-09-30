@@ -10,7 +10,6 @@ import io.mapsmessaging.devices.i2c.devices.sensors.bh1750.Bh1750Controller;
 import io.mapsmessaging.devices.i2c.devices.sensors.pmsa003i.Pmsa003iController;
 import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.Sen6xCommandHelper;
 import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.GetDataReadyFlagCommand;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.GetFanCleaningIntervalCommand;
 import io.mapsmessaging.devices.i2c.devices.sensors.sht31.Sht31Controller;
 import io.mapsmessaging.devices.i2c.devices.sensors.sht31.Sht31Sensor;
 import java.util.Arrays;
@@ -65,15 +64,12 @@ class ScriptedSensorTest {
   }
 
   @Test
-  void sen6xReadsScriptedReadyFlagAndInterval() throws Exception {
+  void sen6xReadsScriptedReadyFlag() throws Exception {
     ScriptedI2CDevice bus = new ScriptedI2CDevice(0x6b,
-        new byte[] {0, 1, crc((byte) 0, (byte) 1)},
-        new byte[] {0x12, 0x34, crc((byte) 0x12, (byte) 0x34)});
+        new byte[] {0, 1, crc((byte) 0, (byte) 1)});
     Sen6xCommandHelper helper = new Sen6xCommandHelper(bus);
     assertTrue(new GetDataReadyFlagCommand(helper).execute());
-    assertEquals(0x1234, new GetFanCleaningIntervalCommand(helper).execute());
     assertArrayEquals(new byte[] {0x02, 0x02}, bus.writes().get(0));
-    assertArrayEquals(new byte[] {(byte) 0xd2, 0x10}, bus.writes().get(1));
   }
 
   @Test

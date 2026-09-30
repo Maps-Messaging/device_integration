@@ -36,15 +36,15 @@ public class Sen63cMeasurementManager extends Sen6xMeasurementManager {
     if (raw.length < 14) throw new IOException("Invalid measurement block size");
 
     return new MeasurementBlock(
-        parseUInt16(raw, 0) / 10.0f,       // PM1.0
-        parseUInt16(raw, 2) / 10.0f,       // PM2.5
-        parseUInt16(raw, 4) / 10.0f,       // PM4.0
-        parseUInt16(raw, 6) / 10.0f,       // PM10.0
-        parseInt16(raw, 8) / 100.0f,      // Humidity
-        parseInt16(raw, 10) / 200.0f,      // Temperature
+        parseUnsignedMeasurement(raw, 0) / 10.0f,       // PM1.0
+        parseUnsignedMeasurement(raw, 2) / 10.0f,       // PM2.5
+        parseUnsignedMeasurement(raw, 4) / 10.0f,       // PM4.0
+        parseUnsignedMeasurement(raw, 6) / 10.0f,       // PM10.0
+        parseSignedMeasurement(raw, 8) / 100.0f,      // Humidity
+        parseSignedMeasurement(raw, 10) / 200.0f,      // Temperature
         0.0f,                                     //  No Nox
         0.0f,                                     // No Voc
-        parseInt16(raw, 12) / 10.0f,       // co2
+        parseSignedMeasurement(raw, 12),       // co2
         0.0f                               // HCHO — not reported by this command
     );
   }

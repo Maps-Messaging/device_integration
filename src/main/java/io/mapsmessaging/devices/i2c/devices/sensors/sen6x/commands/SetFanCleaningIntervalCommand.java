@@ -20,38 +20,27 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands;
 
 import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.Sen6xCommandHelper;
-
 import java.io.IOException;
 
+/** SEN6x provides manual fan cleaning, not an automatic cleaning interval command. */
+@Deprecated
 public class SetFanCleaningIntervalCommand implements Sen6xCommand<Void> {
-  private static final int CMD_ID = 0xD208;
 
-  private final Sen6xCommandHelper helper;
-  private int interval;
-
+  @SuppressWarnings("java:S1172") // Preserve the existing public constructor signature.
   public SetFanCleaningIntervalCommand(Sen6xCommandHelper helper) {
-    this.helper = helper;
+    // No bus operation: the SEN6x datasheet defines no such command.
   }
 
   @Override
   public Void execute() throws IOException {
-    byte msb = (byte) ((interval >> 8) & 0xFF);
-    byte lsb = (byte) (interval & 0xFF);
-    helper.writeWithCRC(new byte[] {
-        (byte) ((CMD_ID >> 8) & 0xFF),
-        (byte) (CMD_ID & 0xFF),
-        msb, lsb
-    });
-    return null;
+    throw unsupported();
   }
 
   public void set(int days) {
-    interval = days;
-    try {
-      execute();
-    } catch (IOException e) {
-      // No Op
-    }
+    throw unsupported();
+  }
 
+  private UnsupportedOperationException unsupported() {
+    return new UnsupportedOperationException("SEN6x does not support a fan-cleaning interval");
   }
 }
