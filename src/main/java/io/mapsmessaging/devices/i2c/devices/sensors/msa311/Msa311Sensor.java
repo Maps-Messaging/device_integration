@@ -210,19 +210,22 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
   }
 
   protected float getX() throws IOException {
-    float raw = xAxisRegister.getValue();
+    @SuppressWarnings("java:S1905") // Explicit cast documents potential precision loss.
+    float raw = (float) xAxisRegister.getValue();
     float scale = getRange().getScale();
     return (raw / scale) * EARTH_GRAVITY_FLOAT;
   }
 
   protected float getY() throws IOException {
-    float raw = yAxisRegister.getValue();
+    @SuppressWarnings("java:S1905") // Explicit cast documents potential precision loss.
+    float raw = (float) yAxisRegister.getValue();
     float scale = getRange().getScale();
     return (raw / scale) * EARTH_GRAVITY_FLOAT;
   }
 
   protected float getZ() throws IOException {
-    float raw = zAxisRegister.getValue();
+    @SuppressWarnings("java:S1905") // Explicit cast documents potential precision loss.
+    float raw = (float) zAxisRegister.getValue();
     float scale = getRange().getScale();
     return (raw / scale) * EARTH_GRAVITY_FLOAT;
   }

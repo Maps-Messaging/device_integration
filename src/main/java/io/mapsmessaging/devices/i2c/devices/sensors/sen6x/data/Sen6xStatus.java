@@ -41,6 +41,7 @@ public class Sen6xStatus {
    * Bit 15 is reserved; retained for source compatibility.
    * @deprecated SEN6x does not define a compensation-active status bit.
    */
+  @SuppressWarnings("java:S1133") // Retain the deprecated API until a breaking release.
   @Deprecated(since = "3.1.2", forRemoval = false)
   public boolean isCompensationActive()  { return false; }
   public boolean isSpeedWarning()     { return bits.get(21); }

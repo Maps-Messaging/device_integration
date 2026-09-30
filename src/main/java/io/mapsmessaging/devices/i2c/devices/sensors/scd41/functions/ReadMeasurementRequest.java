@@ -35,7 +35,8 @@ public class ReadMeasurementRequest extends Request {
   }
 
   private static float computeTemperature(byte high, byte low) {
-    float raw = (high & 0xFF) << 8 | (low & 0xFF);
+    @SuppressWarnings("java:S1905") // Explicit cast documents potential precision loss.
+    float raw = (float) ((high & 0xFF) << 8 | (low & 0xFF));
     return -45.0f + (175.0f * (raw / MASK));
   }
 
@@ -61,7 +62,8 @@ public class ReadMeasurementRequest extends Request {
   }
 
   private float computeHumidity(byte high, byte low) {
-    float raw = (high & 0xFF) << 8 | (low & 0xFF);
+    @SuppressWarnings("java:S1905") // Explicit cast documents potential precision loss.
+    float raw = (float) ((high & 0xFF) << 8 | (low & 0xFF));
     return 100.0f * (raw / MASK);
   }
 }

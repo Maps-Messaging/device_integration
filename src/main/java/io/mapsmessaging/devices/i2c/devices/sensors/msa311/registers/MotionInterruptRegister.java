@@ -27,7 +27,6 @@ import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.MotionInterrup
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.stream.Collectors;
 import java.util.List;
 
 public class MotionInterruptRegister extends SingleByteRegister {
@@ -40,7 +39,7 @@ public class MotionInterruptRegister extends SingleByteRegister {
     reload();
     return Arrays.stream(MotionInterrupts.values())
         .filter(interrupt -> (interrupt.getMask() & registerValue) != 0)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   @Override
