@@ -129,7 +129,7 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
         "date",
         "UTC",
         "Timestamp from DS3231 RTC",
-        LocalDateTime.of(2024, 1, 1, 0, 0),
+        LocalDateTime.of(2024, java.time.Month.JANUARY, 1, 0, 0),
         true,
         this::getDateTime
     );

@@ -26,7 +26,8 @@ import io.mapsmessaging.devices.i2c.devices.sensors.msa311.data.TapActiveStatusD
 import io.mapsmessaging.devices.i2c.devices.sensors.msa311.values.TapActiveStatus;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import java.util.List;
 
 public class TapActiveStatusRegister extends SingleByteRegister {
@@ -36,14 +37,10 @@ public class TapActiveStatusRegister extends SingleByteRegister {
   }
 
   public List<TapActiveStatus> getTapActiveStatus() throws IOException {
-    List<TapActiveStatus> list = new ArrayList<>();
     reload();
-    for (TapActiveStatus taps : TapActiveStatus.values()) {
-      if ((taps.getMask() & registerValue) != 0) {
-        list.add(taps);
-      }
-    }
-    return list;
+    return Arrays.stream(TapActiveStatus.values())
+        .filter(tap -> (tap.getMask() & registerValue) != 0)
+        .collect(Collectors.toList());
   }
 
   @Override

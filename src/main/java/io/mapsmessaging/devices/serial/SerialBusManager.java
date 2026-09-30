@@ -59,7 +59,7 @@ public class SerialBusManager {
     return controller;
   }
 
-  public void unmount (SerialDeviceController serialDevice) throws IOException {
+  public void unmount (SerialDeviceController serialDevice) {
     activeDevices.remove(serialDevice.getName());
   }
 

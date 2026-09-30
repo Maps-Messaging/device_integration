@@ -125,9 +125,9 @@ public class I2CBusManager {
       synchronized (mounted) {
         synchronized (I2CDeviceScheduler.getI2cBusLock()) {
           String key = Integer.toHexString(mounted.getMountedAddress());
-          DeviceController active = activeDevices.get(key);
-          if (active instanceof I2CDeviceController current && unwrap(current) == mounted) {
-            activeDevices.remove(key, active);
+          DeviceController activeController = activeDevices.get(key);
+          if (activeController instanceof I2CDeviceController current && unwrap(current) == mounted) {
+            activeDevices.remove(key, activeController);
             physicalDevices.remove(mounted.getMountedAddress());
           }
           deviceController.close();
@@ -269,8 +269,8 @@ public class I2CBusManager {
     synchronized (lifecycleLock) {
       synchronized (I2CDeviceScheduler.getI2cBusLock()) {
         String key = Integer.toHexString(i2cAddress);
-        DeviceController active = activeDevices.get(key);
-        if (active instanceof I2CDeviceController current) {
+        DeviceController activeController = activeDevices.get(key);
+        if (activeController instanceof I2CDeviceController current) {
           if (current.getName().equals(deviceEntry.getName())) {
             return current;
           }

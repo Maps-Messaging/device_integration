@@ -23,6 +23,6 @@ import java.util.Optional;
 public class OptionalBooleanSensorReading extends OptionalSensorReading<Boolean> {
 
   public OptionalBooleanSensorReading(String name, String unit, String description, Boolean example, boolean readOnly, ReadingSupplier<Boolean> valueSupplier) {
-    super(name, unit, description, example, readOnly, () -> valueSupplier.get() ? Optional.of(Boolean.TRUE) : Optional.empty());
+    super(name, unit, description, example, readOnly, () -> Boolean.TRUE.equals(valueSupplier.get()) ? Optional.of(Boolean.TRUE) : Optional.empty());
   }
 }

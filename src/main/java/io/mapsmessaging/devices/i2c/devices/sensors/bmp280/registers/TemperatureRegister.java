@@ -32,6 +32,6 @@ public class TemperatureRegister extends MultiByteRegister {
 
   public double getRawTemperature() throws IOException {
     reload();
-    return (double) asLong();
+    return asLong();
   }
 }

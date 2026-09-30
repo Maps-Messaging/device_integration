@@ -110,7 +110,7 @@ public class Pmsa003iSensor extends I2CDevice implements Sensor {
   protected int getParticlesLargerThan50() { return p50.next(); }
   protected int getParticlesLargerThan100() { return p100.next(); }
 
-  public String evaluateAirQuality() throws IOException {
+  public String evaluateAirQuality() {
     // Air quality thresholds for PM1.0, PM2.5, and PM10
     int[] pristineThreshold = {10, 10, 20};     // PM1.0, PM2.5, PM10
     int[] healthyThreshold = {20, 30, 50};
