@@ -69,6 +69,6 @@ The old automatic fan-cleaning interval methods were not SEN6x commands: `0xD210
 
 ## Validation and limits
 
-Mocked `AddressableDevice` and Pi4J I2C/provider fixtures exercise protocol bytes, CRC failures, truncated transfers, interrupts, model scaling/sentinels, capability lists, failed lifecycle commands, grouped values/schema, register read counts and close/remount behavior. The latest full test run passes **57 tests** on Java 17 with Pi4J 2.8.0.
+Mocked `AddressableDevice` and Pi4J I2C/provider fixtures exercise protocol bytes, CRC failures, truncated transfers, interrupts, model scaling/sentinels, capability lists, failed lifecycle commands, grouped values/schema, register read counts and close/remount behavior. The latest full test run passes **58 tests** on Java 17 with Pi4J 2.8.0.
 
 The local JaCoCo snapshot is **18.9% overall line coverage** and **69.5% for SEN6x packages**. These are local measurements, not a refreshed Sonar server result, and do not meet the eventual 80% target. Most of the remaining coverage can be built with scripted bus fixtures; physical hardware is still needed to validate electrical behavior, provider timing and device-specific concurrency assumptions. No physical SEN6x or other sensor was exercised in this review.

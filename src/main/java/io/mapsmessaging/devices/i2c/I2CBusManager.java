@@ -45,6 +45,7 @@ public class I2CBusManager {
 
   protected final Map<String, I2CDeviceController> knownDevices;
   protected final Map<Integer, List<I2CDeviceController>> mappedDevices;
+  private final Object lifecycleLock = new Object();
   protected final Map<String, DeviceController> activeDevices;
   protected final Map<Integer, I2C> physicalDevices;
 
@@ -120,15 +121,17 @@ public class I2CBusManager {
 
   public void close(I2CDeviceController deviceController) {
     I2CDeviceController mounted = unwrap(deviceController);
-    synchronized (mounted) {
-      synchronized (I2CDeviceScheduler.getI2cBusLock()) {
-        String key = Integer.toHexString(mounted.getMountedAddress());
-        DeviceController active = activeDevices.get(key);
-        if (active instanceof I2CDeviceController current && unwrap(current) == mounted) {
-          activeDevices.remove(key, active);
-          physicalDevices.remove(mounted.getMountedAddress());
+    synchronized (lifecycleLock) {
+      synchronized (mounted) {
+        synchronized (I2CDeviceScheduler.getI2cBusLock()) {
+          String key = Integer.toHexString(mounted.getMountedAddress());
+          DeviceController active = activeDevices.get(key);
+          if (active instanceof I2CDeviceController current && unwrap(current) == mounted) {
+            activeDevices.remove(key, active);
+            physicalDevices.remove(mounted.getMountedAddress());
+          }
+          deviceController.close();
         }
-        deviceController.close();
       }
     }
   }
@@ -262,24 +265,27 @@ public class I2CBusManager {
   }
 
   private I2CDeviceController createAndMountDevice(int i2cAddress, I2CDeviceController deviceEntry) throws IOException {
-    synchronized (I2CDeviceScheduler.getI2cBusLock()) {
-      String key = Integer.toHexString(i2cAddress);
-      DeviceController active = activeDevices.get(key);
-      if (active instanceof I2CDeviceController current) {
-        if (current.getName().equals(deviceEntry.getName())) {
-          return current;
+    // Device delays release the bus monitor, so mount ownership uses a separate lock.
+    synchronized (lifecycleLock) {
+      synchronized (I2CDeviceScheduler.getI2cBusLock()) {
+        String key = Integer.toHexString(i2cAddress);
+        DeviceController active = activeDevices.get(key);
+        if (active instanceof I2CDeviceController current) {
+          if (current.getName().equals(deviceEntry.getName())) {
+            return current;
+          }
+          throw new IOException("I2C address is already mounted: " + key);
         }
-        throw new IOException("I2C address is already mounted: " + key);
+        I2C i2c = physicalDevices.get(i2cAddress);
+        if (i2c == null) {
+          i2c = createi2cDevice(i2cAddress);
+        }
+        I2CDeviceImpl i2CDevice = new I2CDeviceImpl(i2c);
+        I2CDeviceController device = deviceEntry.mount(i2CDevice);
+        I2CDeviceController controller = new I2CDeviceScheduler(device);
+        activeDevices.put(key, controller);
+        return controller;
       }
-      I2C i2c = physicalDevices.get(i2cAddress);
-      if (i2c == null) {
-        i2c = createi2cDevice(i2cAddress);
-      }
-      I2CDeviceImpl i2CDevice = new I2CDeviceImpl(i2c);
-      I2CDeviceController device = deviceEntry.mount(i2CDevice);
-      I2CDeviceController controller = new I2CDeviceScheduler(device);
-      activeDevices.put(key, controller);
-      return controller;
     }
   }
 

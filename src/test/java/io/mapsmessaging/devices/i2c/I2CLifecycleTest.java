@@ -70,6 +70,37 @@ class I2CLifecycleTest {
     }
   }
 
+  @Test
+  void concurrentMountsShareOneControllerDuringConstructorDelay() throws Exception {
+    var entered = new java.util.concurrent.CountDownLatch(1);
+    var release = new java.util.concurrent.CountDownLatch(1);
+    AtomicInteger writes = new AtomicInteger();
+    I2C handle = (I2C) Proxy.newProxyInstance(I2C.class.getClassLoader(), new Class<?>[] {I2C.class},
+        (proxy, method, args) -> {
+          if (method.getName().equals("write") && writes.incrementAndGet() == 1) {
+            entered.countDown();
+            assertTrue(release.await(5, java.util.concurrent.TimeUnit.SECONDS));
+          }
+          return method.invoke(device(new AtomicInteger()), args);
+        });
+    I2CBusManager manager = new I2CBusManager(null, null, 1);
+    manager.physicalDevices.put(0x23, handle);
+    var executor = java.util.concurrent.Executors.newFixedThreadPool(2);
+    try {
+      String name = new Bh1750Controller().getName();
+      var first = executor.submit(() -> manager.configureDevice(0x23, name));
+      assertTrue(entered.await(5, java.util.concurrent.TimeUnit.SECONDS));
+      var secondStarted = new java.util.concurrent.CountDownLatch(1);
+      var second = executor.submit(() -> { secondStarted.countDown(); return manager.configureDevice(0x23, name); });
+      assertTrue(secondStarted.await(5, java.util.concurrent.TimeUnit.SECONDS));
+      release.countDown();
+      assertSame(first.get(5, java.util.concurrent.TimeUnit.SECONDS), second.get(5, java.util.concurrent.TimeUnit.SECONDS));
+    } finally {
+      release.countDown();
+      executor.shutdownNow();
+    }
+  }
+
   private static I2C device(AtomicInteger closes) {
     return (I2C) Proxy.newProxyInstance(I2C.class.getClassLoader(), new Class<?>[] {I2C.class},
         (proxy, method, args) -> switch (method.getName()) {
