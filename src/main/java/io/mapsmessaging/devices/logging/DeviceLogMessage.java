@@ -60,6 +60,8 @@ public enum DeviceLogMessage implements LogMessage {
   I2C_BUS_DEVICE_REQUEST_FAILED(LEVEL.DEBUG, BUS.I2C_DEVICE, "{} Failed on request {}, reason {}"),
   //</editor-fold>
 
+  SERIAL_SENSOR_READ_FAILED(LEVEL.WARN, BUS.SERIAL, "{} Failed to read sensor: {}"),
+
   //<editor-fold desc="SPI Bus Manager messages">
   SPI_BUS_MANAGER_STARTUP(LEVEL.WARN, BUS.MANAGER, "SPI Bus Manager starting up"),
 
@@ -101,6 +103,7 @@ public enum DeviceLogMessage implements LogMessage {
     I2C("I2C"),
     I2C_DEVICE("I2C-DEVICE"),
     SPI("SPI"),
+    SERIAL("Serial"),
     ONE_WIRE("1Wire");
 
     private final String description;

@@ -21,6 +21,9 @@ package io.mapsmessaging.devices.serial.devices.sensors.sen0657;
 
 import io.mapsmessaging.devices.Device;
 import io.mapsmessaging.devices.DeviceType;
+import io.mapsmessaging.devices.logging.DeviceLogMessage;
+import io.mapsmessaging.logging.Logger;
+import io.mapsmessaging.logging.LoggerFactory;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.sensorreadings.*;
 import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
@@ -38,6 +41,8 @@ import java.util.Objects;
 import static io.mapsmessaging.devices.util.StormHeuristics.*;
 
 public class Sen0657Sensor implements Device, Sensor {
+
+  private final Logger logger = LoggerFactory.getLogger(Sen0657Sensor.class);
 
   private static final int FUNCTION_READ_HOLDING_REGISTER = 0x03;
 
@@ -472,7 +477,7 @@ public class Sen0657Sensor implements Device, Sensor {
       readWindSpeedAndDirection();
       readRainfall();
     } catch (IOException e) {
-      e.printStackTrace();
+      logger.log(DeviceLogMessage.SERIAL_SENSOR_READ_FAILED, getName(), e.toString());
     }
   }
 
