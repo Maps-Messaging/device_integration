@@ -40,7 +40,8 @@ public class TemperatureRegister extends MultiByteRegister {
     if ((raw & 0x8000) != 0) {
       raw = raw - 0xFFFF;
     }
-    float r = raw;
+    @SuppressWarnings("java:S1905") // Explicit cast documents potential precision loss.
+    float r = (float) raw;
     return r / 480.0f + 42.5f;
   }
 }

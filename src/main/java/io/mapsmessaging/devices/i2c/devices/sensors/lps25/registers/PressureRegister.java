@@ -41,7 +41,8 @@ public class PressureRegister extends MultiByteRegister {
     if ((raw & 0x00800000) != 0) {
       raw |= 0xff000000;
     }
-    float v = raw;
+    @SuppressWarnings("java:S1905") // Explicit cast documents potential precision loss.
+    float v = (float) raw;
     return v / 4096.0f;
   }
 }

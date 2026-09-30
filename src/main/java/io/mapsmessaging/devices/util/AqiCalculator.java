@@ -140,6 +140,7 @@ public class AqiCalculator {
   }
 
 
+  @SuppressWarnings("java:S1905") // Explicit cast documents potential precision loss.
   private static float computeAqi(float value, float[] breakpoints, int[] aqiLevels) {
     for (int i = 0; i < breakpoints.length - 1; i++) {
       float upper = breakpoints[i + 1];
@@ -151,7 +152,7 @@ public class AqiCalculator {
         return aqiLow + (value - concentrationLow) * (aqiHigh - aqiLow) / (concentrationHigh - concentrationLow);
       }
     }
-    return aqiLevels[aqiLevels.length - 1];
+    return (float) aqiLevels[aqiLevels.length - 1];
   }
 
   private static float mapVocIndexToScore(float vocIndex) {
