@@ -119,9 +119,25 @@ public class I2CBusManager {
   }
 
   public void close(I2CDeviceController deviceController) {
-    deviceController.close();
-    String key = Integer.toHexString(deviceController.getMountedAddress());
-    activeDevices.remove(key);
+    I2CDeviceController mounted = unwrap(deviceController);
+    synchronized (mounted) {
+      synchronized (I2CDeviceScheduler.getI2cBusLock()) {
+        String key = Integer.toHexString(mounted.getMountedAddress());
+        DeviceController active = activeDevices.get(key);
+        if (active instanceof I2CDeviceController current && unwrap(current) == mounted) {
+          activeDevices.remove(key, active);
+          physicalDevices.remove(mounted.getMountedAddress());
+        }
+        deviceController.close();
+      }
+    }
+  }
+
+  private static I2CDeviceController unwrap(I2CDeviceController controller) {
+    while (controller instanceof I2CDeviceScheduler scheduler) {
+      controller = scheduler.getDeviceController();
+    }
+    return controller;
   }
 
   public I2CDeviceController get(String id) {
@@ -246,15 +262,25 @@ public class I2CBusManager {
   }
 
   private I2CDeviceController createAndMountDevice(int i2cAddress, I2CDeviceController deviceEntry) throws IOException {
-    I2C i2c = physicalDevices.get(i2cAddress);
-    if (i2c == null) {
-      i2c = createi2cDevice(i2cAddress);
+    synchronized (I2CDeviceScheduler.getI2cBusLock()) {
+      String key = Integer.toHexString(i2cAddress);
+      DeviceController active = activeDevices.get(key);
+      if (active instanceof I2CDeviceController current) {
+        if (current.getName().equals(deviceEntry.getName())) {
+          return current;
+        }
+        throw new IOException("I2C address is already mounted: " + key);
+      }
+      I2C i2c = physicalDevices.get(i2cAddress);
+      if (i2c == null) {
+        i2c = createi2cDevice(i2cAddress);
+      }
+      I2CDeviceImpl i2CDevice = new I2CDeviceImpl(i2c);
+      I2CDeviceController device = deviceEntry.mount(i2CDevice);
+      I2CDeviceController controller = new I2CDeviceScheduler(device);
+      activeDevices.put(key, controller);
+      return controller;
     }
-    I2CDeviceImpl i2CDevice = new I2CDeviceImpl(i2c);
-    I2CDeviceController device = deviceEntry.mount(i2CDevice);
-    I2CDeviceController controller = new I2CDeviceScheduler(device);
-    activeDevices.put(Integer.toHexString(i2cAddress), controller);
-    return controller;
   }
 
   public List<String> listDetected(List<Integer> found) {

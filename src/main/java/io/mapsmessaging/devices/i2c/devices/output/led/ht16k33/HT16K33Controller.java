@@ -75,7 +75,11 @@ public abstract class HT16K33Controller extends I2CDeviceController {
 
   @Override
   public void close() {
-    cancelCurrentTask();
+    try {
+      cancelCurrentTask();
+    } finally {
+      super.close();
+    }
   }
 
   @Override
