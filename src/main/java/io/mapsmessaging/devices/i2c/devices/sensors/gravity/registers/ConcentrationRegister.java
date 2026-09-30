@@ -34,7 +34,7 @@ public class ConcentrationRegister extends CrcValidatingRegister {
   public float getConcentration() throws IOException {
     byte[] data = new byte[9];
     request(new byte[6], data);
-    float concentration = (float) (data[2] << 8 | (data[3] & 0xff));
+    float concentration = (data[2] << 8 | (data[3] & 0xff));
     concentration = adjustPowers(data[5], concentration);
     return concentration;
   }

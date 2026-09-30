@@ -83,14 +83,14 @@ public class AqiCalculator {
   //  computeIndoorGasScoreFromSen66, computeOverallIndoorScore, etc.)
   // -----------------------------
 
-  public static float computeOverallIndoorScore(float pm2_5, float pm10, float vocIndex, float noxIndex) {
-    float pmAqi = computePmAqiFromPmsa003I(pm2_5, pm10);
+  public static float computeOverallIndoorScore(float pm25, float pm10, float vocIndex, float noxIndex) {
+    float pmAqi = computePmAqiFromPmsa003I(pm25, pm10);
     float gasScore = computeIndoorGasScoreFromSen66(vocIndex, noxIndex);
     return Math.max(pmAqi, gasScore);
   }
 
-  public static float computePmComponent(float pm2_5, float pm10) {
-    return computePmAqiFromPmsa003I(pm2_5, pm10);
+  public static float computePmComponent(float pm25, float pm10) {
+    return computePmAqiFromPmsa003I(pm25, pm10);
   }
 
   public static float computeGasComponent(float vocIndex, float noxIndex) {
@@ -98,8 +98,8 @@ public class AqiCalculator {
   }
 
 
-  public static float computePm25Aqi(float pm2_5) {
-    return computeAqi(pm2_5,
+  public static float computePm25Aqi(float pm25) {
+    return computeAqi(pm25,
         new float[]{0f, 12f, 35.4f, 55.4f, 150.4f, 250.4f, 500f},
         new int[]{0, 50, 100, 150, 200, 300, 500});
   }
@@ -117,8 +117,8 @@ public class AqiCalculator {
   /**
    * PM-based AQI from PMSA003I (uses PM2.5 and PM10; returns worst-case).
    */
-  public static float computePmAqiFromPmsa003I(float pm2_5, float pm10) {
-    float pm25Aqi = computePm25Aqi(pm2_5);
+  public static float computePmAqiFromPmsa003I(float pm25, float pm10) {
+    float pm25Aqi = computePm25Aqi(pm25);
     float pm10Aqi = computePm10Aqi(pm10);
     return Math.max(pm25Aqi, pm10Aqi);
   }

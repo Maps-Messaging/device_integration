@@ -210,19 +210,19 @@ public class Msa311Sensor extends I2CDevice implements Sensor, PowerManagement, 
   }
 
   protected float getX() throws IOException {
-    float raw = (float) xAxisRegister.getValue();
+    float raw = xAxisRegister.getValue();
     float scale = getRange().getScale();
     return (raw / scale) * EARTH_GRAVITY_FLOAT;
   }
 
   protected float getY() throws IOException {
-    float raw = (float) yAxisRegister.getValue();
+    float raw = yAxisRegister.getValue();
     float scale = getRange().getScale();
     return (raw / scale) * EARTH_GRAVITY_FLOAT;
   }
 
   protected float getZ() throws IOException {
-    float raw = (float) zAxisRegister.getValue();
+    float raw = zAxisRegister.getValue();
     float scale = getRange().getScale();
     return (raw / scale) * EARTH_GRAVITY_FLOAT;
   }

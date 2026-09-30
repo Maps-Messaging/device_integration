@@ -63,12 +63,14 @@ public abstract class I2CDeviceController extends DeviceController {
   }
 
   @Override
-  public synchronized void close() {
-    if (!closed) {
-      closed = true;
-      I2CDevice device = getDevice();
-      if (device != null) {
-        device.close();
+  public void close() {
+    synchronized (this) {
+      if (!closed) {
+        closed = true;
+        I2CDevice device = getDevice();
+        if (device != null) {
+          device.close();
+        }
       }
     }
   }

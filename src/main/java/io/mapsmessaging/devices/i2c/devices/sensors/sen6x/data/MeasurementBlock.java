@@ -51,13 +51,14 @@ public class MeasurementBlock {
     hchoPpb = Float.NaN;
   }
 
-  public MeasurementBlock(float pm1_0, float pm2_5, float pm4_0, float pm10_0,
+  @SuppressWarnings("java:S107") // One argument per documented measurement; preserve the public API.
+  public MeasurementBlock(float pm1Point0, float pm2Point5, float pm4Point0, float pm10Point0,
                            float humidity, float temperature, float vocIndex, float noxIndex,
                            float co2ppm, float hchoPpb) {
-    this.pm1_0 = pm1_0;
-    this.pm2_5 = pm2_5;
-    this.pm4_0 = pm4_0;
-    this.pm10_0 = pm10_0;
+    this.pm1_0 = pm1Point0;
+    this.pm2_5 = pm2Point5;
+    this.pm4_0 = pm4Point0;
+    this.pm10_0 = pm10Point0;
     this.humidityPercent = humidity;
     this.temperatureC = temperature;
     this.vocIndex = vocIndex;

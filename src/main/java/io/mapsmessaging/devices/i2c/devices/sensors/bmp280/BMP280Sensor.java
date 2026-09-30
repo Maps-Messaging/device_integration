@@ -44,13 +44,8 @@ public class BMP280Sensor extends I2CDevice implements Sensor {
   private final int[] prom;
   @Getter
   private final List<SensorReading<?>> readings;
-  private long C1; // C1
-  private long C2; // C2
-  private long C3; // C3
-  private long C4; // C4
   private long C5; // C5
   private long C6; // C6
-  private int CRC;
   private long SENS_T1;
   private long OFF_T1;
   private long TCS;
@@ -152,22 +147,22 @@ public class BMP280Sensor extends I2CDevice implements Sensor {
       read((byte) (PROM_READ_SEQUENCE + i * 2), 2, readBuffer);
       prom[i] = ((readBuffer[0] & 0xFF) << 8) | (readBuffer[1] & 0xFF);
     }
-    C1 = prom[1];
-    C2 = prom[2];
-    C3 = prom[3];
-    C4 = prom[4];
+    long coefficient1 = prom[1];
+    long coefficient2 = prom[2];
+    long coefficient3 = prom[3];
+    long coefficient4 = prom[4];
     C5 = prom[5];
     C6 = prom[6];
-    CRC = prom[7] & 0x0F;
+    int crc = prom[7] & 0x0F;
     byte crc4 = crc4(prom);
-    if (crc4 != CRC) {
-      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_REQUEST_FAILED, getName(), "initialise()", "crc mismatch " + CRC + " (read) != " + crc4 + " (calculated).");
+    if (crc4 != crc) {
+      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_REQUEST_FAILED, getName(), "initialise()", "crc mismatch " + crc + " (read) != " + crc4 + " (calculated).");
     }
 
-    SENS_T1 = C1 * (1 << 15) /* 2^15 */;
-    OFF_T1 = C2 * (1 << 16) /* 2^16 */;
-    TCS = C3 / (1 << 8)  /* 2^8 */;
-    TCO = C4 / (1 << 7)  /* 2^7 */;
+    SENS_T1 = coefficient1 * (1 << 15) /* 2^15 */;
+    OFF_T1 = coefficient2 * (1 << 16) /* 2^16 */;
+    TCS = coefficient3 / (1 << 8)  /* 2^8 */;
+    TCO = coefficient4 / (1 << 7)  /* 2^7 */;
   }
 
   private void loadValues() throws IOException {
@@ -175,7 +170,7 @@ public class BMP280Sensor extends I2CDevice implements Sensor {
       conversion();
       long dT = D2 - (C5 << 8);
       long t = dT * C6;
-      float temp = (float) (t >> 23);
+      float temp = (t >> 23);
       temp += 2000;
       temperature = temp / 100.0f;
 

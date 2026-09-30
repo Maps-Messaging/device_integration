@@ -47,7 +47,7 @@ public abstract class Sen6xMeasurementManager {
   }
 
   public synchronized MeasurementBlock getMeasurementBlock() throws IOException {
-    if (getReadyFlagCommand.execute()) {
+    if (Boolean.TRUE.equals(getReadyFlagCommand.execute())) {
       long now = System.currentTimeMillis();
       if (!receivedMeasurement || now - lastReadTime >= 1000) {
         byte[] raw = helper.requestResponse(commandId, length);

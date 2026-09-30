@@ -22,8 +22,11 @@ package io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands;
 import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.Sen6xCommandHelper;
 import java.io.IOException;
 
-/** SEN6x provides manual fan cleaning, not an automatic cleaning interval command. */
-@Deprecated
+/**
+ * SEN6x provides manual fan cleaning, not an automatic cleaning interval command.
+ * @deprecated Unsupported by SEN6x; use manual fan cleaning instead.
+ */
+@Deprecated(since = "3.1.2", forRemoval = false)
 public class GetFanCleaningIntervalCommand implements Sen6xCommand<Integer> {
 
   @SuppressWarnings("java:S1172") // Preserve the existing public constructor signature.

@@ -77,7 +77,7 @@ public class RollingComputations {
         return Float.NaN;
       }
 
-      double dtHours = (double) dtMillis / 3_600_000.0;
+      double dtHours = dtMillis / 3_600_000.0;
       return (float) (delta / dtHours);
     };
   }
@@ -94,7 +94,7 @@ public class RollingComputations {
       if (count == 0L) {
         return Float.NaN;
       }
-      return (float) (sum / (double) count);
+      return (float) (sum / count);
     };
   }
 
@@ -160,7 +160,7 @@ public class RollingComputations {
       if (dtMillis <= 0L) {
         return Float.NaN;
       }
-      double dtHours = (double) dtMillis / 3_600_000.0;
+      double dtHours = dtMillis / 3_600_000.0;
       return (float) ((last.value() - first.value()) / dtHours);
     };
   }
@@ -184,7 +184,7 @@ public class RollingComputations {
           first = sample;
         }
 
-        double xHours = (double) (sample.epochMillis() - first.epochMillis()) / 3_600_000.0;
+        double xHours = (sample.epochMillis() - first.epochMillis()) / 3_600_000.0;
         double y = sample.value();
 
         sumX += xHours;

@@ -27,6 +27,7 @@ public abstract class NumericSensorReading<T extends Number> extends SensorReadi
   private final T minimum;
   private final T maximum;
 
+  @SuppressWarnings("java:S107") // Preserve the public sensor metadata constructor.
   protected NumericSensorReading(String name, String unit, String description, T example, boolean readOnly, T min, T max, ReadingSupplier<T> valueSupplier) {
     super(name, unit, description, example, readOnly, valueSupplier);
     this.minimum = min;

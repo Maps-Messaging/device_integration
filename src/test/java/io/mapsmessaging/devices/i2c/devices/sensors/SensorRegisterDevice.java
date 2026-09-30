@@ -20,7 +20,9 @@ final class SensorRegisterDevice implements AddressableDevice {
   }
   int value(int address) { return image[address] & 255; }
   I2CDevice bus() { return new RegisterBus(this); }
-  @Override public void close() {}
+  @Override public void close() {
+    // In-memory mock owns no external resources.
+  }
   @Override public int getBus() { return 1; }
   @Override public int getDevice() { return 0x28; }
   @Override public int write(int value) { commands.add(new byte[]{(byte)value}); return 1; }

@@ -21,6 +21,7 @@ package io.mapsmessaging.devices.sensorreadings;
 
 public class IntegerSensorReading extends NumericSensorReading<Integer> {
 
+  @SuppressWarnings("java:S107") // Preserve the public sensor metadata constructor.
   public IntegerSensorReading(String name, String unit, String description, Integer example, boolean readOnly, int min, int max, ReadingSupplier<Integer> valueSupplier) {
     super(name, unit, description, example, readOnly, min, max, valueSupplier);
   }
