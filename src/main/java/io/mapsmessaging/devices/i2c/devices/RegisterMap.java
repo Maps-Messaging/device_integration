@@ -48,7 +48,7 @@ public class RegisterMap {
     for (Map.Entry<Integer, Register> entry : map.entrySet()) {
       RegisterData res = entry.getValue().toData();
       if (res != null) {
-        data.put(entry.getKey(), entry.getValue().toData());
+        data.put(entry.getKey(), res);
       }
     }
     return data;
