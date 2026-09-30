@@ -78,8 +78,7 @@ public class SchemaBuilder {
       JsonObject prop;
 
       if (reading instanceof GroupSensorReading groupSensorReading) {
-        prop = new JsonObject();
-        processSchemaList(prop, required, groupSensorReading.getGroupList());
+        prop = buildSchemaFromReadings(groupSensorReading.getGroupList());
       } else {
         prop = buildReadingSchema(reading);
       }
