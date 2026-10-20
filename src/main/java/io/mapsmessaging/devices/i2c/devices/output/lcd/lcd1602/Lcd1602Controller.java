@@ -106,7 +106,7 @@ public class Lcd1602Controller extends I2CDeviceController {
     try {
       command = objectMapper.readValue(new String(val), type);
     } catch (IOException e) {
-      // todo
+      // Non-JSON input is accepted as raw display text by the fallback below.
     }
     if (command != null) {
       if (display != null) {

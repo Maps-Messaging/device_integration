@@ -35,7 +35,7 @@ public class ClearDeviceStateCommand implements Sen6xCommand<Void> {
 
   @Override
   public Void execute() throws IOException {
-    helper.sendCommand(CMD_ID);
+    helper.requestResponse(CMD_ID, 6, 20);
     return null;
   }
 

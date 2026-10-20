@@ -40,7 +40,6 @@ public class SensorReadings {
   private final SingleByteRegister subMeasureIndex;
   private final MeasurementStatusRegister measurementStatusRegister;
 
-  private long lastRead;
 
   @Getter
   private double temperature;
@@ -63,14 +62,12 @@ public class SensorReadings {
 
     subMeasureIndex = new SingleByteRegister(sensor, MEASURE_IDX_ADDRESSES[index], "sub_meas_index_" + index);
     measurementStatusRegister = new MeasurementStatusRegister(sensor, MEASUREMENT_ADDRESSES[index], "meas_status_" + index);
-    lastRead = subMeasureIndex.getRegisterValue();
   }
 
   public void doMeasurements() throws IOException {
     measurementStatusRegister.read();
     subMeasureIndex.read();
     if (!measurementStatusRegister.isReadingGas() && !measurementStatusRegister.isMeasuring()) {
-      lastRead = subMeasureIndex.getRegisterValue();
       temperature = temperatureMeasurement.getMeasurement(); // Must be performed first to compute t_fine
       humidity = humidityMeasurement.getMeasurement();
       pressure = pressureMeasurement.getMeasurement();

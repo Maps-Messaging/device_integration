@@ -39,6 +39,7 @@ public class StatefulFloatSensorReading extends NumericSensorReading<Float> {
   private final Object lock;
   private final Deque<TimedFloatSample> samples;
 
+  @SuppressWarnings("java:S107") // Preserve the public sensor metadata constructor.
   public StatefulFloatSensorReading(
       String name,
       String unit,

@@ -36,8 +36,7 @@ public class ClearDeviceStatusCommand implements Sen6xCommand<Boolean> {
 
   @Override
   public Boolean execute() throws IOException {
-    helper.sendCommand(CMD_ID);
-    helper.delay(DELAY_MS);
+    helper.requestResponse(CMD_ID, 6, DELAY_MS);
     return true;
   }
 

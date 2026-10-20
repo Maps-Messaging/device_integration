@@ -24,19 +24,19 @@ import lombok.Getter;
 @Getter
 public enum SensorType {
 
-  NH3(0x2, "Ammonia", "SEN0469", 0, 100, "ppm", 0, 150, new NH3Module(), 10, "NH₃"),
-  H2S(0x3, "Hydrogen Sulfide", "SEN0467", 0, 100, "ppm", 0, 30, new H2SModule(), 10, "H₂S"),
-  CO(0x4, "Carbon Monoxide", "SEN0466", 0, 1000, "ppm", 0, 30, new COModule(), 50, "CO"),
-  O2(0x5, "Oxygen", "SEN0465", 0, 25, "%Vol", 1, 15, new O2Module(), 195, "O₂"),
-  H2(0x6, "Hydrogen", "SEN0473", 0, 1000, "ppm", 0, 120, new H2Module(), 50, "H₂"),
-  O3(0x2A, "Ozone", "SEN0472", 0, 10, "ppm", 1, 120, new O3Module(), 50, "O₃"),
-  SO2(0x2B, "Sulfur Dioxide", "SEN0470", 0, 20, "ppm", 1, 30, new SO2Module(), 100, "SO₂"),
-  NO2(0x2C, "Nitrogen Dioxide", "SEN0471", 0, 20, "ppm", 1, 30, new NO2Module(), 50, "NO₂"),
-  HCL(0x2E, "Hydrogen Chloride", "SEN0474", 0, 10, "ppm", 1, 60, new HCLModule(), 50, "HCl"),
-  Cl2(0x31, "Chlorine", "SEN0468", 0, 20, "ppm", 1, 60, new Cl2Module(), 50, "Cl₂"),
-  HF(0x33, "Hydrogen Fluoride", "SEN0475", 0, 10, "ppm", 1, 60, new HFModule(), 30, "HF"),
-  PH3(0x45, "Phosphine", "SEN0476", 0, 1000, "ppm", 1, 30, new PH3Module(), 50, "PH₃"),
-  UNKNOWN(0x0, "Unknown", "Unknown", 0, 0, "", 0, 0, null, 0, "Unknown");
+  NH3(0x2, "Ammonia", "SEN0469", new MeasurementSpec(0, 100, "ppm", 0, 150, 10), new NH3Module(), "NH₃"),
+  H2S(0x3, "Hydrogen Sulfide", "SEN0467", new MeasurementSpec(0, 100, "ppm", 0, 30, 10), new H2SModule(), "H₂S"),
+  CO(0x4, "Carbon Monoxide", "SEN0466", new MeasurementSpec(0, 1000, "ppm", 0, 30, 50), new COModule(), "CO"),
+  O2(0x5, "Oxygen", "SEN0465", new MeasurementSpec(0, 25, "%Vol", 1, 15, 195), new O2Module(), "O₂"),
+  H2(0x6, "Hydrogen", "SEN0473", new MeasurementSpec(0, 1000, "ppm", 0, 120, 50), new H2Module(), "H₂"),
+  O3(0x2A, "Ozone", "SEN0472", new MeasurementSpec(0, 10, "ppm", 1, 120, 50), new O3Module(), "O₃"),
+  SO2(0x2B, "Sulfur Dioxide", "SEN0470", new MeasurementSpec(0, 20, "ppm", 1, 30, 100), new SO2Module(), "SO₂"),
+  NO2(0x2C, "Nitrogen Dioxide", "SEN0471", new MeasurementSpec(0, 20, "ppm", 1, 30, 50), new NO2Module(), "NO₂"),
+  HCL(0x2E, "Hydrogen Chloride", "SEN0474", new MeasurementSpec(0, 10, "ppm", 1, 60, 50), new HCLModule(), "HCl"),
+  Cl2(0x31, "Chlorine", "SEN0468", new MeasurementSpec(0, 20, "ppm", 1, 60, 50), new Cl2Module(), "Cl₂"),
+  HF(0x33, "Hydrogen Fluoride", "SEN0475", new MeasurementSpec(0, 10, "ppm", 1, 60, 30), new HFModule(), "HF"),
+  PH3(0x45, "Phosphine", "SEN0476", new MeasurementSpec(0, 1000, "ppm", 1, 30, 50), new PH3Module(), "PH₃"),
+  UNKNOWN(0x0, Labels.UNKNOWN, Labels.UNKNOWN, new MeasurementSpec(0, 0, "", 0, 0, 0), null, Labels.UNKNOWN);
 
   @Getter
   final String name;
@@ -66,27 +66,29 @@ public enum SensorType {
 
   private final String gasType;
 
-  SensorType(int type,
-             String name,
-             String sku,
-             int min,
-             int max,
-             String units,
-             int resolution,
-             int responseTime,
-             SensorModule sensorModule,
-             int threshold,
-             String gasType) {
+  private record MeasurementSpec(int minimum, int maximum, String units,
+                                 int resolution, int responseTime, int threshold) { }
+
+  private static final class Labels {
+    private static final String UNKNOWN = "Unknown";
+
+    private Labels() {
+      // Constants shared by enum initializers.
+    }
+  }
+
+  SensorType(int type, String name, String sku, MeasurementSpec measurement,
+             SensorModule sensorModule, String gasType) {
     this.type = type;
     this.name = name;
     this.sku = sku;
-    this.minimumRange = min;
-    this.maximumRange = max;
-    this.units = units;
-    this.resolution = resolution;
-    this.responseTime = responseTime;
+    this.minimumRange = measurement.minimum();
+    this.maximumRange = measurement.maximum();
+    this.units = measurement.units();
+    this.resolution = measurement.resolution();
+    this.responseTime = measurement.responseTime();
     this.sensorModule = sensorModule;
-    this.threshold = threshold;
+    this.threshold = measurement.threshold();
     this.gasType = gasType;
   }
 

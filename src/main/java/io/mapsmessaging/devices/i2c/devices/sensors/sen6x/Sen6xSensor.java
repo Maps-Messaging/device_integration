@@ -31,6 +31,8 @@ import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.concurrent.TimeUnit;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -54,6 +56,10 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
   private final ClearDeviceStateCommand clearDeviceStateCommand;
   private final List<SensorReading<?>> readings;
   private final String productName;
+  private final Sen6xMeasurementManager measurementManager;
+  private boolean measuring;
+  private long measurementStartedNanos;
+  private long restartAllowedNanos;
 
   protected Sen6xSensor(AddressableDevice device) {
     super(device, LoggerFactory.getLogger(Sen6xSensor.class));
@@ -105,13 +111,16 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
 
     groupSensorReading.getGroupList().addAll(buildStatusReadings(new Sen6xStatusSupplier(getDeviceStatusCommand)));
     tmp.add(groupSensorReading);
-    tmp.addAll(buildMeasurementReadingds(contructMeasurementManager(helper)));
+    measurementManager = contructMeasurementManager(helper);
+    tmp.addAll(buildMeasurementReadingds(measurementManager));
     readings = generateSensorReadings(tmp);
-    initialise();
     try {
+      // A mounted sensor may already be measuring; reset is only valid in idle mode.
+      stopMeasurementCommand.execute();
+      reset();
       powerOn();
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new UncheckedIOException("Unable to initialise SEN6x", e);
     }
   }
 
@@ -131,14 +140,6 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
     return  request.get();
   }
 
-  private void initialise() {
-    try {
-      reset();
-    } catch (IOException e) {
-      // it may fail, and thats ok
-    }
-  }
-
   @Override
   public boolean isConnected() {
     return true;
@@ -155,8 +156,12 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
   }
 
   @Override
-  public void reset() throws IOException {
-    softResetCommand.reset();
+  public synchronized void reset() throws IOException {
+    if (measuring) {
+      stopMeasurement();
+    }
+    softResetCommand.execute();
+    measurementManager.invalidate();
   }
 
   public void setGetFanCleaningInterval(int interval) {
@@ -165,7 +170,7 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
 
   @Override
   public void softReset() throws IOException {
-    initialise();
+    reset();
   }
 
 
@@ -175,13 +180,37 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
   }
 
   @Override
-  public void powerOn() throws IOException {
-    startMeasurementCommand.start();
+  public synchronized void powerOn() throws IOException {
+    if (!measuring) {
+      long remaining = restartAllowedNanos - System.nanoTime();
+      if (remaining > 0) {
+        helper.delay((int) TimeUnit.NANOSECONDS.toMillis(remaining) + 1);
+      }
+      startMeasurementCommand.execute();
+      measurementStartedNanos = System.nanoTime();
+      measuring = true;
+      measurementManager.invalidate();
+    }
   }
 
   @Override
-  public void powerOff() {
-    stopMeasurementCommand.stop();
+  public synchronized void powerOff() {
+    try {
+      stopMeasurement();
+    } catch (IOException exception) {
+      throw new UncheckedIOException("Unable to stop SEN6x measurement", exception);
+    }
+  }
+
+  private void stopMeasurement() throws IOException {
+    if (measuring) {
+      stopMeasurementCommand.execute();
+      if (productName.equalsIgnoreCase("SEN63C")) {
+        restartAllowedNanos = measurementStartedNanos + TimeUnit.SECONDS.toNanos(24);
+      }
+      measuring = false;
+      measurementManager.invalidate();
+    }
   }
 
   public String getFirmwareVersion()  {
@@ -192,8 +221,17 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
     return getFanCleaningIntervalCommand.get();
   }
 
-  public void startFanCleaning()  {
-    startFanCleaningCommand.start();
+  public synchronized void startFanCleaning() {
+    boolean resume = measuring;
+    try {
+      stopMeasurement();
+      startFanCleaningCommand.execute();
+      if (resume) {
+        powerOn();
+      }
+    } catch (IOException exception) {
+      throw new UncheckedIOException("Unable to clean SEN6x fan", exception);
+    }
   }
 
   public void setFanCleaningInterval(int days) {
@@ -210,7 +248,7 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
     List<SensorReading<?>> tempReadings = new ArrayList<>();
     ResetMonitor resetMonitor = new ResetMonitor(manager, this);
 
-    EnumSet<Sen6xSensorType> supported = SENSOR_SUPPORT_MAP.getOrDefault(productName.trim().toUpperCase(), EnumSet.of(Sen6xSensorType.CO2));
+    EnumSet<Sen6xSensorType> supported = SENSOR_SUPPORT_MAP.getOrDefault(productName.trim().toUpperCase(), EnumSet.noneOf(Sen6xSensorType.class));
 
     for (Sen6xSensorType type : supported) {
       switch (type) {
@@ -232,8 +270,8 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
   private static final Map<String, EnumSet<Sen6xSensorType>> SENSOR_SUPPORT_MAP = Map.of(
       "SEN68", EnumSet.of(Sen6xSensorType.HCHO, Sen6xSensorType.HUMIDITY, Sen6xSensorType.TEMP, Sen6xSensorType.VOC, Sen6xSensorType.NOX, Sen6xSensorType.PM1, Sen6xSensorType.PM2_5, Sen6xSensorType.PM4, Sen6xSensorType.PM10),
       "SEN66", EnumSet.of(Sen6xSensorType.CO2, Sen6xSensorType.HUMIDITY, Sen6xSensorType.TEMP, Sen6xSensorType.VOC, Sen6xSensorType.NOX, Sen6xSensorType.PM1, Sen6xSensorType.PM2_5, Sen6xSensorType.PM4, Sen6xSensorType.PM10),
-      "SEN65", EnumSet.of(Sen6xSensorType.CO2, Sen6xSensorType.HUMIDITY, Sen6xSensorType.TEMP, Sen6xSensorType.VOC),
-      "SEN64", EnumSet.of(Sen6xSensorType.CO2)
+      "SEN65", EnumSet.of(Sen6xSensorType.HUMIDITY, Sen6xSensorType.TEMP, Sen6xSensorType.VOC, Sen6xSensorType.NOX, Sen6xSensorType.PM1, Sen6xSensorType.PM2_5, Sen6xSensorType.PM4, Sen6xSensorType.PM10),
+      "SEN63C", EnumSet.of(Sen6xSensorType.CO2, Sen6xSensorType.HUMIDITY, Sen6xSensorType.TEMP, Sen6xSensorType.PM1, Sen6xSensorType.PM2_5, Sen6xSensorType.PM4, Sen6xSensorType.PM10)
   );
 
   private List<OptionalBooleanSensorReading> buildStatusReadings(Sen6xStatusSupplier supplier) {
@@ -245,8 +283,7 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
         new OptionalBooleanSensorReading("HCHO Error", "Formaldehyde sensor error", "HCHO", false, true, (ReadingSupplier<Boolean>) supplier::isHchoError),
         new OptionalBooleanSensorReading("PM Error", "Particulate Matter sensor error", "PM", false, true, (ReadingSupplier<Boolean>) supplier::isPmError),
         new OptionalBooleanSensorReading("CO₂-1 Error", "CO₂ sensor 1 failure", "CO₂-1", false, true, (ReadingSupplier<Boolean>) supplier::isCo2_1Error),
-        new OptionalBooleanSensorReading("Speed Warning", "Fan speed abnormal", "Fan", false, true, (ReadingSupplier<Boolean>) supplier::isSpeedWarning),
-        new OptionalBooleanSensorReading("Compensation Active", "Compensation enabled", "Sensor", false, true, (ReadingSupplier<Boolean>) supplier::isCompensationActive)
+        new OptionalBooleanSensorReading("Speed Warning", "Fan speed abnormal", "Fan", false, true, (ReadingSupplier<Boolean>) supplier::isSpeedWarning)
     );
   }
 }

@@ -19,6 +19,8 @@
 
 package io.mapsmessaging.devices.i2c.devices.demo;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 public class SimulatedIntValue {
   private int current;
   private int target;
@@ -36,7 +38,7 @@ public class SimulatedIntValue {
 
   @SuppressWarnings("java:S2245") // this is a demo, it is NOT for prod
   private int randomTarget() {
-    return min + (int) (Math.random() * (max - min));
+    return min == max ? min : ThreadLocalRandom.current().nextInt(min, max);
   }
 
   public int next() {

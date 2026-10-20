@@ -36,6 +36,9 @@ import java.util.Locale;
 
 public class Pn532Sensor extends I2CDevice implements Sensor {
 
+  private static final String TYPE_A_RF_TECH = "ISO/IEC14443-3,Type A";
+  private static final String ULTRALIGHT = "Ultralight";
+
   // DFRobot PN532 I2C 7-bit address: 0x48 >> 1 = 0x24
   public static final int I2C_ADDR = 0x24;
   private static final int DATA_PORT = 0x00;
@@ -55,8 +58,6 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
   private static final byte CARD_WRITE_CLASSIC = (byte) 0xA0; // Classic 16B write
   private static final byte CARD_WRITE_NTAG = (byte) 0xA2;    // NTAG/Ultralight 4B write
   private static final byte CARD_AUTH_A = 0x60;               // Mifare Classic auth (Key A)
-  private static final int ACK_TIMEOUT_MS  = 1000;
-  private static final int RESP_TIMEOUT_MS = 1000;
   private static final int SETTLE_MS = 30;
 
   private static final byte[] ACK = new byte[]{0x00, 0x00, (byte) 0xFF, 0x00, (byte) 0xFF, 0x00};
@@ -95,7 +96,11 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
   }
 
   public boolean isTagPresent() {
-    try { poll(); } catch (IOException ignore) {}
+    try {
+      poll();
+    } catch (IOException ignore) {
+      // Keep the last cached reading when a best-effort poll fails.
+    }
     return tagPresent;
   }
 
@@ -113,28 +118,11 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
     // SAMConfiguration: normal mode (1), timeout 0x14, use IRQ (1)
     try {
       call(new byte[]{CMD_SAM_CONFIGURATION, 0x01, 0x14, 0x01}, 16);
-      // Expect command echo handled in readResponseFrame; arriving here means success
+      // Expect command echo handled in readResponseFrameNoIRQ; arriving here means success
       connected = true;
     } catch (IOException e) {
       connected = false;
     }
-  }
-
-  /** PN532 sets a leading status byte 0x01 when data is ready on I2C. */
-  private boolean isReadyOnce() throws IOException {
-    byte[] b = new byte[1];
-    int r = readRegister(DATA_PORT, b, 0, 1);
-    return (r == 1) && (b[0] == 0x01);
-  }
-
-  /** Wait until PN532 indicates data ready (status 0x01) or timeout. */
-  private void waitReady(int timeoutMs) throws IOException {
-    long dl = System.currentTimeMillis() + timeoutMs;
-    while (System.currentTimeMillis() < dl) {
-      if (isReadyOnce()) return;
-      delay(2);
-    }
-    throw new IOException("PN532 not ready (timeout)");
   }
 
   /**
@@ -276,41 +264,45 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
     boolean isTypeA = (ci.atqa0 == 0x00) && (ci.atqa1 == 0x44 || ci.atqa1 == 0x04 || ci.atqa1 == 0x02);
     if (isTypeA) {
       if (ci.atqa1 == 0x04) {
-        ci.rfTech = "ISO/IEC14443-3,Type A";
+        ci.rfTech = TYPE_A_RF_TECH;
         ci.cardType = "MIFARE Classic 1k";
         ci.manufacturer = "NXP";
         ci.sizeBytes = 1024; ci.userBytes = 752; ci.blockSize = 16; ci.blockNumber = 64; ci.sectorSize = 16;
         return ci;
       }
       if (ci.atqa1 == 0x02) {
-        ci.rfTech = "ISO/IEC14443-3,Type A";
+        ci.rfTech = TYPE_A_RF_TECH;
         ci.cardType = "MIFARE Classic 4k";
         ci.manufacturer = "NXP";
         ci.sizeBytes = 4096; ci.userBytes = 3440; ci.blockSize = 16; ci.blockNumber = 256; ci.sectorSize = 39;
         return ci;
       }
 
-      // 0x44 → NTAG / Ultralight; probe pages
-      if (getUltraversion(230)) {
-        fillNTAG(ci, "NTAG 216", 924, 888, 4, 231, 1);
-      } else if (getUltraversion(134)) {
-        fillNTAG(ci, "NTAG 215", 540, 504, 4, 135, 1);
-      } else if (getUltraversion(44)) {
-        fillNTAG(ci, "NTAG 213", 180, 144, 4, 45, 1);
-      } else if (getUltraversion(40)) {
-        fillNTAG(ci, "Ultralight", 164, 128, 4, 41, 1);
-      } else if (getUltraversion(19)) {
-        fillNTAG(ci, "Ultralight", 80, 48, 4, 20, 1);
-      } else if (getUltraversion(14)) {
-        // Ultralight C (approx values used by Arduino example)
-        fillNTAG(ci, "Ultralight", 164, 320, 4, 41, 1); // usersize 320 in Arduino code (likely typo); kept for parity
-      }
+      identifyUltralight(ci);
     }
     return ci;
   }
 
+  private void identifyUltralight(CardInfo ci) throws IOException {
+    // 0x44 → NTAG / Ultralight; probe pages
+    if (getUltraversion(230)) {
+      fillNTAG(ci, "NTAG 216", 924, 888, 4, 231, 1);
+    } else if (getUltraversion(134)) {
+      fillNTAG(ci, "NTAG 215", 540, 504, 4, 135, 1);
+    } else if (getUltraversion(44)) {
+      fillNTAG(ci, "NTAG 213", 180, 144, 4, 45, 1);
+    } else if (getUltraversion(40)) {
+      fillNTAG(ci, ULTRALIGHT, 164, 128, 4, 41, 1);
+    } else if (getUltraversion(19)) {
+      fillNTAG(ci, ULTRALIGHT, 80, 48, 4, 20, 1);
+    } else if (getUltraversion(14)) {
+      // Ultralight C (approx values used by Arduino example)
+      fillNTAG(ci, ULTRALIGHT, 164, 320, 4, 41, 1); // usersize 320 in Arduino code (likely typo); kept for parity
+    }
+  }
+
   private void fillNTAG(CardInfo ci, String type, int size, int user, int blockSz, int blocks, int sectorSz) {
-    ci.rfTech = "ISO/IEC14443-3,Type A";
+    ci.rfTech = TYPE_A_RF_TECH;
     ci.cardType = type;
     ci.manufacturer = "NXP";
     ci.sizeBytes = size;
@@ -408,58 +400,6 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
     write(DATA_PORT, buf);
   }
 
-  private void readAck() throws IOException {
-    byte[] pre = readBytes(7, 1000);           // may include a leading 0x01 status
-    int start = (pre[0] == 0x01) ? 1 : 0;
-
-    if (pre.length - start < 6) {
-      byte[] need = readBytes(6 - (pre.length - start), 50);
-      byte[] merged = new byte[start + 6];
-      System.arraycopy(pre, start, merged, 0, pre.length - start);
-      System.arraycopy(need, 0, merged, pre.length - start, need.length);
-      pre = merged;
-      start = 0;
-    }
-    for (int i = 0; i < 6; i++) {
-      if (pre[start + i] != ACK[i]) throw new IOException("PN532 no-ACK");
-    }
-  }
-
-  private byte[] readResponseFrame(byte expectCmd, int max) throws IOException {
-    byte[] hdr = readBytes(7, 500);  // may include 0x01 status
-    int ofs = (hdr[0] == 0x01) ? 1 : 0;
-    if (ofs + 5 >= hdr.length) {
-      byte[] more = readBytes(ofs + 6 - hdr.length, 100);
-      byte[] merged = new byte[hdr.length + more.length];
-      System.arraycopy(hdr, 0, merged, 0, hdr.length);
-      System.arraycopy(more, 0, merged, hdr.length, more.length);
-      hdr = merged;
-    }
-
-    if (hdr[ofs] != 0x00 || hdr[ofs + 1] != 0x00 || hdr[ofs + 2] != (byte) 0xFF)
-      throw new IOException("Bad preamble");
-    int len = hdr[ofs + 3] & 0xFF;
-    if (((hdr[ofs + 3] + hdr[ofs + 4]) & 0xFF) != 0x00)
-      throw new IOException("LEN/LCS mismatch");
-    if (len + 2 > max) throw new IOException("Resp too long");
-
-    byte[] body = readBytes(len + 2, 500); // (TFI+CMD+DATA) + DCS + POST
-    if (body.length < len + 2) throw new IOException("Short body");
-
-    byte tfi = body[0];
-    byte cmd = body[1];
-    if (tfi != PN_TO_HOST || cmd != (byte) (expectCmd + 1))
-      throw new IOException("TFI/CMD mismatch");
-
-    byte sum = 0;
-    for (int i = 0; i < len - 1; i++) sum += body[i];
-    byte dcs = body[len - 1];
-    if (((sum + dcs) & 0xFF) != 0x00) throw new IOException("DCS mismatch");
-    if (body[len] != 0x00) throw new IOException("Bad postamble");
-
-    return Arrays.copyOfRange(body, 2, len); // DATA only
-  }
-
   private byte[] readBytes(int n, int timeoutMs) throws IOException {
     byte[] out = new byte[n];
     int off = 0;
@@ -514,6 +454,12 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
     @Override public String toString() {
       return "CardInfo{type=" + cardType + ", uid=" + (uidLength>0? bytesToHex(uid):"") + "}";
     }
-    private static String bytesToHex(byte[] b){ StringBuilder sb=new StringBuilder(); for(byte v:b) sb.append(String.format("%02X",v)); return sb.toString(); }
+    private static String bytesToHex(byte[] bytes) {
+      StringBuilder result = new StringBuilder();
+      for (byte value : bytes) {
+        result.append(String.format("%02X", value));
+      }
+      return result.toString();
+    }
   }
 }

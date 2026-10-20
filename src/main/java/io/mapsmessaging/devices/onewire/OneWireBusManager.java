@@ -42,11 +42,16 @@ public class OneWireBusManager {
   private final File rootDirectory;
 
   public OneWireBusManager() {
-    logger.log(DeviceLogMessage.ONE_WIRE_BUS_MANAGER_STARTUP, ONE_WIRE_ROOT_PATH);
+    this(new File(ONE_WIRE_ROOT_PATH));
+  }
+
+  // Allows discovery to be exercised against a simulated 1-Wire filesystem.
+  OneWireBusManager(File rootDirectory) {
+    logger.log(DeviceLogMessage.ONE_WIRE_BUS_MANAGER_STARTUP, rootDirectory.getPath());
 
     knownDevices = new LinkedHashMap<>();
     activeDevices = new ConcurrentHashMap<>();
-    rootDirectory = new File(ONE_WIRE_ROOT_PATH);
+    this.rootDirectory = rootDirectory;
     if (rootDirectory.exists()) {
       ServiceLoader<OneWireDeviceController> deviceEntries = ServiceLoader.load(OneWireDeviceController.class);
       for (OneWireDeviceController device : deviceEntries) {

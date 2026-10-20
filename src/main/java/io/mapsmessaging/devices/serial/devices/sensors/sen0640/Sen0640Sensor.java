@@ -38,7 +38,6 @@ public class Sen0640Sensor implements Device, Sensor {
   private static final int FUNCTION_WRITE_SINGLE_REGISTER = 0x06;
 
   private static final int REGISTER_SOLAR_RADIATION = 0x0000;
-  private static final int REGISTER_SOLAR_INDEX = 0x0001;
   private static final int REGISTER_DEVIATION = 0x0052;
   private static final int REGISTER_DEVICE_ADDRESS = 0x07D0;
   private static final int REGISTER_BAUD_RATE = 0x07D1;

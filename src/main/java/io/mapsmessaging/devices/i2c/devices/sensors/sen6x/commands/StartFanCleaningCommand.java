@@ -34,7 +34,7 @@ public class StartFanCleaningCommand implements Sen6xCommand<Void> {
 
   @Override
   public Void execute() throws IOException {
-    helper.sendCommand(CMD_ID);
+    helper.requestResponse(CMD_ID, 0, 10000);
     return null;
   }
 

@@ -62,6 +62,7 @@ public class GasSensor extends I2CDevice implements Sensor {
   @Getter
   private final List<SensorReading<?>> readings;
 
+  @SuppressWarnings("java:S1905") // Explicit cast documents potential precision loss.
   public GasSensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(GasSensor.class));
 
@@ -78,10 +79,10 @@ public class GasSensor extends I2CDevice implements Sensor {
         sensorType.getGasType(),
         sensorType.getUnits(),
         "Raw gas concentration from sensor type: " + sensorType.getName(),
-        0.0f + sensorType.getMinimumRange(),
+        (float) sensorType.getMinimumRange(),
         true,
-        sensorType.getMinimumRange(),
-        sensorType.getMaximumRange(),
+        (float) sensorType.getMinimumRange(),
+        (float) sensorType.getMaximumRange(),
         sensorType.getResolution(),
         this::getConcentration
     );
@@ -90,10 +91,10 @@ public class GasSensor extends I2CDevice implements Sensor {
         "concentrationTempAdj",
         sensorType.getUnits(),
         "Temperature-compensated concentration from sensor type: " + sensorType.getName(),
-        0.0f + sensorType.getMinimumRange(),
+        (float) sensorType.getMinimumRange(),
         true,
-        sensorType.getMinimumRange(),
-        sensorType.getMaximumRange(),
+        (float) sensorType.getMinimumRange(),
+        (float) sensorType.getMaximumRange(),
         sensorType.getResolution(),
         this::getConcentration
     );

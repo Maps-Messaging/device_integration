@@ -21,6 +21,7 @@ package io.mapsmessaging.devices.sensorreadings;
 
 public class LongSensorReading extends NumericSensorReading<Long> {
 
+  @SuppressWarnings("java:S107") // Preserve the public sensor metadata constructor.
   public LongSensorReading(String name, String unit, String description, Long example, boolean readOnly, long min, long max, ReadingSupplier<Long> valueSupplier) {
     super(name, unit, description, example, readOnly, min, max, valueSupplier);
   }

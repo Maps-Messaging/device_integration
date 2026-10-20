@@ -101,7 +101,7 @@ public abstract class DeviceController {
     for (SensorReading<?> reading : readings) {
       if (reading instanceof GroupSensorReading groupReading) {
         JsonObject readingObject = new JsonObject();
-        walkSensorReadings(new JsonObject(), groupReading.getGroupList());
+        walkSensorReadings(readingObject, groupReading.getGroupList());
         if (!readingObject.isEmpty()) {
           root.add(reading.getName(), readingObject);
         }

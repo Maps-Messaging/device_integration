@@ -1,56 +1,32 @@
 /*
- *
- *  Copyright [ 2020 - 2024 ] Matthew Buckton
- *  Copyright [ 2024 - 2025 ] MapsMessaging B.V.
- *
- *  Licensed under the Apache License, Version 2.0 with the Commons Clause
- *  (the "License"); you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at:
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *      https://commonsclause.com/
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License
+ * Copyright [ 2020 - 2026 ] MapsMessaging B.V.
+ * Licensed under the Apache License, Version 2.0 with the Commons Clause.
  */
-
 package io.mapsmessaging.devices;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import io.mapsmessaging.devices.i2c.I2CDeviceController;
+import io.mapsmessaging.devices.i2cmock.I2CMockBusManager;
+import java.util.List;
+import java.util.Set;
+import org.junit.jupiter.api.Test;
 
 class DebugDeviceLoadTest {
 
   @Test
-  void testLoad() throws IOException, InterruptedException {
-    DeviceBusManager busManager = DeviceBusManager.getInstance();
-    if(busManager.isAvailable()){
-      System.err.println("It is available");
-    }
-    else{
-      System.err.println("It is not available");
-      Map<String, Object> config = new HashMap<>();
-      Map<String, Object> debugConfig = new HashMap<>();
-      debugConfig.put("type", "debug");
-      debugConfig.put("enable", true);
-      config.put("debug", debugConfig);
-      busManager.configureDevices(config);
-      busManager.getI2cBusManager()[2].scanForDevices(60000);
-      Map<String, DeviceController> active = busManager.getI2cBusManager()[2].getActive();
+  void mockBusMountsDemoDevicesWithoutPhysicalI2c() throws InterruptedException {
+    I2CMockBusManager bus = new I2CMockBusManager(255);
+    bus.scanForDevices(0);
 
-      for(int x=0;x<10;x++) {
-        for (Map.Entry<String, DeviceController> entry : active.entrySet()) {
-          DeviceController controller = entry.getValue();
-          if(x==0) System.err.println(controller.getSchema().pack());
-          System.err.println(new String(controller.getDeviceState()));
-        }
-        Thread.sleep(2000);
+    try {
+      assertEquals(Set.of("12", "39", "62"), bus.getActive().keySet());
+      for (DeviceController controller : bus.getActive().values()) {
+        assertEquals(255, ((I2CDeviceController) controller).getDevice().getBus());
+      }
+    } finally {
+      for (DeviceController controller : List.copyOf(bus.getActive().values())) {
+        bus.close((I2CDeviceController) controller);
       }
     }
   }

@@ -56,7 +56,7 @@ public class Ina219Sensor extends I2CDevice implements Sensor {
   @Setter
   private ShuntADCResolution shuntADCResolution;
 
-  public Ina219Sensor(AddressableDevice device) throws IOException {
+  public Ina219Sensor(AddressableDevice device) {
     super(device, LoggerFactory.getLogger(Ina219Sensor.class));
     adcResolution = ADCResolution.RES_12BIT;
     busVoltageRange = BusVoltageRange.RANGE_32V;

@@ -70,7 +70,13 @@ public abstract class AbstractMeasurementCommand {
         min,
         max,
         precision,
-        this::getValue
+        () -> {
+          float value = getValue();
+          if (!Float.isFinite(value)) {
+            throw new IOException("SEN6x measurement unavailable: " + name);
+          }
+          return value;
+        }
     );
   }
 }

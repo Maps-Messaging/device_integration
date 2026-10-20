@@ -46,11 +46,12 @@ public class SensorReadingRegister extends CrcValidatingRegister {
   }
 
 
+  @SuppressWarnings("java:S1905") // Explicit cast documents potential precision loss.
   private void updateAllFields() throws IOException {
     if (lastRead < System.currentTimeMillis()) {
       byte[] data = new byte[9];
       if (request(new byte[6], data)) {
-        concentration = (data[2] << 8 | (data[3] & 0xff));
+        concentration = (float) (data[2] << 8 | (data[3] & 0xff));
         concentration = adjustPowers(data[5], concentration);
         int raw = data[6] << 8 | (data[7] & 0xff);
         temperature = computeTemperature(raw);

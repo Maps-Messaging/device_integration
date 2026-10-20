@@ -26,6 +26,7 @@ public class FloatSensorReading extends NumericSensorReading<Float> {
   @Getter
   private final int precision;
 
+  @SuppressWarnings("java:S107") // Preserve the public sensor metadata constructor.
   public FloatSensorReading(String name, String unit, String description, Float example, boolean readOnly, float min, float max, int precision, ReadingSupplier<Float> valueSupplier) {
     super(name, unit, description, example, readOnly, min, max, valueSupplier);
     this.precision = precision;

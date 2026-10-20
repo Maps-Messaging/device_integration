@@ -36,6 +36,7 @@ import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.List;
 
 import static io.mapsmessaging.devices.logging.DeviceLogMessage.I2C_BUS_INVALID_DATE;
@@ -128,7 +129,7 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
         "date",
         "UTC",
         "Timestamp from DS3231 RTC",
-        LocalDateTime.of(2024, 1, 1, 0, 0),
+        LocalDateTime.of(2024, java.time.Month.JANUARY, 1, 0, 0),
         true,
         this::getDateTime
     );
@@ -238,7 +239,7 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
       localDate = LocalDate.of(year, month, date);
     } catch (DateTimeException invalid) {
       logger.log(I2C_BUS_INVALID_DATE, year, month, date);
-      localDate = LocalDate.now();
+      localDate = LocalDate.now(ZoneId.systemDefault());
     }
     if (logger.isDebugEnabled()) {
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), localDate + " = getDate()");
@@ -266,7 +267,7 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
       localTime = LocalTime.of(hour, minute, second);
     } catch (DateTimeException e) {
       logger.log(I2C_BUS_INVALID_TIME, hour, minute, second);
-      localTime = LocalTime.now();
+      localTime = LocalTime.now(ZoneId.systemDefault());
     }
     if (logger.isDebugEnabled()) {
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), localTime + " = getTime()");

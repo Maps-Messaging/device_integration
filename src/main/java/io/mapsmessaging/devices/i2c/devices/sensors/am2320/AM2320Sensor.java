@@ -114,7 +114,7 @@ public class AM2320Sensor extends I2CDevice implements Sensor {
       int crc = (((response[7] & 0xff) << 8) | (response[6] & 0xff));
       int computedCrc = crc16(response, 6);
 
-      if (response[0] != 0x3 && response[1] != 4 && crc != computedCrc) {
+      if (response[0] != 0x3 || response[1] != 4 || crc != computedCrc) {
         humidity = -273.0f;
         temperature = -273.0f;
         return;

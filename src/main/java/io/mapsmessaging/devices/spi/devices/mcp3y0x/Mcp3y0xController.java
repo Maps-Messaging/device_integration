@@ -40,6 +40,11 @@ import java.util.Map;
 @Getter
 @Setter
 public class Mcp3y0xController extends SpiDeviceController {
+
+  private static final String RESOLUTION = "resolution";
+  private static final String CHANNELS = "channels";
+  private static final String NUMBER = "number";
+  private static final String DESCRIPTION = "description";
   private static final String NAME = "Mcp3y0x";
 
   private final Mcp3y0xDevice device;
@@ -59,8 +64,8 @@ public class Mcp3y0xController extends SpiDeviceController {
     int chipSelectInt = Integer.parseInt(map.get("spiChipSelect"));
     int spiModeInt = Integer.parseInt(map.get("spiMode"));
 
-    int resolution = Integer.parseInt(map.get("resolution"));
-    int channels = Integer.parseInt(map.get("channels"));
+    int resolution = Integer.parseInt(map.get(RESOLUTION));
+    int channels = Integer.parseInt(map.get(CHANNELS));
 
     String description = "Microchip Technology Analog to Digital " + channels + " channel " + resolution + " bit convertor";
     Spi spi = createDevice(pi4j, getName(), description, spiBus, getChipSelect(chipSelectInt), getMode(spiModeInt));
@@ -90,8 +95,8 @@ public class Mcp3y0xController extends SpiDeviceController {
   public byte[] getDeviceConfiguration() {
     JsonObject jsonObject = new JsonObject();
     if (device != null) {
-      jsonObject.addProperty("resolution", device.getBits());
-      jsonObject.addProperty("channels", device.getChannels());
+      jsonObject.addProperty(RESOLUTION, device.getBits());
+      jsonObject.addProperty(CHANNELS, device.getChannels());
       jsonObject.addProperty("dutyCycle", Mcp3y0xDevice.getDutyCycle());
     }
     return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
@@ -127,20 +132,20 @@ public class Mcp3y0xController extends SpiDeviceController {
 
   private String buildSchema() {
     JsonObject resolution = new JsonObject();
-    resolution.addProperty("type", "number");
-    resolution.addProperty("description", "ADC resolution in bits");
+    resolution.addProperty("type", NUMBER);
+    resolution.addProperty(DESCRIPTION, "ADC resolution in bits");
 
     JsonObject channels = new JsonObject();
-    channels.addProperty("type", "number");
-    channels.addProperty("description", "Number of ADC channels");
+    channels.addProperty("type", NUMBER);
+    channels.addProperty(DESCRIPTION, "Number of ADC channels");
 
     JsonObject dutyCycle = new JsonObject();
-    dutyCycle.addProperty("type", "number");
-    dutyCycle.addProperty("description", "Read rate in Hz");
+    dutyCycle.addProperty("type", NUMBER);
+    dutyCycle.addProperty(DESCRIPTION, "Read rate in Hz");
 
     JsonObject properties = new JsonObject();
-    properties.add("resolution", resolution);
-    properties.add("channels", channels);
+    properties.add(RESOLUTION, resolution);
+    properties.add(CHANNELS, channels);
     properties.add("dutyCycle", dutyCycle);
 
     return buildSchema(device, properties);

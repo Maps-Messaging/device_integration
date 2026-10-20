@@ -22,6 +22,7 @@ package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class Quad7Segment extends HT16K33Driver {
 
@@ -33,10 +34,11 @@ public class Quad7Segment extends HT16K33Driver {
   }
 
   public byte[] encode(String val) {
-    for (int x = 0; x < buf.length; x++) buf[0] = 0;
+    Arrays.fill(buf, (byte) 0);
     int len = val.length();
     int bufIdx = 0;
-    for (int x = 0; x < len; x++) {
+    int x = 0;
+    while (x < len) {
       char c = val.charAt(x);
       byte map = 0;
       if (c != ' ') {
@@ -50,8 +52,10 @@ public class Quad7Segment extends HT16K33Driver {
       buf[bufIdx * 2] = (byte) (map & 0xff);
       buf[bufIdx * 2 + 1] = (byte) (0);
       if (x + 1 < len && val.charAt(x + 1) == '.') {
-        buf[bufIdx * 2] = (byte) (buf[bufIdx * 2 + 1] | 0b10000000);
-        x++; // Set the . and skip to the next char
+        buf[bufIdx * 2] = (byte) (buf[bufIdx * 2] | 0b10000000);
+        x += 2; // Consume the character and its decimal point.
+      } else {
+        x++;
       }
       bufIdx++;
       if (bufIdx > 4) break;

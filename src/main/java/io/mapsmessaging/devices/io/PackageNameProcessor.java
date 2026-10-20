@@ -25,6 +25,8 @@ import java.util.Map;
 @SuppressWarnings("java:S6548") // yes it is a singleton
 public class PackageNameProcessor {
 
+  private static final String DATA_PACKAGE = ".data.";
+
   protected static final String[][] MAPPING = {
       {"io.mapsmessaging.devices.i2c.devices.sensors.", "#i2c_snr#"},
       {"io.mapsmessaging.devices.i2c.devices.rtc.", "#i2c_rtc#"},
@@ -52,9 +54,9 @@ public class PackageNameProcessor {
     for (Map.Entry<String, String> entry : byPackageName.entrySet()) {
       if (packageName.startsWith(entry.getKey())) {
         String name = entry.getValue() + packageName.substring(entry.getKey().length());
-        int idx = name.indexOf(".data.");
+        int idx = name.indexOf(DATA_PACKAGE);
         if (idx > 0) {
-          name = name.substring(0, idx) + "@" + name.substring(idx + ".data.".length());
+          name = name.substring(0, idx) + "@" + name.substring(idx + DATA_PACKAGE.length());
         }
         return name;
       }
@@ -68,7 +70,7 @@ public class PackageNameProcessor {
         id = entry.getKey() + id.substring(entry.getValue().length());
         int idx = id.indexOf("@");
         if (idx >= 0) {
-          id = id.substring(0, idx) + ".data." + id.substring(idx + 1);
+          id = id.substring(0, idx) + DATA_PACKAGE + id.substring(idx + 1);
         }
       }
     }

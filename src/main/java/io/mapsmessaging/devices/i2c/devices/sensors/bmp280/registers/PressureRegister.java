@@ -30,8 +30,9 @@ public class PressureRegister extends MultiByteRegister {
     super(sensor, 0xF7, 3, "Pressure");
   }
 
+  @SuppressWarnings("java:S1905") // Explicit cast documents potential precision loss.
   public double getRawPressure() throws IOException {
     reload();
-    return asLong();
+    return (double) asLong();
   }
 }

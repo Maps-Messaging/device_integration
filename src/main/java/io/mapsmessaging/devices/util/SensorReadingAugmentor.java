@@ -28,7 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class SensorReadingAugmentor {
+public final class SensorReadingAugmentor {
+
+  private static final String UNKNOWN = "Unknown";
   @Getter
   @Setter
   private static boolean ENABLE_COMPUTED_READINGS = true;
@@ -39,6 +41,11 @@ public class SensorReadingAugmentor {
   private static final String WINDSPEED = "windspeed";
   private static final String WIND_DIRECTION_ANGLE = "windDirectionAngle";
   private static final String LUX = "lux";
+
+  private static final float[] BEAUFORT_THRESHOLDS = {
+      0.5f, 1.6f, 3.4f, 5.5f, 8.0f, 10.8f,
+      13.9f, 17.2f, 20.8f, 24.5f, 28.5f, 32.7f
+  };
 
   private SensorReadingAugmentor() {
     // no-op
@@ -256,7 +263,7 @@ public class SensorReadingAugmentor {
         "humidityCategory",
         "",
         "Simple humidity comfort classification",
-        "Unknown",
+        UNKNOWN,
         false,
         () -> describeHumidityCategory(humidity.get())
     ));
@@ -316,7 +323,7 @@ public class SensorReadingAugmentor {
         "daylightState",
         "",
         "Simple daylight state derived from lux",
-        "Unknown",
+        UNKNOWN,
         false,
         () -> describeDaylightState(lux.get())
     ));
@@ -423,7 +430,7 @@ public class SensorReadingAugmentor {
 
   private static String describeHumidityCategory(float relativeHumidityPercent) {
     if (Float.isNaN(relativeHumidityPercent)) {
-      return "Unknown";
+      return UNKNOWN;
     }
     if (relativeHumidityPercent < 30.0f) {
       return "Dry";
@@ -442,43 +449,12 @@ public class SensorReadingAugmentor {
       return 0;
     }
 
-    if (windSpeedMetersPerSecond < 0.5f) {
-      return 0;
+    for (int scale = 0; scale < BEAUFORT_THRESHOLDS.length; scale++) {
+      if (windSpeedMetersPerSecond < BEAUFORT_THRESHOLDS[scale]) {
+        return scale;
+      }
     }
-    if (windSpeedMetersPerSecond < 1.6f) {
-      return 1;
-    }
-    if (windSpeedMetersPerSecond < 3.4f) {
-      return 2;
-    }
-    if (windSpeedMetersPerSecond < 5.5f) {
-      return 3;
-    }
-    if (windSpeedMetersPerSecond < 8.0f) {
-      return 4;
-    }
-    if (windSpeedMetersPerSecond < 10.8f) {
-      return 5;
-    }
-    if (windSpeedMetersPerSecond < 13.9f) {
-      return 6;
-    }
-    if (windSpeedMetersPerSecond < 17.2f) {
-      return 7;
-    }
-    if (windSpeedMetersPerSecond < 20.8f) {
-      return 8;
-    }
-    if (windSpeedMetersPerSecond < 24.5f) {
-      return 9;
-    }
-    if (windSpeedMetersPerSecond < 28.5f) {
-      return 10;
-    }
-    if (windSpeedMetersPerSecond < 32.7f) {
-      return 11;
-    }
-    return 12;
+    return BEAUFORT_THRESHOLDS.length;
   }
 
   private static String describeBeaufort(int beaufortScale) {
@@ -501,7 +477,7 @@ public class SensorReadingAugmentor {
 
   private static String toCompass16(float angleDegrees) {
     if (Float.isNaN(angleDegrees)) {
-      return "Unknown";
+      return UNKNOWN;
     }
 
     double normalized = angleDegrees % 360.0;
@@ -522,7 +498,7 @@ public class SensorReadingAugmentor {
 
   private static String describeDaylightState(float lux) {
     if (Float.isNaN(lux)) {
-      return "Unknown";
+      return UNKNOWN;
     }
     if (lux < 10.0f) {
       return "Night";

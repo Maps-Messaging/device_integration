@@ -26,7 +26,7 @@ import java.io.IOException;
 public class SoftResetCommand implements Sen6xCommand<Boolean> {
 
   private static final int CMD_ID = 0xD304;
-  private static final int DELAY_MS = 200;
+  private static final int DELAY_MS = 1200;
   private final Sen6xCommandHelper helper;
 
   public SoftResetCommand(Sen6xCommandHelper helper) {

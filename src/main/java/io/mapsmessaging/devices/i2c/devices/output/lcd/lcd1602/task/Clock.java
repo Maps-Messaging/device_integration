@@ -25,6 +25,7 @@ import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.Lcd1602Controller
 import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.Lcd1602Device;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.mapsmessaging.devices.i2c.devices.output.TimeHelper.getTime;
@@ -48,7 +49,7 @@ public class Clock implements Task {
   public void run() {
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       display.clearDisplay();
-      LocalDate date = LocalDate.now();
+      LocalDate date = LocalDate.now(ZoneId.systemDefault());
       while (runFlag.get()) {
         display.setCursor((byte) 0, (byte) 0);
         display.setDisplay(date.toString());

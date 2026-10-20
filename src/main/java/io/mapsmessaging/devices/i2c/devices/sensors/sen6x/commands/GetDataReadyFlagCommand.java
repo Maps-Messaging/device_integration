@@ -26,7 +26,7 @@ import java.io.IOException;
 public class GetDataReadyFlagCommand implements Sen6xCommand<Boolean> {
 
   private static final int CMD_ID = 0x0202;
-  private static final int DELAY_MS = 200;
+  private static final int DELAY_MS = 20;
   private final Sen6xCommandHelper helper;
 
   public GetDataReadyFlagCommand(Sen6xCommandHelper helper) {
@@ -36,6 +36,9 @@ public class GetDataReadyFlagCommand implements Sen6xCommand<Boolean> {
   @Override
   public Boolean execute() throws IOException {
     byte[] status = helper.requestResponse(CMD_ID, 3, DELAY_MS);
+    if (status.length < 2) {
+      throw new IOException("Incomplete SEN6x data-ready response");
+    }
     return status[0] == 0 && status[1] == 1;
   }
 
