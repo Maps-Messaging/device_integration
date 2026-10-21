@@ -44,6 +44,11 @@ public class StatusRegister extends SingleByteRegister {
     return (registerValue & OSC_STOPPED) != 0;
   }
 
+  public void clearOscillatorStopped() throws IOException {
+    reload();
+    setControlRegister(~OSC_STOPPED, 0);
+  }
+
   public boolean isEnabled32K() throws IOException {
     reload();
     return (registerValue & ENABLE_32_K) != 0;

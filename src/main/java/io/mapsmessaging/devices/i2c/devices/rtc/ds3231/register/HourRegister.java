@@ -31,8 +31,6 @@ public class HourRegister extends SingleByteRegister {
   private static final int TOP = 0b10000000;
   private static final int CLOCK_24_MODE = 0b01000000;
   private static final int AM_PM = 0b00100000;
-  private static final int TEN_HOURS = 0b00010000;
-  private static final int HOURS = 0b00001111;
 
   public HourRegister(I2CDevice sensor, int address, String name) throws IOException {
     super(sensor, address, name);
@@ -48,11 +46,11 @@ public class HourRegister extends SingleByteRegister {
   }
 
   public boolean getClock24Mode() {
-    return (registerValue & CLOCK_24_MODE) != 0;
+    return (registerValue & CLOCK_24_MODE) == 0;
   }
 
   public void setClock24Mode(boolean flag) throws IOException {
-    setControlRegister(~CLOCK_24_MODE, flag ? CLOCK_24_MODE : 0);
+    setControlRegister(~CLOCK_24_MODE, flag ? 0 : CLOCK_24_MODE);
   }
 
   public boolean isPM() throws IOException {
@@ -66,29 +64,30 @@ public class HourRegister extends SingleByteRegister {
 
   public int getHours() throws IOException {
     reload();
-    int hours = registerValue & HOURS;
-    hours = BcdRegister.bcdToDecimal(hours);
-    if ((registerValue & TEN_HOURS) != 0) {
-      hours += 10;
+    if (getClock24Mode()) {
+      return BcdRegister.bcdToDecimal(registerValue & 0x3f);
     }
-    if (isPM() && getClock24Mode()) {
-      hours += 12;
+    int hours = BcdRegister.bcdToDecimal(registerValue & 0x1f);
+    if (hours < 1 || hours > 12) {
+      throw new IOException("Invalid DS3231 twelve-hour clock value: " + hours);
     }
-    return hours;
+    return (hours % 12) + ((registerValue & AM_PM) != 0 ? 12 : 0);
   }
 
   public void setHours(int val) throws IOException {
-    if (val > 12) {
-      setPM(true);
-      val -= 12;
+    if (val < 0 || val > 23) {
+      throw new IllegalArgumentException("Hours must be between 0 and 23");
     }
-    if (val > 9) {
-      setControlRegister(~TEN_HOURS, TEN_HOURS);
-      val -= 10;
-    } else {
-      setControlRegister(~TEN_HOURS, 0);
+    if (getClock24Mode()) {
+      setControlRegister(~0x3f, BcdRegister.decimalToBcd(val));
+      return;
     }
-    setControlRegister(~HOURS, BcdRegister.decimalToBcd(val));
+    int hours = val % 12;
+    if (hours == 0) {
+      hours = 12;
+    }
+    int encoded = BcdRegister.decimalToBcd(hours) | (val >= 12 ? AM_PM : 0);
+    setControlRegister(~0x3f, encoded);
   }
 
   @Override
