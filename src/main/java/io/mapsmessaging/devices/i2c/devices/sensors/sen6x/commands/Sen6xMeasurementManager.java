@@ -19,6 +19,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands;
 
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.ResetMonitor;
 import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.Sen6xCommandHelper;
 import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.data.MeasurementBlock;
 
@@ -33,6 +34,8 @@ public abstract class Sen6xMeasurementManager {
   private MeasurementBlock cachedBlock;
   private boolean receivedMeasurement;
   private GetDataReadyFlagCommand getReadyFlagCommand;
+  // Installed by the owning sensor before publication; bound reads acquire the sensor lock before this manager.
+  private volatile ResetMonitor resetMonitor;
 
   protected Sen6xMeasurementManager(Sen6xCommandHelper helper, int commandId, int length) {
     this.helper = helper;
@@ -46,7 +49,19 @@ public abstract class Sen6xMeasurementManager {
     return (System.currentTimeMillis() - 15000 ) > lastReadTime;
   }
 
-  public synchronized MeasurementBlock getMeasurementBlock() throws IOException {
+  public void setResetMonitor(ResetMonitor resetMonitor) {
+    this.resetMonitor = resetMonitor;
+  }
+
+  public MeasurementBlock getMeasurementBlock() throws IOException {
+    ResetMonitor monitor = resetMonitor;
+    if (monitor != null) {
+      return monitor.read(this::readMeasurementBlock);
+    }
+    return readMeasurementBlock();
+  }
+
+  private synchronized MeasurementBlock readMeasurementBlock() throws IOException {
     if (Boolean.TRUE.equals(getReadyFlagCommand.execute())) {
       long now = System.currentTimeMillis();
       if (!receivedMeasurement || now - lastReadTime >= 1000) {
@@ -55,6 +70,9 @@ public abstract class Sen6xMeasurementManager {
         lastReadTime = now;
         receivedMeasurement = true;
       }
+    }
+    if (hasLocked()) {
+      throw new IOException("SEN6x measurement stale: no new data for 15 seconds");
     }
     return cachedBlock;
   }

@@ -24,19 +24,44 @@ import io.mapsmessaging.devices.deviceinterfaces.PowerManagement;
 import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.*;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.ClearDeviceStateCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.Co2MeasurementCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.GetDeviceStatusCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.GetFanCleaningIntervalCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.GetFirmwareVersionCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.GetProductNameCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.GetSerialNumberCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.HchoMeasurementCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.HumidityMeasurementCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.NoxIndexMeasurementCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.Pm10_0MeasurementCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.Pm1_0MeasurementCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.Pm2_5MeasurementCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.Pm4_0MeasurementCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.Sen6xMeasurementManager;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.SetFanCleaningIntervalCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.SoftResetCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.StartFanCleaningCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.StartMeasurementCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.StopMeasurementCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.TemperatureMeasurementCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.VocIndexMeasurementCommand;
 import io.mapsmessaging.devices.impl.AddressableDevice;
-import io.mapsmessaging.devices.sensorreadings.*;
+import io.mapsmessaging.devices.sensorreadings.GroupSensorReading;
+import io.mapsmessaging.devices.sensorreadings.OptionalBooleanSensorReading;
+import io.mapsmessaging.devices.sensorreadings.ReadingSupplier;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
+import io.mapsmessaging.devices.sensorreadings.StringSensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.concurrent.TimeUnit;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Getter
 public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable, PowerManagement {
@@ -58,6 +83,9 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
   private final String productName;
   private final Sen6xMeasurementManager measurementManager;
   private boolean measuring;
+  // Guarded by this sensor's monitor; retained across incomplete recovery, cleared by an explicit stop or close.
+  private boolean measurementRequested;
+  private boolean closed;
   private long measurementStartedNanos;
   private long restartAllowedNanos;
 
@@ -112,6 +140,7 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
     groupSensorReading.getGroupList().addAll(buildStatusReadings(new Sen6xStatusSupplier(getDeviceStatusCommand)));
     tmp.add(groupSensorReading);
     measurementManager = contructMeasurementManager(helper);
+    measurementManager.setResetMonitor(new ResetMonitor(measurementManager, this));
     tmp.addAll(buildMeasurementReadingds(measurementManager));
     readings = generateSensorReadings(tmp);
     try {
@@ -141,8 +170,45 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
   }
 
   @Override
-  public boolean isConnected() {
-    return true;
+  public synchronized boolean isConnected() {
+    return !closed;
+  }
+
+  public synchronized boolean isMeasuring() {
+    return measuring;
+  }
+
+  synchronized boolean isMeasurementRequested() {
+    return measurementRequested;
+  }
+
+  @Override
+  public synchronized void close() {
+    if (closed) {
+      return;
+    }
+    RuntimeException failure = null;
+    try {
+      powerOff();
+    } catch (RuntimeException stopFailure) {
+      failure = stopFailure;
+    }
+    closed = true;
+    measuring = false;
+    measurementRequested = false;
+    measurementManager.invalidate();
+    try {
+      super.close();
+    } catch (RuntimeException closeFailure) {
+      if (failure == null) {
+        failure = closeFailure;
+      } else {
+        failure.addSuppressed(closeFailure);
+      }
+    }
+    if (failure != null) {
+      throw failure;
+    }
   }
 
   @Override
@@ -157,11 +223,18 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
 
   @Override
   public synchronized void reset() throws IOException {
+    if (closed) {
+      throw new IOException("SEN6x is closed");
+    }
+    boolean resume = measurementRequested;
     if (measuring) {
       stopMeasurement();
     }
     softResetCommand.execute();
     measurementManager.invalidate();
+    if (resume) {
+      powerOn();
+    }
   }
 
   public void setGetFanCleaningInterval(int interval) {
@@ -181,6 +254,10 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
 
   @Override
   public synchronized void powerOn() throws IOException {
+    if (closed) {
+      throw new IOException("SEN6x is closed");
+    }
+    measurementRequested = true;
     if (!measuring) {
       long remaining = restartAllowedNanos - System.nanoTime();
       if (remaining > 0) {
@@ -195,6 +272,7 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
 
   @Override
   public synchronized void powerOff() {
+    measurementRequested = false;
     try {
       stopMeasurement();
     } catch (IOException exception) {
