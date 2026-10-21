@@ -27,8 +27,11 @@ class ScriptedSensorTest {
       assertEquals(0x23, controller.getMountedAddress());
       assertTrue(controller.detect(bus));
       assertFalse(bus.writes().isEmpty());
-      String state = new String(controller.getDeviceState());
-      assertTrue(JsonParser.parseString(state).getAsJsonObject().has("lux"), state);
+      JsonObject initialState = JsonParser.parseString(new String(controller.getDeviceState())).getAsJsonObject();
+      assertTrue(initialState.get("lux").getAsJsonPrimitive().isString());
+      Thread.sleep(200);
+      JsonObject state = JsonParser.parseString(new String(controller.getDeviceState())).getAsJsonObject();
+      assertEquals(250.0f, state.get("lux").getAsFloat());
     } finally {
       controller.close();
     }

@@ -8,6 +8,7 @@ import io.mapsmessaging.devices.i2c.devices.sensors.sht31.commands.*;
 import io.mapsmessaging.devices.i2c.devices.sensors.sht31.Sht31Sensor;
 import io.mapsmessaging.devices.i2c.devices.sensors.pmsa003i.Pmsa003iController;
 import io.mapsmessaging.devices.i2c.devices.sensors.bh1750.Bh1750Sensor;
+import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.*;
@@ -97,9 +98,15 @@ class SensorProtocolFixtureTest {
 
   @Test
   void bh1750UsesBigEndianCountsAndOnePointTwoLuxScale() throws Exception {
-    var bus = new ScriptedI2CDevice(0x23,new byte[]{1,44});
-    var sensor = new Bh1750Sensor(bus);
-    try { assertEquals(250f,((Number) sensor.getReadings().stream().filter(r -> r.getName().equals("lux")).findFirst().orElseThrow().getValue().getResult()).floatValue(),0.01f); }
-    finally { sensor.close(); }
+    ScriptedI2CDevice bus = new ScriptedI2CDevice(0x23, new byte[]{1, 44});
+    Bh1750Sensor sensor = new Bh1750Sensor(bus);
+    try {
+      assertTrue(sensor.getReadings().get(0).getValue().hasError());
+      Thread.sleep(200);
+      assertEquals(250f, ((Number) sensor.getReadings().stream()
+          .filter(reading -> reading.getName().equals("lux")).findFirst().orElseThrow().getValue().getResult()).floatValue(), 0.01f);
+    } finally {
+      sensor.close();
+    }
   }
 }
