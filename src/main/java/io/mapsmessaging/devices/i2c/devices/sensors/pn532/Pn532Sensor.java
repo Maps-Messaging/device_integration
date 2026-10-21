@@ -30,6 +30,7 @@ import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -41,7 +42,6 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
 
   // DFRobot PN532 I2C 7-bit address: 0x48 >> 1 = 0x24
   public static final int I2C_ADDR = 0x24;
-  private static final int DATA_PORT = 0x00;
 
   private static final byte PREAMBLE = 0x00;
   private static final byte STARTCODE1 = 0x00;
@@ -76,7 +76,7 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
       new StringSensorReading("last_uid", "", "Last detected tag UID (hex)", "", true, this::getLastUid)
   );
 
-  public Pn532Sensor(AddressableDevice device){
+  public Pn532Sensor(AddressableDevice device) {
     super(device, LoggerFactory.getLogger(Pn532Sensor.class));
     begin();
   }
@@ -90,18 +90,24 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
 
   @Override
   public boolean isConnected() {
-    if (connected) return true;
-    begin();
+    if (connected) {
+      return true;
+    }
+    try {
+      begin();
+    } catch (UncheckedIOException e) {
+      return false;
+    }
     return connected;
   }
 
   public boolean isTagPresent() {
     try {
       poll();
-    } catch (IOException ignore) {
-      // Keep the last cached reading when a best-effort poll fails.
+      return tagPresent;
+    } catch (IOException e) {
+      throw new UncheckedIOException("Unable to poll PN532", e);
     }
-    return tagPresent;
   }
 
   public String getUid() throws IOException { return poll(); }
@@ -122,6 +128,7 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
       connected = true;
     } catch (IOException e) {
       connected = false;
+      throw new UncheckedIOException("Unable to initialize PN532", e);
     }
   }
 
@@ -163,9 +170,8 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
     if (page < 0 || page > 231) throw new IOException("page out of range");
     ensureTag();
     byte[] p = call(new byte[]{CMD_INDATA_EXCHANGE, 0x01, CARD_READ, (byte) page}, 32);
-    // Expect status 0x41,0x00 then 16 bytes
-    if (p.length < 18 || p[0] != 0x41 || p[1] != 0x00) throw new IOException("NTAG read error");
-    return Arrays.copyOfRange(p, 2, 18);
+    requireExchangeSuccess(p, 17, "NTAG read");
+    return Arrays.copyOfRange(p, 1, 17);
   }
 
   /** Convenience: first 4 bytes of the 16-byte read */
@@ -180,7 +186,7 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
     ensureTag();
     byte[] cmd = new byte[]{CMD_INDATA_EXCHANGE, 0x01, CARD_WRITE_NTAG, (byte) page,
         data4[0], data4[1], data4[2], data4[3]};
-    call(cmd, 16);
+    requireExchangeSuccess(call(cmd, 16), 1, "NTAG write");
   }
 
   /** Ultralight read: page 0..41, returns 4 bytes */
@@ -204,8 +210,8 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
     ensureTag();
     if (!mifareAuthA(block)) throw new IOException("auth failed");
     byte[] p = call(new byte[]{CMD_INDATA_EXCHANGE, 0x01, CARD_READ, (byte) block}, 40);
-    if (p.length < 18 || p[0] != 0x41 || p[1] != 0x00) throw new IOException("block read error");
-    return Arrays.copyOfRange(p, 2, 18);
+    requireExchangeSuccess(p, 17, "MIFARE block read");
+    return Arrays.copyOfRange(p, 1, 17);
   }
 
   public void writeMifareBlock(int block, byte[] data16) throws IOException {
@@ -227,7 +233,7 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
     p[2] = CARD_WRITE_CLASSIC;
     p[3] = (byte) block;
     System.arraycopy(data16, 0, p, 4, 16);
-    call(p, 24);
+    requireExchangeSuccess(call(p, 24), 1, "MIFARE block write");
   }
 
   private boolean mifareAuthA(int block) throws IOException {
@@ -242,7 +248,7 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
     System.arraycopy(mifareKey, 0, payload, 4, 6);
     System.arraycopy(uid, 0, payload, 10, 4);
     byte[] resp = call(payload, 16);
-    return resp.length >= 2 && resp[0] == 0x41 && resp[1] == 0x00;
+    return resp.length >= 1 && resp[0] == 0;
   }
 
   // ---------- Card classification (Ultraversion probes) ----------
@@ -312,11 +318,11 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
     ci.sectorSize = sectorSz;
   }
 
-  /** Arduino-style "Ultraversion" probe: true if READ on page returns status 0x41,0x00 */
+  /** Arduino-style "Ultraversion" probe: true if READ returns success and a complete page window. */
   public boolean getUltraversion(int page) throws IOException {
     ensureTag();
     byte[] p = call(new byte[]{CMD_INDATA_EXCHANGE, 0x01, CARD_READ, (byte) page}, 32);
-    return p.length >= 2 && p[0] == 0x41 && p[1] == 0x00;
+    return p.length >= 17 && p[0] == 0;
   }
 
   // Convenience like Arduino
@@ -332,53 +338,61 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
   // ---------- Low level ----------
 
   private byte[] call(byte[] cmdData, int maxResp) throws IOException {
-    sendCommandFrame(cmdData);
-    delay(SETTLE_MS);          // DFRobot no-IRQ path does ~30ms
-    readAckNoIRQ();            // <-- new
-    delay(SETTLE_MS);
-    return readResponseFrameNoIRQ(cmdData[0], maxResp); // <-- new
-  }
-  private byte[] readResponseFrameNoIRQ(byte expectCmd, int max) throws IOException {
-    // Stage 1: header-like chunk (DFRobot requests 8 and discards the first)
-    byte[] head = readBytes(8, 1000);
-    int ofs = 1; // discard first byte per DFRobot
-    if (head.length < ofs + 6) throw new IOException("Short header");
-
-    if (head[ofs] != 0x00 || head[ofs+1] != 0x00 || head[ofs+2] != (byte)0xFF)
-      throw new IOException("Bad preamble");
-
-    int len = head[ofs+3] & 0xFF;
-    int lcs = head[ofs+4] & 0xFF;
-    if (((len + lcs) & 0xFF) != 0x00) throw new IOException("LEN/LCS mismatch");
-    if (len + 2 > max) throw new IOException("Resp too long");
-
-    // Stage 2: body (DFRobot then requests x-4 more, discards one, then reads x-6)
-    // In our case, just read the whole len+2 (payload+DCS+POST)
-    byte[] body = readBytes(len + 2, 1000);
-    if (body.length < len + 2) throw new IOException("Short body");
-
-    byte tfi = body[0];
-    byte cmd = body[1];
-    if (tfi != PN_TO_HOST || cmd != (byte)(expectCmd + 1))
-      throw new IOException("TFI/CMD mismatch");
-
-    byte sum = 0;
-    for (int i = 0; i < len - 1; i++) sum += body[i];
-    if (((sum + body[len - 1]) & 0xFF) != 0x00) throw new IOException("DCS mismatch");
-    if (body[len] != 0x00) throw new IOException("Bad postamble");
-
-    return Arrays.copyOfRange(body, 2, len);  // DATA only
-  }
-
-  private void readAckNoIRQ() throws IOException {
-    byte[] buf = readBytes(8, 1000);     // DFRobot reads 8, discards first
-    // buf[0] is a dummy/status; compare next 6 to ACK
-    for (int i = 0; i < 6; i++) {
-      if (buf[1 + i] != ACK[i]) throw new IOException("PN532 no-ACK");
+    synchronized (this) {
+      sendCommandFrame(cmdData);
+      byte[] ack = readReadyFrame(ACK.length + 1, 1000);
+      if (ack.length < ACK.length + 1) {
+        throw new IOException("Short PN532 acknowledgement");
+      }
+      for (int index = 0; index < ACK.length; index++) {
+        if (ack[index + 1] != ACK[index]) {
+          throw new IOException("PN532 no-ACK");
+        }
+      }
+      // Read the complete response in one transaction: STOP discards any unread bytes.
+      byte[] frame = readReadyFrame(maxResp + 8, 1000);
+      if (frame.length < 8 || frame[1] != 0 || frame[2] != 0 || frame[3] != (byte) 0xff) {
+        throw new IOException("Invalid PN532 response preamble");
+      }
+      int length = frame[4] & 0xff;
+      if (((length + (frame[5] & 0xff)) & 0xff) != 0 || length < 2 || length > maxResp) {
+        throw new IOException("Invalid PN532 response length");
+      }
+      if (frame.length < length + 8) {
+        throw new IOException("Incomplete PN532 response");
+      }
+      if (frame[6] != PN_TO_HOST || frame[7] != (byte) (cmdData[0] + 1)) {
+        throw new IOException("PN532 TFI/CMD mismatch");
+      }
+      int checksum = 0;
+      for (int index = 6; index <= length + 6; index++) {
+        checksum += frame[index] & 0xff;
+      }
+      if ((checksum & 0xff) != 0) {
+        throw new IOException("PN532 DCS mismatch");
+      }
+      if (frame[length + 7] != 0) {
+        throw new IOException("Invalid PN532 postamble");
+      }
+      return Arrays.copyOfRange(frame, 8, length + 6);
     }
-    // If your platform batches more, it’s fine; we only needed the ACK.
   }
 
+  private byte[] readReadyFrame(int capacity, int timeoutMs) throws IOException {
+    long deadline = System.nanoTime() + timeoutMs * 1_000_000L;
+    do {
+      byte[] frame = new byte[capacity];
+      int count = read(frame);
+      if (count < 1) {
+        throw new IOException("Empty PN532 response");
+      }
+      if ((frame[0] & 1) != 0) {
+        return Arrays.copyOf(frame, count);
+      }
+      delay(SETTLE_MS);
+    } while (System.nanoTime() < deadline);
+    throw new IOException("PN532 response timeout");
+  }
 
   private void sendCommandFrame(byte[] data) throws IOException {
     int len = 1 + data.length; // TFI + data
@@ -397,24 +411,17 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
     System.arraycopy(data, 0, buf, 6, data.length);
     buf[buf.length - 2] = dcs;
     buf[buf.length - 1] = POSTAMBLE;
-    write(DATA_PORT, buf);
+    write(buf);
   }
 
-  private byte[] readBytes(int n, int timeoutMs) throws IOException {
-    byte[] out = new byte[n];
-    int off = 0;
-    long deadline = System.currentTimeMillis() + timeoutMs;
-    while (off < n) {
-      int r = readRegister(DATA_PORT, out, off, n - off);
-      if (r > 0) {
-        off += r;
-      } else if (System.currentTimeMillis() > deadline) {
-        throw new IOException("I2C timeout");
-      } else {
-        delay(2);
-      }
+  private static void requireExchangeSuccess(byte[] response, int minimumLength, String operation) throws IOException {
+    // call() already removes TFI and the response command; DATA begins with status.
+    if (response.length < minimumLength) {
+      throw new IOException("Incomplete PN532 " + operation + " response");
     }
-    return out;
+    if (response[0] != 0) {
+      throw new IOException("PN532 " + operation + " failed with status " + (response[0] & 0xff));
+    }
   }
 
   private void ensureTag() throws IOException {
