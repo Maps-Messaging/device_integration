@@ -33,6 +33,6 @@ public class TemperatureRegister extends MultiByteRegister {
   @SuppressWarnings("java:S1905") // Explicit cast documents potential precision loss.
   public double getRawTemperature() throws IOException {
     reload();
-    return (double) asLong();
+    return (double) (asLongReverse() >>> 4);
   }
 }

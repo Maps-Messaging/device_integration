@@ -22,71 +22,48 @@ package io.mapsmessaging.devices.i2c.devices.sensors.bmp280;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.sensors.bmp280.values.OversamplingRate;
 import io.mapsmessaging.devices.impl.AddressableDevice;
-import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.logging.LoggerFactory;
-import lombok.Getter;
-
 import java.io.IOException;
 import java.util.List;
-
-import static io.mapsmessaging.devices.logging.DeviceLogMessage.I2C_BUS_DEVICE_READ_REQUEST;
+import lombok.Getter;
 
 public class BMP280Sensor extends I2CDevice implements Sensor {
 
+  // Legacy public constants retained for source compatibility; BMP280 uses the register protocol below.
   public static final byte PROM_READ_SEQUENCE = (byte) 0xA0;
-
   public static final byte ADC_READ = (byte) 0x00;
-  private static final short sReset = 0x1E;
-  private final int[] prom;
+
+  private final int[] calibration = new int[12];
   @Getter
   private final List<SensorReading<?>> readings;
-  private long C5; // C5
-  private long C6; // C6
-  private long SENS_T1;
-  private long OFF_T1;
-  private long TCS;
-  private long TCO;
-  private int D1; // 24 bit unsigned int
-  private int D2; // 24 bit unsigned int
+  private long lastRead;
   private float temperature;
   private float pressure;
 
-  private long lastRead;
-
   public BMP280Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(BMP280Sensor.class));
-    prom = new int[8];
-    lastRead = 0;
-    initialise();
-    loadValues();
+    if (readRegister(0xd0) != 0x58) {
+      throw new IOException("Unexpected BMP280 chip identity");
+    }
+    write(0xe0, (byte) 0xb6);
+    delay(5);
+    waitUntilReady();
+    byte[] coefficients = new byte[24];
+    read((byte) 0x88, coefficients.length, coefficients);
+    for (int index = 0; index < calibration.length; index++) {
+      int value = (coefficients[index * 2] & 255) | ((coefficients[index * 2 + 1] & 255) << 8);
+      calibration[index] = index == 0 || index == 3 ? value : (short) value;
+    }
+    if (calibration[0] == 0 || calibration[0] == 0xffff || calibration[3] == 0 || calibration[3] == 0xffff) {
+      throw new IOException("Invalid BMP280 calibration coefficients");
+    }
     FloatSensorReading temperatureReading = new FloatSensorReading(
-        "temperature",
-        "°C",
-        "Temperature reading from BMP280 sensor",
-        25.0f,
-        true,
-        -40f,
-        85f,
-        1,
-        this::getTemperature
-    );
-
+        "temperature", "°C", "Temperature reading from BMP280 sensor", 25.0f, true, -40f, 85f, 1, this::getTemperature);
     FloatSensorReading pressureReading = new FloatSensorReading(
-        "pressure",
-        "hPa",
-        "Pressure reading from BMP280 sensor",
-        1013.25f,
-        true,
-        300f,
-        1100f,
-        1,
-        this::getPressure
-    );
-
+        "pressure", "hPa", "Pressure reading from BMP280 sensor", 1013.25f, true, 300f, 1100f, 1, this::getPressure);
     readings = generateSensorReadings(List.of(temperatureReading, pressureReading));
   }
 
@@ -102,117 +79,76 @@ public class BMP280Sensor extends I2CDevice implements Sensor {
 
   @Override
   public boolean isConnected() {
-    return true;
+    try {
+      return readRegister(0xd0) == 0x58;
+    } catch (IOException exception) {
+      return false;
+    }
   }
 
-  public float getTemperature() throws IOException {
+  public synchronized float getTemperature() throws IOException {
     loadValues();
-    if (logger.isDebugEnabled()) {
-      logger.log(I2C_BUS_DEVICE_READ_REQUEST, getName(), "getTemperature()", temperature);
-    }
     return temperature;
   }
 
-  public float getPressure() throws IOException {
+  public synchronized float getPressure() throws IOException {
     loadValues();
-    if (logger.isDebugEnabled()) {
-      logger.log(I2C_BUS_DEVICE_READ_REQUEST, getName(), "getPressure()", pressure);
-    }
     return pressure;
   }
 
   protected void read(byte command, int length, byte[] values) throws IOException {
-    readRegister(command, values, 0, length);
+    if (readRegister(command & 255, values, 0, length) != length) {
+      throw new IOException("Incomplete BMP280 register response");
+    }
   }
 
-  private void conversion() throws IOException {
-    byte[] readBuffer = new byte[3];
-    write(OversamplingRate.D2_OSR_4096.getValue());
-    delay(10);
-    read(ADC_READ, 3, readBuffer);
-    D2 = ((readBuffer[0] & 0xFF) << 16) | ((readBuffer[1] & 0xFF) << 8) | (readBuffer[2] & 0xFF);
-
-
-    write(OversamplingRate.D1_OSR_4096.getValue());
-    delay(10);
-    read(ADC_READ, 3, readBuffer);
-    D1 = ((readBuffer[0] & 0xFF) << 16) | ((readBuffer[1] & 0xFF) << 8) | (readBuffer[2] & 0xFF);
-  }
-
-  private void initialise() throws IOException {
-    write((byte) sReset);
-    delay(1000);
-    byte[] readBuffer = new byte[2];
-    for (int i = 0; i < 8; i++) {
-      read((byte) (PROM_READ_SEQUENCE + i * 2), 2, readBuffer);
-      prom[i] = ((readBuffer[0] & 0xFF) << 8) | (readBuffer[1] & 0xFF);
+  private void waitUntilReady() throws IOException {
+    for (int attempt = 0; attempt < 10; attempt++) {
+      if ((readRegister(0xf3) & 9) == 0) {
+        return;
+      }
+      delay(2);
     }
-    long coefficient1 = prom[1];
-    long coefficient2 = prom[2];
-    long coefficient3 = prom[3];
-    long coefficient4 = prom[4];
-    C5 = prom[5];
-    C6 = prom[6];
-    int crc = prom[7] & 0x0F;
-    byte crc4 = crc4(prom);
-    if (crc4 != crc) {
-      logger.log(DeviceLogMessage.I2C_BUS_DEVICE_REQUEST_FAILED, getName(), "initialise()", "crc mismatch " + crc + " (read) != " + crc4 + " (calculated).");
-    }
-
-    SENS_T1 = coefficient1 * (1 << 15) /* 2^15 */;
-    OFF_T1 = coefficient2 * (1 << 16) /* 2^16 */;
-    TCS = coefficient3 / (1 << 8)  /* 2^8 */;
-    TCO = coefficient4 / (1 << 7)  /* 2^7 */;
+    throw new IOException("BMP280 conversion or calibration copy is not ready");
   }
 
   private void loadValues() throws IOException {
-    if (lastRead < System.currentTimeMillis()) {
-      conversion();
-      long dT = D2 - (C5 << 8);
-      long t = dT * C6;
-      @SuppressWarnings("java:S1905") // Explicit cast documents potential precision loss.
-      float temp = (float) (t >> 23);
-      temp += 2000;
-      temperature = temp / 100.0f;
-
-      long off = OFF_T1 + dT * TCO;
-      long sens = SENS_T1 + dT * TCS;
-      pressure = (((float) (D1 * sens / 2097152.0 /* 2^21 */ - off) / 0x8000 /* 2^15 */) / 100.0f);
-      lastRead = System.currentTimeMillis() + 100;
+    if (System.currentTimeMillis() < lastRead) {
+      return;
     }
-  }
-
-  private byte crc4(int[] prom) {
-    int cnt; // simple counter
-    int nRem; // crc reminder
-    int crcRead; // original value of the crc
-    byte nBit;
-    nRem = 0x00;
-    crcRead = prom[7]; // save read CRC
-    prom[7] &= 0xFF00; // CRC byte is replaced by 0
-    for (cnt = 0; cnt < 16; cnt++) { // operation is performed on bytes
-// choose LSB or MSB
-      if (cnt % 2 == 1) {
-        nRem ^= prom[cnt >> 1] & 0x00FF;
-      } else {
-        nRem ^= prom[cnt >> 1] >> 8;
-      }
-      for (nBit = 8; nBit > 0; nBit--) {
-        if ((nRem & 0x8000) == 0x8000) {
-          nRem = (nRem << 1) ^ 0x3000;
-        } else {
-          nRem <<= 1;
-        }
-      }
+    // Forced mode, temperature and pressure oversampling x1 (maximum conversion time 6.425 ms).
+    write(0xf4, (byte) 0x25);
+    delay(10);
+    waitUntilReady();
+    byte[] data = new byte[6];
+    read((byte) 0xf7, data.length, data);
+    int rawPressure = ((data[0] & 255) << 12) | ((data[1] & 255) << 4) | ((data[2] & 255) >>> 4);
+    int rawTemperature = ((data[3] & 255) << 12) | ((data[4] & 255) << 4) | ((data[5] & 255) >>> 4);
+    if (rawPressure == 0x80000 || rawTemperature == 0x80000) {
+      throw new IOException("BMP280 measurement is unavailable");
     }
-    nRem = 0x000F & (nRem >> 12); // final 4-bit reminder is CRC code
-    prom[7] = crcRead; // restore the crc_read to its original place
-    return (byte) (nRem);
+    // Bosch BMP280 datasheet section 8.1 floating point compensation, pressure in Pa.
+    double temperatureDelta = rawTemperature / 131072.0 - calibration[0] / 8192.0;
+    double fineTemperature = (rawTemperature / 16384.0 - calibration[0] / 1024.0) * calibration[1]
+        + temperatureDelta * temperatureDelta * calibration[2];
+    double first = ((int) fineTemperature) / 2.0 - 64000.0;
+    double second = first * first * calibration[8] / 32768.0 + first * calibration[7] * 2.0;
+    second = second / 4.0 + calibration[6] * 65536.0;
+    first = (calibration[5] * first * first / 524288.0 + calibration[4] * first) / 524288.0;
+    first = (1.0 + first / 32768.0) * calibration[3];
+    if (first == 0.0) {
+      throw new IOException("BMP280 pressure calibration divisor is zero");
+    }
+    double pressurePa = (1048576.0 - rawPressure - second / 4096.0) * 6250.0 / first;
+    pressurePa += (calibration[11] * pressurePa * pressurePa / 2147483648.0
+        + pressurePa * calibration[10] / 32768.0 + calibration[9]) / 16.0;
+    temperature = (float) (fineTemperature / 5120.0);
+    pressure = (float) (pressurePa / 100.0);
+    lastRead = System.currentTimeMillis() + 100;
   }
 
   @Override
   public DeviceType getType() {
     return DeviceType.SENSOR;
   }
-
 }
