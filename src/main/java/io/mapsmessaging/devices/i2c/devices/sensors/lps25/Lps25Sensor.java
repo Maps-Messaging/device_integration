@@ -73,6 +73,8 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
 
   private float pressure;
   private float temperature;
+  private boolean hasPressure;
+  private boolean hasTemperature;
 
   private int counter;
   private DataRate dataRate;
@@ -134,6 +136,8 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
 
   private void initialise() throws IOException {
     counter = 0;
+    hasPressure = false;
+    hasTemperature = false;
     control1.setPowerDownMode(false);
     delay(10);
     reset();
@@ -196,9 +200,14 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
     if (!control1.getDataRate().equals(DataRate.RATE_ONE_SHOT) &&
         !statusRegister.isPressureDataAvailable()) {
       counter++;
+      if (!hasPressure) {
+        throw new IOException("LPS25 pressure measurement is not ready");
+      }
       return pressure;
     }
     pressure = pressureRegister.getPressure();
+    hasPressure = true;
+    counter = 0;
     return pressure;
   }
   //endregion
@@ -207,9 +216,13 @@ public class Lps25Sensor extends I2CDevice implements Sensor, Resetable {
   protected float getTemperature() throws IOException {
     if (!control1.getDataRate().equals(DataRate.RATE_ONE_SHOT) &&
         !statusRegister.isTemperatureDataAvailable()) {
+      if (!hasTemperature) {
+        throw new IOException("LPS25 temperature measurement is not ready");
+      }
       return temperature;
     }
     temperature = temperatureRegister.getTemperature();
+    hasTemperature = true;
     return temperature;
   }
 
