@@ -25,7 +25,11 @@ import com.google.gson.JsonParser;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
-import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.*;
+import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.ADCResolution;
+import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.BusVoltageRange;
+import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.GainMask;
+import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.OperatingMode;
+import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.ShuntADCResolution;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
@@ -98,7 +102,9 @@ public class Ina219Controller extends I2CDeviceController {
   public byte[] updateDeviceConfiguration(byte[] payload) throws IOException {
     JsonObject jsonObject = JsonParser.parseString(new String(payload, StandardCharsets.UTF_8)).getAsJsonObject();
     JsonObject response = new JsonObject();
-    if (sensor == null) return gson.toJson(response).getBytes(StandardCharsets.UTF_8);
+    if (sensor == null) {
+      return gson.toJson(response).getBytes(StandardCharsets.UTF_8);
+    }
 
     if (jsonObject.has(ADC_RESOLUTION)) {
       ADCResolution adcResolution = ADCResolution.valueOf(jsonObject.get(ADC_RESOLUTION).getAsString());
@@ -130,7 +136,7 @@ public class Ina219Controller extends I2CDeviceController {
       response.addProperty(OPERATING_MODE, operatingMode.name());
     }
 
-    sensor.setCalibration();
+    sensor.initialize();
     response.addProperty("Status", "success");
     return gson.toJson(response).getBytes(StandardCharsets.UTF_8);
   }
