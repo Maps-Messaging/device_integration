@@ -30,6 +30,7 @@ import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
 import io.mapsmessaging.devices.sensorreadings.IntegerSensorReading;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
+import io.mapsmessaging.devices.sensorreadings.ReadingSupplier;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
@@ -78,7 +79,7 @@ public class Scd41Sensor extends I2CDevice implements Sensor, Resetable, PowerMa
         true,
         0,
         5000,
-        readMeasurementRegister::getCo2
+        () -> readMeasurement(readMeasurementRegister::getCo2)
     );
 
     FloatSensorReading humidity = new FloatSensorReading(
@@ -90,7 +91,7 @@ public class Scd41Sensor extends I2CDevice implements Sensor, Resetable, PowerMa
         0f,
         100.0f,
         2,
-        readMeasurementRegister::getHumidity
+        () -> readMeasurement(readMeasurementRegister::getHumidity)
     );
 
     FloatSensorReading temperature = new FloatSensorReading(
@@ -102,11 +103,11 @@ public class Scd41Sensor extends I2CDevice implements Sensor, Resetable, PowerMa
         -10f,
         60.0f,
         2,
-        readMeasurementRegister::getTemperature
+        () -> readMeasurement(readMeasurementRegister::getTemperature)
     );
 
     readings = generateSensorReadings(List.of(co2Sensor, humidity, temperature));
-    initialise();
+    powerOnInternal();
   }
 
 
@@ -115,9 +116,18 @@ public class Scd41Sensor extends I2CDevice implements Sensor, Resetable, PowerMa
     return request.getSerialNumber() != 0;
   }
 
+  private <T> T readMeasurement(ReadingSupplier<T> supplier) throws IOException {
+    try {
+      return supplier.get();
+    } catch (IllegalStateException exception) {
+      throw new IOException("SCD41 measurement unavailable", exception);
+    }
+  }
+
   private void initialise() {
+    readMeasurementRegister.invalidate();
+    asceRegister.setASCEState(false); // Configure while idle, before starting periodic measurements.
     periodicMeasurementRegister.startPeriodicMeasurement();
-    asceRegister.setASCEState(false); // If used in doors this will stop it from resetting baseline to 400ppm
   }
 
   @Override
@@ -137,7 +147,10 @@ public class Scd41Sensor extends I2CDevice implements Sensor, Resetable, PowerMa
 
   @Override
   public void reset() throws IOException {
+    periodicMeasurementRegister.stopPeriodicMeasurement();
+    readMeasurementRegister.invalidate();
     deviceStateRegister.factoryReset();
+    initialise();
   }
 
   @Override
@@ -154,11 +167,19 @@ public class Scd41Sensor extends I2CDevice implements Sensor, Resetable, PowerMa
 
   @Override
   public void powerOn() throws IOException {
+    powerOnInternal();
+  }
+
+  private void powerOnInternal() {
     powerManagementRegister.wakeUp();
+    periodicMeasurementRegister.stopPeriodicMeasurement();
+    initialise();
   }
 
   @Override
   public void powerOff() {
+    periodicMeasurementRegister.stopPeriodicMeasurement();
+    readMeasurementRegister.invalidate();
     powerManagementRegister.powerDown();
   }
 }

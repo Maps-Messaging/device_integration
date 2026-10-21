@@ -25,32 +25,47 @@ import io.mapsmessaging.devices.i2c.devices.sensors.scd41.functions.ReadMeasurem
 public class ReadMeasurementRegister extends RequestRegister {
 
   private long lastRead;
+  private final DataReadyRegister dataReadyRegister;
+  private boolean available;
 
   public ReadMeasurementRegister(I2CDevice sensor) {
     super(sensor, "get measurement", new ReadMeasurementRequest(sensor.getDevice()));
     lastRead = 0;
+    dataReadyRegister = new DataReadyRegister(sensor);
   }
 
-  public boolean hasData() {
+  public synchronized boolean hasData() {
     if (lastRead < System.currentTimeMillis()) {
+      if (!dataReadyRegister.isDataReady()) {
+        if (!available) {
+          throw new IllegalStateException("SCD41 measurement unavailable: waiting for first sample");
+        }
+        return false;
+      }
       request.getResponse();
+      available = true;
       lastRead = System.currentTimeMillis() + 5000;
       return true;
     }
     return false;
   }
 
-  public int getCo2() {
+  public synchronized void invalidate() {
+    available = false;
+    lastRead = 0;
+  }
+
+  public synchronized int getCo2() {
     hasData();
     return ((ReadMeasurementRequest) request).getCo2();
   }
 
-  public float getHumidity() {
+  public synchronized float getHumidity() {
     hasData();
     return ((ReadMeasurementRequest) request).getHumidity();
   }
 
-  public float getTemperature() {
+  public synchronized float getTemperature() {
     hasData();
     return ((ReadMeasurementRequest) request).getTemperature();
   }

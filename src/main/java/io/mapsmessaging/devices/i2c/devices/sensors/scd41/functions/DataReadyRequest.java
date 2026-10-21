@@ -28,12 +28,17 @@ public class DataReadyRequest extends Request {
   private boolean dataReady;
 
   public DataReadyRequest(AddressableDevice device) {
-    super(1, 0xE4B8, 0, device);
+    super(1, 0xE4B8, 3, device);
   }
 
   @Override
   public byte[] getResponse() {
-    dataReady = (readValue() & 0x8000) != 0;
-    return new byte[0];
+    byte[] response = super.getResponse();
+    if (generateCrc(response, 0) != response[2]) {
+      throw new IllegalStateException("SCD41 data-ready CRC mismatch");
+    }
+    int status = ((response[0] & 0xff) << 8) | (response[1] & 0xff);
+    dataReady = (status & 0x07ff) != 0;
+    return response;
   }
 }
