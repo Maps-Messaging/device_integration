@@ -74,6 +74,9 @@ class ScriptedSensorTest {
   @Test
   void pmsa003iReadsParticulateCountsFromScriptedRegisterBlock() throws Exception {
     byte[] frame = new byte[32];
+    frame[0] = 0x42;
+    frame[1] = 0x4d;
+    frame[3] = 28;
     frame[4] = 0;
     frame[5] = 12;
     frame[6] = 0;
@@ -81,10 +84,16 @@ class ScriptedSensorTest {
     frame[8] = 0;
     frame[9] = 40;
     frame[28] = 3;
+    int checksum = 0;
+    for (int index = 0; index < 30; index++) {
+      checksum += frame[index] & 0xff;
+    }
+    frame[30] = (byte) (checksum >>> 8);
+    frame[31] = (byte) checksum;
     ScriptedI2CDevice bus = new ScriptedI2CDevice(0x12, frame);
     I2CDeviceController controller = new Pmsa003iController().mount(bus);
     try {
-      var state = JsonParser.parseString(new String(controller.getDeviceState())).getAsJsonObject();
+      JsonObject state = JsonParser.parseString(new String(controller.getDeviceState())).getAsJsonObject();
       assertEquals(12, state.get("pm_1_0").getAsInt());
       assertEquals(25, state.get("pm_2_5").getAsInt());
       assertEquals(40, state.get("pm_10").getAsInt());

@@ -170,9 +170,25 @@ public class Pmsa003iSensor extends I2CDevice implements Sensor {
     return errorCodeRegister.getValueReverse();
   }
 
-  protected void update() throws IOException {
+  protected synchronized void update() throws IOException {
     if (lastRead < System.currentTimeMillis()) {
-      readRegister(0, data, 0, data.length);
+      byte[] frame = new byte[data.length];
+      int count = readRegister(0, frame, 0, frame.length);
+      if (count != frame.length) {
+        throw new IOException("Incomplete PMSA003I frame: expected 32 bytes, read " + count);
+      }
+      if (frame[0] != 0x42 || frame[1] != 0x4d || frame[2] != 0 || frame[3] != 28) {
+        throw new IOException("Invalid PMSA003I frame header or length");
+      }
+      int checksum = 0;
+      for (int index = 0; index < 30; index++) {
+        checksum += frame[index] & 0xff;
+      }
+      int expected = ((frame[30] & 0xff) << 8) | (frame[31] & 0xff);
+      if (checksum != expected || frame[29] != 0) {
+        throw new IOException("Invalid PMSA003I checksum or device error: " + (frame[29] & 0xff));
+      }
+      System.arraycopy(frame, 0, data, 0, data.length);
       lastRead = System.currentTimeMillis() + 1000;
     }
   }
