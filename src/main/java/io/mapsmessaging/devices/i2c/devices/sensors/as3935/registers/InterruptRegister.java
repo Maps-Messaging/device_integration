@@ -26,6 +26,7 @@ import io.mapsmessaging.devices.i2c.devices.sensors.as3935.data.InterruptData;
 import io.mapsmessaging.devices.i2c.devices.sensors.as3935.values.InterruptReason;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 
 public class InterruptRegister extends SingleByteRegister {
 
@@ -37,6 +38,11 @@ public class InterruptRegister extends SingleByteRegister {
   }
 
   public InterruptReason getInterruptReason() {
+    try {
+      reload();
+    } catch (IOException failure) {
+      throw new UncheckedIOException("Unable to read AS3935 interrupt reason", failure);
+    }
     int mask = registerValue & 0xF;
 
     for (InterruptReason interruptReason : InterruptReason.values()) {
