@@ -72,7 +72,7 @@ public class BNO055Controller extends I2CDeviceController {
 
   @Override
   public boolean detect(AddressableDevice i2cDevice) {
-    return (BNO055Sensor.getId(i2cDevice) == BNO055Constants.BNO055_CHIP_ID_ADDR);
+    return (BNO055Sensor.getId(i2cDevice) == BNO055Constants.BNO055_ID);
   }
 
   public DeviceType getType() {
