@@ -114,8 +114,9 @@ class ScriptedSensorTest {
       Sht31Sensor sensor = (Sht31Sensor) controller.getDevice();
       assertEquals(20.6f, sensor.getTemperature(), 0.2f);
       assertEquals(50.0f, sensor.getHumidity(), 0.2f);
-      assertArrayEquals(new byte[] {0x30, (byte) 0xa2}, bus.writes().get(0));
-      assertArrayEquals(new byte[] {(byte) 0xe0, 0}, bus.writes().get(2));
+      assertArrayEquals(new byte[] {0x30, (byte) 0x93}, bus.writes().get(0));
+      assertArrayEquals(new byte[] {0x30, (byte) 0xa2}, bus.writes().get(1));
+      assertArrayEquals(new byte[] {(byte) 0xe0, 0}, bus.writes().get(3));
     } finally {
       controller.close();
     }
@@ -128,7 +129,7 @@ class ScriptedSensorTest {
     I2CDeviceController controller = new Sht31Controller().mount(bus);
     try {
       Sht31Sensor sensor = (Sht31Sensor) controller.getDevice();
-      assertThrows(IllegalStateException.class, sensor::getTemperature);
+      assertThrows(UncheckedIOException.class, sensor::getTemperature);
     } finally {
       controller.close();
     }

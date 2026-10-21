@@ -28,16 +28,10 @@ public class ReadDataCommand extends Command {
   private float lastTemperature;
   private float lastHumidity;
   private long lastReadTime = 0;
-  private final int minimumReadIntervalMillis;
   private final int nextReadingIntervalMillis;
 
   public ReadDataCommand(Repeatability repeatability, Mps mps) {
     super(0xE000, 0, 6);
-    this.minimumReadIntervalMillis = switch (repeatability) {
-      case HIGH -> 20;
-      case MEDIUM -> 10;
-      case LOW -> 8;
-    };
     nextReadingIntervalMillis = mps.getIntervalMillis();
   }
 
@@ -48,7 +42,6 @@ public class ReadDataCommand extends Command {
     }
 
     byte[] response = sendCommand(sensor, device);
-    sensor.delay(minimumReadIntervalMillis);
 
     int rawTemp = ((response[0] & 0xFF) << 8) | (response[1] & 0xFF);
     int rawHumidity = ((response[3] & 0xFF) << 8) | (response[4] & 0xFF);
@@ -56,6 +49,12 @@ public class ReadDataCommand extends Command {
     lastTemperature = -45 + 175 * (rawTemp / 65535.0f);
     lastHumidity = 100 * (rawHumidity / 65535.0f);
     lastReadTime = now;
+  }
+
+  public synchronized void invalidate() {
+    lastTemperature = Float.NaN;
+    lastHumidity = Float.NaN;
+    lastReadTime = 0;
   }
 
   public float getTemperature() {

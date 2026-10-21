@@ -21,6 +21,6 @@ package io.mapsmessaging.devices.i2c.devices.sensors.sht31.commands;
 
 public class BreakCommand extends Command {
   public BreakCommand() {
-    super(0x3093, 0, 0);
+    super(0x3093, 1, 0);
   }
 }

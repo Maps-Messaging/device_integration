@@ -19,7 +19,11 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.sht31.commands;
 
+import com.pi4j.exception.Pi4JException;
 import io.mapsmessaging.devices.i2c.devices.sensors.sht31.Sht31Sensor;
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.io.UncheckedIOException;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,23 +39,40 @@ public abstract class Command {
   private final int responseSize;
 
   public byte[] sendCommand(Sht31Sensor sensor, AddressableDevice device) {
-    byte[] commandBytes = new byte[2];
-    commandBytes[0] = (byte) ((cmd >> 8) & 0xFF); // MSB
-    commandBytes[1] = (byte) (cmd & 0xFF);        // LSB
-    device.write(commandBytes);
-    if(delayTime > 0 && sensor != null) {
-      sensor.delay(delayTime);
-    }
-    byte[] responseBytes = new byte[responseSize];
-    if(responseSize > 0){
-      device.read(responseBytes, 0, responseSize);
-      // Validate each 2-byte block + CRC
-      for (int i = 0; i + 2 < responseSize; i += 3) {
-        if (!Crc8.check(responseBytes, i)) {
-          throw new IllegalStateException("CRC check failed at block starting index " + i);
+    try {
+      checkInterrupted();
+      byte[] commandBytes = new byte[] {(byte) (cmd >>> 8), (byte) cmd};
+      int written = device.write(commandBytes);
+      if (written != commandBytes.length) {
+        throw new IOException("Incomplete SHT31 write: expected 2 bytes, wrote " + written);
+      }
+      if (delayTime > 0 && sensor != null) {
+        sensor.delay(delayTime);
+      }
+      checkInterrupted();
+      byte[] responseBytes = new byte[responseSize];
+      if (responseSize > 0) {
+        int count = device.read(responseBytes, 0, responseSize);
+        if (count != responseSize) {
+          throw new IOException("Incomplete SHT31 response: expected " + responseSize + " bytes, read " + count);
+        }
+        for (int index = 0; index + 2 < responseSize; index += 3) {
+          if (!Crc8.check(responseBytes, index)) {
+            throw new IOException("SHT31 CRC check failed at block starting index " + index);
+          }
         }
       }
+      return responseBytes;
+    } catch (Pi4JException exception) {
+      throw new UncheckedIOException("SHT31 command failed", new IOException(exception));
+    } catch (IOException exception) {
+      throw new UncheckedIOException(exception);
     }
-    return responseBytes;
+  }
+
+  private void checkInterrupted() throws InterruptedIOException {
+    if (Thread.currentThread().isInterrupted()) {
+      throw new InterruptedIOException("Interrupted during SHT31 command");
+    }
   }
 }

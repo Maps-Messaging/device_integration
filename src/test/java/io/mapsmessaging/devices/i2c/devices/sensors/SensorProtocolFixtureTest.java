@@ -53,7 +53,9 @@ class SensorProtocolFixtureTest {
           try {
             assertEquals(vector[2], sensor.getTemperature(), 0.001f);
             assertEquals(vector[3], sensor.getHumidity(), 0.001f);
-            assertEquals(3, bus.writes().size(), "Temperature/humidity must share the sample");
+            assertEquals(List.of("3093", "30a2", "2126", "e000"),
+                bus.writes().stream().map(bytes -> HexFormat.of().formatHex(bytes)).toList(),
+                "Stop, reset, periodic start and one shared temperature/humidity fetch");
           } finally { sensor.close(); }
         }));
   }
@@ -61,7 +63,7 @@ class SensorProtocolFixtureTest {
   @Test
   void sht31SecondWordCrcFailureIsRejected() {
     byte[] raw = frame(32768, 32768); raw[5] ^= 1;
-    assertThrows(IllegalStateException.class, () -> new Command(0xe000, 0, 6) { }.sendCommand(null, new ScriptedI2CDevice(0x44, raw)));
+    assertThrows(UncheckedIOException.class, () -> new Command(0xe000, 0, 6) { }.sendCommand(null, new ScriptedI2CDevice(0x44, raw)));
   }
 
   @Test
@@ -71,7 +73,7 @@ class SensorProtocolFixtureTest {
     try {
       sensor.powerOff();
       sensor.powerOn();
-      assertEquals(List.of("30a2", "2126", "30a2", "30a2", "2126"),
+      assertEquals(List.of("3093", "30a2", "2126", "30a2", "3093", "30a2", "2126"),
           bus.writes().stream().map(bytes -> HexFormat.of().formatHex(bytes)).toList());
     } finally { sensor.close(); }
   }
