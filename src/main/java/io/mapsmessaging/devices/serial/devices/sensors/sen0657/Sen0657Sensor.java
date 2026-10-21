@@ -21,11 +21,16 @@ package io.mapsmessaging.devices.serial.devices.sensors.sen0657;
 
 import io.mapsmessaging.devices.Device;
 import io.mapsmessaging.devices.DeviceType;
-import io.mapsmessaging.devices.logging.DeviceLogMessage;
-import io.mapsmessaging.logging.Logger;
-import io.mapsmessaging.logging.LoggerFactory;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
-import io.mapsmessaging.devices.sensorreadings.*;
+import io.mapsmessaging.devices.sensorreadings.BooleanSensorReading;
+import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
+import io.mapsmessaging.devices.sensorreadings.IntegerSensorReading;
+import io.mapsmessaging.devices.sensorreadings.LongSensorReading;
+import io.mapsmessaging.devices.sensorreadings.ReadingSupplier;
+import io.mapsmessaging.devices.sensorreadings.SensorReading;
+import io.mapsmessaging.devices.sensorreadings.StatefulFloatSensorReading;
+import io.mapsmessaging.devices.sensorreadings.StringSensorReading;
+import io.mapsmessaging.devices.sensorreadings.TimedFloatSample;
 import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
 import io.mapsmessaging.devices.util.AccumulatingCounterDelta;
 import io.mapsmessaging.devices.util.RollingBucketAccumulator;
@@ -34,15 +39,17 @@ import io.mapsmessaging.devices.util.SensorReadingAugmentor;
 import lombok.Getter;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 
-import static io.mapsmessaging.devices.util.StormHeuristics.*;
+import static io.mapsmessaging.devices.util.StormHeuristics.describePressureTendency;
+import static io.mapsmessaging.devices.util.StormHeuristics.stormRisk;
+import static io.mapsmessaging.devices.util.StormHeuristics.stormWarning;
+import static io.mapsmessaging.devices.util.StormHeuristics.toHpaPer3Hours;
 
 public class Sen0657Sensor implements Device, Sensor {
-
-  private final Logger logger = LoggerFactory.getLogger(Sen0657Sensor.class);
 
   private static final int FUNCTION_READ_HOLDING_REGISTER = 0x03;
 
@@ -427,58 +434,73 @@ public class Sen0657Sensor implements Device, Sensor {
   }
 
   public long getLightIntensityLux() {
-    readSensors();
+    refreshMeasurements();
     return lightIntensityLux;
   }
 
   public float getWindSpeedMetersPerSecond() {
-    readSensors();
+    refreshMeasurements();
     return windSpeedMetersPerSecond;
   }
 
   public float getHumidityRelativePercent() {
-    readSensors();
+    refreshMeasurements();
     return humidityRelativePercent;
   }
 
   public float getTemperatureCelsius() {
-    readSensors();
+    refreshMeasurements();
     return temperatureCelsius;
   }
 
   public int getWindDirectionCode() {
-    readSensors();
+    refreshMeasurements();
     return windDirectionCode;
   }
 
   public int getWindDirectionAngleDegrees() {
-    readSensors();
+    refreshMeasurements();
     return windDirectionAngleDegrees;
   }
 
   public float getAtmosphericPressureHpa() {
-    readSensors();
+    refreshMeasurements();
     return atmosphericPressureHpa;
   }
 
   public float getRainfallMillimeters() {
-    readSensors();
+    refreshMeasurements();
     return rainfallMillimeters;
   }
 
-  private void readSensors() {
+  private void refreshMeasurements() {
+    try {
+      readSensors();
+    } catch (IOException failure) {
+      throw new UncheckedIOException("Unable to refresh SEN0657 measurements", failure);
+    }
+  }
+
+  private synchronized void readSensors() throws IOException {
     if (nextReadCycle > System.currentTimeMillis()) {
       return;
     }
+    byte[] temperatureAndHumidity = readRegisterGroup(REGISTER_TEMP_HUM_START, REGISTER_TEMP_HUM_COUNT, 9);
+    byte[] pressureAndLight = readRegisterGroup(REGISTER_PRESSURE_LIGHT_START, REGISTER_PRESSURE_LIGHT_COUNT, 11);
+    byte[] wind = readRegisterGroup(REGISTER_WIND_START, REGISTER_WIND_COUNT, 13);
+    byte[] rainfall = readRegisterGroup(REGISTER_RAINFALL_START, REGISTER_RAINFALL_COUNT, 7);
+
+    decodeTemperatureAndHumidity(temperatureAndHumidity);
+    decodeAtmosphericPressureAndLight(pressureAndLight);
+    decodeWindSpeedAndDirection(wind);
+    decodeRainfall(rainfall);
     nextReadCycle = System.currentTimeMillis() + 1000;
-    try {
-      readTemperatureAndHumidity();
-      readAtmosphericPressureAndLight();
-      readWindSpeedAndDirection();
-      readRainfall();
-    } catch (IOException e) {
-      logger.log(DeviceLogMessage.SERIAL_SENSOR_READ_FAILED, getName(), e.toString());
-    }
+  }
+
+  private byte[] readRegisterGroup(int startRegister, int registerCount, int responseLength) throws IOException {
+    byte[] response = sendAndReceive(startRegister, registerCount, responseLength);
+    validateHeader(response, registerCount);
+    return response;
   }
 
   // --------------------------------------------------------------------------
@@ -486,11 +508,10 @@ public class Sen0657Sensor implements Device, Sensor {
   // --------------------------------------------------------------------------
 
   public void readTemperatureAndHumidity() throws IOException {
-    // response: addr, func, 0x04, 4 data bytes, 2 crc => 9 bytes
-    byte[] response = sendAndReceive(REGISTER_TEMP_HUM_START, REGISTER_TEMP_HUM_COUNT, 9);
+    decodeTemperatureAndHumidity(readRegisterGroup(REGISTER_TEMP_HUM_START, REGISTER_TEMP_HUM_COUNT, 9));
+  }
 
-    validateHeader(response, REGISTER_TEMP_HUM_COUNT);
-
+  private void decodeTemperatureAndHumidity(byte[] response) {
     int humidityRaw = getU16(response, 3);
     int temperatureRaw = getU16(response, 5);
 
@@ -499,11 +520,10 @@ public class Sen0657Sensor implements Device, Sensor {
   }
 
   public void readAtmosphericPressureAndLight() throws IOException {
-    // response: addr, func, 0x06, 6 data bytes, 2 crc => 11 bytes
-    byte[] response = sendAndReceive(REGISTER_PRESSURE_LIGHT_START, REGISTER_PRESSURE_LIGHT_COUNT, 11);
+    decodeAtmosphericPressureAndLight(readRegisterGroup(REGISTER_PRESSURE_LIGHT_START, REGISTER_PRESSURE_LIGHT_COUNT, 11));
+  }
 
-    validateHeader(response, REGISTER_PRESSURE_LIGHT_COUNT);
-
+  private void decodeAtmosphericPressureAndLight(byte[] response) {
     int pressureRaw = getU16(response, 3);
     atmosphericPressureHpa = pressureRaw / 1.0f;
 
@@ -515,21 +535,19 @@ public class Sen0657Sensor implements Device, Sensor {
   }
 
   public void readRainfall() throws IOException {
-    // response: addr, func, 0x02, 2 data bytes, 2 crc => 7 bytes
-    byte[] response = sendAndReceive(REGISTER_RAINFALL_START, REGISTER_RAINFALL_COUNT, 7);
+    decodeRainfall(readRegisterGroup(REGISTER_RAINFALL_START, REGISTER_RAINFALL_COUNT, 7));
+  }
 
-    validateHeader(response, REGISTER_RAINFALL_COUNT);
-
+  private void decodeRainfall(byte[] response) {
     int rainfallRaw = getU16(response, 3);
     rainfallMillimeters = rainfallRaw / 10.0f;
   }
 
   public void readWindSpeedAndDirection() throws IOException {
-    // response: addr, func, 0x08, 8 data bytes, 2 crc => 13 bytes
-    byte[] response = sendAndReceive(REGISTER_WIND_START, REGISTER_WIND_COUNT, 13);
+    decodeWindSpeedAndDirection(readRegisterGroup(REGISTER_WIND_START, REGISTER_WIND_COUNT, 13));
+  }
 
-    validateHeader(response, REGISTER_WIND_COUNT);
-
+  private void decodeWindSpeedAndDirection(byte[] response) {
     int windSpeedRaw = getU16(response, 3);
     windSpeedMetersPerSecond = windSpeedRaw / 100.0f;
 
@@ -557,6 +575,7 @@ public class Sen0657Sensor implements Device, Sensor {
     }
 
     byte[] buffer = new byte[expectedResponseLength];
+    byte[] fragment = new byte[expectedResponseLength];
     int bytesRead = 0;
     long deadline = System.nanoTime() + responseTimeout.toNanos();
 
@@ -567,13 +586,17 @@ public class Sen0657Sensor implements Device, Sensor {
       }
 
       int remaining = expectedResponseLength - bytesRead;
-      int readCount = serialPort.readBytes(buffer, remaining);
+      int readCount = serialPort.readBytes(fragment, remaining);
       if (readCount < 0) {
         throw new IOException("Error reading from serial port, readBytes=" + readCount);
       }
       if (readCount == 0) {
         continue;
       }
+      if (readCount > remaining) {
+        throw new IOException("Serial read exceeded requested response length");
+      }
+      System.arraycopy(fragment, 0, buffer, bytesRead, readCount);
       bytesRead += readCount;
     }
 
