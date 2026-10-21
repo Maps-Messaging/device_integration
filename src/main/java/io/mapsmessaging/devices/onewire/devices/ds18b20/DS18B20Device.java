@@ -26,12 +26,15 @@ import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import lombok.Getter;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.List;
 
 @Getter
 public class DS18B20Device extends OneWireDevice implements Sensor {
 
   private final List<SensorReading<?>> readings;
+  private boolean initialized;
   private float myCurrent;
   private float myDif;
   private float myMin;
@@ -41,7 +44,7 @@ public class DS18B20Device extends OneWireDevice implements Sensor {
     super(path);
     myCurrent = 0.0f;
     myMin = Float.MAX_VALUE;
-    myMax = Float.MIN_VALUE;
+    myMax = -Float.MAX_VALUE;
     FloatSensorReading current = new FloatSensorReading(
         "temperature",
         "°C",
@@ -94,42 +97,68 @@ public class DS18B20Device extends OneWireDevice implements Sensor {
 
   }
 
-  public float getCurrent() {
+  public synchronized float getCurrent() {
+    ensureInitialized();
     return myCurrent;
   }
 
-  public float getMin() {
+  public synchronized float getMin() {
+    ensureInitialized();
     return myMin;
   }
 
-  public float getMax() {
+  public synchronized float getMax() {
+    ensureInitialized();
     return myMax;
   }
 
-  public float getDif() {
+  public synchronized float getDif() {
+    ensureInitialized();
     return myDif;
   }
 
-  public void process(List<String> data) {
-    for (String aData : data) {
-      int pos = aData.indexOf("t=");
-      if (pos > 0) {
-        String tmp = aData.substring(pos + 2);
-        if (!tmp.isEmpty()) {
-          updateData(tmp);
-        }
-      }
+  private void ensureInitialized() {
+    if (!initialized) {
+      throw new UncheckedIOException(new IOException("No valid DS18B20 temperature has been read"));
     }
   }
 
-  private void updateData(String val) {
-    float fVal = Float.parseFloat(val) / 1000.0f;
-    if (fVal != myCurrent) {
-      myDif = fVal - myCurrent;
-      if (myDif == fVal) myDif = 0.0f;
-      myCurrent = fVal;
-      if (myMax < myCurrent) myMax = myCurrent;
-      if (myMin > myCurrent) myMin = myCurrent;
+  @Override
+  public synchronized void process(List<String> data) {
+    try {
+      processSample(data);
+    } catch (IOException failure) {
+      throw new UncheckedIOException("Unable to process DS18B20 sensor data", failure);
     }
+  }
+
+  private void processSample(List<String> data) throws IOException {
+    if (data.size() < 2 || !data.get(0).trim().endsWith(" YES")) {
+      throw new IOException("DS18B20 temperature CRC verification failed or sample is incomplete");
+    }
+    String sample = data.get(1);
+    int position = sample.indexOf("t=");
+    if (position < 0) {
+      throw new IOException("DS18B20 sample is missing temperature");
+    }
+    float value;
+    try {
+      value = Float.parseFloat(sample.substring(position + 2).trim()) / 1000.0f;
+    } catch (NumberFormatException invalid) {
+      throw new IOException("DS18B20 temperature is malformed", invalid);
+    }
+    if (!Float.isFinite(value) || value < -55.0f || value > 125.0f) {
+      throw new IOException("DS18B20 temperature is outside supported range: " + value);
+    }
+    myDif = initialized ? value - myCurrent : 0.0f;
+    myCurrent = value;
+    if (!initialized) {
+      myMin = value;
+      myMax = value;
+    } else {
+      myMin = Math.min(myMin, value);
+      myMax = Math.max(myMax, value);
+    }
+    initialized = true;
   }
 }
