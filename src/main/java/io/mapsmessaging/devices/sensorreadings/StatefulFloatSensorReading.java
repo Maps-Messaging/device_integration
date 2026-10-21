@@ -70,8 +70,7 @@ public class StatefulFloatSensorReading extends NumericSensorReading<Float> {
   }
 
   public static float roundToDecimalPlaces(float value, int places) {
-    float scale = (float) Math.pow(10, places);
-    return Math.round(value * scale) / scale;
+    return FloatSensorReading.roundToDecimalPlaces(value, places);
   }
 
   @Override
@@ -88,13 +87,8 @@ public class StatefulFloatSensorReading extends NumericSensorReading<Float> {
     return val;
   }
 
-  private Float computeValue() {
-    float latest;
-    try {
-      latest = sourceSupplier.get();
-    }catch (IOException ioException) {
-      return Float.NaN;
-    }
+  private Float computeValue() throws IOException {
+    float latest = sourceSupplier.get();
 
     long now = System.currentTimeMillis();
 
@@ -140,7 +134,7 @@ public class StatefulFloatSensorReading extends NumericSensorReading<Float> {
     }
 
     @Override
-    public Float get() {
+    public Float get() throws IOException {
       return owner.computeValue();
     }
   }

@@ -33,6 +33,9 @@ public class FloatSensorReading extends NumericSensorReading<Float> {
   }
 
   public static float roundToDecimalPlaces(float value, int places) {
+    if (!Float.isFinite(value)) {
+      return value;
+    }
     float scale = (float) Math.pow(10, places);
     return Math.round(value * scale) / scale;
   }

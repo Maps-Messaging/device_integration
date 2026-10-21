@@ -22,6 +22,7 @@ package io.mapsmessaging.devices.sensorreadings;
 import lombok.Getter;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 
 
 @Getter
@@ -50,9 +51,15 @@ public class SensorReading<T> {
 
   public ComputationResult<T> getValue() {
     try {
-      return ComputationResult.success(format(supplier.get()));
+      T value = supplier.get();
+      if (value instanceof Number number && !Double.isFinite(number.doubleValue())) {
+        throw new IOException("Sensor reading unavailable: " + name);
+      }
+      return ComputationResult.success(format(value));
     } catch (IOException ioException) {
       return ComputationResult.failure(ioException);
+    } catch (UncheckedIOException ioException) {
+      return ComputationResult.failure(ioException.getCause());
     }
   }
 
