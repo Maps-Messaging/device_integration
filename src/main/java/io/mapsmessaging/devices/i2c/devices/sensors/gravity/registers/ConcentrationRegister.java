@@ -33,7 +33,9 @@ public class ConcentrationRegister extends CrcValidatingRegister {
 
   public float getConcentration() throws IOException {
     byte[] data = new byte[9];
-    request(new byte[6], data);
+    if (!request(new byte[6], data)) {
+      throw new IOException("Invalid Gravity concentration response checksum");
+    }
     @SuppressWarnings("java:S1905") // Explicit cast documents potential precision loss.
     float concentration = (float) (data[2] << 8 | (data[3] & 0xff));
     concentration = adjustPowers(data[5], concentration);
@@ -45,7 +47,7 @@ public class ConcentrationRegister extends CrcValidatingRegister {
     if (request(new byte[6], data)) {
       return SensorType.getByType(data[4]);
     }
-    return SensorType.UNKNOWN;
+    throw new IOException("Invalid Gravity sensor type response checksum");
   }
 
 }
