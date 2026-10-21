@@ -87,9 +87,15 @@ public class Mcp3y0xDevice extends SpiDevice implements Sensor {
     } else {
       commandByte = (byte) (0b10000000 | ((channel & 0b111) << 4));
     }
+    byte startByte = 0x01;
+    if (bits == 12) {
+      // Five leading zeroes align all twelve result bits in the final two bytes.
+      startByte = (byte) (0x04 | (differential ? 0 : 0x02) | ((channel >> 2) & 0x01));
+      commandByte = (byte) ((channel & 0x03) << 6);
+    }
     // create a data buffer and initialize a conversion request payload
     byte[] data = new byte[]{
-        (byte) 0b00000001,    // first byte, start bit
+        startByte,           // first byte, start bit and resolution-specific controls
         commandByte,          // second byte transmitted -> (SGL/DIF = 1, D2=D1=D0=0)
         (byte) 0b00000000     // third byte transmitted....don't care
     };
