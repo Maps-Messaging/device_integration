@@ -77,7 +77,7 @@ public class AM2320Sensor extends I2CDevice implements Sensor {
 
   @Override
   public boolean isConnected() {
-    return false;
+    return true;
   }
 
   public float getTemperature() throws IOException {
@@ -110,14 +110,15 @@ public class AM2320Sensor extends I2CDevice implements Sensor {
       response[2] = (byte) 4;
       write(response, 0, 3);
       delay(2);
-      read(response);
+      int received = read(response);
+      if (received != response.length) {
+        throw new IOException("Invalid AM2320 response length");
+      }
       int crc = (((response[7] & 0xff) << 8) | (response[6] & 0xff));
       int computedCrc = crc16(response, 6);
 
       if (response[0] != 0x3 || response[1] != 4 || crc != computedCrc) {
-        humidity = -273.0f;
-        temperature = -273.0f;
-        return;
+        throw new IOException("Invalid AM2320 response header or CRC");
       }
       humidity = (((response[2] & 0xff) << 8) | (response[3] & 0xff)) / 10.0f;
       temperature = (((response[4] & 0xff) << 8) | (response[5] & 0xff)) / 10.0f;

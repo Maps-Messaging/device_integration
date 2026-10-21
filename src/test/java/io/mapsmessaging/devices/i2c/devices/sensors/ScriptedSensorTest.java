@@ -2,6 +2,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.devices.sensors.am2320.AM2320Controller;
@@ -12,6 +13,8 @@ import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.Sen6xCommandHelper;
 import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.GetDataReadyFlagCommand;
 import io.mapsmessaging.devices.i2c.devices.sensors.sht31.Sht31Controller;
 import io.mapsmessaging.devices.i2c.devices.sensors.sht31.Sht31Sensor;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
@@ -53,14 +56,7 @@ class ScriptedSensorTest {
   void am2320RejectsCorruptChecksumEvenWithValidHeader() throws Exception {
     ScriptedI2CDevice bus = new ScriptedI2CDevice(0x5c,
         new byte[] {3, 4, 2, 43, 0, (byte) 235, 0, 0});
-    I2CDeviceController controller = new AM2320Controller().mount(bus);
-    try {
-      AM2320Sensor sensor = (AM2320Sensor) controller.getDevice();
-      assertEquals(-273.0f, sensor.getTemperature());
-      assertEquals(-273.0f, sensor.getHumidity());
-    } finally {
-      controller.close();
-    }
+    assertThrows(IOException.class, () -> new AM2320Controller().mount(bus));
   }
 
   @Test
