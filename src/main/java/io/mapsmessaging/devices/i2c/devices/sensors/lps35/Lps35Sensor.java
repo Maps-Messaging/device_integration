@@ -75,6 +75,9 @@ public class Lps35Sensor extends I2CDevice implements Sensor, Resetable {
   private final List<SensorReading<?>> readings;
 
 
+  private Float pressure;
+  private Float temperature;
+
   public Lps35Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(Lps35Sensor.class));
 
@@ -131,6 +134,8 @@ public class Lps35Sensor extends I2CDevice implements Sensor, Resetable {
   }
 
   protected void initialise() throws IOException {
+    pressure = null;
+    temperature = null;
     control1Register.setDataRate(DataRate.RATE_1_HZ);
   }
 
@@ -158,14 +163,27 @@ public class Lps35Sensor extends I2CDevice implements Sensor, Resetable {
   @Override
   public void softReset() throws IOException {
     control2Register.softReset();
+    initialise();
   }
 
   protected float getPressure() throws IOException {
-    return pressureRegister.getPressure();
+    if (statusRegister.isPressureDataAvailable()) {
+      pressure = pressureRegister.getPressure();
+    }
+    if (pressure == null) {
+      throw new IOException("LPS35 pressure measurement is not ready");
+    }
+    return pressure;
   }
 
   protected float getTemperature() throws IOException {
-    return temperatureRegister.getTemperature();
+    if (statusRegister.isTemperatureDataAvailable()) {
+      temperature = temperatureRegister.getTemperature();
+    }
+    if (temperature == null) {
+      throw new IOException("LPS35 temperature measurement is not ready");
+    }
+    return temperature;
   }
 
   @Override
