@@ -60,7 +60,7 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
   private static final byte CARD_AUTH_A = 0x60;               // Mifare Classic auth (Key A)
   private static final int SETTLE_MS = 30;
 
-  private static final byte[] ACK = new byte[]{0x00, 0x00, (byte) 0xFF, 0x00, (byte) 0xFF, 0x00};
+  private static final byte[] ACK = {0x00, 0x00, (byte) 0xFF, 0x00, (byte) 0xFF, 0x00};
 
 
   private volatile boolean tagPresent = false;
@@ -69,7 +69,7 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
 
   private volatile boolean connected = false;
 
-  private byte[] mifareKey = new byte[]{(byte) 0xFF,(byte) 0xFF,(byte) 0xFF,(byte) 0xFF,(byte) 0xFF,(byte) 0xFF};
+  private byte[] mifareKey = {(byte) 0xFF,(byte) 0xFF,(byte) 0xFF,(byte) 0xFF,(byte) 0xFF,(byte) 0xFF};
 
   private final List<SensorReading<?>> readings = List.of(
       new BooleanSensorReading("tag_present", "", "True when a tag is detected", true, true, this::isTagPresent),
@@ -184,7 +184,7 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
     if (page < 4 || page > 225) throw new IOException("page out of range");
     if (data4 == null || data4.length != 4) throw new IOException("need 4 bytes");
     ensureTag();
-    byte[] cmd = new byte[]{CMD_INDATA_EXCHANGE, 0x01, CARD_WRITE_NTAG, (byte) page,
+    byte[] cmd = {CMD_INDATA_EXCHANGE, 0x01, CARD_WRITE_NTAG, (byte) page,
         data4[0], data4[1], data4[2], data4[3]};
     requireExchangeSuccess(call(cmd, 16), 1, "NTAG write");
   }

@@ -31,7 +31,7 @@ import java.io.IOException;
 
 @Getter
 public class AT24CnnDevice extends I2CDevice implements Storage {
-  private static final int[] possibleSizes = new int[]{65536, 32768, 16384, 8192, 4096};
+  private static final int[] possibleSizes = {65536, 32768, 16384, 8192, 4096};
   private static final int PAGE_SIZE_AT24C32 = 32; // 32 bytes for AT24C32
   private static final int PAGE_SIZE_AT24C512 = 128; // 128 bytes for AT24C512
 
@@ -88,7 +88,7 @@ public class AT24CnnDevice extends I2CDevice implements Storage {
 
   // Read a chunk of data at the given address into the specified buffer
   private int readChunk(int address, byte[] buffer, int offset, int len) throws IOException {
-    byte[] writeBuffer = new byte[]{(byte) (address >> 8), (byte) (address & 0xFF)};
+    byte[] writeBuffer = {(byte) (address >> 8), (byte) (address & 0xFF)};
     write(writeBuffer, 0, writeBuffer.length); // Set the EEPROM's address pointer
     return read(buffer, offset, len); // Read the chunk into the buffer
   }
@@ -151,7 +151,7 @@ public class AT24CnnDevice extends I2CDevice implements Storage {
 
   // Read a single byte at the given address
   private byte readByte(int address) throws IOException {
-    byte[] writeBuffer = new byte[]{(byte) (address >> 8), (byte) (address & 0xFF)};
+    byte[] writeBuffer = {(byte) (address >> 8), (byte) (address & 0xFF)};
     byte[] readBuffer = new byte[1];
     write(writeBuffer, 0, writeBuffer.length);
     int val = read(readBuffer, 0, readBuffer.length);
@@ -161,7 +161,7 @@ public class AT24CnnDevice extends I2CDevice implements Storage {
 
   // Read a single byte at the given address
   private void writeByte(int address, byte val) throws IOException {
-    byte[] writeBuffer = new byte[]{(byte) (address >> 8), (byte) (address & 0xFF), val};
+    byte[] writeBuffer = {(byte) (address >> 8), (byte) (address & 0xFF), val};
     write(writeBuffer, 0, writeBuffer.length);
   }
 

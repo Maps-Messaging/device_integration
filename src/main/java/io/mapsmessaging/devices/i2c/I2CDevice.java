@@ -89,7 +89,7 @@ public abstract class I2CDevice implements Device, AutoCloseable {
   }
 
   public void write(int register, byte data) throws IOException {
-    byte[] buf = new byte[]{data};
+    byte[] buf = {data};
     write(register, buf);
     if (logger.isDebugEnabled()) {
       log(I2C_BUS_DEVICE_WRITE, register, String.format("%02X", data));

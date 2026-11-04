@@ -32,7 +32,7 @@ public class Sen0539Controller extends I2CDeviceController {
 
   private static final int I2C_ADDR = 0x64;
 
-  private Sen0539Sensor sensor;
+  private final Sen0539Sensor sensor;
 
   public Sen0539Controller() {
     this.sensor = null;

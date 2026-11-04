@@ -142,7 +142,7 @@ public class Sen6xCommandHelper {
     for (byte value : new byte[] {msb, lsb}) {
       crc ^= value & 0xff;
       for (int bit = 0; bit < 8; bit++) {
-        crc = ((crc & 0x80) != 0 ? (crc << 1) ^ CRC8_POLY : crc << 1) & 0xff;
+        crc = ((crc & 0x80) == 0 ? crc << 1 : (crc << 1) ^ CRC8_POLY) & 0xff;
       }
     }
     return (byte) crc;

@@ -25,7 +25,7 @@ public class Crc8 {
     for (int i = offset; i < offset + length; i++) {
       crc ^= (data[i] & 0xFF);
       for (int b = 0; b < 8; b++) {
-        crc = (crc & 0x80) != 0 ? (crc << 1) ^ 0x31 : (crc << 1);
+        crc = (crc & 0x80) == 0 ? (crc << 1) : (crc << 1) ^ 0x31;
         crc &= 0xFF;
       }
     }

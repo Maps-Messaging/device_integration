@@ -29,8 +29,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SerialBusManager {
 
-  private Map<String, SerialDeviceController> knownDevices;
-  private Map<String, DeviceController> activeDevices;
+  private final Map<String, SerialDeviceController> knownDevices;
+  private final Map<String, DeviceController> activeDevices;
 
   public SerialBusManager() {
     knownDevices = new ConcurrentHashMap<>();
