@@ -183,6 +183,7 @@ public class AM2315Sensor extends I2CDevice implements Sensor {
     throw new IOException("Failed to read from AM2315", failure);
   }
 
+  @SuppressWarnings("javabugs:S6466") // The unsigned byte count plus four guarantees space for both header bytes and the CRC.
   private byte[] readRegisters(byte startReg, byte count) throws IOException {
     write(new byte[]{READ_FUNCTION, startReg, count});
     delay(10);
