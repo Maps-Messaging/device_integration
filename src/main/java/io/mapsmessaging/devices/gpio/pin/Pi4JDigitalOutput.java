@@ -29,7 +29,7 @@ public class Pi4JDigitalOutput extends BaseDigitalOutput {
   private final DigitalOutput output;
 
   public Pi4JDigitalOutput(DigitalOutput output) {
-    super(output.getAddress().intValue(), output.id(), output.name());
+    super(output.bcm(), output.id(), output.name());
     this.output = output;
   }
 

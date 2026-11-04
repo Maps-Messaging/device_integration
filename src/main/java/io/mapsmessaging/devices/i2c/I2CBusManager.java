@@ -22,6 +22,7 @@ package io.mapsmessaging.devices.i2c;
 import com.pi4j.context.Context;
 import com.pi4j.io.i2c.I2C;
 import com.pi4j.io.i2c.I2CConfig;
+import com.pi4j.io.i2c.I2CImplementation;
 import com.pi4j.io.i2c.I2CProvider;
 import io.mapsmessaging.devices.DeviceController;
 import io.mapsmessaging.devices.i2c.devices.demo.I2cDemoController;
@@ -225,6 +226,7 @@ public class I2CBusManager {
         .id("Device::" + Integer.toHexString(addr))
         .description("Device::" + Integer.toHexString(addr))
         .bus(i2cBus)
+        .i2cImplementation(I2CImplementation.DIRECT)
         .device(addr)
         .build();
     I2C device = i2cProvider.create(i2cConfig);

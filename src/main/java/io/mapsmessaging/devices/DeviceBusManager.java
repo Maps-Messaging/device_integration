@@ -23,6 +23,11 @@ import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
 import com.pi4j.io.i2c.I2C;
 import com.pi4j.io.i2c.I2CProvider;
+import com.pi4j.plugin.ffm.providers.gpio.FFMDigitalInputProviderImpl;
+import com.pi4j.plugin.ffm.providers.gpio.FFMDigitalOutputProviderImpl;
+import com.pi4j.plugin.ffm.providers.i2c.FFMI2CProviderImpl;
+import com.pi4j.plugin.ffm.providers.pwm.FFMPwmProviderImpl;
+import com.pi4j.plugin.ffm.providers.spi.FFMSpiProviderImpl;
 import io.mapsmessaging.devices.gpio.InterruptFactory;
 import io.mapsmessaging.devices.gpio.Pi4JPinManagement;
 import io.mapsmessaging.devices.gpio.PiInterruptFactory;
@@ -58,10 +63,13 @@ public class DeviceBusManager {
 
   private DeviceBusManager() {
     logger.log(DeviceLogMessage.BUS_MANAGER_STARTUP);
-    pi4j = Pi4J.newAutoContext();
-    I2CProvider i2cProvider = pi4j.getI2CProvider();
+    pi4j = Pi4J.newContextBuilder()
+        .noAutoDetect()
+        .add(new FFMDigitalInputProviderImpl(), new FFMDigitalOutputProviderImpl(), new FFMI2CProviderImpl(), new FFMSpiProviderImpl(), new FFMPwmProviderImpl())
+        .build();
+    I2CProvider i2cProvider = pi4j.provider("ffm-i2c");
     String name = i2cProvider.getId();
-    supportsLengthResponse = name.equalsIgnoreCase("linuxfs-i2c");
+    supportsLengthResponse = name.equalsIgnoreCase("ffm-i2c");
 
     logger.log(DeviceLogMessage.BUS_MANAGER_PROVIDER, name);
     i2cBusManager = new I2CBusManager[3];
