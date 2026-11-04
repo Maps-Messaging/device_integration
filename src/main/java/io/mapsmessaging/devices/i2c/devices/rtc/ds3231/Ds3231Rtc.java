@@ -23,7 +23,20 @@ import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.Clock;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.*;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.AgingRegister;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.Alarm1ModeRegister;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.Alarm2ModeRegister;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.AlarmDayRegister;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.ControlRegister;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.HourRegister;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.MinutesRegister;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.MonthDayRegister;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.MonthRegister;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.SecondsRegister;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.StatusRegister;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.TemperatureRegister;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.WeekDayRegister;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.YearRegister;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
@@ -36,7 +49,6 @@ import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.util.List;
 
 import static io.mapsmessaging.devices.logging.DeviceLogMessage.I2C_BUS_INVALID_DATE;
@@ -86,6 +98,7 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
   private final Alarm2ModeRegister alarm2ModeRegister;
   @Getter
   private final List<SensorReading<?>> readings;
+  private boolean temperatureInitialized;
   public Ds3231Rtc(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(Ds3231Rtc.class));
     secondsRegister = new SecondsRegister(this, 0x0, "SECONDS");
@@ -163,11 +176,46 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
   }
 
   protected float getTemperature() throws IOException {
+    ensureFirstTemperatureConversion();
     float val = temperatureRegister.getTemperature();
     if (logger.isDebugEnabled()) {
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), val + " = getTemperature()");
     }
     return val;
+  }
+
+  private synchronized void ensureFirstTemperatureConversion() throws IOException {
+    if (temperatureInitialized) {
+      return;
+    }
+    long deadline = System.nanoTime() + 500_000_000L;
+    while (statusRegister.isBusy()) {
+      waitForTemperatureConversion(deadline);
+    }
+    int control = readRegister(0x0e);
+    write(0x0e, (byte) (control | 0x20));
+    while ((readRegister(0x0e) & 0x20) != 0 || statusRegister.isBusy()) {
+      waitForTemperatureConversion(deadline);
+    }
+    temperatureInitialized = true;
+  }
+
+  private void waitForTemperatureConversion(long deadline) throws IOException {
+    if (System.nanoTime() >= deadline) {
+      throw new IOException("Timeout waiting for DS3231 initial temperature conversion");
+    }
+    try {
+      Thread.sleep(2);
+    } catch (InterruptedException exception) {
+      Thread.currentThread().interrupt();
+      throw new IOException("Interrupted waiting for DS3231 initial temperature conversion", exception);
+    }
+  }
+
+  private void requireValidClock() throws IOException {
+    if (statusRegister.isOscillatorStopped()) {
+      throw new IOException("DS3231 clock requires synchronization after oscillator stop");
+    }
   }
 
   public LocalDateTime getDateTime() throws IOException {
@@ -190,6 +238,7 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
     monthDayRegister.setDate(dateTime.getDayOfMonth());
     monthRegister.setMonth(dateTime.getMonth().getValue());
     yearRegister.setYear(dateTime.getYear());
+    statusRegister.clearOscillatorStopped();
   }
 
   @Override
@@ -231,6 +280,7 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
   }
 
   public LocalDate getDate() throws IOException {
+    requireValidClock();
     LocalDate localDate;
     int year = yearRegister.getYear();
     int month = monthRegister.getMonth();
@@ -239,7 +289,7 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
       localDate = LocalDate.of(year, month, date);
     } catch (DateTimeException invalid) {
       logger.log(I2C_BUS_INVALID_DATE, year, month, date);
-      localDate = LocalDate.now(ZoneId.systemDefault());
+      throw new IOException("Invalid DS3231 calendar date", invalid);
     }
     if (logger.isDebugEnabled()) {
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), localDate + " = getDate()");
@@ -259,6 +309,7 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
   }
 
   public LocalTime getTime() throws IOException {
+    requireValidClock();
     LocalTime localTime;
     int hour = hourRegister.getHours();
     int minute = minutesRegister.getMinutes();
@@ -267,7 +318,7 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
       localTime = LocalTime.of(hour, minute, second);
     } catch (DateTimeException e) {
       logger.log(I2C_BUS_INVALID_TIME, hour, minute, second);
-      localTime = LocalTime.now(ZoneId.systemDefault());
+      throw new IOException("Invalid DS3231 clock time", e);
     }
     if (logger.isDebugEnabled()) {
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), localTime + " = getTime()");

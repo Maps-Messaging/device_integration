@@ -27,6 +27,7 @@ import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 
 public class Pn532Controller extends I2CDeviceController {
 
@@ -75,7 +76,11 @@ public class Pn532Controller extends I2CDeviceController {
 
   @Override
   public I2CDeviceController mount(AddressableDevice device) throws IOException {
-    return new Pn532Controller(device);
+    try {
+      return new Pn532Controller(device);
+    } catch (UncheckedIOException e) {
+      throw e.getCause();
+    }
   }
 
   @Override

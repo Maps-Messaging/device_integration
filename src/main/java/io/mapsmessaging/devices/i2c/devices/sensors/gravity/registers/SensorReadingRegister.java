@@ -50,12 +50,13 @@ public class SensorReadingRegister extends CrcValidatingRegister {
   private void updateAllFields() throws IOException {
     if (lastRead < System.currentTimeMillis()) {
       byte[] data = new byte[9];
-      if (request(new byte[6], data)) {
-        concentration = (float) (data[2] << 8 | (data[3] & 0xff));
-        concentration = adjustPowers(data[5], concentration);
-        int raw = data[6] << 8 | (data[7] & 0xff);
-        temperature = computeTemperature(raw);
+      if (!request(new byte[6], data)) {
+        throw new IOException("Invalid Gravity sensor response checksum");
       }
+      concentration = (float) (data[2] << 8 | (data[3] & 0xff));
+      concentration = adjustPowers(data[5], concentration);
+      int raw = data[6] << 8 | (data[7] & 0xff);
+      temperature = computeTemperature(raw);
       lastRead = System.currentTimeMillis() + 100;
     }
   }

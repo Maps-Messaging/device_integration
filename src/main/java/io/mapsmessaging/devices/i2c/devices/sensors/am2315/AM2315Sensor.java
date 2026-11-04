@@ -89,7 +89,7 @@ public class AM2315Sensor extends I2CDevice implements Sensor {
 
   @Override
   public boolean isConnected() {
-    return false;
+    return true;
   }
 
   @Override
@@ -160,44 +160,52 @@ public class AM2315Sensor extends I2CDevice implements Sensor {
   private void loadValues() throws IOException {
     if (lastRead < System.currentTimeMillis()) {
       byte[] sensorReadings = retryReads(HIGH_RH, RETENTION_1);
-      temperature = ((sensorReadings[2] & 0xff) << 8 | (sensorReadings[3] & 0xff) + 10) / 10.0f;
+      int rawTemperature = ((sensorReadings[2] & 0x7f) << 8) | (sensorReadings[3] & 0xff);
+      temperature = rawTemperature / 10.0f;
+      if ((sensorReadings[2] & 0x80) != 0) {
+        temperature = -temperature;
+      }
       humidity = ((sensorReadings[0] & 0xff) << 8 | (sensorReadings[1] & 0xff)) / 10.0f;
       lastRead = System.currentTimeMillis() + 1000;
     }
   }
 
   private byte[] retryReads(byte start, byte end) throws IOException {
-    int count = 0;
-    while (count < 10) {
+    IOException failure = null;
+    for (int count = 0; count < 10; count++) {
       try {
         return readRegisters(start, end);
-      } catch (Exception th) {
-        count++;
+      } catch (IOException exception) {
+        failure = exception;
         delay(10);
       }
     }
-    throw new IOException("Failed to read from device");
+    throw new IOException("Failed to read from AM2315", failure);
   }
 
-  private byte[] readRegisters(byte startReg, byte endReg) throws IOException {
-    byte[] sendPacket = new byte[3];
-    sendPacket[0] = READ_FUNCTION;
-    sendPacket[1] = startReg;
-    sendPacket[2] = endReg;
-    write(sendPacket);
+  private byte[] readRegisters(byte startReg, byte count) throws IOException {
+    write(new byte[]{READ_FUNCTION, startReg, count});
     delay(10);
-    byte[] header = new byte[32];
-    int received = read(header);
-    if (header[0] != 3) {
-      throw new IOException("Expected read");
+    int expected = (count & 0xff) + 4;
+    byte[] response = new byte[expected];
+    int received = read(response);
+    if (received != expected || response[0] != READ_FUNCTION || (response[1] & 0xff) != (count & 0xff)) {
+      throw new IOException("Invalid AM2315 response length or header");
     }
-    int len = received - 4;
-    if (len > 0) {
-      byte[] res = new byte[len];
-      System.arraycopy(header, 2, res, 0, res.length);
-      return res;
+    int crc = 0xffff;
+    for (int index = 0; index < expected - 2; index++) {
+      crc ^= response[index] & 0xff;
+      for (int bit = 0; bit < 8; bit++) {
+        crc = (crc & 1) != 0 ? (crc >>> 1) ^ 0xa001 : crc >>> 1;
+      }
     }
-    return new byte[0];
+    int receivedCrc = (response[expected - 2] & 0xff) | ((response[expected - 1] & 0xff) << 8);
+    if (crc != receivedCrc) {
+      throw new IOException("Invalid AM2315 response CRC");
+    }
+    byte[] result = new byte[count & 0xff];
+    System.arraycopy(response, 2, result, 0, result.length);
+    return result;
   }
 
   @Override

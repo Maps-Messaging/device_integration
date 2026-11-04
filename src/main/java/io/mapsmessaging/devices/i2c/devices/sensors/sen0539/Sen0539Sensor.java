@@ -91,7 +91,12 @@ public class Sen0539Sensor extends I2CDevice implements Sensor {
     long now = System.currentTimeMillis();
     if (now >= nextRefreshMs) {
       // Burst read the contiguous register window [0x02..0x06]
-      readRegister(REG_BASE, data, 0, FRAME_LEN);
+      byte[] frame = new byte[FRAME_LEN];
+      int count = readRegister(REG_BASE, frame, 0, FRAME_LEN);
+      if (count != FRAME_LEN) {
+        throw new IOException("Incomplete SEN0539 response: expected " + FRAME_LEN + " bytes, received " + count);
+      }
+      System.arraycopy(frame, 0, data, 0, FRAME_LEN);
       nextRefreshMs = now + 250; // ~4 Hz
     }
   }

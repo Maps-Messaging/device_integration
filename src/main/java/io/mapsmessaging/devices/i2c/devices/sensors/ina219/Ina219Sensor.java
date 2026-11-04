@@ -22,7 +22,12 @@ package io.mapsmessaging.devices.i2c.devices.sensors.ina219;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.*;
+import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.ADCResolution;
+import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.BusVoltageRange;
+import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.GainMask;
+import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.OperatingMode;
+import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.Registers;
+import io.mapsmessaging.devices.i2c.devices.sensors.ina219.registers.ShuntADCResolution;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
@@ -38,6 +43,9 @@ public class Ina219Sensor extends I2CDevice implements Sensor {
 
   private static final double CURRENT_LSB = 0.0001; // A per bit
   private static final double POWER_LSB = CURRENT_LSB * 20; // W per bit
+
+  private boolean initialized;
+  private boolean conversionReady;
 
   @Getter
   private final List<SensorReading<?>> readings;
@@ -61,7 +69,7 @@ public class Ina219Sensor extends I2CDevice implements Sensor {
     adcResolution = ADCResolution.RES_12BIT;
     busVoltageRange = BusVoltageRange.RANGE_32V;
     gainMask = GainMask.GAIN_8_320MV;
-    operatingMode = OperatingMode.BVOLT_CONTINUOUS;
+    operatingMode = OperatingMode.SANDBVOLT_CONTINUOUS;
     shuntADCResolution = ShuntADCResolution.RES_12BIT_1S_532US;
     FloatSensorReading busVoltage = new FloatSensorReading(
         "bus_voltage",
@@ -207,18 +215,23 @@ public class Ina219Sensor extends I2CDevice implements Sensor {
   }
 
   public void configure() throws IOException {
-    int config =
-        busVoltageRange.getValue() << 13 |
-            gainMask.getValue() << 11 |
-            adcResolution.getValue() << 7 |
-            shuntADCResolution.getValue() << 3 |
-            operatingMode.getValue(); // assumed already correct
+    initialized = false;
+    conversionReady = false;
+    int config = busVoltageRange.getValue() | gainMask.getValue() | adcResolution.getValue()
+        | shuntADCResolution.getValue() | operatingMode.getValue();
     writeDevice(Registers.CONFIGURATION, config);
+    if ((readDevice(Registers.CONFIGURATION) & 0x7fff) != config) {
+      throw new IOException("INA219 configuration readback mismatch");
+    }
   }
 
   @Override
   public boolean isConnected() {
-    return true;
+    try {
+      return initialized && readDevice(Registers.CALIBRATION) == calculateCalibration(CURRENT_LSB, 0.1);
+    } catch (IOException exception) {
+      return false;
+    }
   }
 
   public float getCurrent_mA() throws IOException {
@@ -226,21 +239,25 @@ public class Ina219Sensor extends I2CDevice implements Sensor {
   }
 
   public float getPower() throws IOException {
+    ensureConversionReady();
     return (float) (readDevice(Registers.POWER) * POWER_LSB * 1000); // to mW
   }
 
   public int getBusVoltage() throws IOException {
+    ensureConversionReady();
     int value = readDevice(Registers.BUS_VOLTAGE);
     value = value >> 3;
-    return value;
+    return value * 4;
   }
 
   public int getCurrent() throws IOException {
-    return readDevice(Registers.CURRENT);
+    ensureConversionReady();
+    return (short) readDevice(Registers.CURRENT);
   }
 
   public int getShuntVoltageRaw() throws IOException {
-    return readDevice(Registers.SHUNT_VOLTAGE);
+    ensureConversionReady();
+    return (short) readDevice(Registers.SHUNT_VOLTAGE);
   }
 
   public double getShuntVoltage() throws IOException {
@@ -252,7 +269,27 @@ public class Ina219Sensor extends I2CDevice implements Sensor {
     double currentLsb = 0.0001;      // 100 µA per bit
     double shuntResistor = 0.1;      // 0.1 ohm
     int calibration = calculateCalibration(currentLsb, shuntResistor);
+    initialized = false;
+    conversionReady = false;
     writeDevice(Registers.CALIBRATION, calibration);
+    if (readDevice(Registers.CALIBRATION) != calibration) {
+      throw new IOException("INA219 calibration readback mismatch");
+    }
+    initialized = true;
+  }
+
+  private void ensureConversionReady() throws IOException {
+    if (!initialized) {
+      throw new IOException("INA219 is not initialized");
+    }
+    int status = readDevice(Registers.BUS_VOLTAGE);
+    if ((status & 1) != 0) {
+      throw new IOException("INA219 current or power calculation overflow");
+    }
+    if (!conversionReady && (status & 2) == 0) {
+      throw new IOException("INA219 first conversion is not ready");
+    }
+    conversionReady = true;
   }
 
   private int calculateCalibration(double currentLsb, double shuntResistanceOhms) {
@@ -261,7 +298,9 @@ public class Ina219Sensor extends I2CDevice implements Sensor {
 
   private int readDevice(Registers register) throws IOException {
     byte[] buf = new byte[2];
-    readRegister(register.getAddress(), buf, 0, 2);
+    if (readRegister(register.getAddress(), buf, 0, 2) != 2) {
+      throw new IOException("Incomplete INA219 register response");
+    }
     return (buf[0] & 0xff) << 8 | (buf[1] & 0xff);
   }
 

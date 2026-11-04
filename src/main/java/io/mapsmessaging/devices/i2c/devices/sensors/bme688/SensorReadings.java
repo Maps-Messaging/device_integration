@@ -54,6 +54,9 @@ public class SensorReadings {
   @Setter
   private long dataReady;
 
+  @Getter
+  private boolean measured;
+
   public SensorReadings(BME688Sensor sensor, int index, CalibrationData calibrationData) throws IOException {
     humidityMeasurement = new HumidityMeasurement(sensor, index, calibrationData);
     pressureMeasurement = new PressureMeasurement(sensor, index, calibrationData);
@@ -67,11 +70,12 @@ public class SensorReadings {
   public void doMeasurements() throws IOException {
     measurementStatusRegister.read();
     subMeasureIndex.read();
-    if (!measurementStatusRegister.isReadingGas() && !measurementStatusRegister.isMeasuring()) {
+    if (measurementStatusRegister.hasNewData() && !measurementStatusRegister.isReadingGas() && !measurementStatusRegister.isMeasuring()) {
       temperature = temperatureMeasurement.getMeasurement(); // Must be performed first to compute t_fine
       humidity = humidityMeasurement.getMeasurement();
       pressure = pressureMeasurement.getMeasurement();
       gas = gasMeasurement.getMeasurement();
+      measured = true;
     }
   }
 

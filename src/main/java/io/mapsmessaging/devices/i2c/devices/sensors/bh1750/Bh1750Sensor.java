@@ -52,6 +52,7 @@ public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor, 
 
   private int lux;
   private long lastRead;
+  private long readyAt;
 
   public Bh1750Sensor(AddressableDevice device) throws IOException {
     super(device, LoggerFactory.getLogger(Bh1750Sensor.class));
@@ -95,6 +96,8 @@ public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor, 
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "reset()");
     }
     write(RESET);
+    lastRead = 0;
+    readyAt = System.currentTimeMillis() + conversionDelay();
     delay(10);
   }
 
@@ -104,6 +107,8 @@ public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor, 
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "softReset()");
     }
     write(RESET);
+    lastRead = 0;
+    readyAt = System.currentTimeMillis() + conversionDelay();
     delay(10);
   }
 
@@ -121,6 +126,8 @@ public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor, 
     powerOn();
     readingModeRegister.setResolutionMode(ResolutionMode.H_RESOLUTION_MODE);
     readingModeRegister.setSensorReading(SensorReadingMode.CONTINUOUS);
+    lastRead = 0;
+    readyAt = System.currentTimeMillis() + conversionDelay();
   }
 
   @Override
@@ -134,12 +141,21 @@ public class Bh1750Sensor extends I2CDevice implements PowerManagement, Sensor, 
   }
 
 
+  private int conversionDelay() {
+    return readingModeRegister.getResolutionMode() == ResolutionMode.L_RESOLUTION_MODE ? 24 : 180;
+  }
+
   private void scanForChange() throws IOException {
+    if (System.currentTimeMillis() < readyAt) {
+      throw new IOException("BH1750 conversion is not ready");
+    }
     if (lastRead < System.currentTimeMillis()) {
-      lastRead = System.currentTimeMillis() + readingModeRegister.getResolutionMode().getDelay();
       byte[] data = new byte[2];
-      read(data);
+      if (read(data) != data.length) {
+        throw new IOException("Invalid BH1750 response length");
+      }
       lux = (data[0] & 0xff) << 8 | (data[1] & 0xff);
+      lastRead = System.currentTimeMillis() + readingModeRegister.getResolutionMode().getDelay();
     }
   }
 

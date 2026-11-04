@@ -68,6 +68,9 @@ public class GasSensor extends I2CDevice implements Sensor {
 
     concentrationRegister = new ConcentrationRegister(this);
     sensorType = concentrationRegister.getSensorType();
+    if (sensorType == null || sensorType == SensorType.UNKNOWN) {
+      throw new IOException("Unknown Gravity gas sensor type");
+    }
     i2CRegister = new I2CRegister(this);
     acquireModeRegister = new AcquireModeRegister(this);
     thresholdAlarmRegister = new ThresholdAlarmRegister(this);

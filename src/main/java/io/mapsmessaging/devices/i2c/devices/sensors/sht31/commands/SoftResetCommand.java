@@ -21,6 +21,6 @@ package io.mapsmessaging.devices.i2c.devices.sensors.sht31.commands;
 
 public class SoftResetCommand extends Command {
   public SoftResetCommand() {
-    super(0x30A2, 0, 0);
+    super(0x30A2, 2, 0);
   }
 }

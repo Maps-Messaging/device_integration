@@ -20,9 +20,10 @@
 package io.mapsmessaging.devices.onewire;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.util.List;
-import java.util.Scanner;
 
 public abstract class OneWireDevice {
 
@@ -40,17 +41,10 @@ public abstract class OneWireDevice {
   public abstract void process(List<String> data);
 
   public void update() {
-    List<String> ret = new ArrayList<>();
-    try (Scanner scanner = new Scanner(myDataFile)) {
-      String line;
-      do {
-        line = scanner.nextLine();
-        if (!line.isEmpty()) ret.add(line);
-      }
-      while (!line.isEmpty());
-    } catch (Exception e) {
-      // ignore
+    try {
+      process(Files.readAllLines(myDataFile.toPath()));
+    } catch (IOException failure) {
+      throw new UncheckedIOException("Unable to read 1-Wire sensor data", failure);
     }
-    process(ret);
   }
 }

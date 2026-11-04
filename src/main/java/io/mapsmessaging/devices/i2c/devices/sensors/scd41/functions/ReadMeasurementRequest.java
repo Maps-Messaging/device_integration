@@ -26,9 +26,9 @@ import lombok.Getter;
 public class ReadMeasurementRequest extends Request {
 
   private static final int MASK = 65535;
-  private int co2;
-  private float temperature;
-  private float humidity;
+  private int co2 = Integer.MIN_VALUE;
+  private float temperature = Float.NaN;
+  private float humidity = Float.NaN;
 
   public ReadMeasurementRequest(AddressableDevice device) {
     super(1, 0xEC05, 9, device);
@@ -42,12 +42,14 @@ public class ReadMeasurementRequest extends Request {
 
   @Override
   public byte[] getResponse() {
-    co2 = Integer.MIN_VALUE;
-    temperature = Float.NaN;
-    humidity = Float.NaN;
     byte[] response = super.getResponse();
     if (response.length < 9) {
       throw new IllegalStateException("SCD41 measurement response must contain 9 bytes");
+    }
+    for (int offset = 0; offset < response.length; offset += 3) {
+      if (generateCrc(response, offset) != response[offset + 2]) {
+        throw new IllegalStateException("SCD41 measurement CRC mismatch at word " + offset / 3);
+      }
     }
     if (generateCrc(response, 0) == response[2]) {
       co2 = (response[0] & 0xff) << 8 | (response[1] & 0xff);

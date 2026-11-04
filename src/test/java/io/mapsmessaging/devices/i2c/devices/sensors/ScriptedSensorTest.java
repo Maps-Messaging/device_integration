@@ -2,6 +2,7 @@ package io.mapsmessaging.devices.i2c.devices.sensors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.devices.sensors.am2320.AM2320Controller;
@@ -12,6 +13,8 @@ import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.Sen6xCommandHelper;
 import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.GetDataReadyFlagCommand;
 import io.mapsmessaging.devices.i2c.devices.sensors.sht31.Sht31Controller;
 import io.mapsmessaging.devices.i2c.devices.sensors.sht31.Sht31Sensor;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
@@ -24,8 +27,11 @@ class ScriptedSensorTest {
       assertEquals(0x23, controller.getMountedAddress());
       assertTrue(controller.detect(bus));
       assertFalse(bus.writes().isEmpty());
-      String state = new String(controller.getDeviceState());
-      assertTrue(JsonParser.parseString(state).getAsJsonObject().has("lux"), state);
+      JsonObject initialState = JsonParser.parseString(new String(controller.getDeviceState())).getAsJsonObject();
+      assertTrue(initialState.get("lux").getAsJsonPrimitive().isString());
+      Thread.sleep(200);
+      JsonObject state = JsonParser.parseString(new String(controller.getDeviceState())).getAsJsonObject();
+      assertEquals(250.0f, state.get("lux").getAsFloat());
     } finally {
       controller.close();
     }
@@ -53,14 +59,7 @@ class ScriptedSensorTest {
   void am2320RejectsCorruptChecksumEvenWithValidHeader() throws Exception {
     ScriptedI2CDevice bus = new ScriptedI2CDevice(0x5c,
         new byte[] {3, 4, 2, 43, 0, (byte) 235, 0, 0});
-    I2CDeviceController controller = new AM2320Controller().mount(bus);
-    try {
-      AM2320Sensor sensor = (AM2320Sensor) controller.getDevice();
-      assertEquals(-273.0f, sensor.getTemperature());
-      assertEquals(-273.0f, sensor.getHumidity());
-    } finally {
-      controller.close();
-    }
+    assertThrows(IOException.class, () -> new AM2320Controller().mount(bus));
   }
 
   @Test
@@ -75,6 +74,9 @@ class ScriptedSensorTest {
   @Test
   void pmsa003iReadsParticulateCountsFromScriptedRegisterBlock() throws Exception {
     byte[] frame = new byte[32];
+    frame[0] = 0x42;
+    frame[1] = 0x4d;
+    frame[3] = 28;
     frame[4] = 0;
     frame[5] = 12;
     frame[6] = 0;
@@ -82,10 +84,16 @@ class ScriptedSensorTest {
     frame[8] = 0;
     frame[9] = 40;
     frame[28] = 3;
+    int checksum = 0;
+    for (int index = 0; index < 30; index++) {
+      checksum += frame[index] & 0xff;
+    }
+    frame[30] = (byte) (checksum >>> 8);
+    frame[31] = (byte) checksum;
     ScriptedI2CDevice bus = new ScriptedI2CDevice(0x12, frame);
     I2CDeviceController controller = new Pmsa003iController().mount(bus);
     try {
-      var state = JsonParser.parseString(new String(controller.getDeviceState())).getAsJsonObject();
+      JsonObject state = JsonParser.parseString(new String(controller.getDeviceState())).getAsJsonObject();
       assertEquals(12, state.get("pm_1_0").getAsInt());
       assertEquals(25, state.get("pm_2_5").getAsInt());
       assertEquals(40, state.get("pm_10").getAsInt());
@@ -106,8 +114,9 @@ class ScriptedSensorTest {
       Sht31Sensor sensor = (Sht31Sensor) controller.getDevice();
       assertEquals(20.6f, sensor.getTemperature(), 0.2f);
       assertEquals(50.0f, sensor.getHumidity(), 0.2f);
-      assertArrayEquals(new byte[] {0x30, (byte) 0xa2}, bus.writes().get(0));
-      assertArrayEquals(new byte[] {(byte) 0xe0, 0}, bus.writes().get(2));
+      assertArrayEquals(new byte[] {0x30, (byte) 0x93}, bus.writes().get(0));
+      assertArrayEquals(new byte[] {0x30, (byte) 0xa2}, bus.writes().get(1));
+      assertArrayEquals(new byte[] {(byte) 0xe0, 0}, bus.writes().get(3));
     } finally {
       controller.close();
     }
@@ -120,7 +129,7 @@ class ScriptedSensorTest {
     I2CDeviceController controller = new Sht31Controller().mount(bus);
     try {
       Sht31Sensor sensor = (Sht31Sensor) controller.getDevice();
-      assertThrows(IllegalStateException.class, sensor::getTemperature);
+      assertThrows(UncheckedIOException.class, sensor::getTemperature);
     } finally {
       controller.close();
     }

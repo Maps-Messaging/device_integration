@@ -67,7 +67,9 @@ public class CrcValidatingRegister extends Register {
     buf[0] = command.getCommandValue();
     sensor.write(pack(buf));
     sensor.delay(100);
-    sensor.readRegister(0, result, 0, result.length);
+    if (sensor.readRegister(0, result, 0, result.length) != result.length) {
+      throw new IOException("Invalid Gravity response length");
+    }
     byte checksum = calculateChecksum(result);
     return (result[8] == checksum);
   }

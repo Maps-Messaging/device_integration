@@ -20,6 +20,10 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.sen6x;
 
 import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.Sen6xMeasurementManager;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.data.MeasurementBlock;
+import io.mapsmessaging.devices.sensorreadings.ReadingSupplier;
+import java.io.IOException;
+import java.io.InterruptedIOException;
 
 public class ResetMonitor {
 
@@ -31,11 +35,37 @@ public class ResetMonitor {
     this.sen6xMeasurementManager = sen6xMeasurementManager;
   }
 
-  public void check() throws java.io.IOException {
+  /** The sensor owns lifecycle changes; acquire its lock before the measurement-manager and device locks. */
+  public MeasurementBlock read(ReadingSupplier<MeasurementBlock> reader) throws IOException {
     synchronized (sen6xSensor) {
-      if (sen6xSensor.isMeasuring() && sen6xMeasurementManager.hasLocked()) {
+      if (!sen6xSensor.isMeasurementRequested()) {
+        throw new IOException("SEN6x measurement is stopped");
+      }
+      if (!sen6xSensor.isMeasuring()) {
+        check();
+        if (!sen6xSensor.isMeasuring()) {
+          throw new IOException("SEN6x measurement is awaiting recovery");
+        }
+      }
+      try {
+        return reader.get();
+      } catch (IOException failure) {
+        if (!(failure instanceof InterruptedIOException) && !Thread.currentThread().isInterrupted()) {
+          try {
+            check();
+          } catch (IOException recoveryFailure) {
+            failure.addSuppressed(recoveryFailure);
+          }
+        }
+        throw failure;
+      }
+    }
+  }
+
+  public void check() throws IOException {
+    synchronized (sen6xSensor) {
+      if (sen6xSensor.isMeasurementRequested() && sen6xMeasurementManager.hasLocked()) {
         sen6xSensor.reset();
-        sen6xSensor.powerOn();
       }
     }
   }

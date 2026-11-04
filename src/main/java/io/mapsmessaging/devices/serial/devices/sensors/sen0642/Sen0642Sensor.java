@@ -285,6 +285,7 @@ public class Sen0642Sensor implements Device, Sensor {
     }
 
     byte[] buffer = new byte[expectedResponseLength];
+    byte[] fragment = new byte[expectedResponseLength];
     int bytesRead = 0;
     long deadline = System.nanoTime() + responseTimeout.toNanos();
 
@@ -296,7 +297,7 @@ public class Sen0642Sensor implements Device, Sensor {
 
       int remaining = expectedResponseLength - bytesRead;
 
-      int readCount = serialPort.readBytes(buffer, remaining);
+      int readCount = serialPort.readBytes(fragment, remaining);
       if (readCount < 0) {
         throw new IOException("Error reading from serial port, readBytes=" + readCount);
       }
@@ -304,6 +305,10 @@ public class Sen0642Sensor implements Device, Sensor {
         continue;
       }
 
+      if (readCount > remaining) {
+        throw new IOException("Serial read exceeded requested response length");
+      }
+      System.arraycopy(fragment, 0, buffer, bytesRead, readCount);
       bytesRead += readCount;
     }
 

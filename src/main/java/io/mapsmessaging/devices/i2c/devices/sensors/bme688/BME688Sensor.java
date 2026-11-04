@@ -38,6 +38,7 @@ import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.List;
 
 public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
@@ -68,6 +69,7 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
   @Getter
   private final List<SensorReading<?>> readings;
   private long lastRead = 0;
+  private boolean powered;
   private final int readingIndex;
 
   public BME688Sensor(AddressableDevice device) throws IOException {
@@ -135,13 +137,12 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
     }
   }
 
-  public float getDewPoint(){
+  public float getDewPoint() {
     try {
       return (float) ComputeDewPoint.computeDewPoint(getTemperature(), getHumidity());
-    } catch (IOException e) {
-      // ignore
+    } catch (IOException exception) {
+      throw new UncheckedIOException("Unable to read BME688 dew point", exception);
     }
-    return 0.0f;
   }
 
   private String getGasProfileMode() {
@@ -179,6 +180,8 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
   @Override
   public void powerOff() throws IOException {
     controlMeasurementRegister.setPowerMode(PowerMode.SLEEP_MODE);
+    controlMeasurementRegister.updateRegister();
+    powered = false;
   }
 
   private void initialise() throws IOException {
@@ -205,6 +208,8 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
     controlMeasurementRegister.setPowerMode(PowerMode.FORCED_MODE);
     controlMeasurementRegister.updateRegister();
     sensorReadings[0].setDataReady(System.currentTimeMillis() + 1000);
+    lastRead = sensorReadings[0].getDataReady();
+    powered = true;
   }
 
   public void startParallelMode() throws IOException {
@@ -238,8 +243,14 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
   }
 
   private void checkState() throws IOException {
+    if (!powered) {
+      throw new IOException("BME688 is powered off");
+    }
     if (sensorReadings[readingIndex].getDataReady() < System.currentTimeMillis()) {
       sensorReadings[readingIndex].doMeasurements();
+    }
+    if (!sensorReadings[readingIndex].isMeasured()) {
+      throw new IOException("BME688 conversion is not ready");
     }
     if (lastRead < System.currentTimeMillis()) {
       lastRead = System.currentTimeMillis() + 1000;

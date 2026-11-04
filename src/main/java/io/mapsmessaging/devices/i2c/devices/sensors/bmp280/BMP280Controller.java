@@ -19,6 +19,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.bmp280;
 
+import com.pi4j.exception.Pi4JException;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
@@ -31,7 +32,6 @@ import java.io.IOException;
 
 public class BMP280Controller extends I2CDeviceController {
 
-  private static final int i2cAddr = 0x78;
   private final BMP280Sensor sensor;
 
   public BMP280Controller() {
@@ -59,7 +59,11 @@ public class BMP280Controller extends I2CDeviceController {
 
   @Override
   public boolean detect(AddressableDevice i2cDevice) {
-    return sensor != null && sensor.isConnected();
+    try {
+      return i2cDevice.readRegister(0xd0) == 0x58;
+    } catch (Pi4JException exception) {
+      return false;
+    }
   }
 
   public I2CDeviceController mount(AddressableDevice device) throws IOException {
@@ -90,7 +94,7 @@ public class BMP280Controller extends I2CDeviceController {
 
   @Override
   public int[] getAddressRange() {
-    return new int[]{i2cAddr};
+    return new int[]{0x76, 0x77};
   }
 
 }

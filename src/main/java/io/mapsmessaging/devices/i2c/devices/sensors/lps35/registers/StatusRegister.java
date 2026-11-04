@@ -44,6 +44,16 @@ public class StatusRegister extends SingleByteRegister {
     reload();
   }
 
+  public boolean isPressureDataAvailable() throws IOException {
+    reload();
+    return (registerValue & PRESSURE_DATA_AVAILABLE) != 0;
+  }
+
+  public boolean isTemperatureDataAvailable() throws IOException {
+    reload();
+    return (registerValue & TEMPERATURE_DATA_AVAILABLE) != 0;
+  }
+
   public Status[] getStatus() throws IOException {
     reload();
     List<Status> sourceList = new ArrayList<>();

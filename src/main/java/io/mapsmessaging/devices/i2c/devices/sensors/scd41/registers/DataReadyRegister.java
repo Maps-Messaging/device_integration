@@ -30,6 +30,7 @@ public class DataReadyRegister extends RequestRegister {
   }
 
   public boolean isDataReady() {
+    request.getResponse();
     return ((DataReadyRequest) request).isDataReady();
   }
 
