@@ -35,8 +35,8 @@ import java.util.Map;
 public class Pi4JPinManagement extends PinManagement {
 
   private final Context pi4j;
-  private DigitalInputProvider inputProvider;
-  private DigitalOutputProvider outputProvider;
+  private final DigitalInputProvider inputProvider;
+  private final DigitalOutputProvider outputProvider;
 
   public Pi4JPinManagement(Context pi4J) {
     this.pi4j = pi4J;
