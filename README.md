@@ -4,6 +4,56 @@ This project provides a unified interface for communicating with I2C, SPI and 1-
 It supports a wide range of sensors, LED panels, servo drivers, and other devices. 
 The controller can automatically detect known devices on the bus and provide access to these devices through a standard JSON-based API.
 
+## Runtime and hardware access (Pi4J 4)
+
+This branch requires **JDK 25** and uses **Pi4J 4.0.2** with the FFM provider for Linux GPIO, I2C and SPI. The previous PiGpio, GpioD, LinuxFS and Raspberry Pi provider plugins are no longer dependencies. Sensor decoding and the `AddressableDevice` interface are unchanged. Serial continues to use jSerialComm, and 1-Wire continues to use the Linux w1 filesystem.
+
+Build and test with JDK 25:
+
+```bash
+mvn -Psnapshot clean test
+```
+
+For applications using the library on the classpath, add this JVM option to the application's existing launch command:
+
+```text
+--enable-native-access=ALL-UNNAMED
+```
+
+For a modular application, grant native access to `com.pi4j.plugin.ffm` instead. These JVM options do not grant Linux device permissions. The library does not modify the host's permissions or application launch scripts.
+
+### Running without root
+
+Configure the machine once with administrator privileges, then run the application as its normal service account:
+
+- Enable the required I2C/SPI interfaces and device-tree overlays for the board.
+- Install the FFM I2C dependency documented by Pi4J (`libi2c-dev` on Debian/Raspberry Pi OS).
+- Give the service account membership of `i2c`, `spi`, and either `gpio` or `dialout`, as appropriate for the distribution. Pi4J checks these groups when constructing the selected providers.
+- Configure device ownership and `udev` rules to grant the account read/write access to the required `/dev/i2c-*`, `/dev/spidev*` and `/dev/gpiochip*` nodes. Hardware PWM requires separate permissions if used by the application.
+- Restart the service after changing its supplementary groups. A systemd service may also need its device restrictions adjusted to permit the selected nodes.
+
+Do not use world-writable device permissions. Running the Maps process as root is unnecessary with correctly configured device access.
+
+### Configuration compatibility
+
+Existing GPIO property maps using `address` remain supported: the library translates that key to Pi4J 4's `bcm` key without modifying the caller's map. An explicitly supplied `bcm` value takes precedence. Select the GPIO chip using Pi4J's `bus` property and verify its line offsets on the target board.
+
+SPI retains the existing `spiBus`, `spiChipSelect` and `spiMode` settings. The selected bus/chip-select pair identifies `/dev/spidev<bus>.<chip-select>` through the FFM provider.
+
+I2C requests use the DIRECT implementation for combined register transactions and report transfer lengths for existing write validation. Pi4J 4.0.2 silently falls back to its file implementation when an adapter lacks direct I2C support. That fallback does not preserve register addressing or read offsets/lengths. Do not use adapters requiring that fallback with this branch. An explicit rejection or compatibility backend has not been implemented.
+
+### Hardware validation before deployment
+
+Automated tests validate configuration and simulated sensor transactions. They do not establish physical Pi 4/Pi 5 compatibility. On each target board, verify:
+
+- Non-root startup with the production service account and its actual permissions.
+- I2C raw and register reads/writes, CRC checks, bus scanning and device remounts.
+- SPI bus, mode, chip select and ADC conversion results.
+- GPIO input/output, interrupt edges and output shutdown states.
+- Serial and 1-Wire operation alongside the new providers.
+
+Provider setup: https://www.pi4j.com/documentation/providers/ffm/
+
 ## Features
 - **JSON-Schema**: All devices define a JSON Schema that can be fetched to enable easy integration of devices for read or write
 - **Unified JSON-based API**: All devices can be accessed and manipulated using a standard API, which exchanges data in JSON format.

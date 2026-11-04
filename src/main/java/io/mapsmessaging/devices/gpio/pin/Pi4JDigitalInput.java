@@ -28,7 +28,7 @@ public class Pi4JDigitalInput extends BaseDigitalInput {
   private final DigitalInput input;
 
   public Pi4JDigitalInput(DigitalInput input) {
-    super(input.getAddress().intValue(), input.id(), input.name());
+    super(input.bcm(), input.id(), input.name());
     this.input = input;
   }
 

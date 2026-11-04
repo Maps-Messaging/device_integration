@@ -21,9 +21,11 @@ package io.mapsmessaging.devices.spi;
 
 import com.pi4j.context.Context;
 import com.pi4j.io.gpio.digital.DigitalOutput;
+import com.pi4j.io.gpio.digital.DigitalOutputConfigBuilder;
 import com.pi4j.io.gpio.digital.DigitalState;
 import com.pi4j.io.spi.Spi;
 import com.pi4j.io.spi.SpiChipSelect;
+import com.pi4j.io.spi.SpiConfig;
 import com.pi4j.io.spi.SpiMode;
 import io.mapsmessaging.devices.DeviceController;
 import lombok.Getter;
@@ -39,26 +41,26 @@ public abstract class SpiDeviceController extends DeviceController {
   public abstract SpiDeviceController mount(Context pi4j, Map<String, String> config);
 
   public Spi createDevice(Context pi4j, String name, String id, int spiBus, SpiChipSelect chipSelect, SpiMode mode) {
-    var spiConfig = Spi.newConfigBuilder(pi4j)
+    SpiConfig spiConfig = Spi.newConfigBuilder(pi4j)
         .id(id)
         .name(name)
         .bus(spiBus)
-        .chipSelect(chipSelect) // not used
+        .chipSelect(chipSelect)
         .mode(mode)
-        .provider("pigpio-spi")
+        .provider("ffm-spi")
         .build();
     return pi4j.create(spiConfig);
   }
 
   public DigitalOutput createClientSelect(Context pi4j, String id, String name, int address, DigitalState initialState, DigitalState shutdownState) {
     // required all configs
-    var outputConfig = DigitalOutput.newConfigBuilder(pi4j)
+    DigitalOutputConfigBuilder outputConfig = DigitalOutput.newConfigBuilder(pi4j)
         .id(id)
         .name(name)
-        .address(address)
+        .bcm(address)
         .shutdown(shutdownState)
         .initial(initialState)
-        .provider("pigpio-digital-output");
+        .provider("ffm-digital-output");
     return pi4j.create(outputConfig);
   }
 

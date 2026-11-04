@@ -21,8 +21,10 @@ package io.mapsmessaging.devices.gpio;
 
 import com.pi4j.context.Context;
 import com.pi4j.io.gpio.digital.DigitalInput;
+import com.pi4j.io.gpio.digital.DigitalInputConfig;
 import com.pi4j.io.gpio.digital.DigitalInputProvider;
 import com.pi4j.io.gpio.digital.DigitalOutput;
+import com.pi4j.io.gpio.digital.DigitalOutputConfig;
 import com.pi4j.io.gpio.digital.DigitalOutputProvider;
 import io.mapsmessaging.devices.gpio.pin.BaseDigitalInput;
 import io.mapsmessaging.devices.gpio.pin.BaseDigitalOutput;
@@ -30,6 +32,7 @@ import io.mapsmessaging.devices.gpio.pin.Pi4JDigitalInput;
 import io.mapsmessaging.devices.gpio.pin.Pi4JDigitalOutput;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Pi4JPinManagement extends PinManagement {
@@ -46,23 +49,31 @@ public class Pi4JPinManagement extends PinManagement {
 
   @Override
   public BaseDigitalOutput allocateOutPin(Map<String, String> properties) {
-    var config = DigitalOutput.newConfigBuilder(pi4j)
-        .load(properties)
+    DigitalOutputConfig config = DigitalOutput.newConfigBuilder(pi4j)
+        .load(pinProperties(properties))
         .build();
     return new Pi4JDigitalOutput(outputProvider.create(config));
   }
 
   @Override
   public BaseDigitalInput allocateInPin(Map<String, String> properties) {
-    var config = DigitalInput.newConfigBuilder(pi4j)
-        .load(properties)
+    DigitalInputConfig config = DigitalInput.newConfigBuilder(pi4j)
+        .load(pinProperties(properties))
         .build();
     return new Pi4JDigitalInput(inputProvider.create(config));
   }
 
+  private Map<String, String> pinProperties(Map<String, String> properties) {
+    Map<String, String> translated = new LinkedHashMap<>(properties);
+    if (!translated.containsKey("bcm") && translated.containsKey("address")) {
+      translated.put("bcm", translated.get("address"));
+    }
+    return translated;
+  }
+
   @Override
   public void close() throws IOException {
-    outputProvider.shutdown(pi4j);
-    inputProvider.shutdown(pi4j);
+    outputProvider.shutdownInternal(pi4j);
+    inputProvider.shutdownInternal(pi4j);
   }
 }
