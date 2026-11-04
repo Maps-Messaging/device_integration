@@ -32,7 +32,7 @@ public abstract class Sen6xMeasurementManager {
   private long lastReadTime = System.currentTimeMillis();
   private MeasurementBlock cachedBlock;
   private boolean receivedMeasurement;
-  private GetDataReadyFlagCommand getReadyFlagCommand;
+  private final GetDataReadyFlagCommand getReadyFlagCommand;
 
   protected Sen6xMeasurementManager(Sen6xCommandHelper helper, int commandId, int length) {
     this.helper = helper;

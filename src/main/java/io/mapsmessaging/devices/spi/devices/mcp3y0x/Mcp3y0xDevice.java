@@ -88,7 +88,7 @@ public class Mcp3y0xDevice extends SpiDevice implements Sensor {
       commandByte = (byte) (0b10000000 | ((channel & 0b111) << 4));
     }
     // create a data buffer and initialize a conversion request payload
-    byte[] data = new byte[]{
+    byte[] data = {
         (byte) 0b00000001,    // first byte, start bit
         commandByte,          // second byte transmitted -> (SGL/DIF = 1, D2=D1=D0=0)
         (byte) 0b00000000     // third byte transmitted....don't care
