@@ -43,8 +43,8 @@ class I2cSchemaContractTest {
   }
 
   @Test
-  void ina219ConfigurationIsNotFalselyDeclaredAsReading() {
-    Ina219Controller controller = new Ina219Controller();
+  void ina219ConfigurationIsNotFalselyDeclaredAsReading() throws Exception {
+    Ina219Controller controller = new Ina219Controller(new RegisterBackedI2cDevice(0x42));
     JsonObject schema = ((JsonSchemaConfig) controller.getSchema()).getSchema();
     assertFalse(schema.getAsJsonObject("properties").has("adcResolution"));
     assertTrue(schema.getAsJsonObject("properties").has("bus_voltage"));
