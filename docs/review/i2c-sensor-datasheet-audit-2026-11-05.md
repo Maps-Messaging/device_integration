@@ -50,3 +50,16 @@ This is a **read-only source review**, not a hardware validation or an exhaustiv
 
 ## Verification performed
 Reviewed `development` source via GitHub connector and compared listed behavior with Bosch, Sensirion, Aosong/AM2320 and DFRobot documentation. No compilation, automated tests, hardware access, physical bus capture or runtime measurements were performed. No sensor implementations were changed.
+
+## Resolution on review branch (2026-11-06)
+
+The following changes are now committed on `review/i2c-sensor-datasheet-audit-20261105` (not merged into `development`):
+
+- **SCD41**: forced recalibration sends `0x362F` with explicitly supplied reference ppm and CRC, validates the returned CRC and failure sentinel. The previous no-argument method now rejects use rather than factory-resetting the device. The caller must first stop periodic measurements (and restart afterward); no unrequested default reference or measurement-mode transition is introduced.
+- **BME688**: unsigned ADC handling, signed factory calibration (including 16-bit P8/P9), integer pressure compensation and temperature intermediate width fixed. Gas-control register updates preserve neighboring bits; `heat_off` semantics are inverted to expose `isHeatOn` correctly.
+- **AM2320**: negative temperatures decoded from the sign-magnitude bit.
+- **Gravity**: `concentrationTempAdj` now invokes the existing host-side temperature-adjustment method rather than duplicating the raw reading. Firmware-side compensation and physical calibration remain separate.
+
+Regression fixtures were added for SCD41 command/response, AM2320 signed temperature and BME688 unsigned ADC, signed coefficients and gas control bits. **No Maven/JDK25 build, CI run, golden pressure-vector comparison or sensor hardware tests were executed in this environment**; do not interpret the branch as production-validated.
+
+Additional observation outside the four fixes, left unchanged: `bme688/values/HeaterStep.java` maps both `STEP_8` and `STEP_9` to 9, potentially selecting an incorrect gas profile. This requires a separate decision.
