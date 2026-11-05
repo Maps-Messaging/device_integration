@@ -54,6 +54,7 @@ public enum DeviceLogMessage implements LogMessage {
 
   I2C_BUS_DEVICE_READ_REQUEST(LEVEL.DEBUG, BUS.I2C_DEVICE, "{}, requesting {} and received result {}"),
   I2C_BUS_DEVICE_WRITE_REQUEST(LEVEL.DEBUG, BUS.I2C_DEVICE, "{} Called {}"),
+  GRAVITY_SENSOR_RESPONSE(LEVEL.DEBUG, BUS.I2C_DEVICE, "Gravity Bus: {} Address: 0x{} Command: {} Received: {}/{} bytes Data: [{}] Checksum: {}"),
 
   I2C_BUS_INVALID_DATE(LEVEL.ERROR, BUS.I2C_DEVICE, "Invalid date received Year:{}, Month:{}, Date:{}"),
   I2C_BUS_INVALID_TIME(LEVEL.ERROR, BUS.I2C_DEVICE, "Invalid time received Hour:{}, Minute:{}, Second:{}"),

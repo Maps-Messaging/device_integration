@@ -22,13 +22,18 @@ package io.mapsmessaging.devices.i2c.devices.sensors.gravity.registers;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.Register;
 import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.Command;
+import io.mapsmessaging.devices.logging.DeviceLogMessage;
+import io.mapsmessaging.logging.Logger;
+import io.mapsmessaging.logging.LoggerFactory;
 
 import java.io.IOException;
+import java.util.HexFormat;
 
 import static java.lang.Math.log;
 
 public class CrcValidatingRegister extends Register {
 
+  private static final Logger logger = LoggerFactory.getLogger(CrcValidatingRegister.class);
   private final Command command;
 
   public CrcValidatingRegister(I2CDevice sensor, Command command) {
@@ -67,7 +72,18 @@ public class CrcValidatingRegister extends Register {
     buf[0] = command.getCommandValue();
     sensor.write(pack(buf));
     sensor.delay(100);
-    if (sensor.readRegister(0, result, 0, result.length) != result.length) {
+    int read = sensor.readRegister(0, result, 0, result.length);
+    if (logger.isDebugEnabled()) {
+      String checksumResult = "not checked (incomplete reply)";
+      if (read == result.length) {
+        byte expectedChecksum = calculateChecksum(result);
+        checksumResult = String.format("expected=%02X received=%02X valid=%s", expectedChecksum & 0xff, result[8] & 0xff, result[8] == expectedChecksum);
+      }
+      logger.log(DeviceLogMessage.GRAVITY_SENSOR_RESPONSE, sensor.getBus(), String.format("%02X", sensor.getDevice().getDevice()),
+          command.name() + String.format("(0x%02X)", command.getCommandValue() & 0xff), read, result.length,
+          HexFormat.ofDelimiter(" ").withUpperCase().formatHex(result, 0, Math.max(0, Math.min(read, result.length))), checksumResult);
+    }
+    if (read != result.length) {
       throw new IOException("Invalid Gravity response length");
     }
     byte checksum = calculateChecksum(result);
