@@ -55,27 +55,29 @@ public class PressureMeasurement implements Measurement {
     int parP10 = pressureCalibrationData.getParP10();
     int tFine = temperatureCalibrationData.getTFine();
 
-    final int presOvfCheck = 0x40000000;
-    // Assuming CalibrationData is a class that holds calibration values.
-    int var1 = (((tFine) >> 1) - 64000);
+    // Bosch BME68x integer pressure compensation, in Pa.
+    int var1 = (tFine >> 1) - 64000;
     int var2 = ((((var1 >> 2) * (var1 >> 2)) >> 11) * parP6) >> 2;
-    var2 = var2 + ((var1 * parP5) << 1);
+    var2 += (var1 * parP5) << 1;
     var2 = (var2 >> 2) + (parP4 << 16);
-    var1 = (((var1 >> 2) * (var1 >> 2)) >> 13) * (parP3 << 5);
-    var1 = ((var1 >> 3) + ((parP2 * var1) >> 1)) >> 18;
-    var1 = (((32768 + var1) * parP1) >> 15);
-    int pressureComp = 1048576 - presAdc;
-    pressureComp = ((pressureComp - (var2 >> 12)) * (3125));
-    if (pressureComp < presOvfCheck) {
-      pressureComp = (pressureComp << 1) / var1;
-    } else {
-      pressureComp = (pressureComp / var1) << 1;
+    int temperatureDelta = var1;
+    var1 = (((((temperatureDelta >> 2) * (temperatureDelta >> 2)) >> 13) * (parP3 << 5)) >> 3)
+        + ((parP2 * temperatureDelta) >> 1);
+    var1 >>= 18;
+    var1 = ((32768 + var1) * parP1) >> 15;
+    if (var1 == 0) {
+      throw new IOException("BME688 pressure compensation divisor is zero");
     }
-
-    int var3 = (((pressureComp >> 3) * (pressureComp >> 3)) >> 13) * (parP9 >> 12);
-    var2 = (((pressureComp >> 2) * (parP8)) >> 13);
-    var3 += ((pressureComp >> 8) * (pressureComp >> 8) * (pressureComp >> 8) * (parP10 >> 17));
-    pressureComp += (var3 + var2 + (parP7 << 7)) >> 4;
+    int pressureComp = (1048576 - presAdc - (var2 >> 12)) * 3125;
+    if (pressureComp >= 0x40000000) {
+      pressureComp = (pressureComp / var1) << 1;
+    } else {
+      pressureComp = (pressureComp << 1) / var1;
+    }
+    var1 = (parP9 * (((pressureComp >> 3) * (pressureComp >> 3)) >> 13)) >> 12;
+    var2 = ((pressureComp >> 2) * parP8) >> 13;
+    int var3 = ((pressureComp >> 8) * (pressureComp >> 8) * (pressureComp >> 8) * parP10) >> 17;
+    pressureComp += (var1 + var2 + var3 + (parP7 << 7)) >> 4;
     return pressureComp / 100.0;
   }
 
