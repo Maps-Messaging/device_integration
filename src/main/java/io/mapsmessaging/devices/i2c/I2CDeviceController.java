@@ -67,11 +67,21 @@ public abstract class I2CDeviceController extends DeviceController {
 
   @Override
   public String buildSchema(Sensor sensor) {
+    if (sensor == null) {
+      JsonObject unmounted = new JsonObject();
+      unmounted.addProperty("type", "object");
+      unmounted.add("properties", new JsonObject());
+      unmounted.addProperty("additionalProperties", false);
+      return gson.toJson(unmounted);
+    }
     return normalizeStateSchema(super.buildSchema(sensor));
   }
 
   @Override
   public String buildSchema(Sensor sensor, JsonObject additionalValues) {
+    if (sensor == null) {
+      return buildSchema((Sensor) null);
+    }
     return normalizeStateSchema(super.buildSchema(sensor, additionalValues));
   }
 
