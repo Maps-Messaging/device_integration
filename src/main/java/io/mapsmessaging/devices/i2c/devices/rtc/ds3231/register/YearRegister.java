@@ -37,6 +37,9 @@ public class YearRegister extends BcdRegister {
   }
 
   public void setYear(int year) throws IOException {
+    if (year < 2000 || year > 2099) {
+      throw new IllegalArgumentException("DS3231 year register accepts 2000 through 2099; configure century on month register separately");
+    }
     setValue(year - 2000);
   }
 
