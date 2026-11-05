@@ -20,8 +20,7 @@
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602;
 
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
 import io.mapsmessaging.devices.DeviceType;
@@ -29,7 +28,6 @@ import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.data.ActionType;
-import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.data.Lcd1602Command;
 import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.data.Lcd1602Response;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
@@ -97,39 +95,57 @@ public class Lcd1602Controller extends I2CDeviceController {
 
   @Override
   public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
-    ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    JavaType type = objectMapper.getTypeFactory().constructType(Lcd1602Command.class);
-    Lcd1602Response response = null;
-    Lcd1602Command command = null;
-
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode payload;
     try {
-      command = objectMapper.readValue(new String(val), type);
-    } catch (IOException e) {
-      // Non-JSON input is accepted as raw display text by the fallback below.
+      payload = mapper.readTree(val);
+    } catch (IOException exception) {
+      payload = null; // Preserve the existing plain-text display interface.
     }
-    if (command != null) {
-      if (display != null) {
-        if (command.getAction() == ActionType.READ) {
-          byte[] data = display.readBlock(command.getAddress(), command.getLength());
-          response = new Lcd1602Response(SUCCESS, data);
-        } else if (command.getAction() == ActionType.WRITE) {
-          display.writeBlock(command.getAddress(), command.getData());
+    if (payload != null && payload.isObject()) {
+      if (payload.has(FIELD_DEVICE_WRITE) && payload.get(FIELD_DEVICE_WRITE).isObject()) {
+        payload = payload.get(FIELD_DEVICE_WRITE);
+      }
+      if (display == null) {
+        return mapper.writeValueAsBytes(new Lcd1602Response(ERROR, new byte[0]));
+      }
+      JsonNode actionNode = payload.get(FIELD_ACTION);
+      if (actionNode == null || !actionNode.isTextual()) {
+        throw new IOException("LCD1602 command requires an action");
+      }
+      ActionType action;
+      try {
+        action = ActionType.valueOf(actionNode.asText());
+      } catch (IllegalArgumentException exception) {
+        throw new IOException("Unknown LCD1602 action: " + actionNode.asText(), exception);
+      }
+      int address = payload.path(FIELD_ADDRESS).asInt(0);
+      Lcd1602Response response;
+      switch (action) {
+        case READ -> response = new Lcd1602Response(SUCCESS,
+            display.readBlock(address, payload.path("length").asInt(0)));
+        case WRITE -> {
+          JsonNode data = payload.get(FIELD_DATA);
+          if (data == null || data.isNull()) {
+            throw new IOException("LCD1602 WRITE requires data");
+          }
+          display.writeBlock(address, mapper.treeToValue(data, byte[].class));
           response = new Lcd1602Response(SUCCESS, new byte[0]);
-        } else if (command.getAction() == ActionType.CLEAR) {
+        }
+        case CLEAR -> {
           display.clearDisplay();
           response = new Lcd1602Response(SUCCESS, new byte[0]);
         }
-      } else {
-        response = new Lcd1602Response(ERROR, new byte[0]);
+        default -> throw new IOException("Unsupported LCD1602 action");
       }
-    } else {
-      display.clearDisplay();
-      display.writeBlock(0, val);
-      response = new Lcd1602Response(SUCCESS, new byte[0]);
+      return mapper.writeValueAsBytes(response);
     }
-    ObjectMapper objectMapper2 = new ObjectMapper();
-    return objectMapper2.writeValueAsString(response).getBytes();
+    if (display == null) {
+      return mapper.writeValueAsBytes(new Lcd1602Response(ERROR, new byte[0]));
+    }
+    display.clearDisplay();
+    display.writeBlock(0, val);
+    return mapper.writeValueAsBytes(new Lcd1602Response(SUCCESS, new byte[0]));
   }
 
   @Override
