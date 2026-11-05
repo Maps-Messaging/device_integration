@@ -70,7 +70,7 @@ public class CrcValidatingRegister extends Register {
 
   protected boolean request(byte[] buf, byte[] result) throws IOException {
     buf[0] = command.getCommandValue();
-    sensor.write(pack(buf));
+    sensor.write(0, pack(buf));
     sensor.delay(100);
     int read = sensor.readRegister(0, result, 0, result.length);
     if (logger.isDebugEnabled()) {
