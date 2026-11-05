@@ -49,21 +49,28 @@ public class Clock implements Task {
   public void run() {
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       display.clearDisplay();
-      LocalDate date = LocalDate.now(ZoneId.systemDefault());
-      while (runFlag.get()) {
+    }
+    while (runFlag.get()) {
+      synchronized (I2CDeviceScheduler.getI2cBusLock()) {
         display.setCursor((byte) 0, (byte) 0);
-        display.setDisplay(date.toString());
-        for (int x = 0; x < 60; x++) {
-          String time = getTime(true, true);
+        display.setDisplay(LocalDate.now(ZoneId.systemDefault()).toString());
+      }
+      for (int x = 0; x < 60 && runFlag.get(); x++) {
+        synchronized (I2CDeviceScheduler.getI2cBusLock()) {
           display.setCursor((byte) 1, (byte) 0);
-          display.setDisplay(time);
-          display.delay(500);
+          display.setDisplay(getTime(true, true));
+        }
+        display.delay(500);
+        if (!runFlag.get()) {
+          break;
+        }
+        synchronized (I2CDeviceScheduler.getI2cBusLock()) {
           display.setCursor((byte) 1, (byte) 2);
           display.setDisplay(":");
           display.setCursor((byte) 1, (byte) 5);
           display.setDisplay(":");
-          display.delay(500);
         }
+        display.delay(500);
       }
     }
   }
