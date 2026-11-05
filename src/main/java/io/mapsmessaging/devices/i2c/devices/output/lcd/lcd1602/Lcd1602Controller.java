@@ -23,6 +23,7 @@ package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
@@ -180,34 +181,60 @@ public class Lcd1602Controller extends I2CDeviceController {
     return config;
   }
   private String buildSchema() {
-    JsonObject configSchema = new JsonObject();
-    JsonObject configProps = new JsonObject();
-    configProps.add(FIELD_ROWS, property(TYPE_NUMBER, "Number of display rows (typically 2)"));
-    configProps.add(FIELD_COLUMNS, property(TYPE_NUMBER, "Number of display columns (typically 16 or 20)"));
-    configSchema.addProperty(FIELD_TYPE, TYPE_OBJECT);
-    configSchema.add(FIELD_PROPERTIES, configProps);
-
     JsonObject writeSchema = new JsonObject();
-    JsonObject writeProps = new JsonObject();
-    writeProps.add(FIELD_ACTION, property(TYPE_STRING, "Display action: WRITE, CLEAR, READ"));
-    writeProps.add(FIELD_ADDRESS, property(TYPE_NUMBER, "Starting address in the buffer (0-based)"));
-    JsonObject array = new JsonObject();
-    array.addProperty(FIELD_TYPE, TYPE_ARRAY);
-    array.addProperty(FIELD_DESCRIPTION, "Array of bytes to display (ASCII values)");
-    writeProps.add(FIELD_DATA, array);
     writeSchema.addProperty(FIELD_TYPE, TYPE_OBJECT);
+    JsonObject writeProps = new JsonObject();
+    JsonObject action = property(TYPE_STRING, "LCD1602 action accepted by updateDeviceConfiguration");
+    JsonArray actions = new JsonArray();
+    actions.add("WRITE");
+    actions.add("READ");
+    actions.add("CLEAR");
+    action.add("enum", actions);
+    writeProps.add(FIELD_ACTION, action);
+    JsonObject address = property("integer", "Starting offset in the 32-byte display buffer");
+    address.addProperty("minimum", 0);
+    address.addProperty("maximum", 32);
+    writeProps.add(FIELD_ADDRESS, address);
+    JsonObject length = property("integer", "Number of bytes to return for READ");
+    length.addProperty("minimum", 0);
+    writeProps.add("length", length);
+    JsonObject data = property(TYPE_ARRAY, "Unsigned byte values to write for WRITE");
+    JsonObject element = property("integer", "Character byte");
+    element.addProperty("minimum", 0);
+    element.addProperty("maximum", 255);
+    data.add("items", element);
+    writeProps.add(FIELD_DATA, data);
     writeSchema.add(FIELD_PROPERTIES, writeProps);
+    JsonArray requiredAction = new JsonArray();
+    requiredAction.add(FIELD_ACTION);
+    writeSchema.add("required", requiredAction);
+
+    // This controller currently reports {}, not the display buffer.
+    JsonObject emptyState = new JsonObject();
+    emptyState.addProperty(FIELD_TYPE, TYPE_OBJECT);
+    emptyState.add(FIELD_PROPERTIES, new JsonObject());
+    emptyState.addProperty("additionalProperties", false);
+
+    JsonObject response = new JsonObject();
+    response.addProperty(FIELD_TYPE, TYPE_OBJECT);
+    JsonObject responseProps = new JsonObject();
+    responseProps.add("status", property(TYPE_STRING, "success or error"));
+    JsonObject responseData = property(TYPE_STRING, "READ result bytes serialized as Base64");
+    responseData.addProperty("contentEncoding", "base64");
+    responseProps.add(FIELD_DATA, responseData);
+    responseProps.add("@class", property(TYPE_STRING, "Optional Jackson type discriminator"));
+    response.add(FIELD_PROPERTIES, responseProps);
 
     JsonObject root = new JsonObject();
     root.addProperty(FIELD_SCHEMA, "https://json-schema.org/draft/2020-12/schema");
     root.addProperty(FIELD_TITLE, NAME);
-    root.addProperty(FIELD_DESCRIPTION, "LCD1602 Character Display");
-    JsonObject props = new JsonObject();
-    props.add(FIELD_DEVICE_STATIC, configSchema);
-    props.add(FIELD_DEVICE_WRITE, writeSchema);
-    root.add(FIELD_PROPERTIES, props);
+    root.addProperty(FIELD_DESCRIPTION, "LCD1602 command contract and currently empty state");
     root.addProperty(FIELD_TYPE, TYPE_OBJECT);
-
+    JsonObject props = new JsonObject();
+    props.add(FIELD_DEVICE_WRITE, writeSchema);
+    props.add("deviceState", emptyState);
+    props.add("deviceResponse", response);
+    root.add(FIELD_PROPERTIES, props);
     return gson.toJson(root);
   }
 
