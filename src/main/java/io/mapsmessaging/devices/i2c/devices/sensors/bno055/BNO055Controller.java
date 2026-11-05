@@ -123,13 +123,72 @@ public class BNO055Controller extends I2CDeviceController {
   }
 
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
+    JsonObject state = new JsonObject();
+    state.addProperty("type", "object");
+    JsonObject fields = new JsonObject();
+    for (String field : new String[] {"heading", "roll", "pitch"}) {
+      JsonObject value = new JsonObject();
+      value.addProperty("type", "number");
+      value.addProperty("description", "Euler orientation angle in degrees");
+      value.addProperty("readOnly", true);
+      fields.add(field, value);
+    }
+    state.add("properties", fields);
+    state.addProperty("additionalProperties", false);
+
+    // The calibration report is returned by getDeviceConfiguration(), not getDeviceState().
+    JsonObject configuration = new JsonObject();
+    configuration.addProperty("type", "object");
+    JsonObject configurationProperties = new JsonObject();
+    JsonObject statuses = new JsonObject();
+    statuses.addProperty("type", "array");
+    JsonObject statusText = new JsonObject();
+    statusText.addProperty("type", "string");
+    statuses.add("items", statusText);
+    configurationProperties.add("systemStatus", statuses);
+    configurationProperties.add("errorStatus", statusText.deepCopy());
+    JsonObject calibration = new JsonObject();
+    calibration.addProperty("type", "object");
+    JsonObject calibrationProperties = new JsonObject();
+    JsonObject calibrated = new JsonObject();
+    calibrated.addProperty("type", "boolean");
+    calibrationProperties.add("isCalibrated", calibrated);
+    JsonObject status = new JsonObject();
+    status.addProperty("type", "string");
+    JsonArray calibrationValues = new JsonArray();
+    for (io.mapsmessaging.devices.i2c.devices.sensors.bno055.values.CalibrationStatus value :
+        io.mapsmessaging.devices.i2c.devices.sensors.bno055.values.CalibrationStatus.values()) {
+      calibrationValues.add(value.name());
+    }
+    status.add("enum", calibrationValues);
+    for (String component : new String[] {"accelerometer", "magnetometer", "system", "gyroscope"}) {
+      calibrationProperties.add(component, status.deepCopy());
+    }
+    calibration.add("properties", calibrationProperties);
+    configurationProperties.add("calibrationStatus", calibration);
+    JsonObject version = new JsonObject();
+    version.addProperty("type", "object");
+    JsonObject versionProperties = new JsonObject();
+    JsonObject software = new JsonObject();
+    software.addProperty("type", "number");
+    versionProperties.add("software", software);
+    JsonObject revision = new JsonObject();
+    revision.addProperty("type", "integer");
+    for (String component : new String[] {"bootloader", "accelerometer", "magnetometer", "gyroscope"}) {
+      versionProperties.add(component, revision.deepCopy());
+    }
+    version.add("properties", versionProperties);
+    configurationProperties.add("version", version);
+    configuration.add("properties", configurationProperties);
+    state.add("x-deviceConfiguration", configuration);
+
+    JsonSchemaConfig config = new JsonSchemaConfig(gson.toJson(state));
     config.setComments("i2c device BNO055 orientation sensor");
     config.setTitle(getName());
     config.setVersion(1);
     config.setResourceType("sensor");
     config.setUniqueId(getSchemaId());
-    config.setDescription("Returns JSON object containing Temperature and Pressure");
+    config.setDescription("getDeviceState returns heading, roll and pitch; configuration returns calibration, status and version");
     return config;
   }
 
