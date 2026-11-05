@@ -152,9 +152,49 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
   }
 
   public static boolean detect(AddressableDevice i2cDevice) throws IOException {
-    try (Ds3231Rtc t = new Ds3231Rtc(i2cDevice)) {
-      return t.isConnected();
+    if (i2cDevice.getDevice() != 0x68) return false;
+    try {
+      byte[] data = new byte[19];
+      if (i2cDevice.readRegister(0, data, 0, data.length) != data.length) {
+        throw new IOException("Incomplete DS3231 detection response");
+      }
+      if (!validBcd(data[0] & 0xff, 0, 59) || !validBcd(data[1] & 0xff, 0, 59)) return false;
+      int hour = data[2] & 0xff;
+      if ((hour & 0x80) != 0) return false;
+      if ((hour & 0x40) == 0) {
+        if (!validBcd(hour, 0, 23)) return false;
+      } else if (!validBcd(hour & 0x1f, 1, 12)) return false;
+      int weekday = data[3] & 0xff;
+      int date = data[4] & 0xff;
+      int month = data[5] & 0xff;
+      int year = data[6] & 0xff;
+      if (weekday < 1 || weekday > 7 || !validBcd(date, 1, 31)
+          || (month & 0x60) != 0 || !validBcd(month & 0x1f, 1, 12) || !validBcd(year, 0, 99)
+          || (data[15] & 0x70) != 0 || (data[18] & 0x3f) != 0) return false;
+      try {
+        LocalDate.of(2000 + ((month & 0x80) != 0 ? 100 : 0) + fromBcd(year), fromBcd(month & 0x1f), fromBcd(date));
+      } catch (DateTimeException invalid) {
+        return false;
+      }
+      // Exclude a successful MPU-60x0 identity read. DS3231 itself has no chip ID,
+      // and its backend may reject registers outside the documented 0x00..0x12 map.
+      try {
+        return i2cDevice.readRegister(0x75) != 0x68;
+      } catch (com.pi4j.exception.Pi4JException unsupportedRegister) {
+        return true;
+      }
+    } catch (com.pi4j.exception.Pi4JException exception) {
+      throw new IOException("Unable to probe DS3231 registers", exception);
     }
+  }
+
+  private static boolean validBcd(int value, int minimum, int maximum) {
+    return (value & 0x0f) <= 9 && ((value >> 4) & 0x0f) <= 9
+        && fromBcd(value) >= minimum && fromBcd(value) <= maximum;
+  }
+
+  private static int fromBcd(int value) {
+    return ((value >> 4) & 0x0f) * 10 + (value & 0x0f);
   }
 
   @Override
