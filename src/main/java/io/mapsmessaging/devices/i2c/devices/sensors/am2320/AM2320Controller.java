@@ -47,7 +47,7 @@ public class AM2320Controller extends I2CDeviceController {
 
   @Override
   public String getDescription() {
-    return "AM2320 Pressure and Temperature Sensor";
+    return "AM2320 Temperature and Humidity Sensor";
   }
 
   protected AM2320Controller(AddressableDevice device) throws IOException {
@@ -79,12 +79,12 @@ public class AM2320Controller extends I2CDeviceController {
 
   public SchemaConfig getSchema() {
     JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
-    config.setComments("I2C device AM2320 Pressure and Temperature Sensor https://learn.adafruit.com/adafruit-am2320-temperature-humidity-i2c-sensor");
+    config.setComments("I2C device AM2320 Temperature and Humidity Sensor https://learn.adafruit.com/adafruit-am2320-temperature-humidity-i2c-sensor");
     config.setTitle(getName());
     config.setVersion(1);
     config.setUniqueId(getSchemaId());
     config.setResourceType("sensor");
-    config.setDescription("Returns JSON object containing Temperature and Pressure");
+    config.setDescription("Returns JSON object containing Temperature and Humidity");
     return config;
   }
 
