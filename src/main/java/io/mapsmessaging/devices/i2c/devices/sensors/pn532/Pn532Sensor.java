@@ -50,6 +50,8 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
   private static final byte HOST_TO_PN = (byte) 0xD4;
   private static final byte PN_TO_HOST = (byte) 0xD5;
 
+  private static final byte CMD_GET_FIRMWARE_VERSION = 0x02;
+  private static final byte CMD_RF_CONFIGURATION = 0x32;
   private static final byte CMD_SAM_CONFIGURATION = 0x14;
   private static final byte CMD_INLIST_PASSIVE = 0x4A;
   private static final byte CMD_INDATA_EXCHANGE = 0x40;
@@ -77,8 +79,23 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
   );
 
   public Pn532Sensor(AddressableDevice device) {
+    this(device, true);
+  }
+
+  private Pn532Sensor(AddressableDevice device, boolean initialize) {
     super(device, LoggerFactory.getLogger(Pn532Sensor.class));
-    begin();
+    if (initialize) {
+      begin();
+    }
+  }
+
+  public static boolean probe(AddressableDevice device) {
+    try {
+      new Pn532Sensor(device, false).verifyFirmware();
+      return true;
+    } catch (IOException e) {
+      return false;
+    }
   }
 
   // ---------- Public Sensor API ----------
@@ -89,16 +106,18 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
   @Override public List<SensorReading<?>> getReadings() { return readings; }
 
   @Override
-  public boolean isConnected() {
-    if (connected) {
-      return true;
-    }
+  public synchronized boolean isConnected() {
     try {
-      begin();
-    } catch (UncheckedIOException e) {
+      if (connected) {
+        verifyFirmware();
+      } else {
+        begin();
+      }
+      return true;
+    } catch (IOException | UncheckedIOException e) {
+      invalidateConnection();
       return false;
     }
-    return connected;
   }
 
   public boolean isTagPresent() {
@@ -120,47 +139,71 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
 
   // ---------- Setup / Poll ----------
 
-  public void begin() {
-    // SAMConfiguration: normal mode (1), timeout 0x14, use IRQ (1)
+  public synchronized void begin() {
     try {
+      verifyFirmware();
+      // SAMConfiguration: normal mode, timeout 0x14, IRQ enabled.
       call(new byte[]{CMD_SAM_CONFIGURATION, 0x01, 0x14, 0x01}, 16);
-      // Expect command echo handled in readResponseFrameNoIRQ; arriving here means success
+      // MaxRetries: retain ATR/PSL defaults; passive activation gets one attempt.
+      call(new byte[]{CMD_RF_CONFIGURATION, 0x05, (byte) 0xff, 0x01, 0x00}, 16);
       connected = true;
     } catch (IOException e) {
-      connected = false;
+      invalidateConnection();
       throw new UncheckedIOException("Unable to initialize PN532", e);
     }
+  }
+
+  private void verifyFirmware() throws IOException {
+    byte[] firmware = call(new byte[]{CMD_GET_FIRMWARE_VERSION}, 16);
+    if (firmware.length != 4 || firmware[0] != 0x32) {
+      throw new IOException("Device did not identify as PN532");
+    }
+  }
+
+  private void ensureInitialized() throws IOException {
+    if (!connected) {
+      try {
+        begin();
+      } catch (UncheckedIOException e) {
+        throw e.getCause();
+      }
+    }
+  }
+
+  private void invalidateConnection() {
+    connected = false;
+    tagPresent = false;
+    lastUid = "";
   }
 
   /**
    * InListPassiveTarget(ISO14443A 106kbps). Updates tagPresent/lastUid.
    * Returns UID hex or "" when no tag.
    */
-  public String poll() throws IOException {
-    byte[] p = call(new byte[]{CMD_INLIST_PASSIVE, 0x01, 0x00}, 40);
-    // Expected layout (DATA): NbTg, Tg, SENS_RES(2), SEL_RES, NFCIDLen, NFCID...
-    if (p.length < 6) {
-      tagPresent = false;
-      lastUid = "";
-      return "";
+  public synchronized String poll() throws IOException {
+    try {
+      ensureInitialized();
+      byte[] p = call(new byte[]{CMD_INLIST_PASSIVE, 0x01, 0x00}, 40);
+      if (p.length == 1 && p[0] == 0) {
+        tagPresent = false;
+        lastUid = "";
+        return "";
+      }
+      // DATA: NbTg, Tg, SENS_RES(2), SEL_RES, NFCIDLen, NFCID...
+      if (p.length < 6 || p[0] != 1 || p[1] != 1) {
+        throw new IOException("Invalid PN532 target response");
+      }
+      int uidLen = p[5] & 0xff;
+      if ((uidLen != 4 && uidLen != 7 && uidLen != 10) || 6 + uidLen > p.length) {
+        throw new IOException("Invalid PN532 target UID");
+      }
+      lastUid = toHex(Arrays.copyOfRange(p, 6, 6 + uidLen));
+      tagPresent = true;
+      return lastUid;
+    } catch (IOException e) {
+      invalidateConnection();
+      throw e;
     }
-    int nbTg = p[0] & 0xFF;
-    if (nbTg < 1) {
-      tagPresent = false;
-      lastUid = "";
-      return "";
-    }
-    int uidLen = p[5] & 0xFF;
-    int uidStart = 6;
-    if ((uidLen != 4 && uidLen != 7 && uidLen != 10) || uidStart + uidLen > p.length) {
-      tagPresent = false;
-      lastUid = "";
-      return "";
-    }
-    byte[] uid = Arrays.copyOfRange(p, uidStart, uidStart + uidLen);
-    lastUid = toHex(uid);
-    tagPresent = true;
-    return lastUid;
   }
 
   // ---------- NTAG / Ultralight ----------
@@ -253,7 +296,8 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
 
   // ---------- Card classification (Ultraversion probes) ----------
 
-  public CardInfo getInformation() throws IOException {
+  public synchronized CardInfo getInformation() throws IOException {
+    ensureInitialized();
     CardInfo ci = new CardInfo();
 
     byte[] p = call(new byte[]{CMD_INLIST_PASSIVE, 0x01, 0x00}, 40);
@@ -302,8 +346,8 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
     } else if (getUltraversion(19)) {
       fillNTAG(ci, ULTRALIGHT, 80, 48, 4, 20, 1);
     } else if (getUltraversion(14)) {
-      // Ultralight C (approx values used by Arduino example)
-      fillNTAG(ci, ULTRALIGHT, 164, 320, 4, 41, 1); // usersize 320 in Arduino code (likely typo); kept for parity
+      // Ultralight C: 48 four-byte pages, including 144 user bytes.
+      fillNTAG(ci, ULTRALIGHT, 192, 144, 4, 48, 1);
     }
   }
 
@@ -339,43 +383,61 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
 
   private byte[] call(byte[] cmdData, int maxResp) throws IOException {
     synchronized (this) {
-      sendCommandFrame(cmdData);
-      byte[] ack = readReadyFrame(ACK.length + 1, 1000);
-      if (ack.length < ACK.length + 1) {
-        throw new IOException("Short PN532 acknowledgement");
-      }
-      for (int index = 0; index < ACK.length; index++) {
-        if (ack[index + 1] != ACK[index]) {
-          throw new IOException("PN532 no-ACK");
+      try {
+        return exchange(cmdData, maxResp);
+      } catch (ResponseTimeoutException e) {
+        invalidateConnection();
+        // A host ACK aborts an outstanding command without generating a response.
+        try {
+          write(ACK);
+        } catch (IOException abortFailure) {
+          e.addSuppressed(abortFailure);
         }
+        throw e;
+      } catch (IOException e) {
+        invalidateConnection();
+        throw e;
       }
-      // Read the complete response in one transaction: STOP discards any unread bytes.
-      byte[] frame = readReadyFrame(maxResp + 8, 1000);
-      if (frame.length < 8 || frame[1] != 0 || frame[2] != 0 || frame[3] != (byte) 0xff) {
-        throw new IOException("Invalid PN532 response preamble");
-      }
-      int length = frame[4] & 0xff;
-      if (((length + (frame[5] & 0xff)) & 0xff) != 0 || length < 2 || length > maxResp) {
-        throw new IOException("Invalid PN532 response length");
-      }
-      if (frame.length < length + 8) {
-        throw new IOException("Incomplete PN532 response");
-      }
-      if (frame[6] != PN_TO_HOST || frame[7] != (byte) (cmdData[0] + 1)) {
-        throw new IOException("PN532 TFI/CMD mismatch");
-      }
-      int checksum = 0;
-      for (int index = 6; index <= length + 6; index++) {
-        checksum += frame[index] & 0xff;
-      }
-      if ((checksum & 0xff) != 0) {
-        throw new IOException("PN532 DCS mismatch");
-      }
-      if (frame[length + 7] != 0) {
-        throw new IOException("Invalid PN532 postamble");
-      }
-      return Arrays.copyOfRange(frame, 8, length + 6);
     }
+  }
+
+  private byte[] exchange(byte[] cmdData, int maxResp) throws IOException {
+    sendCommandFrame(cmdData);
+    byte[] ack = readReadyFrame(ACK.length + 1, 1000);
+    if (ack.length < ACK.length + 1) {
+      throw new IOException("Short PN532 acknowledgement");
+    }
+    for (int index = 0; index < ACK.length; index++) {
+      if (ack[index + 1] != ACK[index]) {
+        throw new IOException("PN532 no-ACK");
+      }
+    }
+    // Read the complete response in one transaction: STOP discards any unread bytes.
+    byte[] frame = readReadyFrame(maxResp + 8, 1000);
+    if (frame.length < 8 || frame[1] != 0 || frame[2] != 0 || frame[3] != (byte) 0xff) {
+      throw new IOException("Invalid PN532 response preamble");
+    }
+    int length = frame[4] & 0xff;
+    if (((length + (frame[5] & 0xff)) & 0xff) != 0 || length < 2 || length > maxResp) {
+      throw new IOException("Invalid PN532 response length");
+    }
+    if (frame.length < length + 8) {
+      throw new IOException("Incomplete PN532 response");
+    }
+    if (frame[6] != PN_TO_HOST || frame[7] != (byte) (cmdData[0] + 1)) {
+      throw new IOException("PN532 TFI/CMD mismatch");
+    }
+    int checksum = 0;
+    for (int index = 6; index <= length + 6; index++) {
+      checksum += frame[index] & 0xff;
+    }
+    if ((checksum & 0xff) != 0) {
+      throw new IOException("PN532 DCS mismatch");
+    }
+    if (frame[length + 7] != 0) {
+      throw new IOException("Invalid PN532 postamble");
+    }
+    return Arrays.copyOfRange(frame, 8, length + 6);
   }
 
   private byte[] readReadyFrame(int capacity, int timeoutMs) throws IOException {
@@ -391,7 +453,13 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
       }
       delay(SETTLE_MS);
     } while (System.nanoTime() < deadline);
-    throw new IOException("PN532 response timeout");
+    throw new ResponseTimeoutException();
+  }
+
+  private static class ResponseTimeoutException extends IOException {
+    private ResponseTimeoutException() {
+      super("PN532 response timeout");
+    }
   }
 
   private void sendCommandFrame(byte[] data) throws IOException {

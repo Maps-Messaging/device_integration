@@ -183,6 +183,14 @@ Before using the controller, make sure all your I2C devices are connected correc
 | TLS2561             | Texas Instruments       | Digital light sensor                    | - Measures ambient light intensity                                                                                                                                                                   | [Datasheet](https://cdn-shop.adafruit.com/datasheets/TSL2561.pdf)                                                                     |
 | SHT3x-D             | Sensirion               | Temperature and Humidity Sensor         | - Measures  Humidity, Temperature                                                                                                                                                                    | [Datasheet](https://sensirion.com/media/documents/213E6A3B/63A5A569/Datasheet_SHT3x_DIS.pdf)                                          |
 
+##### DFRobot PN532 NFC module V2.0 (I2C)
+
+Select I2C mode on the module before powering it up. The driver uses seven-bit address `0x24` (`0x48` in eight-bit notation). Discovery checks `GetFirmwareVersion` for the PN532 chip identity; mounting configures normal SAM mode and finite passive activation retries. Readiness is polled through the I2C status byte, so no IRQ connection is required.
+
+The normal sensor JSON/schema exposes `tag_present` and `last_uid` (uppercase hexadecimal). An empty reader reports `false` and an empty UID. Transport/protocol errors remain errors; connection checks probe the reader and reconnecting reinitializes it. A response timeout sends a host ACK to cancel the outstanding command.
+
+The existing Java API provides UID scanning, NTAG/Ultralight page reads and writes, MIFARE Classic block reads and writes, and card information. Card-family classification retains the vendor's page-probing heuristics and is not definitive for every variant or protected card. Validate card type and writable areas before using the write APIs. UART, SPI and card emulation are not implemented. Physical-module testing is still required.
+
 ##### H3LIS200DL
 
 The DFRobot H3LIS200DL (including V1.0 boards) uses address `0x19` by default, switchable to `0x18`. The driver publishes `x_acceleration`, `y_acceleration` and `z_acceleration` in m/s² through the normal sensor JSON/schema path. Mounting selects normal 100 Hz operation, enables all axes, bypasses the high-pass filter, disables sleep-to-wake and selects the ±100 g range. The current driver uses this fixed range; it does not expose the chip's ±200 g option or interrupt/wake-up configuration.

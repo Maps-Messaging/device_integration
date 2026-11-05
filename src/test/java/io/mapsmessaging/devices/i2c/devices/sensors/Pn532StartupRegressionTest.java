@@ -15,8 +15,9 @@ class Pn532StartupRegressionTest {
   @Test
   void pn532AcceptsStatusPrefixedSamAndFirstTagUsingRawTransport() throws Exception {
     MotionStartupTestDevice device = new MotionStartupTestDevice();
+    startup(device);
     device.frames.add(MotionStartupTestDevice.ack());
-    device.frames.add(MotionStartupTestDevice.frame(0x15));
+    device.frames.add(MotionStartupTestDevice.frame(0x03, 0x32, 1, 6, 7));
     device.frames.add(MotionStartupTestDevice.ack());
     device.frames.add(MotionStartupTestDevice.frame(0x4b, 1, 1, 0, 4, 8, 4, 0xde, 0xad, 0xbe, 0xef));
     Pn532Sensor sensor = new Pn532Sensor(device) {
@@ -27,15 +28,15 @@ class Pn532StartupRegressionTest {
     };
     assertTrue(sensor.isConnected());
     assertEquals("DEADBEEF", sensor.getUid());
-    assertEquals(2, device.rawWrites.size());
-    assertArrayEquals(new byte[]{0, 0, (byte) 255, 5, (byte) 251, (byte) 212, 20, 1, 20, 1, 2, 0}, device.rawWrites.get(0));
+    assertEquals(5, device.rawWrites.size());
+    assertArrayEquals(new byte[]{0, 0, (byte) 255, 5, (byte) 251, (byte) 212, 20, 1, 20, 1, 2, 0}, device.rawWrites.get(1));
   }
 
   @Test
   void pn532RejectsBadChecksumDuringInitialization() {
     MotionStartupTestDevice device = new MotionStartupTestDevice();
     device.frames.add(MotionStartupTestDevice.ack());
-    byte[] response = MotionStartupTestDevice.frame(0x15);
+    byte[] response = MotionStartupTestDevice.frame(0x03, 0x32, 1, 6, 7);
     response[8] ^= 1;
     device.frames.add(response);
     assertThrows(UncheckedIOException.class, () -> new Pn532Sensor(device));
@@ -45,8 +46,7 @@ class Pn532StartupRegressionTest {
   void pn532RetriesBusyStatusAndReportsValidNoTagResponse() throws Exception {
     MotionStartupTestDevice device = new MotionStartupTestDevice();
     device.frames.add(new byte[]{0});
-    device.frames.add(MotionStartupTestDevice.ack());
-    device.frames.add(MotionStartupTestDevice.frame(0x15));
+    startup(device);
     device.frames.add(MotionStartupTestDevice.ack());
     device.frames.add(MotionStartupTestDevice.frame(0x4b, 0));
     Pn532Sensor sensor = new Pn532Sensor(device) {
@@ -57,6 +57,15 @@ class Pn532StartupRegressionTest {
     };
     assertFalse(sensor.isTagPresent());
     assertEquals("", sensor.getLastUid());
+  }
+
+  private static void startup(MotionStartupTestDevice device) {
+    device.frames.add(MotionStartupTestDevice.ack());
+    device.frames.add(MotionStartupTestDevice.frame(0x03, 0x32, 1, 6, 7));
+    device.frames.add(MotionStartupTestDevice.ack());
+    device.frames.add(MotionStartupTestDevice.frame(0x15));
+    device.frames.add(MotionStartupTestDevice.ack());
+    device.frames.add(MotionStartupTestDevice.frame(0x33));
   }
 
   @Test
