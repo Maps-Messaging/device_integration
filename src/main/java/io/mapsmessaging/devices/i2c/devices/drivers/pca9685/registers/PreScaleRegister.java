@@ -43,11 +43,14 @@ public class PreScaleRegister extends SingleByteRegister {
 
   public int getPrescale() throws IOException {
     reload();
-    return registerValue;
+    return registerValue & 0xff;
   }
 
   public void setPrescale(int val) throws IOException {
-    setControlRegister(0xff, val);
+    if (val < 3 || val > 255) {
+      throw new IllegalArgumentException("PCA9685 prescale must be between 3 and 255");
+    }
+    setControlRegister(0, val);
   }
 
   @Override
@@ -65,7 +68,7 @@ public class PreScaleRegister extends SingleByteRegister {
   }
 
   protected int computePrescale(float frequency) {
-    return (Math.round((25000000f / (4096f * frequency) - 0.5f)) & 0xff);
+    return ((Math.round(25000000f / (4096f * frequency)) - 1) & 0xff);
   }
 
 }
