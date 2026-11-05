@@ -127,12 +127,16 @@ public abstract class HT16K33Controller extends I2CDeviceController {
       }
 
       if (jsonObject != null) {
-        processBrightness(jsonObject, response);
-        processBlink(jsonObject, response);
-        processEnabled(jsonObject, response);
-        processDisplay(jsonObject, response);
-        processRaw(jsonObject, response);
-        processTask(jsonObject, response);
+        JsonObject settings = jsonObject.has("deviceStatic") && jsonObject.get("deviceStatic").isJsonObject()
+            ? jsonObject.getAsJsonObject("deviceStatic") : jsonObject;
+        JsonObject write = jsonObject.has("deviceWrite") && jsonObject.get("deviceWrite").isJsonObject()
+            ? jsonObject.getAsJsonObject("deviceWrite") : jsonObject;
+        processBrightness(settings, response);
+        processBlink(settings, response);
+        processEnabled(settings, response);
+        processDisplay(write, response);
+        processRaw(write, response);
+        processTask(write, response);
       } else {
         cancelCurrentTask();
         String text = new String(val, StandardCharsets.UTF_8);
@@ -225,7 +229,7 @@ public abstract class HT16K33Controller extends I2CDeviceController {
 
     JsonObject configProps = new JsonObject();
     configProps.add(BRIGHTNESS, property("integer", "Brightness level (0–15)"));
-    configProps.add("blinkRate", property("integer", "Blink rate (0 = off, 1 = 2Hz, 2 = 1Hz, 3 = 0.5Hz)"));
+    configProps.add(BLINK, property(STRING, "OFF, TWO_HZ, ONE_HZ or HALF_HZ"));
     configProps.add(ENABLED, property("boolean", "Turn the display on or off"));
     configSchema.add(PROPERTIES, configProps);
 
@@ -233,8 +237,8 @@ public abstract class HT16K33Controller extends I2CDeviceController {
     writeSchema.addProperty("type", OBJECT);
 
     JsonObject writeProps = new JsonObject();
-    writeProps.add(DISPLAY, property(STRING, "String to display (up to 4 characters)"));
-    writeProps.add("raw", property(STRING, "Raw segment data as hex"));
+    writeProps.add(DISPLAY, property(STRING, "Up to four characters, optionally with a colon"));
+    writeProps.add("raw", property(STRING, "Raw segment bytes encoded as Base64"));
     writeProps.add("task", property(STRING, "Task to run (CLOCK, TEST)"));
     writeSchema.add(PROPERTIES, writeProps);
 
