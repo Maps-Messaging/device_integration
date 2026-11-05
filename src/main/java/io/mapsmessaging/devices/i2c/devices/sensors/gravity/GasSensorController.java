@@ -19,10 +19,12 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.gravity;
 
+import com.pi4j.exception.Pi4JException;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
+import io.mapsmessaging.devices.i2c.devices.sensors.gravity.module.SensorType;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.util.UuidGenerator;
 import io.mapsmessaging.schemas.config.SchemaConfig;
@@ -45,8 +47,40 @@ public class GasSensorController extends I2CDeviceController {
   }
 
   @Override
+  public boolean canDetect() {
+    return true;
+  }
+
+  @Override
   public boolean detect(AddressableDevice i2cDevice) {
-    return sensor != null && sensor.isConnected();
+    synchronized (I2CDeviceScheduler.getI2cBusLock()) {
+      try {
+        // DFRobot I2C requests prefix the nine-byte protocol frame with register zero.
+        byte[] request = {(byte) 0xff, 1, (byte) 0x86, 0, 0, 0, 0, 0, 0x79};
+        if (i2cDevice.writeRegister(0, request) != request.length) {
+          return false;
+        }
+        Thread.sleep(100);
+        byte[] response = new byte[9];
+        if (i2cDevice.readRegister(0, response, 0, response.length) != response.length
+            || (response[0] & 255) != 0xff || (response[1] & 255) != 0x86) {
+          return false;
+        }
+        // Match DFRobot's checksum: two's complement of bytes one through six.
+        int checksum = 0;
+        for (int index = 1; index < 7; index++) {
+          checksum += response[index] & 255;
+        }
+        SensorType type = SensorType.getByType(response[4] & 255);
+        return (response[8] & 255) == (-checksum & 255)
+            && type != null && type != SensorType.UNKNOWN && (response[5] & 255) <= 2;
+      } catch (Pi4JException exception) {
+        return false;
+      } catch (InterruptedException exception) {
+        Thread.currentThread().interrupt();
+        return false;
+      }
+    }
   }
 
   public I2CDeviceController mount(AddressableDevice device) throws IOException {

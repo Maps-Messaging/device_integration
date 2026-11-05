@@ -58,6 +58,11 @@ public class BMP280Controller extends I2CDeviceController {
   }
 
   @Override
+  public boolean canDetect() {
+    return true;
+  }
+
+  @Override
   public boolean detect(AddressableDevice i2cDevice) {
     try {
       return i2cDevice.readRegister(0xd0) == 0x58;
