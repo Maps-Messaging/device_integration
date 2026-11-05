@@ -84,9 +84,10 @@ public class St7735Device extends I2CDevice implements Output, Storage, Resetabl
   }
 
   public void lcdWriteChar(int x, int y, char ch, FontDef font, int color, int bgcolor)  {
+    char printable = ch >= 32 && ch <= 126 ? ch : '?';
     lcdSetAddressWindow(x, y, x + font.getWidth() - 1, y + font.getHeight() - 1);
     for (int i = 0; i < font.getHeight(); i++) {
-      int b = font.getData()[(ch - 32) * font.getHeight() + i];
+      int b = font.getData()[(printable - 32) * font.getHeight() + i];
       for (int j = 0; j < font.getWidth(); j++) {
         if (((b << j) & 0x8000) != 0) {
           i2cWriteData(color >> 8, color & 0xFF);
@@ -99,10 +100,10 @@ public class St7735Device extends I2CDevice implements Output, Storage, Resetabl
 
   public void lcdWriteString(int x, int y, String str, FontDef font, int color, int bgcolor) {
     for (char ch : str.toCharArray()) {
-      if (x + font.getWidth() >= ST7735_WIDTH) {
+      if (x + font.getWidth() > ST7735_WIDTH) {
         x = 0;
         y += font.getHeight();
-        if (y + font.getHeight() >= ST7735_HEIGHT) {
+        if (y + font.getHeight() > ST7735_HEIGHT) {
           break;
         }
       }
@@ -113,7 +114,10 @@ public class St7735Device extends I2CDevice implements Output, Storage, Resetabl
   }
 
   public void lcdFillRectangle(int x, int y, int w, int h, int color)  {
-    if (x >= ST7735_WIDTH || y >= ST7735_HEIGHT) return;
+    if (x < 0 || y < 0 || w < 0 || h < 0) {
+      throw new IllegalArgumentException("ST7735 rectangle coordinates and size must not be negative");
+    }
+    if (w == 0 || h == 0 || x >= ST7735_WIDTH || y >= ST7735_HEIGHT) return;
     if (x + w - 1 >= ST7735_WIDTH) w = ST7735_WIDTH - x;
     if (y + h - 1 >= ST7735_HEIGHT) h = ST7735_HEIGHT - y;
 
@@ -135,6 +139,10 @@ public class St7735Device extends I2CDevice implements Output, Storage, Resetabl
   }
 
   public void lcdDrawImage(int x, int y, int w, int h, byte[] data)  {
+    if (x < 0 || y < 0 || w <= 0 || h <= 0 || x + (long) w > ST7735_WIDTH || y + (long) h > ST7735_HEIGHT
+        || data == null || data.length != (long) w * h * 2) {
+      throw new IllegalArgumentException("ST7735 image dimensions or data are invalid");
+    }
     lcdSetAddressWindow(x, y, x + w - 1, y + h - 1);
     i2cBurstTransfer(data, data.length);
   }
@@ -229,12 +237,12 @@ public class St7735Device extends I2CDevice implements Output, Storage, Resetabl
   }
 
   @Override
-  public void writeBlock(int address, byte[] data)  {
-    // no op
+  public void writeBlock(int address, byte[] data) throws IOException {
+    throw new IOException("ST7735 does not support storage block writes; use DRAW_IMAGE");
   }
 
   @Override
-  public byte[] readBlock(int address, int length)  {
-    return new byte[0];
+  public byte[] readBlock(int address, int length) throws IOException {
+    throw new IOException("ST7735 does not support storage block reads");
   }
 }
