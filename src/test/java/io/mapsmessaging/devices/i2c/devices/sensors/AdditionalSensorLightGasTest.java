@@ -25,26 +25,26 @@ class AdditionalSensorLightGasTest {
     assertEquals(0xa2, device.value(0x81));
   }
   @Test void gravityTemperatureAtHalfScaleIs25DegreesAndSendsTemperatureCommand() throws Exception {
-    SensorRegisterDevice device = new SensorRegisterDevice().put(0, 0xff, 0x87, 2, 0, 0, 0, 0, 0, 0x77);
+    GravityTestDevice device = new GravityTestDevice().reply(0xff, 0x87, 2, 0, 0, 0, 0, 0, 0x77);
     TemperatureRegister register = new TemperatureRegister(device.bus());
     assertEquals(25f, register.getTemperature(), .001f);
-    assertArrayEquals(new byte[]{(byte)0xff, 1, (byte)0x87, 0, 0, 0, 0, 0, 0x78}, device.commands.get(0));
+    assertArrayEquals(new byte[]{0, (byte)0xff, 1, (byte)0x87, 0, 0, 0, 0, 0, 0x78}, device.commands.get(0));
   }
   @Test void gravityTemperatureRejectsCorruptedChecksum() throws Exception {
-    SensorRegisterDevice device = new SensorRegisterDevice().put(0, 0xff, 0x87, 2, 0, 0, 0, 0, 0, 0x76);
+    GravityTestDevice device = new GravityTestDevice().reply(0xff, 0x87, 2, 0, 0, 0, 0, 0, 0x76);
     assertTrue(Float.isNaN(new TemperatureRegister(device.bus()).getTemperature()));
   }
   @Test void gravityConcentrationRespectsDecimalPlacesAndRequestFraming() throws Exception {
-    SensorRegisterDevice device = new SensorRegisterDevice().put(0, 0xff, 0x86, 4, 0xd2, 0, 2, 0, 0, 0xa2);
+    GravityTestDevice device = new GravityTestDevice().reply(0xff, 0x86, 4, 0xd2, 0, 2, 0, 0, 0xa2);
     assertEquals(12.34f, new ConcentrationRegister(device.bus()).getConcentration(), .0001f);
-    assertArrayEquals(new byte[]{(byte)0xff, 1, (byte)0x86, 0, 0, 0, 0, 0, 0x79}, device.commands.get(0));
+    assertArrayEquals(new byte[]{0, (byte)0xff, 1, (byte)0x86, 0, 0, 0, 0, 0, 0x79}, device.commands.get(0));
   }
   @Test void gravityCombinedReadingSharesOneSampleBetweenConcentrationAndTemperature() throws Exception {
-    SensorRegisterDevice device = new SensorRegisterDevice().put(0, 0xff, 0x88, 4, 0xd2, 0, 1, 2, 0, 0x9f);
+    GravityTestDevice device = new GravityTestDevice().reply(0xff, 0x88, 4, 0xd2, 0, 1, 2, 0, 0x9f);
     SensorReadingRegister register = new SensorReadingRegister(device.bus());
     assertEquals(123.4f, register.getConcentration(), .001f);
     assertEquals(25f, register.getTemperature(), .001f);
     assertEquals(1, device.commands.size());
-    assertArrayEquals(new byte[]{(byte)0xff, 1, (byte)0x88, 0, 0, 0, 0, 0, 0x77}, device.commands.get(0));
+    assertArrayEquals(new byte[]{0, (byte)0xff, 1, (byte)0x88, 0, 0, 0, 0, 0, 0x77}, device.commands.get(0));
   }
 }
