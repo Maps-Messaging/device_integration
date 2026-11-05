@@ -120,7 +120,7 @@ public class BitsetRegister extends Register {
 
     int wordIndex = wordIndex(bitIndex);
     int bit = bitIndex % 8;
-    buffer[wordIndex] &= (byte) ((1 << bit) & 0xff);
+    buffer[wordIndex] &= (byte) ~(1 << bit);
     sensor.write(address, buffer);
   }
 
