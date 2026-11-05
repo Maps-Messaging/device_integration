@@ -35,30 +35,22 @@ public class Quad7Segment extends HT16K33Driver {
 
   public byte[] encode(String val) {
     Arrays.fill(buf, (byte) 0);
-    int len = val.length();
-    int bufIdx = 0;
-    int x = 0;
-    while (x < len) {
-      char c = val.charAt(x);
-      byte map = 0;
-      if (c != ' ') {
-        if (!Character.isDigit(c)) {
-          map = -1;
-        } else {
-          int index = (c - 0x30);
-          map = (byte) (font[index] & 0x7f);
-        }
+    int position = 0;
+    for (int index = 0; index < val.length() && position < 4; index++) {
+      char character = val.charAt(index);
+      if (character == ':') {
+        buf[4] = 0x02; // Colon at HT16K33 RAM location 0x04.
+        continue;
       }
-      buf[bufIdx * 2] = (byte) (map & 0xff);
-      buf[bufIdx * 2 + 1] = (byte) (0);
-      if (x + 1 < len && val.charAt(x + 1) == '.') {
-        buf[bufIdx * 2] = (byte) (buf[bufIdx * 2] | 0b10000000);
-        x += 2; // Consume the character and its decimal point.
-      } else {
-        x++;
+      if (character == '.' && position > 0) {
+        int previous = ((position - 1) + ((position - 1) >= 2 ? 1 : 0)) * 2;
+        buf[previous] |= (byte) 0x80;
+        continue;
       }
-      bufIdx++;
-      if (bufIdx > 4) break;
+      int ramPosition = (position + (position >= 2 ? 1 : 0)) * 2;
+      int segments = character >= '0' && character <= '9' ? font[character - '0'] : character == ' ' ? 0 : character == '-' ? 0x40 : 0xff;
+      buf[ramPosition] = (byte) segments;
+      position++;
     }
     return buf;
   }
