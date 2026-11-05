@@ -44,7 +44,10 @@ class ScriptedI2CDevice implements AddressableDevice {
     System.arraycopy(frame, 0, buffer, offset, count);
     return count;
   }
-  @Override public int readRegister(int register) { return 0; }
+  @Override public int readRegister(int register) {
+    byte[] frame = responses.poll();
+    return frame == null || frame.length != 1 ? -1 : frame[0] & 0xff;
+  }
   @Override public int readRegister(int register, byte[] buffer, int offset, int length) {
     return read(buffer, offset, length);
   }
