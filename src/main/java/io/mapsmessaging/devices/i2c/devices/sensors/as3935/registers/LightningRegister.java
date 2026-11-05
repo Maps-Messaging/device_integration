@@ -25,6 +25,7 @@ import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.as3935.data.LightningData;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 
 public class LightningRegister extends SingleByteRegister {
 
@@ -37,26 +38,31 @@ public class LightningRegister extends SingleByteRegister {
   }
 
   public int getSpikeRejection() {
+    refresh();
     return (registerValue >> LIGHTNING_REG_SREJ_BITS) & 0x0F;
   }
 
   public void setSpikeRejection(int rejection) throws IOException {
+    reload();
     registerValue &= ~((0x0F) << LIGHTNING_REG_SREJ_BITS);
     registerValue |= (rejection << LIGHTNING_REG_SREJ_BITS) & ((0x0F) << LIGHTNING_REG_SREJ_BITS);
     sensor.write(address, registerValue);
   }
 
   public int getMinNumLightning() {
+    refresh();
     return (registerValue >> LIGHTNING_REG_MIN_NUM_LIGH_BITS) & 0x03;
   }
 
   public void setMinNumLightning(int numLightning) throws IOException {
+    reload();
     registerValue &= ~((0x03) << LIGHTNING_REG_MIN_NUM_LIGH_BITS);
     registerValue |= (numLightning << LIGHTNING_REG_MIN_NUM_LIGH_BITS) & ((0x03) << LIGHTNING_REG_MIN_NUM_LIGH_BITS);
     sensor.write(address, registerValue);
   }
 
   public boolean isClearStatisticsEnabled() {
+    refresh();
     return ((registerValue & 0xff) & (1 << LIGHTNING_REG_CL_STAT_BIT)) != 0;
   }
 
@@ -87,5 +93,12 @@ public class LightningRegister extends SingleByteRegister {
       return true;
     }
     return false;
+  }
+  private void refresh() {
+    try {
+      reload();
+    } catch (IOException e) {
+      throw new UncheckedIOException("Unable to read AS3935 configuration", e);
+    }
   }
 }

@@ -25,6 +25,7 @@ import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.as3935.data.ThresholdData;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 
 public class ThresholdRegister extends SingleByteRegister {
 
@@ -37,21 +38,25 @@ public class ThresholdRegister extends SingleByteRegister {
 
   // THRESHOLD Register : 1
   public int getWatchdogThreshold() {
+    refresh();
     return registerValue & 0x0F;
   }
 
 
   public void setWatchdogThreshold(int threshold) throws IOException {
+    reload();
     registerValue &= ~(0x0F);
     registerValue |= (threshold & 0x0F);
     sensor.write(address, registerValue);
   }
 
   public int getNoiseFloorLevel() {
+    refresh();
     return (registerValue >> THRESHOLD_NF_LEV_BITS) & 0x07;
   }
 
   public void setNoiseFloorLevel(int level) throws IOException {
+    reload();
     registerValue &= ~((0x07) << THRESHOLD_NF_LEV_BITS);
     registerValue |= (level << THRESHOLD_NF_LEV_BITS) & ((0x07) << THRESHOLD_NF_LEV_BITS);
     sensor.write(address, registerValue);
@@ -72,5 +77,12 @@ public class ThresholdRegister extends SingleByteRegister {
       return true;
     }
     return false;
+  }
+  private void refresh() {
+    try {
+      reload();
+    } catch (IOException e) {
+      throw new UncheckedIOException("Unable to read AS3935 configuration", e);
+    }
   }
 }

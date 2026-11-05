@@ -183,6 +183,18 @@ Before using the controller, make sure all your I2C devices are connected correc
 | TLS2561             | Texas Instruments       | Digital light sensor                    | - Measures ambient light intensity                                                                                                                                                                   | [Datasheet](https://cdn-shop.adafruit.com/datasheets/TSL2561.pdf)                                                                     |
 | SHT3x-D             | Sensirion               | Temperature and Humidity Sensor         | - Measures  Humidity, Temperature                                                                                                                                                                    | [Datasheet](https://sensirion.com/media/documents/213E6A3B/63A5A569/Datasheet_SHT3x_DIS.pdf)                                          |
 
+##### DFRobot Lightning Sensor v1.0 (SEN0290 / AS3935)
+
+The I2C driver supports addresses `0x03` (default), `0x02` and `0x01`. It works with SDA, SCL, power and ground; no IRQ GPIO is configured. Discovery checks plausible configuration registers because the AS3935 has no unique chip-ID register. This cannot conclusively distinguish every device at those addresses. Connection checks perform a live register read.
+
+Mounting resets the chip to its indoor defaults, selects the DFRobot example's 96 pF antenna tuning value, calibrates the RC oscillators and checks calibration status. Antenna tuning depends on the physical board; 96 pF is a starting value, not proof that its antenna is calibrated. The register configuration API remains available for indoor/outdoor gain, thresholds, disturber masking and tuning.
+
+Each JSON poll reads the interrupt reason, energy and distance in one I2C register window. `lightning_energy` is the chip's raw 21-bit arbitrary value, without vendor-library scaling. When the reason is not lightning, JSON reports energy `0` and distance `-1`. Distance is also `-1` when the chip reports out of range or no usable estimate; it does not mean an actual negative distance. Valid storm estimates are in km; the chip's value `1` means overhead. The existing Java distance API retains its `32767` out-of-range sentinel for compatibility.
+
+Polling is best effort. Without IRQ edge timing, events between polls may be missed or repeated, and the required delay from an IRQ edge cannot be guaranteed. A single register window reduces mixed reads but is not a hardware-latched event snapshot. Configuration/status reads of register `0x03` also acknowledge IRQ. Do not interpret every report as a new strike or use polls as a reliable strike counter. Hardware validation with this module remains necessary.
+
+References: [DFRobot board/example](https://wiki.dfrobot.com/sen0290/docs/20429), [AS3935 datasheet](https://www.sciosense.com/wp-content/uploads/2024/01/AS3935-Datasheet.pdf).
+
 ##### DFRobot PN532 NFC module V2.0 (I2C)
 
 Select I2C mode on the module before powering it up. The driver uses seven-bit address `0x24` (`0x48` in eight-bit notation). Discovery checks `GetFirmwareVersion` for the PN532 chip identity; mounting configures normal SAM mode and finite passive activation retries. Readiness is polled through the I2C status byte, so no IRQ connection is required.

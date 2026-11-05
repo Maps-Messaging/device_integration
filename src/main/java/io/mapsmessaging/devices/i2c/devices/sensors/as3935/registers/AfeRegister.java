@@ -25,6 +25,7 @@ import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.as3935.data.AfeData;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 
 public class AfeRegister extends SingleByteRegister {
   private static final int AFE_GAIN_ADDR = 0x00;
@@ -37,10 +38,12 @@ public class AfeRegister extends SingleByteRegister {
   }
 
   public boolean isPowerDown() {
+    refresh();
     return ((registerValue & 0xff) & (1 << AFE_GAIN_PD_BIT)) != 0;
   }
 
   public void setPowerDown(boolean powerDown) throws IOException {
+    reload();
     byte value = registerValue;
     if (powerDown) {
       value |= (1 << AFE_GAIN_PD_BIT);
@@ -48,13 +51,16 @@ public class AfeRegister extends SingleByteRegister {
       value &= ~(1 << AFE_GAIN_PD_BIT);
     }
     sensor.write(AFE_GAIN_ADDR, value);
+    registerValue = value;
   }
 
   public int getGainBoost() {
+    refresh();
     return (registerValue >> AFE_GAIN_BOOST_BITS) & 0x1F;
   }
 
   public void setGainBoost(int gainBoost) throws IOException {
+    reload();
     registerValue &= ~((0x1F) << AFE_GAIN_BOOST_BITS);
     registerValue |= (gainBoost << AFE_GAIN_BOOST_BITS) & ((0x1F) << AFE_GAIN_BOOST_BITS);
     sensor.write(AFE_GAIN_ADDR, registerValue);
@@ -97,4 +103,11 @@ public class AfeRegister extends SingleByteRegister {
     return false;
   }
 
+  private void refresh() {
+    try {
+      reload();
+    } catch (IOException e) {
+      throw new UncheckedIOException("Unable to read AS3935 configuration", e);
+    }
+  }
 }

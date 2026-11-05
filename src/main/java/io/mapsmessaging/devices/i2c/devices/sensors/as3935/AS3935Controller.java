@@ -30,7 +30,6 @@ import java.io.IOException;
 
 public class AS3935Controller extends I2CDeviceController {
 
-  private static final int I2C_ADDR = 0x03;
   private final AS3935Sensor sensor;
 
   // Used during ServiceLoading
@@ -50,7 +49,7 @@ public class AS3935Controller extends I2CDeviceController {
 
   protected AS3935Controller(AddressableDevice device) throws IOException {
     super(device);
-    sensor = new AS3935Sensor(device, 7);
+    sensor = new AS3935Sensor(device, 12);
   }
 
   public I2CDevice getDevice() {
@@ -59,7 +58,40 @@ public class AS3935Controller extends I2CDeviceController {
 
   @Override
   public boolean detect(AddressableDevice i2cDevice) {
-    return sensor != null && sensor.isConnected();
+    int address = i2cDevice.getDevice();
+    if (address < 1 || address > 3) {
+      return false;
+    }
+    try {
+      // AS3935 has no chip-ID register: this is a register-plausibility probe.
+      int afe = i2cDevice.readRegister(0);
+      int threshold = i2cDevice.readRegister(1);
+      int lightning = i2cDevice.readRegister(2);
+      int gain = (afe >> 1) & 0x1f;
+      return afe >= 0 && threshold >= 0 && lightning >= 0
+          && (afe & 0xc0) == 0 && (gain == 0x12 || gain == 0x0e)
+          && (threshold & 0x80) == 0 && (lightning & 0x80) != 0;
+    } catch (com.pi4j.exception.Pi4JException e) {
+      return false;
+    }
+  }
+
+  @Override
+  public boolean canDetect() {
+    return true;
+  }
+
+  @Override
+  public byte[] getDeviceState() throws IOException {
+    if (sensor == null) {
+      return super.getDeviceState();
+    }
+    sensor.beginSample();
+    try {
+      return super.getDeviceState();
+    } finally {
+      sensor.invalidateSample();
+    }
   }
 
   public I2CDeviceController mount(AddressableDevice device) throws IOException {
@@ -78,12 +110,12 @@ public class AS3935Controller extends I2CDeviceController {
     config.setVersion(1);
     config.setUniqueId(getSchemaId());
     config.setResourceType("sensor");
-    config.setDescription("Returns JSON object containing details about the latest detection");
+    config.setDescription("Returns JSON polling status, raw lightning energy and estimated storm distance");
     return config;
   }
 
   @Override
   public int[] getAddressRange() {
-    return new int[]{I2C_ADDR};
+    return new int[]{0x01, 0x02, 0x03};
   }
 }

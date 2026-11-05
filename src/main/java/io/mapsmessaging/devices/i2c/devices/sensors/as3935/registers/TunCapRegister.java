@@ -25,22 +25,25 @@ import io.mapsmessaging.devices.i2c.devices.SingleByteRegister;
 import io.mapsmessaging.devices.i2c.devices.sensors.as3935.data.TunCapData;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 
 public class TunCapRegister extends SingleByteRegister {
 
   private static final int TUN_CAP_CAP_BITS = 0;
-  private static final int TUN_CAP_DISP_TRCO = 0b01000000;
-  private static final int TUN_CAP_DISP_SRCO = 0b10000000;
+  private static final int TUN_CAP_DISP_TRCO = 0b00100000;
+  private static final int TUN_CAP_DISP_SRCO = 0b01000000;
 
   public TunCapRegister(I2CDevice sensor) throws IOException {
     super(sensor, 0x08, "Tune Capacitor");
   }
 
   public int getTuningCap() {
+    refresh();
     return registerValue & 0x0F;
   }
 
   public void setTuningCap(int cap) throws IOException {
+    reload();
     registerValue &= ~((0x0F) << TUN_CAP_CAP_BITS);
     registerValue |= cap & ((0x0F) << TUN_CAP_CAP_BITS);
     sensor.write(address, registerValue);
@@ -48,10 +51,12 @@ public class TunCapRegister extends SingleByteRegister {
   }
 
   public boolean isDispTRCOEnabled() {
+    refresh();
     return ((registerValue & 0xff) & TUN_CAP_DISP_TRCO) != 0;
   }
 
   public void setDispTRCOEnabled(boolean enabled) throws IOException {
+    reload();
     if (enabled) {
       registerValue |= TUN_CAP_DISP_TRCO;
     } else {
@@ -62,10 +67,12 @@ public class TunCapRegister extends SingleByteRegister {
   }
 
   public boolean isDispSRCOEnabled() {
+    refresh();
     return ((registerValue & 0xff) & (TUN_CAP_DISP_SRCO)) != 0;
   }
 
   public void setDispSRCOEnabled(boolean enabled) throws IOException {
+    reload();
     if (enabled) {
       registerValue |= (TUN_CAP_DISP_SRCO);
     } else {
@@ -93,5 +100,12 @@ public class TunCapRegister extends SingleByteRegister {
       return true;
     }
     return false;
+  }
+  private void refresh() {
+    try {
+      reload();
+    } catch (IOException e) {
+      throw new UncheckedIOException("Unable to read AS3935 configuration", e);
+    }
   }
 }
