@@ -20,6 +20,7 @@
 package io.mapsmessaging.devices.i2c.devices.output.lcd.st7735;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
@@ -29,6 +30,8 @@ import io.mapsmessaging.schemas.config.SchemaConfig;
 import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 public class St7735Controller extends I2CDeviceController {
   private static final String FIELD_TYPE = "type";
@@ -89,7 +92,76 @@ public class St7735Controller extends I2CDeviceController {
 
   @Override
   public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
-    return new byte[0];
+    if (display == null) {
+      throw new IOException("ST7735 display has not been mounted");
+    }
+    JsonObject command;
+    try {
+      command = JsonParser.parseString(new String(val, StandardCharsets.UTF_8)).getAsJsonObject();
+    } catch (RuntimeException exception) {
+      throw new IOException("Invalid ST7735 command JSON", exception);
+    }
+    if (command.has(FIELD_DEVICE_WRITE) && command.get(FIELD_DEVICE_WRITE).isJsonObject()) {
+      command = command.getAsJsonObject(FIELD_DEVICE_WRITE);
+    }
+    if (!command.has(FIELD_COMMAND)) {
+      throw new IOException("ST7735 command is required");
+    }
+    String action = command.get(FIELD_COMMAND).getAsString();
+    int x = command.has(FIELD_X) ? command.get(FIELD_X).getAsInt() : 0;
+    int y = command.has(FIELD_Y) ? command.get(FIELD_Y).getAsInt() : 0;
+    int color = parseColor(command);
+    try {
+      synchronized (I2CDeviceScheduler.getI2cBusLock()) {
+        switch (action) {
+          case "CLEAR" -> display.lcdFillScreen(color);
+          case "SET_PIXEL" -> display.lcdFillRectangle(x, y, 1, 1, color);
+          case "DRAW_IMAGE" -> {
+            if (!command.has("width") || !command.has("height") || !command.has(FIELD_DATA)) {
+              throw new IOException("ST7735 DRAW_IMAGE requires width, height and Base64 data");
+            }
+            int width = command.get("width").getAsInt();
+            int height = command.get("height").getAsInt();
+            if (x < 0 || y < 0 || width <= 0 || height <= 0 || x + (long) width > 160 || y + (long) height > 80) {
+              throw new IOException("ST7735 image coordinates exceed display bounds");
+            }
+            byte[] pixels = Base64.getDecoder().decode(command.get(FIELD_DATA).getAsString());
+            if (pixels.length != (long) width * height * 2) {
+              throw new IOException("ST7735 image must contain two RGB565 bytes per pixel");
+            }
+            display.lcdDrawImage(x, y, width, height, pixels);
+          }
+          default -> throw new IOException("Unsupported ST7735 command: " + action);
+        }
+      }
+    } catch (IllegalArgumentException exception) {
+      throw new IOException("Invalid ST7735 display parameters", exception);
+    }
+    JsonObject response = new JsonObject();
+    response.addProperty("status", "success");
+    response.addProperty(FIELD_COMMAND, action);
+    return gson.toJson(response).getBytes(StandardCharsets.UTF_8);
+  }
+
+  private static int parseColor(JsonObject command) throws IOException {
+    if (!command.has(FIELD_COLOR)) {
+      return St7735Device.ST7735_BLACK;
+    }
+    String value = command.get(FIELD_COLOR).getAsString();
+    return switch (value.toUpperCase(java.util.Locale.ROOT)) {
+      case "BLACK" -> St7735Device.ST7735_BLACK;
+      case "WHITE" -> St7735Device.ST7735_WHITE;
+      case "RED" -> St7735Device.ST7735_RED;
+      case "GREEN" -> St7735Device.ST7735_GREEN;
+      case "BLUE" -> St7735Device.ST7735_BLUE;
+      default -> {
+        if (!value.matches("#[0-9a-fA-F]{6}")) {
+          throw new IOException("ST7735 color must be #RRGGBB or a supported color name");
+        }
+        int rgb = Integer.parseInt(value.substring(1), 16);
+        yield ((rgb >> 19) & 0x1f) << 11 | ((rgb >> 10) & 0x3f) << 5 | ((rgb >> 3) & 0x1f);
+      }
+    };
   }
 
   @Override
@@ -142,7 +214,9 @@ public class St7735Controller extends I2CDeviceController {
     writeProps.add(FIELD_X, property(TYPE_NUMBER, "X coordinate"));
     writeProps.add(FIELD_Y, property(TYPE_NUMBER, "Y coordinate"));
     writeProps.add(FIELD_COLOR, property(TYPE_STRING, "Color in hex format (#RRGGBB) or named value"));
-    writeProps.add(FIELD_DATA, property(TYPE_STRING, "Optional image or buffer data as Base64 or string"));
+    writeProps.add(FIELD_DATA, property(TYPE_STRING, "RGB565 pixels encoded as Base64 for DRAW_IMAGE"));
+    writeProps.add("width", property(TYPE_NUMBER, "DRAW_IMAGE width in pixels"));
+    writeProps.add("height", property(TYPE_NUMBER, "DRAW_IMAGE height in pixels"));
     writeSchema.add(FIELD_PROPERTIES, writeProps);
 
     JsonObject root = new JsonObject();
