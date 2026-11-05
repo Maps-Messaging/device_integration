@@ -48,11 +48,10 @@ class Ht16k33DatasheetTest {
     controller.updateDeviceConfiguration(
         "{\"deviceStatic\":{\"brightness\":7,\"blink\":\"TWO_HZ\"},\"deviceWrite\":{\"display\":\"1234\"}}"
             .getBytes(StandardCharsets.UTF_8));
-    String state = new String(controller.getDeviceState(), StandardCharsets.UTF_8);
-
-    assertEquals(true, state.contains("\"brightness\":7"));
-    assertEquals(true, state.contains("\"blink\":\"TWO_HZ\""));
-    assertEquals(true, state.contains("\"display\":\"1234\""));
+    HT16K33Driver driver = (HT16K33Driver) controller.getDevice();
+    assertEquals(7, driver.getBrightness());
+    assertEquals(BlinkRate.TWO_HZ, driver.getRate());
+    assertEquals("1234", driver.getCurrent());
   }
 
   @Test
