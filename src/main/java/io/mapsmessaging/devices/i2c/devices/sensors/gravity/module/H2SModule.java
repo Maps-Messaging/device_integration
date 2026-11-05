@@ -27,7 +27,7 @@ public class H2SModule extends SensorModule {
 
   @Override
   protected float calculateSensorConcentration(float temperature, float rawConcentration) {
-    if (temperature > -40 && temperature <= 20) {
+    if (temperature > -20 && temperature <= 20) {
       return rawConcentration / (0.005f * temperature + 0.92f);
     }
     if (temperature > 20 && temperature <= 60) {

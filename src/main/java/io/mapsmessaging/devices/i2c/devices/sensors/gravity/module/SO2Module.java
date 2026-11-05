@@ -33,7 +33,7 @@ public class SO2Module extends SensorModule {
     if (temperature > 40 && temperature <= 60) {
       return rawConcentration / (0.006f * temperature + 0.95f) - (0.05f * temperature - 2);
     }
-    return rawConcentration;
+    return 0;
   }
 
 }

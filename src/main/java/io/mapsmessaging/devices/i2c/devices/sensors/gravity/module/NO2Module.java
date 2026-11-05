@@ -34,10 +34,7 @@ public class NO2Module extends SensorModule {
       return rawConcentration / (0.005f * temperature + 0.9f) - (0.005f * temperature + 0.005f);
     }
     if (temperature > 20 && temperature <= 40) {
-      return rawConcentration / (0.005f * temperature + 0.9f) - (0.0025f * temperature + 0.3f);
-    }
-    if (temperature > 40 && temperature < 50) {
-      return rawConcentration / (0.005f * temperature + 0.9f) - (-0.048f * temperature + 0.92f);
+      return rawConcentration / (0.005f * temperature + 0.9f) - (0.0025f * temperature + 0.1f);
     }
     return 0;
   }

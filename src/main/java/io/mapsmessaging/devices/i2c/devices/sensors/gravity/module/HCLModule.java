@@ -33,9 +33,9 @@ public class HCLModule extends SensorModule {
     if (temperature > 0 && temperature <= 20) {
       return rawConcentration - (-0.1f);
     }
-    if (temperature > 20 && temperature <= 50) {
+    if (temperature > 20 && temperature < 50) {
       return rawConcentration - (-0.01f * temperature + 0.1f);
     }
-    return rawConcentration;
+    return 0;
   }
 }

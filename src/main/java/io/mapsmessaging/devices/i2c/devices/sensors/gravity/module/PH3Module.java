@@ -27,11 +27,11 @@ public class PH3Module extends SensorModule {
 
   @Override
   protected float calculateSensorConcentration(float temperature, float rawConcentration) {
-    if (temperature > 20 && temperature < 40) {
+    if (temperature > -20 && temperature <= 40) {
       return rawConcentration / (0.005f * temperature + 0.9f);
     }
 
-    return rawConcentration;
+    return 0;
   }
 
 }
