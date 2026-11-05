@@ -91,7 +91,7 @@ public class TestTask implements Task {
   }
 
   private void circle(Panel panel) throws IOException {
-    for (int x = 0; x < 40; x++) {
+    for (int x = 0; x < 4; x++) {
       panel.setDisplay(x, SevenSegmentLed.TOP_LEFT.getMask());
       panel.setDisplay(3 - x, SevenSegmentLed.BOTTOM_RIGHT.getMask());
       controller.rawWrite(panel.pack());
