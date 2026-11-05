@@ -20,6 +20,7 @@
 package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
@@ -228,8 +229,17 @@ public abstract class HT16K33Controller extends I2CDeviceController {
     configSchema.addProperty("type", OBJECT);
 
     JsonObject configProps = new JsonObject();
-    configProps.add(BRIGHTNESS, property("integer", "Brightness level (0–15)"));
-    configProps.add(BLINK, property(STRING, "OFF, TWO_HZ, ONE_HZ or HALF_HZ"));
+    JsonObject brightness = property("integer", "Brightness level (0–15)");
+    brightness.addProperty("minimum", 0);
+    brightness.addProperty("maximum", 15);
+    configProps.add(BRIGHTNESS, brightness);
+    JsonObject blink = property(STRING, "Blink rate");
+    JsonArray blinkRates = new JsonArray();
+    for (BlinkRate rate : BlinkRate.values()) {
+      blinkRates.add(rate.name());
+    }
+    blink.add("enum", blinkRates);
+    configProps.add(BLINK, blink);
     configProps.add(ENABLED, property("boolean", "Turn the display on or off"));
     configSchema.add(PROPERTIES, configProps);
 
@@ -237,9 +247,18 @@ public abstract class HT16K33Controller extends I2CDeviceController {
     writeSchema.addProperty("type", OBJECT);
 
     JsonObject writeProps = new JsonObject();
-    writeProps.add(DISPLAY, property(STRING, "Up to four characters, optionally with a colon"));
-    writeProps.add("raw", property(STRING, "Raw segment bytes encoded as Base64"));
-    writeProps.add("task", property(STRING, "Task to run (CLOCK, TEST)"));
+    JsonObject displayText = property(STRING, "Up to five input characters, including optional colon or decimal point");
+    displayText.addProperty("maxLength", 5);
+    writeProps.add(DISPLAY, displayText);
+    JsonObject raw = property(STRING, "Raw segment bytes encoded as Base64");
+    raw.addProperty("contentEncoding", "base64");
+    writeProps.add(RAW, raw);
+    JsonObject task = property(STRING, "Task to run");
+    JsonArray tasks = new JsonArray();
+    tasks.add("CLOCK");
+    tasks.add("TEST");
+    task.add("enum", tasks);
+    writeProps.add(TASK, task);
     writeSchema.add(PROPERTIES, writeProps);
 
     JsonObject root = new JsonObject();
@@ -251,6 +270,19 @@ public abstract class HT16K33Controller extends I2CDeviceController {
     JsonObject props = new JsonObject();
     props.add("deviceStatic", configSchema);
     props.add("deviceWrite", writeSchema);
+
+    // The writable settings above are accepted by updateDeviceConfiguration();
+    // getDeviceState() emits this separate, flat object.
+    JsonObject state = new JsonObject();
+    state.addProperty("type", OBJECT);
+    JsonObject stateProperties = new JsonObject();
+    stateProperties.add(DISPLAY, property(STRING, "Last text written to the display"));
+    stateProperties.add(BLINK, blink.deepCopy());
+    stateProperties.add(ENABLED, property("boolean", "Whether the LED driver is enabled"));
+    stateProperties.add(BRIGHTNESS, brightness.deepCopy());
+    state.add(PROPERTIES, stateProperties);
+    state.addProperty("additionalProperties", false);
+    props.add("deviceState", state);
     root.add(PROPERTIES, props);
 
     return gson.toJson(root);
