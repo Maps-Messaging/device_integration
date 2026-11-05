@@ -84,3 +84,5 @@ io.mapsmessaging.devices.i2c.devices.demo.impl.scd41.Scd41Controller
 io.mapsmessaging.devices.i2c.devices.demo.impl.pmsca003i.Pmsa003iController
 io.mapsmessaging.devices.i2c.devices.demo.impl.tls2561.TSL2561Controller
 
+
+io.mapsmessaging.devices.i2c.devices.sensors.mpu6050.Mpu6050Controller

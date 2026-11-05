@@ -183,6 +183,18 @@ Before using the controller, make sure all your I2C devices are connected correc
 | TLS2561             | Texas Instruments       | Digital light sensor                    | - Measures ambient light intensity                                                                                                                                                                   | [Datasheet](https://cdn-shop.adafruit.com/datasheets/TSL2561.pdf)                                                                     |
 | SHT3x-D             | Sensirion               | Temperature and Humidity Sensor         | - Measures  Humidity, Temperature                                                                                                                                                                    | [Datasheet](https://sensirion.com/media/documents/213E6A3B/63A5A569/Datasheet_SHT3x_DIS.pdf)                                          |
 
+##### MPU-6050 and DS3231 at I2C address 0x68
+
+The MPU-6050 driver (`MPU6050`) supports `0x68` and AD0-selected `0x69`. Its read-only discovery checks `WHO_AM_I` at `0x75` for `0x68`, including when the bus address is `0x69`. This identifies the MPU-60x0 register-compatible family; it does not distinguish MPU-6000 from MPU-6050. Mounting verifies identity before writing configuration, wakes all axes, selects ±2 g acceleration and ±250°/s gyro ranges, and configures 100 Hz sampling with DLPF setting 3. FIFO, auxiliary master and interrupts are disabled. No IRQ connection is needed.
+
+JSON publishes `x_acceleration`, `y_acceleration`, `z_acceleration` in m/s²; `x_angular_velocity`, `y_angular_velocity`, `z_angular_velocity` in rad/s; and internal die `temperature` in °C. A report uses one 14-byte measurement window with signed big-endian words. Sensitivity is 16384 LSB/g and 131 LSB/(°/s); temperature is raw/340 + 36.53. Direct Java readings refresh independently. Ranges and sample rate are fixed in this driver; bias calibration, FIFO/DMP, orientation fusion and IRQ handling are not implemented. Hardware verification is pending.
+
+The DS3231 probe reads and validates its calendar and reserved status/temperature bits, then excludes a successful MPU identity. An unsupported MPU identity-register read does not reject an otherwise plausible RTC. Probing performs no configuration writes, time synchronization, conversion requests or handle closure. Both 12-hour and 24-hour clocks and the oscillator-stop flag are accepted for discovery; the existing clock API still rejects unsynchronized timestamps. Because the DS3231 has no unique chip-ID register, this is a conservative plausibility test rather than definitive identification of every device at `0x68`. Invalid calendar contents can prevent automatic RTC discovery; explicit RTC configuration remains available.
+
+Detection selects the driver for the device present at an address. To connect both simultaneously on one bus, select `0x69` for the MPU using AD0, or use separate buses/a multiplexer. Two devices cannot share `0x68` on the same bus segment.
+
+References: [InvenSense register map](https://www.invensense.com/wp-content/uploads/2015/02/MPU-6000-Register-Map1.pdf), [DS3231 datasheet](https://www.analog.com/media/en/technical-documentation/data-sheets/ds3231.pdf).
+
 ##### DFRobot Lightning Sensor v1.0 (SEN0290 / AS3935)
 
 The I2C driver supports addresses `0x03` (default), `0x02` and `0x01`. It works with SDA, SCL, power and ground; no IRQ GPIO is configured. Discovery checks plausible configuration registers because the AS3935 has no unique chip-ID register. This cannot conclusively distinguish every device at those addresses. Connection checks perform a live register read.

@@ -48,6 +48,7 @@ public class Ds3231Controller extends I2CDeviceController {
   }
 
   public Ds3231Controller(AddressableDevice device) throws IOException {
+    super(device);
     rtc = new Ds3231Rtc(device);
   }
 
