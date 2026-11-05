@@ -48,24 +48,24 @@ public class AlarmDayRegister extends SingleByteRegister {
   }
 
   public boolean isDate() {
-    return (registerValue & DAY_DATE) != 0;
+    return (registerValue & DAY_DATE) == 0;
   }
 
   public void setDate(boolean flag) throws IOException {
-    setControlRegister(~DAY_DATE, flag ? DAY_DATE : 0);
+    setControlRegister(~DAY_DATE, flag ? 0 : DAY_DATE);
   }
 
   public int getDay() throws IOException {
     reload();
-    if ((registerValue & DAY_DATE) != 0) {
-      return ((registerValue & TEN_DATE) >> 4) * 10 + registerValue & DATE;
+    if ((registerValue & DAY_DATE) == 0) {
+      return ((registerValue & TEN_DATE) >> 4) * 10 + (registerValue & DATE);
     }
     return registerValue & DAY;
   }
 
   public void setDay(int day) throws IOException {
     int value = day & DAY;
-    if ((registerValue & DAY_DATE) != 0) {
+    if ((registerValue & DAY_DATE) == 0) {
       value = (day / 10) << 4 | day % 10;
     }
     super.setControlRegister(~DATE_MASK, value);
