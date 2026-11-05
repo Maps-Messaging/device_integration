@@ -34,7 +34,7 @@ public class TemperatureRegister extends MultiByteRegister {
 
   public float getTemperature() throws IOException {
     reload();
-    int tempValue = ((buffer[0] & 0x7F) << 2) + ((buffer[1] >> 6) & 0x03);
+    int tempValue = (buffer[0] << 2) + ((buffer[1] & 0xff) >>> 6);
     return tempValue / 4.0f;
   }
 
