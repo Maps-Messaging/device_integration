@@ -42,10 +42,10 @@ public class TemperatureMeasurement implements Measurement {
     int parT3 = temperatureCalibrationData.getParT3();
 
     int var1 = (tempAdc >> 3) - (parT1 << 1);
-    int var2 = (var1 * parT2) >> 11;
-    int var3 = ((var1 >> 1) * (var1 >> 1)) >> 12;
+    long var2 = ((long) var1 * parT2) >> 11;
+    long var3 = ((long) (var1 >> 1) * (var1 >> 1)) >> 12;
     var3 = ((var3) * (parT3 << 4)) >> 14;
-    int tFine = (var2 + var3);
+    int tFine = (int) (var2 + var3);
     int calcemp = (((tFine * 5) + 128) >> 8);
     temperatureCalibrationData.setTFine(tFine);
     temperatureCalibrationData.setAmbientAir(calcemp);
