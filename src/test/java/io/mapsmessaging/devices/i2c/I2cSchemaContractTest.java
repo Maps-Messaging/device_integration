@@ -14,6 +14,7 @@ import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.Lcd1602Controller
 import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.backlight.BacklightV1PwmController;
 import io.mapsmessaging.devices.i2c.devices.output.lcd.st7735.St7735Controller;
 import io.mapsmessaging.devices.i2c.devices.output.led.ht16k33.Quad7SegmentController;
+import io.mapsmessaging.devices.i2c.devices.sensors.am2320.AM2320Controller;
 import io.mapsmessaging.devices.i2c.devices.sensors.bno055.BNO055Controller;
 import io.mapsmessaging.devices.i2c.devices.sensors.ina219.Ina219Controller;
 import io.mapsmessaging.devices.i2c.devices.storage.at24c.AT24CnnController;
@@ -40,6 +41,14 @@ class I2cSchemaContractTest {
     assertTrue(state.get("temperature").isJsonPrimitive());
     assertTrue(state.get("temperature").getAsJsonPrimitive().isString());
     assertTrue(schema.getAsJsonObject("properties").has("timestamp"));
+  }
+
+  @Test
+  void unmountedSensorControllerHasValidEmptySchema() {
+    JsonObject schema = ((JsonSchemaConfig) new AM2320Controller().getSchema()).getSchema();
+    assertEquals("object", schema.get("type").getAsString());
+    assertTrue(schema.getAsJsonObject("properties").isEmpty());
+    assertFalse(schema.get("additionalProperties").getAsBoolean());
   }
 
   @Test
