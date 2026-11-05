@@ -37,14 +37,14 @@ public class PressureCalibrationData {
 
   public PressureCalibrationData(CalibrationData calibrationData) {
     parP1 = calibrationData.getShort(4);
-    parP2 = calibrationData.getShort(6);
-    parP3 = calibrationData.getByte(8);
-    parP4 = calibrationData.getShort(10);
-    parP5 = calibrationData.getShort(12);
-    parP6 = calibrationData.getByte(15);
-    parP7 = calibrationData.getByte(14);
-    parP8 = calibrationData.getByte(18);
-    parP9 = calibrationData.getByte(20);
+    parP2 = calibrationData.getSignedShort(6);
+    parP3 = calibrationData.getSignedByte(8);
+    parP4 = calibrationData.getSignedShort(10);
+    parP5 = calibrationData.getSignedShort(12);
+    parP6 = calibrationData.getSignedByte(15);
+    parP7 = calibrationData.getSignedByte(14);
+    parP8 = calibrationData.getSignedShort(18);
+    parP9 = calibrationData.getSignedShort(20);
     parP10 = calibrationData.getByte(22);
   }
 }
