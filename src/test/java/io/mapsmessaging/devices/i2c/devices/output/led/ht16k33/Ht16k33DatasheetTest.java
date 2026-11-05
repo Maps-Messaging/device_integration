@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.mapsmessaging.devices.i2c.RegisterBackedI2cDevice;
 import java.util.Base64;
+import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
 class Ht16k33DatasheetTest {
@@ -39,6 +40,19 @@ class Ht16k33DatasheetTest {
     byte[] clock = display.encode("12:34");
     assertEquals(2, clock[4]);
     assertEquals(0x4f, clock[6] & 0xff);
+  }
+
+  @Test
+  void controllerAcceptsDocumentedNestedConfiguration() throws Exception {
+    Quad7SegmentController controller = new Quad7SegmentController(new RegisterBackedI2cDevice(0x72));
+    controller.updateDeviceConfiguration(
+        "{\"deviceStatic\":{\"brightness\":7,\"blink\":\"TWO_HZ\"},\"deviceWrite\":{\"display\":\"1234\"}}"
+            .getBytes(StandardCharsets.UTF_8));
+    String state = new String(controller.getDeviceState(), StandardCharsets.UTF_8);
+
+    assertEquals(true, state.contains("\"brightness\":7"));
+    assertEquals(true, state.contains("\"blink\":\"TWO_HZ\""));
+    assertEquals(true, state.contains("\"display\":\"1234\""));
   }
 
   @Test
