@@ -20,6 +20,7 @@
 package io.mapsmessaging.devices.i2c.devices.output.lcd.st7735;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
@@ -197,39 +198,66 @@ public class St7735Controller extends I2CDeviceController {
   }
 
   private String buildSchema() {
-    JsonObject configSchema = new JsonObject();
-    configSchema.addProperty(FIELD_TYPE, TYPE_OBJECT);
-
-    JsonObject configProps = new JsonObject();
-    configProps.add(FIELD_WIDTH, property(TYPE_NUMBER, "Display width in pixels"));
-    configProps.add(FIELD_HEIGHT, property(TYPE_NUMBER, "Display height in pixels"));
-    configProps.add("colorMode", property(TYPE_STRING, "Color mode (e.g. RGB565)"));
-    configSchema.add(FIELD_PROPERTIES, configProps);
-
     JsonObject writeSchema = new JsonObject();
     writeSchema.addProperty(FIELD_TYPE, TYPE_OBJECT);
-
     JsonObject writeProps = new JsonObject();
-    writeProps.add(FIELD_COMMAND, property(TYPE_STRING, "Display command: DRAW_IMAGE, CLEAR, SET_PIXEL, etc."));
-    writeProps.add(FIELD_X, property(TYPE_NUMBER, "X coordinate"));
-    writeProps.add(FIELD_Y, property(TYPE_NUMBER, "Y coordinate"));
-    writeProps.add(FIELD_COLOR, property(TYPE_STRING, "Color in hex format (#RRGGBB) or named value"));
-    writeProps.add(FIELD_DATA, property(TYPE_STRING, "RGB565 pixels encoded as Base64 for DRAW_IMAGE"));
-    writeProps.add("width", property(TYPE_NUMBER, "DRAW_IMAGE width in pixels"));
-    writeProps.add("height", property(TYPE_NUMBER, "DRAW_IMAGE height in pixels"));
+    JsonObject action = property(TYPE_STRING, "Implemented display command");
+    JsonArray actions = new JsonArray();
+    actions.add("CLEAR");
+    actions.add("SET_PIXEL");
+    actions.add("DRAW_IMAGE");
+    action.add("enum", actions);
+    writeProps.add(FIELD_COMMAND, action);
+
+    JsonObject x = property("integer", "X coordinate, 0 through 159");
+    x.addProperty("minimum", 0);
+    x.addProperty("maximum", 159);
+    writeProps.add(FIELD_X, x);
+    JsonObject y = property("integer", "Y coordinate, 0 through 79");
+    y.addProperty("minimum", 0);
+    y.addProperty("maximum", 79);
+    writeProps.add(FIELD_Y, y);
+    writeProps.add(FIELD_COLOR, property(TYPE_STRING, "RGB hex #RRGGBB or BLACK, WHITE, RED, GREEN, BLUE"));
+
+    JsonObject data = property(TYPE_STRING, "RGB565 pixel data in Base64, two bytes per pixel");
+    data.addProperty("contentEncoding", "base64");
+    writeProps.add(FIELD_DATA, data);
+    JsonObject width = property("integer", "DRAW_IMAGE width");
+    width.addProperty("minimum", 1);
+    width.addProperty("maximum", 160);
+    writeProps.add(FIELD_WIDTH, width);
+    JsonObject height = property("integer", "DRAW_IMAGE height");
+    height.addProperty("minimum", 1);
+    height.addProperty("maximum", 80);
+    writeProps.add(FIELD_HEIGHT, height);
     writeSchema.add(FIELD_PROPERTIES, writeProps);
+    JsonArray required = new JsonArray();
+    required.add(FIELD_COMMAND);
+    writeSchema.add("required", required);
+
+    // getDeviceState() and getDeviceConfiguration() both currently return {}.
+    JsonObject emptyState = new JsonObject();
+    emptyState.addProperty(FIELD_TYPE, TYPE_OBJECT);
+    emptyState.add(FIELD_PROPERTIES, new JsonObject());
+    emptyState.addProperty("additionalProperties", false);
+
+    JsonObject response = new JsonObject();
+    response.addProperty(FIELD_TYPE, TYPE_OBJECT);
+    JsonObject responseProperties = new JsonObject();
+    responseProperties.add("status", property(TYPE_STRING, "success"));
+    responseProperties.add(FIELD_COMMAND, action.deepCopy());
+    response.add(FIELD_PROPERTIES, responseProperties);
 
     JsonObject root = new JsonObject();
     root.addProperty(FIELD_SCHEMA, "https://json-schema.org/draft/2020-12/schema");
     root.addProperty(FIELD_TITLE, NAME);
-    root.addProperty(FIELD_DESCRIPTION, "ST7735 RGB LCD Display");
+    root.addProperty(FIELD_DESCRIPTION, "ST7735 display operations; the device does not currently publish its framebuffer");
     root.addProperty(FIELD_TYPE, TYPE_OBJECT);
-
     JsonObject props = new JsonObject();
-    props.add(FIELD_DEVICE_STATIC, configSchema);
     props.add(FIELD_DEVICE_WRITE, writeSchema);
+    props.add("deviceState", emptyState);
+    props.add("deviceResponse", response);
     root.add(FIELD_PROPERTIES, props);
-
     return gson.toJson(root);
   }
 
