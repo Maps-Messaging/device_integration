@@ -59,6 +59,11 @@ public class AT24CnnController extends I2CDeviceController {
     sensor = new AT24CnnDevice(device);
   }
 
+  public AT24CnnController(AddressableDevice device, int capacityBytes) throws IOException {
+    super(device);
+    sensor = new AT24CnnDevice(device, capacityBytes);
+  }
+
   public I2CDevice getDevice() {
     return sensor;
   }
@@ -74,6 +79,10 @@ public class AT24CnnController extends I2CDeviceController {
 
   public I2CDeviceController mount(AddressableDevice device) throws IOException {
     return new AT24CnnController(device);
+  }
+
+  public I2CDeviceController mount(AddressableDevice device, int capacityBytes) throws IOException {
+    return new AT24CnnController(device, capacityBytes);
   }
 
   @Override
