@@ -39,7 +39,8 @@ public class QuadAlphaNumeric extends HT16K33Driver {
     int bufIdx = 0;
     int x = 0;
     while (x < len) {
-      short map = font[val.charAt(x)];
+      char character = val.charAt(x);
+      short map = character < font.length ? font[character] : 0;
       buf[bufIdx * 2] = (byte) (map & 0xff);
       buf[bufIdx * 2 + 1] = (byte) ((map >> 8) & 0xff);
       if (x + 1 < len && val.charAt(x + 1) == '.') {
