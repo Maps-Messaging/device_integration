@@ -38,6 +38,7 @@ public class Pn532Controller extends I2CDeviceController {
   }
 
   protected Pn532Controller(AddressableDevice device) {
+    super(device);
     this.sensor = new Pn532Sensor(device);
   }
 
@@ -69,9 +70,13 @@ public class Pn532Controller extends I2CDeviceController {
   }
 
   @Override
+  public boolean canDetect() {
+    return true;
+  }
+
+  @Override
   public boolean detect(AddressableDevice dev) {
-    // Lightweight address match; you can upgrade to a real probe by sending SAMConfiguration and catching IOE.
-    return dev.getDevice() == Pn532Sensor.I2C_ADDR;
+    return dev.getDevice() == Pn532Sensor.I2C_ADDR && Pn532Sensor.probe(dev);
   }
 
   @Override

@@ -85,7 +85,11 @@ class Pn532CardDataRegressionTest {
   private static MotionStartupTestDevice deviceWithStartup() {
     MotionStartupTestDevice device = new MotionStartupTestDevice();
     device.frames.add(MotionStartupTestDevice.ack());
+    device.frames.add(MotionStartupTestDevice.frame(0x03, 0x32, 1, 6, 7));
+    device.frames.add(MotionStartupTestDevice.ack());
     device.frames.add(MotionStartupTestDevice.frame(0x15));
+    device.frames.add(MotionStartupTestDevice.ack());
+    device.frames.add(MotionStartupTestDevice.frame(0x33));
     return device;
   }
 
