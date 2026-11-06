@@ -88,21 +88,28 @@ class I2cSchemaContractTest {
   void displaySchemasDescribeOnlyImplementedOperationsAndState() {
     JsonObject lcd = ((JsonSchemaConfig) new Lcd1602Controller().getSchema()).getSchema();
     JsonObject lcdProps = lcd.getAsJsonObject("properties");
-    assertFalse(lcdProps.has("deviceStatic"));
-    assertTrue(lcdProps.has("deviceWrite"));
-    assertTrue(lcdProps.has("deviceState"));
-    assertTrue(lcdProps.getAsJsonObject("deviceState").getAsJsonObject("properties").isEmpty());
+    assertTrue(lcdProps.isEmpty());
+    assertFalse(lcd.get("additionalProperties").getAsBoolean());
+    assertTrue(lcd.has("x-deviceWrite"));
+    assertTrue(lcd.has("x-deviceResponse"));
 
     JsonObject st7735 = ((JsonSchemaConfig) new St7735Controller().getSchema()).getSchema();
-    JsonObject command = st7735.getAsJsonObject("properties").getAsJsonObject("deviceWrite")
+    assertTrue(st7735.getAsJsonObject("properties").isEmpty());
+    assertFalse(st7735.get("additionalProperties").getAsBoolean());
+    JsonObject command = st7735.getAsJsonObject("x-deviceWrite")
         .getAsJsonObject("properties").getAsJsonObject("command");
     assertEquals(3, command.getAsJsonArray("enum").size());
 
     JsonObject ht16k33 = ((JsonSchemaConfig) new Quad7SegmentController().getSchema()).getSchema();
-    JsonObject ledState = ht16k33.getAsJsonObject("properties").getAsJsonObject("deviceState").getAsJsonObject("properties");
+    JsonObject ledState = ht16k33.getAsJsonObject("properties");
     assertTrue(ledState.has("display"));
     assertTrue(ledState.has("brightness"));
     assertTrue(ledState.has("enabled"));
+    assertTrue(ledState.has("blink"));
+    assertFalse(ledState.has("deviceState"));
+    assertFalse(ht16k33.get("additionalProperties").getAsBoolean());
+    assertTrue(ht16k33.has("x-deviceStatic"));
+    assertTrue(ht16k33.has("x-deviceWrite"));
   }
 
   @Test
