@@ -309,7 +309,7 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
     ci.atqa1 = p[3];
     ci.sak = p[4];
     int uidLen = p[5] & 0xFF;
-    ci.uid = Arrays.copyOfRange(p, 6, 6 + Math.clamp(p.length - 6, 0, uidLen));
+    ci.uid = Arrays.copyOfRange(p, 6, 6 + Math.min(uidLen, p.length - 6));
     ci.uidLength = ci.uid.length;
 
     // NTAG/Ultralight identification chain

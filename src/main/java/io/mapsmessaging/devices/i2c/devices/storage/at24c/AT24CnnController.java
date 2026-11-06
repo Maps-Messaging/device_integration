@@ -70,6 +70,8 @@ public class AT24CnnController extends I2CDeviceController {
     sensor = new AT24CnnDevice(device);
   }
 
+  // Retain the public checked-exception contract so existing callers can keep their IOException handling.
+  @SuppressWarnings("java:S1130")
   public AT24CnnController(AddressableDevice device, int capacityBytes) throws IOException {
     super(device);
     sensor = new AT24CnnDevice(device, capacityBytes);
