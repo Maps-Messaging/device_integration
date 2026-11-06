@@ -24,4 +24,26 @@ class BusDeviceOneWireTest {
     assertEquals(26f, sensor.getMax());
     assertEquals(-0.75f, sensor.getDif());
   }
+  @Test void invalidCrcDoesNotReplaceLastValidTemperature() throws Exception {
+    Path sample = directory.resolve("w1_slave");
+    Files.writeString(sample, "50 05 4b 46 7f ff 0c 10 1c : crc=1c YES\\n50 05 4b 46 7f ff 0c 10 1c t=85000\\n".replace("\\n", "\n"));
+    DS18B20Device sensor = new DS18B20Device(sample.toFile());
+    sensor.update();
+    Files.writeString(sample, "50 05 4b 46 7f ff 0c 10 1c : crc=1c NO\\n50 05 4b 46 7f ff 0c 10 1c t=5000\\n".replace("\\n", "\n"));
+    assertThrows(java.io.UncheckedIOException.class, sensor::update);
+    assertEquals(85f, sensor.getCurrent());
+  }
+
+  @Test void negativeTemperaturesAndStableReadingsMaintainCorrectExtremaAndDelta() throws Exception {
+    Path sample = directory.resolve("w1_slave");
+    DS18B20Device sensor = new DS18B20Device(sample.toFile());
+    Files.writeString(sample, "f0 ff 4b 46 7f ff 10 10 c5 : crc=c5 YES\\nf0 ff 4b 46 7f ff 10 10 c5 t=-1000\\n".replace("\\n", "\n"));
+    sensor.update();
+    assertEquals(-1f, sensor.getMin());
+    assertEquals(-1f, sensor.getMax());
+    Files.writeString(sample, "f0 ff 4b 46 7f ff 10 10 c5 : crc=c5 YES\\nf0 ff 4b 46 7f ff 10 10 c5 t=-1000\\n".replace("\\n", "\n"));
+    sensor.update();
+    assertEquals(0f, sensor.getDif());
+  }
+
 }
