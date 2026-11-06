@@ -261,30 +261,23 @@ public abstract class HT16K33Controller extends I2CDeviceController {
     writeProps.add(TASK, task);
     writeSchema.add(PROPERTIES, writeProps);
 
+    // getDeviceState() emits a flat object, not a nested deviceState envelope.
     JsonObject root = new JsonObject();
     root.addProperty("$schema", "https://json-schema.org/draft/2020-12/schema");
     root.addProperty("title", title);
     root.addProperty("description", description);
     root.addProperty("type", OBJECT);
-
-    JsonObject props = new JsonObject();
-    props.add("deviceStatic", configSchema);
-    props.add("deviceWrite", writeSchema);
-
-    // The writable settings above are accepted by updateDeviceConfiguration();
-    // getDeviceState() emits this separate, flat object.
-    JsonObject state = new JsonObject();
-    state.addProperty("type", OBJECT);
     JsonObject stateProperties = new JsonObject();
     stateProperties.add(DISPLAY, property(STRING, "Last text written to the display"));
     stateProperties.add(BLINK, blink.deepCopy());
     stateProperties.add(ENABLED, property("boolean", "Whether the LED driver is enabled"));
     stateProperties.add(BRIGHTNESS, brightness.deepCopy());
-    state.add(PROPERTIES, stateProperties);
-    state.addProperty("additionalProperties", false);
-    props.add("deviceState", state);
-    root.add(PROPERTIES, props);
+    root.add(PROPERTIES, stateProperties);
+    root.addProperty("additionalProperties", false);
 
+    // These describe updateDeviceConfiguration(), not getDeviceState().
+    root.add("x-deviceStatic", configSchema);
+    root.add("x-deviceWrite", writeSchema);
     return gson.toJson(root);
   }
 
