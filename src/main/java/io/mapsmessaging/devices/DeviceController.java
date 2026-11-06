@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -124,7 +125,7 @@ public abstract class DeviceController {
       }
 
       if (value instanceof LocalDateTime dateTime) {
-        jsonObject.addProperty(reading.getName(), dateTime.toString());
+        jsonObject.addProperty(reading.getName(), dateTime.toInstant(ZoneOffset.UTC).toString());
       } else if (value instanceof Number number) {
         jsonObject.addProperty(reading.getName(), number);
       } else if (value instanceof Boolean bool) {
