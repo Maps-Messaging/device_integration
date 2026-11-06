@@ -228,13 +228,12 @@ public class Lcd1602Controller extends I2CDeviceController {
     JsonObject root = new JsonObject();
     root.addProperty(FIELD_SCHEMA, "https://json-schema.org/draft/2020-12/schema");
     root.addProperty(FIELD_TITLE, NAME);
-    root.addProperty(FIELD_DESCRIPTION, "LCD1602 command contract and currently empty state");
+    root.addProperty(FIELD_DESCRIPTION, "LCD1602 state is currently an empty object; command and response contracts are separate");
     root.addProperty(FIELD_TYPE, TYPE_OBJECT);
-    JsonObject props = new JsonObject();
-    props.add(FIELD_DEVICE_WRITE, writeSchema);
-    props.add("deviceState", emptyState);
-    props.add("deviceResponse", response);
-    root.add(FIELD_PROPERTIES, props);
+    root.add(FIELD_PROPERTIES, emptyState.getAsJsonObject(FIELD_PROPERTIES));
+    root.addProperty("additionalProperties", false);
+    root.add("x-deviceWrite", writeSchema);
+    root.add("x-deviceResponse", response);
     return gson.toJson(root);
   }
 
