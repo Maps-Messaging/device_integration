@@ -251,13 +251,12 @@ public class St7735Controller extends I2CDeviceController {
     JsonObject root = new JsonObject();
     root.addProperty(FIELD_SCHEMA, "https://json-schema.org/draft/2020-12/schema");
     root.addProperty(FIELD_TITLE, NAME);
-    root.addProperty(FIELD_DESCRIPTION, "ST7735 display operations; the device does not currently publish its framebuffer");
+    root.addProperty(FIELD_DESCRIPTION, "ST7735 state is currently empty; supported display operations have separate contracts");
     root.addProperty(FIELD_TYPE, TYPE_OBJECT);
-    JsonObject props = new JsonObject();
-    props.add(FIELD_DEVICE_WRITE, writeSchema);
-    props.add("deviceState", emptyState);
-    props.add("deviceResponse", response);
-    root.add(FIELD_PROPERTIES, props);
+    root.add(FIELD_PROPERTIES, emptyState.getAsJsonObject(FIELD_PROPERTIES));
+    root.addProperty("additionalProperties", false);
+    root.add("x-deviceWrite", writeSchema);
+    root.add("x-deviceResponse", response);
     return gson.toJson(root);
   }
 
