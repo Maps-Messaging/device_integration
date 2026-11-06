@@ -130,16 +130,14 @@ class I2cSchemaContractTest {
 
   @Test
   void displayStatePayloadsMatchEmptyRootSchemas() throws Exception {
-    Lcd1602Controller lcd = new Lcd1602Controller().mount(new RegisterBackedI2cDevice(0x3e))
-        instanceof Lcd1602Controller mounted ? mounted : null;
-    assertTrue(lcd != null);
+    Lcd1602Controller lcd = (Lcd1602Controller) new Lcd1602Controller()
+        .mount(new RegisterBackedI2cDevice(0x3e));
     assertTrue(JsonParser.parseString(new String(lcd.getDeviceState())).getAsJsonObject().isEmpty());
     JsonObject lcdSchema = ((JsonSchemaConfig) lcd.getSchema()).getSchema();
     assertTrue(lcdSchema.getAsJsonObject("properties").isEmpty());
 
-    St7735Controller st7735 = new St7735Controller().mount(new RegisterBackedI2cDevice(0x18))
-        instanceof St7735Controller mounted ? mounted : null;
-    assertTrue(st7735 != null);
+    St7735Controller st7735 = (St7735Controller) new St7735Controller()
+        .mount(new RegisterBackedI2cDevice(0x18));
     assertTrue(JsonParser.parseString(new String(st7735.getDeviceState())).getAsJsonObject().isEmpty());
     JsonObject displaySchema = ((JsonSchemaConfig) st7735.getSchema()).getSchema();
     assertTrue(displaySchema.getAsJsonObject("properties").isEmpty());
