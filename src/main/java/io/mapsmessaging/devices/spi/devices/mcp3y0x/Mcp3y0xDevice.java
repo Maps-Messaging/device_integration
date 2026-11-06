@@ -48,13 +48,16 @@ public class Mcp3y0xDevice extends SpiDevice implements Sensor {
 
   public Mcp3y0xDevice(Spi spi, int bits, int channels) {
     super(spi);
+    if ((bits != 10 && bits != 12) || (channels != 4 && channels != 8)) {
+      throw new IllegalArgumentException("MCP3y0x requires 10 or 12 bits and 4 or 8 channels");
+    }
     this.channels = channels;
     this.bits = bits;
 
     name = "MCP3" + (bits == 12 ? "2" : "0") + "0" + (channels == 8 ? "8" : "4");
     readings = new ArrayList<>();
 
-    int max = (1 << (bits + 1)) - 1;
+    int max = (1 << bits) - 1;
 
     for (short x = 0; x < channels; x++) {
       readings.add(new IntegerSensorReading(
@@ -78,7 +81,7 @@ public class Mcp3y0xDevice extends SpiDevice implements Sensor {
    * @return conversion value for specified analog input channel
    */
   public int readFromChannel(boolean differential, short channel) {
-    if (channel >= channels) {
+    if (channel < 0 || channel >= channels) {
       return -1;
     }
     byte commandByte;
