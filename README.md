@@ -4,6 +4,15 @@ This project provides a unified interface for communicating with I2C, SPI and 1-
 It supports a wide range of sensors, LED panels, servo drivers, and other devices. 
 The controller can automatically detect known devices on the bus and provide access to these devices through a standard JSON-based API.
 
+## Documentation
+
+- [General use, device discovery, schemas and server integration](docs/device-guide.md)
+- [Linux setup: I²C, SPI, 1-Wire, JDK 25, Pi4J and permissions](docs/linux-setup.md)
+- [Device-by-device reference and hardware-specific notes](docs/devices.md)
+- [Java and JSON examples](docs/examples.md)
+
+The reference documents the registered physical drivers and demo devices separately. The source of truth for a particular mounted device's output is its `getDeviceState()` and `getSchema()` pair. Examples are library APIs; the device repository does not itself expose a standalone device REST service.
+
 ## Runtime and hardware access (Pi4J 4)
 
 This branch requires **JDK 25** and uses **Pi4J 4.0.2** with the FFM provider for Linux GPIO, I2C and SPI. The previous PiGpio, GpioD, LinuxFS and Raspberry Pi provider plugins are no longer dependencies. Sensor decoding and the `AddressableDevice` interface are unchanged. Serial continues to use jSerialComm, and 1-Wire continues to use the Linux w1 filesystem.
