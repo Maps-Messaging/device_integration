@@ -52,12 +52,14 @@ class BusDeviceSchemaTest {
 
         assertEquals(fields.keySet(), state.keySet());
         assertEquals(channelCount, readings.size());
-        assertTrue(schema.getAsJsonArray("required").contains(new com.google.gson.JsonPrimitive("current")));
+        assertEquals("current", schema.getAsJsonArray("required").get(0).getAsString());
         assertEquals(channelCount, fields.getAsJsonObject("current").get("minItems").getAsInt());
         assertEquals(channelCount, fields.getAsJsonObject("current").get("maxItems").getAsInt());
         assertEquals((1 << resolution) - 1,
             fields.getAsJsonObject("current").getAsJsonObject("items").get("maximum").getAsInt());
-        assertTrue(schema.getAsJsonObject("x-deviceConfiguration").getAsJsonObject("properties").has("resolution"));
+        JsonObject configFields = schema.getAsJsonObject("x-deviceConfiguration").getAsJsonObject("properties");
+        assertEquals(2, configFields.getAsJsonObject("resolution").getAsJsonArray("enum").size());
+        assertEquals(2, configFields.getAsJsonObject("channels").getAsJsonArray("enum").size());
         assertFalse(fields.has("resolution"));
       }
     }
