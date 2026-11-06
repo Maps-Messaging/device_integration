@@ -34,11 +34,11 @@ public class ControlGas0Register extends SingleByteRegister {
 
   public boolean isHeatOn() throws IOException {
     reload();
-    return (registerValue & 0b1000) != 0;
+    return (registerValue & 0b1000) == 0;
   }
 
   public void setHeatOn(boolean flag) throws IOException {
-    setControlRegister(0b1000, flag ? 0b1000 : 0);
+    setControlRegister(~0b1000, flag ? 0 : 0b1000);
   }
 
   @Override

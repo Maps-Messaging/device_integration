@@ -19,6 +19,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.gpio.mcp23017;
 
+import com.google.gson.JsonObject;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
@@ -80,13 +81,17 @@ public class Mcp23017Controller extends I2CDeviceController {
   }
 
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
-    config.setComments("i2c device MCP32017 16 Pin extender");
+    JsonObject state = new JsonObject();
+    state.addProperty("type", "object");
+    state.add("properties", new JsonObject());
+    state.addProperty("additionalProperties", false);
+    JsonSchemaConfig config = new JsonSchemaConfig(gson.toJson(state));
+    config.setComments("MCP23017 16-pin I2C GPIO expander");
     config.setTitle(getName());
     config.setUniqueId(getSchemaId());
     config.setVersion(1);
     config.setResourceType("gpio");
-    config.setDescription("gpio extender");
+    config.setDescription("16-pin GPIO expander; controller state currently emits {}, rather than its underlying pin readings");
     return config;
   }
 

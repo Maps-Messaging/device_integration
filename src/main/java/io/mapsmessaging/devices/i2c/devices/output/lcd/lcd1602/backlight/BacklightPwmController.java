@@ -19,6 +19,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.backlight;
 
+import com.google.gson.JsonObject;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
@@ -76,13 +77,17 @@ public abstract class BacklightPwmController extends I2CDeviceController {
   }
 
 
+  @Override
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig();
-    config.setComments("i2c device AM2315 encased Temperature and Humidity Sensor https://www.adafruit.com/product/1293");
-    config.setSource("I2C bus address : 0x5C");
+    JsonObject schema = new JsonObject();
+    schema.addProperty("type", "object");
+    schema.add("properties", new JsonObject());
+    schema.addProperty("additionalProperties", false);
+    JsonSchemaConfig config = new JsonSchemaConfig(gson.toJson(schema));
+    config.setTitle(getName());
+    config.setUniqueId(getSchemaId());
     config.setVersion(1);
-    config.setResourceType("sensor");
-    config.setDescription("temperature, humidity");
+    config.setResourceType("pwm");
+    config.setDescription("LCD backlight PWM output; no JSON state or command fields currently exposed");
     return config;
-  }
-}
+  }}

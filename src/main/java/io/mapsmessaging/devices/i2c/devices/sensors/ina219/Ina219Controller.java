@@ -203,7 +203,12 @@ public class Ina219Controller extends I2CDeviceController {
         OperatingMode.BVOLT_CONTINUOUS,
         OperatingMode.SANDBVOLT_CONTINUOUS
     ));
-    return buildSchema(sensor, properties);
+    JsonObject stateSchema = JsonParser.parseString(buildSchema(sensor)).getAsJsonObject();
+    JsonObject configurationSchema = new JsonObject();
+    configurationSchema.addProperty("type", "object");
+    configurationSchema.add("properties", properties);
+    stateSchema.add("x-deviceConfiguration", configurationSchema);
+    return gson.toJson(stateSchema);
   }
 
   @SafeVarargs

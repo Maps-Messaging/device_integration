@@ -39,7 +39,6 @@ public enum Alarm2Settings {
   }
 
   public static Alarm2Settings find(int mask, boolean day) {
-    if (mask == 0) day = false;
     for (Alarm2Settings alarm2Settings : values()) {
       if (alarm2Settings.mask == mask && alarm2Settings.isDay() == day) {
         return alarm2Settings;

@@ -20,16 +20,15 @@
 package io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602;
 
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.data.ActionType;
-import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.data.Lcd1602Command;
 import io.mapsmessaging.devices.i2c.devices.output.lcd.lcd1602.data.Lcd1602Response;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
@@ -97,39 +96,57 @@ public class Lcd1602Controller extends I2CDeviceController {
 
   @Override
   public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
-    ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    JavaType type = objectMapper.getTypeFactory().constructType(Lcd1602Command.class);
-    Lcd1602Response response = null;
-    Lcd1602Command command = null;
-
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode payload;
     try {
-      command = objectMapper.readValue(new String(val), type);
-    } catch (IOException e) {
-      // Non-JSON input is accepted as raw display text by the fallback below.
+      payload = mapper.readTree(val);
+    } catch (IOException exception) {
+      payload = null; // Preserve the existing plain-text display interface.
     }
-    if (command != null) {
-      if (display != null) {
-        if (command.getAction() == ActionType.READ) {
-          byte[] data = display.readBlock(command.getAddress(), command.getLength());
-          response = new Lcd1602Response(SUCCESS, data);
-        } else if (command.getAction() == ActionType.WRITE) {
-          display.writeBlock(command.getAddress(), command.getData());
+    if (payload != null && payload.isObject()) {
+      if (payload.has(FIELD_DEVICE_WRITE) && payload.get(FIELD_DEVICE_WRITE).isObject()) {
+        payload = payload.get(FIELD_DEVICE_WRITE);
+      }
+      if (display == null) {
+        return mapper.writeValueAsBytes(new Lcd1602Response(ERROR, new byte[0]));
+      }
+      JsonNode actionNode = payload.get(FIELD_ACTION);
+      if (actionNode == null || !actionNode.isTextual()) {
+        throw new IOException("LCD1602 command requires an action");
+      }
+      ActionType action;
+      try {
+        action = ActionType.valueOf(actionNode.asText());
+      } catch (IllegalArgumentException exception) {
+        throw new IOException("Unknown LCD1602 action: " + actionNode.asText(), exception);
+      }
+      int address = payload.path(FIELD_ADDRESS).asInt(0);
+      Lcd1602Response response;
+      switch (action) {
+        case READ -> response = new Lcd1602Response(SUCCESS,
+            display.readBlock(address, payload.path("length").asInt(0)));
+        case WRITE -> {
+          JsonNode data = payload.get(FIELD_DATA);
+          if (data == null || data.isNull()) {
+            throw new IOException("LCD1602 WRITE requires data");
+          }
+          display.writeBlock(address, mapper.treeToValue(data, byte[].class));
           response = new Lcd1602Response(SUCCESS, new byte[0]);
-        } else if (command.getAction() == ActionType.CLEAR) {
+        }
+        case CLEAR -> {
           display.clearDisplay();
           response = new Lcd1602Response(SUCCESS, new byte[0]);
         }
-      } else {
-        response = new Lcd1602Response(ERROR, new byte[0]);
+        default -> throw new IOException("Unsupported LCD1602 action");
       }
-    } else {
-      display.clearDisplay();
-      display.writeBlock(0, val);
-      response = new Lcd1602Response(SUCCESS, new byte[0]);
+      return mapper.writeValueAsBytes(response);
     }
-    ObjectMapper objectMapper2 = new ObjectMapper();
-    return objectMapper2.writeValueAsString(response).getBytes();
+    if (display == null) {
+      return mapper.writeValueAsBytes(new Lcd1602Response(ERROR, new byte[0]));
+    }
+    display.clearDisplay();
+    display.writeBlock(0, val);
+    return mapper.writeValueAsBytes(new Lcd1602Response(SUCCESS, new byte[0]));
   }
 
   @Override
@@ -164,34 +181,59 @@ public class Lcd1602Controller extends I2CDeviceController {
     return config;
   }
   private String buildSchema() {
-    JsonObject configSchema = new JsonObject();
-    JsonObject configProps = new JsonObject();
-    configProps.add(FIELD_ROWS, property(TYPE_NUMBER, "Number of display rows (typically 2)"));
-    configProps.add(FIELD_COLUMNS, property(TYPE_NUMBER, "Number of display columns (typically 16 or 20)"));
-    configSchema.addProperty(FIELD_TYPE, TYPE_OBJECT);
-    configSchema.add(FIELD_PROPERTIES, configProps);
-
     JsonObject writeSchema = new JsonObject();
-    JsonObject writeProps = new JsonObject();
-    writeProps.add(FIELD_ACTION, property(TYPE_STRING, "Display action: WRITE, CLEAR, READ"));
-    writeProps.add(FIELD_ADDRESS, property(TYPE_NUMBER, "Starting address in the buffer (0-based)"));
-    JsonObject array = new JsonObject();
-    array.addProperty(FIELD_TYPE, TYPE_ARRAY);
-    array.addProperty(FIELD_DESCRIPTION, "Array of bytes to display (ASCII values)");
-    writeProps.add(FIELD_DATA, array);
     writeSchema.addProperty(FIELD_TYPE, TYPE_OBJECT);
+    JsonObject writeProps = new JsonObject();
+    JsonObject action = property(TYPE_STRING, "LCD1602 action accepted by updateDeviceConfiguration");
+    JsonArray actions = new JsonArray();
+    actions.add("WRITE");
+    actions.add("READ");
+    actions.add("CLEAR");
+    action.add("enum", actions);
+    writeProps.add(FIELD_ACTION, action);
+    JsonObject address = property("integer", "Starting offset in the 32-byte display buffer");
+    address.addProperty("minimum", 0);
+    address.addProperty("maximum", 32);
+    writeProps.add(FIELD_ADDRESS, address);
+    JsonObject length = property("integer", "Number of bytes to return for READ");
+    length.addProperty("minimum", 0);
+    writeProps.add("length", length);
+    JsonObject data = property(TYPE_ARRAY, "Unsigned byte values to write for WRITE");
+    JsonObject element = property("integer", "Character byte");
+    element.addProperty("minimum", 0);
+    element.addProperty("maximum", 255);
+    data.add("items", element);
+    writeProps.add(FIELD_DATA, data);
     writeSchema.add(FIELD_PROPERTIES, writeProps);
+    JsonArray requiredAction = new JsonArray();
+    requiredAction.add(FIELD_ACTION);
+    writeSchema.add("required", requiredAction);
+
+    // This controller currently reports {}, not the display buffer.
+    JsonObject emptyState = new JsonObject();
+    emptyState.addProperty(FIELD_TYPE, TYPE_OBJECT);
+    emptyState.add(FIELD_PROPERTIES, new JsonObject());
+    emptyState.addProperty("additionalProperties", false);
+
+    JsonObject response = new JsonObject();
+    response.addProperty(FIELD_TYPE, TYPE_OBJECT);
+    JsonObject responseProps = new JsonObject();
+    responseProps.add("status", property(TYPE_STRING, "success or error"));
+    JsonObject responseData = property(TYPE_STRING, "READ result bytes serialized as Base64");
+    responseData.addProperty("contentEncoding", "base64");
+    responseProps.add(FIELD_DATA, responseData);
+    responseProps.add("@class", property(TYPE_STRING, "Optional Jackson type discriminator"));
+    response.add(FIELD_PROPERTIES, responseProps);
 
     JsonObject root = new JsonObject();
     root.addProperty(FIELD_SCHEMA, "https://json-schema.org/draft/2020-12/schema");
     root.addProperty(FIELD_TITLE, NAME);
-    root.addProperty(FIELD_DESCRIPTION, "LCD1602 Character Display");
-    JsonObject props = new JsonObject();
-    props.add(FIELD_DEVICE_STATIC, configSchema);
-    props.add(FIELD_DEVICE_WRITE, writeSchema);
-    root.add(FIELD_PROPERTIES, props);
+    root.addProperty(FIELD_DESCRIPTION, "LCD1602 state is currently an empty object; command and response contracts are separate");
     root.addProperty(FIELD_TYPE, TYPE_OBJECT);
-
+    root.add(FIELD_PROPERTIES, emptyState.getAsJsonObject(FIELD_PROPERTIES));
+    root.addProperty("additionalProperties", false);
+    root.add("x-deviceWrite", writeSchema);
+    root.add("x-deviceResponse", response);
     return gson.toJson(root);
   }
 

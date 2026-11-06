@@ -40,7 +40,6 @@ public enum Alarm1Settings {
   }
 
   public static Alarm1Settings find(int mask, boolean day) {
-    if (mask == 0) day = false;
     for (Alarm1Settings alarm1Settings : values()) {
       if (alarm1Settings.mask == mask && alarm1Settings.isDay() == day) {
         return alarm1Settings;

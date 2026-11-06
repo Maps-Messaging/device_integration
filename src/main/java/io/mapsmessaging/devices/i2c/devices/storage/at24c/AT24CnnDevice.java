@@ -25,42 +25,41 @@ import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.io.IOException;
 
 @Getter
 public class AT24CnnDevice extends I2CDevice implements Storage {
-  private static final int[] possibleSizes = {65536, 32768, 16384, 8192, 4096};
-  private static final int PAGE_SIZE_AT24C32 = 32; // 32 bytes for AT24C32
-  private static final int PAGE_SIZE_AT24C512 = 128; // 128 bytes for AT24C512
-
+  private static final int DEFAULT_CAPACITY = 4096; // Safe lower bound; no destructive capacity probe.
   private final int memorySize;
-  @Setter
   private int pageSize;
 
   protected AT24CnnDevice(AddressableDevice device) {
+    this(device, DEFAULT_CAPACITY);
+  }
+
+  public AT24CnnDevice(AddressableDevice device, int capacityBytes) {
     super(device, LoggerFactory.getLogger(AT24CnnDevice.class));
-    int size = 4096;
-
-    for (int testSize : possibleSizes) {
-      try {
-        byte originalValue = readByte(testSize - 1);
-        writeByte(testSize - 1, (byte) (originalValue + 1)); // Temporarily modify the value.
-        byte modifiedValue = readByte(testSize - 1);
-        writeByte(testSize - 1, originalValue); // Restore original value.
-
-        // Check if the write and read back was successful.
-        if (modifiedValue == (byte) (originalValue + 1)) {
-          size = testSize;
-          break;
-        }
-      } catch (IOException e) {
-        // Failed to read/write at this address, likely out of bounds.
-      }
+    if (capacityBytes != 4096 && capacityBytes != 8192 && capacityBytes != 16384
+        && capacityBytes != 32768 && capacityBytes != 65536) {
+      throw new IllegalArgumentException("Unsupported AT24C EEPROM capacity in bytes: " + capacityBytes);
     }
-    memorySize = size;
-    pageSize = memorySize > 8192 ? PAGE_SIZE_AT24C512 : PAGE_SIZE_AT24C32;
+    memorySize = capacityBytes;
+    pageSize = capacityBytes == 65536 ? 128 : capacityBytes >= 16384 ? 64 : 32;
+  }
+
+  public void setPageSize(int pageSize) {
+    int physicalPageSize = memorySize == 65536 ? 128 : memorySize >= 16384 ? 64 : 32;
+    if (pageSize <= 0 || pageSize > physicalPageSize || physicalPageSize % pageSize != 0) {
+      throw new IllegalArgumentException("EEPROM page size must divide the physical page size: " + physicalPageSize);
+    }
+    this.pageSize = pageSize;
+  }
+
+  private void checkRange(int address, int length) throws IOException {
+    if (address < 0 || length < 0 || (long) address + length > memorySize) {
+      throw new IOException("AT24C EEPROM access exceeds configured capacity of " + memorySize + " bytes");
+    }
   }
 
   @Override
@@ -72,13 +71,14 @@ public class AT24CnnDevice extends I2CDevice implements Storage {
   @Override
 // Improved readBlock method for efficiency
   public byte[] readBlock(int address, int length) throws IOException {
+    checkRange(address, length);
     byte[] buffer = new byte[length];
     int offset = 0;
     while (offset < length) {
       int len = Math.min(pageSize, (length - offset));
       int read = readChunk(address + offset, buffer, offset, len);
-      if (read > 0) {
-        offset += len;
+      if (read > 0 && read <= len) {
+        offset += read;
       } else {
         throw new IOException("Failed to read device");
       }
@@ -135,39 +135,9 @@ public class AT24CnnDevice extends I2CDevice implements Storage {
     return true;
   }
 
-  private void waitForReady() {
-    int count = 0;
-    boolean cont = true;
-    while (cont && count < 10) {
-      try {
-        cont = device.read() < 0;
-      } catch (Exception e) {
-        //ignore till we get the device to respond once more
-      }
-      delay(1);
-      count++;
-    }
-  }
-
-  // Read a single byte at the given address
-  private byte readByte(int address) throws IOException {
-    byte[] writeBuffer = {(byte) (address >> 8), (byte) (address & 0xFF)};
-    byte[] readBuffer = new byte[1];
-    write(writeBuffer, 0, writeBuffer.length);
-    int val = read(readBuffer, 0, readBuffer.length);
-    if (val < 0) return (byte) -1;
-    return readBuffer[0];
-  }
-
-  // Read a single byte at the given address
-  private void writeByte(int address, byte val) throws IOException {
-    byte[] writeBuffer = {(byte) (address >> 8), (byte) (address & 0xFF), val};
-    write(writeBuffer, 0, writeBuffer.length);
-  }
-
-
   // Make this the primary write method with detailed parameters
   private void writeBlock(int address, byte[] data, int len) throws IOException {
+    checkRange(address, len);
     int bytesToWrite = len;
     int currentOffset = 0;
     int currentAddress = address;
@@ -183,7 +153,7 @@ public class AT24CnnDevice extends I2CDevice implements Storage {
       System.arraycopy(data, currentOffset, buffer, 2, writeLength);
 
       write(buffer, 0, buffer.length);
-      waitForReady();
+      delay(5); // AT24C write-cycle maximum; do not consume data bytes as an ACK probe.
 
       bytesToWrite -= writeLength;
       currentOffset += writeLength;

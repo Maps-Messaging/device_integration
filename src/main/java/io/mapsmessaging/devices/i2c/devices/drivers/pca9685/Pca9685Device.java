@@ -82,6 +82,8 @@ public class Pca9685Device extends I2CDevice implements Resetable, Output {
     mode1Register.setSleep(true);
     preScaleRegister.setPWMFrequency(value);
     mode1Register.setSleep(false);
+    delay(1); // Oscillator start-up after sleep, before restart.
+    mode1Register.restart();
   }
 
   public void setPWM(int channel, int on, int off) throws IOException {

@@ -37,6 +37,8 @@ import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.StatusRegister;
 import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.TemperatureRegister;
 import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.WeekDayRegister;
 import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.register.YearRegister;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.values.Alarm1Settings;
+import io.mapsmessaging.devices.i2c.devices.rtc.ds3231.values.Alarm2Settings;
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import io.mapsmessaging.devices.logging.DeviceLogMessage;
 import io.mapsmessaging.devices.sensorreadings.FloatSensorReading;
@@ -259,7 +261,30 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
   }
 
   public LocalDateTime getDateTime() throws IOException {
-    LocalDateTime dateTime = LocalDateTime.of(getDate(), getTime());
+    requireValidClock();
+    byte[] snapshot = new byte[7];
+    if (readRegister(0, snapshot, 0, snapshot.length) != snapshot.length) {
+      throw new IOException("Incomplete DS3231 timestamp snapshot");
+    }
+    int seconds = fromBcd(snapshot[0] & 0x7f);
+    int minutes = fromBcd(snapshot[1] & 0x7f);
+    int hourRegisterValue = snapshot[2] & 0xff;
+    int hours;
+    if ((hourRegisterValue & 0x40) == 0) {
+      hours = fromBcd(hourRegisterValue & 0x3f);
+    } else {
+      int hour12 = fromBcd(hourRegisterValue & 0x1f);
+      hours = (hour12 % 12) + ((hourRegisterValue & 0x20) != 0 ? 12 : 0);
+    }
+    int day = fromBcd(snapshot[4] & 0x3f);
+    int month = fromBcd(snapshot[5] & 0x1f);
+    int year = 2000 + ((snapshot[5] & 0x80) != 0 ? 100 : 0) + fromBcd(snapshot[6] & 0xff);
+    LocalDateTime dateTime;
+    try {
+      dateTime = LocalDateTime.of(year, month, day, hours, minutes, seconds);
+    } catch (DateTimeException exception) {
+      throw new IOException("Invalid DS3231 timestamp snapshot", exception);
+    }
     if (logger.isDebugEnabled()) {
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), dateTime + " = getDateTime()");
     }
@@ -276,8 +301,7 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
     hourRegister.setClock24Mode(true);
     hourRegister.setHours(dateTime.getHour());
     monthDayRegister.setDate(dateTime.getDayOfMonth());
-    monthRegister.setMonth(dateTime.getMonth().getValue());
-    yearRegister.setYear(dateTime.getYear());
+    setYearAndCentury(dateTime.getYear(), dateTime.getMonthValue());
     statusRegister.clearOscillatorStopped();
   }
 
@@ -290,6 +314,7 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
       alarm1Hours.setHours(dateTime.getHour());
       alarm1DayRegister.setDate(true);
       alarm1DayRegister.setDay(dateTime.getDayOfMonth());
+      alarm1ModeRegister.setAlarmSettings(Alarm1Settings.DATE_HOUR_MINUTE_SECOND);
     }
     if (alarmNumber == 2) {
       alarm2Minutes.setMinutes(dateTime.getMinute());
@@ -297,6 +322,7 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
       alarm2Hours.setHours(dateTime.getHour());
       alarm2DayRegister.setDate(true);
       alarm2DayRegister.setDay(dateTime.getDayOfMonth());
+      alarm2ModeRegister.setAlarmSettings(Alarm2Settings.DATE_HOUR_MINUTE);
     }
   }
 
@@ -307,23 +333,25 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
       alarm1Minutes.setMinutes(time.getMinute());
       alarm1Hours.setClock24Mode(true);
       alarm1Hours.setHours(time.getHour());
-      alarm1DayRegister.setDate(false);
-      alarm1DayRegister.setDay(0);
+      alarm1DayRegister.setDate(true);
+      alarm1DayRegister.setDay(1);
+      alarm1ModeRegister.setAlarmSettings(Alarm1Settings.HOURS_MINUTES_SECONDS);
     }
     if (alarmNumber == 2) {
       alarm2Minutes.setMinutes(time.getMinute());
       alarm2Hours.setClock24Mode(true);
       alarm2Hours.setHours(time.getHour());
-      alarm2DayRegister.setDate(false);
-      alarm2DayRegister.setDay(0);
+      alarm2DayRegister.setDate(true);
+      alarm2DayRegister.setDay(1);
+      alarm2ModeRegister.setAlarmSettings(Alarm2Settings.HOURS_MINUTES);
     }
   }
 
   public LocalDate getDate() throws IOException {
     requireValidClock();
     LocalDate localDate;
-    int year = yearRegister.getYear();
     int month = monthRegister.getMonth();
+    int year = yearRegister.getYear() + (monthRegister.isCentury() ? 100 : 0);
     int date = monthDayRegister.getDate();
     try {
       localDate = LocalDate.of(year, month, date);
@@ -343,9 +371,17 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
       logger.log(DeviceLogMessage.I2C_BUS_DEVICE_WRITE_REQUEST, getName(), "setDate(" + date + ")");
     }
     monthDayRegister.setDate(date.getDayOfMonth());
-    monthRegister.setMonth(date.getMonth().getValue());
-    yearRegister.setYear(date.getYear());
+    setYearAndCentury(date.getYear(), date.getMonthValue());
 
+  }
+
+  private void setYearAndCentury(int year, int month) throws IOException {
+    if (year < 2000 || year > 2199) {
+      throw new IOException("DS3231 supported year range is 2000 through 2199");
+    }
+    monthRegister.setMonth(month);
+    monthRegister.setCentury(year >= 2100);
+    yearRegister.setYear(2000 + (year % 100));
   }
 
   public LocalTime getTime() throws IOException {

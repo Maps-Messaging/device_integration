@@ -87,13 +87,13 @@ public class Pmsa003iController extends I2cDemoController {
   }
 
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig();
+    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
     config.setComments("Air Quality Breakout");
     config.setTitle(getName());
     config.setVersion(1);
     config.setResourceType("sensor");
     config.setUniqueId(getSchemaId());
-    config.setDescription("Air Quality Breakout");
+    config.setDescription("Simulated particulate concentrations, particle counts and air-quality classification");
     return config;
   }
 

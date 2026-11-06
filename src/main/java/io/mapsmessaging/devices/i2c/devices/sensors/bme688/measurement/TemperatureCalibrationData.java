@@ -34,7 +34,7 @@ public class TemperatureCalibrationData {
 
   public TemperatureCalibrationData(CalibrationData calibrationData) {
     parT1 = calibrationData.getShort(31);
-    parT2 = calibrationData.getShort(0);
-    parT3 = calibrationData.getByte(2);
+    parT2 = calibrationData.getSignedShort(0);
+    parT3 = calibrationData.getSignedByte(2);
   }
 }

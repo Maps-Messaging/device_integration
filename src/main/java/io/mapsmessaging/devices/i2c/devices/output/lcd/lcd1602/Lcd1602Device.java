@@ -140,6 +140,8 @@ public class Lcd1602Device extends I2CDevice implements Output, Storage, Resetab
 
   public void clearDisplay() {
     sendCommand(clearDisplay);
+    java.util.Arrays.fill(buffer, (byte) 0);
+    cursorPos = 0;
   }
 
   public void cursorHome() {
@@ -219,6 +221,9 @@ public class Lcd1602Device extends I2CDevice implements Output, Storage, Resetab
   }
 
   private void writeChar(byte data) {
+    if (cursorPos < 0 || cursorPos >= buffer.length) {
+      return;
+    }
     byte[] buf = new byte[2];
     buf[0] = 0x40;
     buf[1] = data;
@@ -255,6 +260,9 @@ public class Lcd1602Device extends I2CDevice implements Output, Storage, Resetab
 
   @Override
   public byte[] readBlock(int address, int length) {
+    if (address < 0 || address > buffer.length || length < 0) {
+      throw new IllegalArgumentException("LCD buffer read exceeds bounds");
+    }
     int len = Math.min(buffer.length - address, length);
     byte[] data = new byte[len];
     int x = address;

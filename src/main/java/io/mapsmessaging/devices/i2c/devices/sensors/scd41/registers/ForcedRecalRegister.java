@@ -20,16 +20,27 @@
 package io.mapsmessaging.devices.i2c.devices.sensors.scd41.registers;
 
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.sensors.scd41.functions.FactoryResetRequest;
+import io.mapsmessaging.devices.i2c.devices.sensors.scd41.functions.ForcedRecalibrationRequest;
 
 public class ForcedRecalRegister extends RequestRegister {
 
   public ForcedRecalRegister(I2CDevice sensor) {
-    super(sensor, "Force Recal", new FactoryResetRequest(sensor.getDevice()));
+    super(sensor, "Force Recal", new ForcedRecalibrationRequest(sensor.getDevice()));
   }
 
+  /**
+   * Perform forced recalibration after stopping periodic measurement.
+   *
+   * @param referencePpm independently measured CO2 concentration in ppm
+   * @return the correction applied by the sensor, in ppm
+   */
+  public int forceRecallibration(int referencePpm) {
+    return ((ForcedRecalibrationRequest) request).recalibrate(referencePpm);
+  }
+
+  @Deprecated
   public void forceRecallibration() {
-    request.getResponse();
+    throw new UnsupportedOperationException("SCD41 forced recalibration requires an explicit CO2 reference in ppm");
   }
 
 }

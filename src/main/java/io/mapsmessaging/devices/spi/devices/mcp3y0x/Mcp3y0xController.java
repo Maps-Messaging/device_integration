@@ -131,24 +131,55 @@ public class Mcp3y0xController extends SpiDeviceController {
   }
 
   private String buildSchema() {
+    JsonObject schema = new JsonObject();
+    schema.addProperty("type", "object");
+
+    JsonObject values = new JsonObject();
+    values.addProperty("type", "array");
+    values.addProperty("description", "Current ADC conversion codes in ascending channel order");
+    JsonObject sample = new JsonObject();
+    sample.addProperty("type", "integer");
+    sample.addProperty("minimum", 0);
+    sample.addProperty("maximum", device == null ? 4095 : (1 << device.getBits()) - 1);
+    values.add("items", sample);
+    int channelCount = device == null ? 0 : device.getChannels();
+    values.addProperty("minItems", channelCount);
+    values.addProperty("maxItems", channelCount);
+
+    JsonObject stateProperties = new JsonObject();
+    stateProperties.add("current", values);
+    schema.add("properties", stateProperties);
+    JsonArray required = new JsonArray();
+    required.add("current");
+    schema.add("required", required);
+    schema.addProperty("additionalProperties", false);
+
+    // getDeviceConfiguration() returns this separate object.
+    JsonObject configuration = new JsonObject();
+    configuration.addProperty("type", "object");
+    JsonObject configurationProperties = new JsonObject();
     JsonObject resolution = new JsonObject();
-    resolution.addProperty("type", NUMBER);
-    resolution.addProperty(DESCRIPTION, "ADC resolution in bits");
-
+    resolution.addProperty("type", "integer");
+    resolution.addProperty("description", "ADC resolution in bits");
+    JsonArray supportedResolutions = new JsonArray();
+    supportedResolutions.add(10);
+    supportedResolutions.add(12);
+    resolution.add("enum", supportedResolutions);
+    configurationProperties.add(RESOLUTION, resolution);
     JsonObject channels = new JsonObject();
-    channels.addProperty("type", NUMBER);
-    channels.addProperty(DESCRIPTION, "Number of ADC channels");
-
+    channels.addProperty("type", "integer");
+    channels.addProperty("description", "Number of ADC channels");
+    JsonArray supportedChannelCounts = new JsonArray();
+    supportedChannelCounts.add(4);
+    supportedChannelCounts.add(8);
+    channels.add("enum", supportedChannelCounts);
+    configurationProperties.add(CHANNELS, channels);
     JsonObject dutyCycle = new JsonObject();
-    dutyCycle.addProperty("type", NUMBER);
-    dutyCycle.addProperty(DESCRIPTION, "Read rate in Hz");
-
-    JsonObject properties = new JsonObject();
-    properties.add(RESOLUTION, resolution);
-    properties.add(CHANNELS, channels);
-    properties.add("dutyCycle", dutyCycle);
-
-    return buildSchema(device, properties);
+    dutyCycle.addProperty("type", "integer");
+    dutyCycle.addProperty("description", "Legacy dutyCycle metadata value, not a measured conversion rate");
+    configurationProperties.add("dutyCycle", dutyCycle);
+    configuration.add("properties", configurationProperties);
+    schema.add("x-deviceConfiguration", configuration);
+    return gson.toJson(schema);
   }
-
 }

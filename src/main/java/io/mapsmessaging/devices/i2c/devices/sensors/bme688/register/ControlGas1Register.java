@@ -39,7 +39,7 @@ public class ControlGas1Register extends SingleByteRegister {
   }
 
   public void setRunGas(boolean flag) throws IOException {
-    setControlRegister(0b100000, flag ? 0b100000 : 0);
+    setControlRegister(~0b100000, flag ? 0b100000 : 0);
   }
 
   public HeaterStep getNbConv() throws IOException {
@@ -48,7 +48,7 @@ public class ControlGas1Register extends SingleByteRegister {
   }
 
   public void setNbConv(HeaterStep heaterStep) throws IOException {
-    setControlRegister(0b1111, heaterStep.getValue());
+    setControlRegister(~0b1111, heaterStep.getValue());
   }
 
   @Override

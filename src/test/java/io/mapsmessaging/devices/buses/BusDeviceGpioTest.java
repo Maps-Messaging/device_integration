@@ -38,6 +38,6 @@ class BusDeviceGpioTest {
     Mcp23017Device gpio = new Mcp23017Device(bus);
     gpio.setHigh(0);
     gpio.setHigh(9);
-    assertArrayEquals(new byte[]{1, 2}, bus.image(0x12, 2));
+    assertArrayEquals(new byte[]{1, 2}, bus.image(0x14, 2));
   }
 }

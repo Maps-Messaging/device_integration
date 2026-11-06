@@ -20,6 +20,7 @@
 package io.mapsmessaging.devices.i2c.devices.output.led.ht16k33;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
@@ -127,12 +128,16 @@ public abstract class HT16K33Controller extends I2CDeviceController {
       }
 
       if (jsonObject != null) {
-        processBrightness(jsonObject, response);
-        processBlink(jsonObject, response);
-        processEnabled(jsonObject, response);
-        processDisplay(jsonObject, response);
-        processRaw(jsonObject, response);
-        processTask(jsonObject, response);
+        JsonObject settings = jsonObject.has("deviceStatic") && jsonObject.get("deviceStatic").isJsonObject()
+            ? jsonObject.getAsJsonObject("deviceStatic") : jsonObject;
+        JsonObject write = jsonObject.has("deviceWrite") && jsonObject.get("deviceWrite").isJsonObject()
+            ? jsonObject.getAsJsonObject("deviceWrite") : jsonObject;
+        processBrightness(settings, response);
+        processBlink(settings, response);
+        processEnabled(settings, response);
+        processDisplay(write, response);
+        processRaw(write, response);
+        processTask(write, response);
       } else {
         cancelCurrentTask();
         String text = new String(val, StandardCharsets.UTF_8);
@@ -224,8 +229,17 @@ public abstract class HT16K33Controller extends I2CDeviceController {
     configSchema.addProperty("type", OBJECT);
 
     JsonObject configProps = new JsonObject();
-    configProps.add(BRIGHTNESS, property("integer", "Brightness level (0–15)"));
-    configProps.add("blinkRate", property("integer", "Blink rate (0 = off, 1 = 2Hz, 2 = 1Hz, 3 = 0.5Hz)"));
+    JsonObject brightness = property("integer", "Brightness level (0–15)");
+    brightness.addProperty("minimum", 0);
+    brightness.addProperty("maximum", 15);
+    configProps.add(BRIGHTNESS, brightness);
+    JsonObject blink = property(STRING, "Blink rate");
+    JsonArray blinkRates = new JsonArray();
+    for (BlinkRate rate : BlinkRate.values()) {
+      blinkRates.add(rate.name());
+    }
+    blink.add("enum", blinkRates);
+    configProps.add(BLINK, blink);
     configProps.add(ENABLED, property("boolean", "Turn the display on or off"));
     configSchema.add(PROPERTIES, configProps);
 
@@ -233,22 +247,37 @@ public abstract class HT16K33Controller extends I2CDeviceController {
     writeSchema.addProperty("type", OBJECT);
 
     JsonObject writeProps = new JsonObject();
-    writeProps.add(DISPLAY, property(STRING, "String to display (up to 4 characters)"));
-    writeProps.add("raw", property(STRING, "Raw segment data as hex"));
-    writeProps.add("task", property(STRING, "Task to run (CLOCK, TEST)"));
+    JsonObject displayText = property(STRING, "Up to five input characters, including optional colon or decimal point");
+    displayText.addProperty("maxLength", 5);
+    writeProps.add(DISPLAY, displayText);
+    JsonObject raw = property(STRING, "Raw segment bytes encoded as Base64");
+    raw.addProperty("contentEncoding", "base64");
+    writeProps.add(RAW, raw);
+    JsonObject task = property(STRING, "Task to run");
+    JsonArray tasks = new JsonArray();
+    tasks.add("CLOCK");
+    tasks.add("TEST");
+    task.add("enum", tasks);
+    writeProps.add(TASK, task);
     writeSchema.add(PROPERTIES, writeProps);
 
+    // getDeviceState() emits a flat object, not a nested deviceState envelope.
     JsonObject root = new JsonObject();
     root.addProperty("$schema", "https://json-schema.org/draft/2020-12/schema");
     root.addProperty("title", title);
     root.addProperty("description", description);
     root.addProperty("type", OBJECT);
+    JsonObject stateProperties = new JsonObject();
+    stateProperties.add(DISPLAY, property(STRING, "Last text written to the display"));
+    stateProperties.add(BLINK, blink.deepCopy());
+    stateProperties.add(ENABLED, property("boolean", "Whether the LED driver is enabled"));
+    stateProperties.add(BRIGHTNESS, brightness.deepCopy());
+    root.add(PROPERTIES, stateProperties);
+    root.addProperty("additionalProperties", false);
 
-    JsonObject props = new JsonObject();
-    props.add("deviceStatic", configSchema);
-    props.add("deviceWrite", writeSchema);
-    root.add(PROPERTIES, props);
-
+    // These describe updateDeviceConfiguration(), not getDeviceState().
+    root.add("x-deviceStatic", configSchema);
+    root.add("x-deviceWrite", writeSchema);
     return gson.toJson(root);
   }
 

@@ -66,13 +66,25 @@ public class DS18B20Controller extends OneWireDeviceController {
   }
 
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig(buildSchema(sensor));
+    JsonObject schema = new JsonObject();
+    schema.addProperty("type", "object");
+    JsonObject properties = new JsonObject();
+    JsonObject temperature = new JsonObject();
+    temperature.addProperty("type", "number");
+    temperature.addProperty("minimum", -55);
+    temperature.addProperty("maximum", 125);
+    temperature.addProperty("readOnly", true);
+    temperature.addProperty("description", "Current DS18B20 temperature in degrees Celsius");
+    properties.add("temperature", temperature);
+    schema.add("properties", properties);
+    schema.addProperty("additionalProperties", false);
+    JsonSchemaConfig config = new JsonSchemaConfig(gson.toJson(schema));
     config.setComments("1-Wire temperature sensor");
     config.setTitle(getName());
     config.setUniqueId(getSchemaId());
     config.setVersion(1);
     config.setResourceType("sensor");
-    config.setDescription("Returns JSON object containing temperature, minimum and maximum, Model, Status and Version");
+    config.setDescription("Emits the current DS18B20 temperature in degrees Celsius; min/max/delta are available through the underlying sensor readings");
     return config;
   }
 

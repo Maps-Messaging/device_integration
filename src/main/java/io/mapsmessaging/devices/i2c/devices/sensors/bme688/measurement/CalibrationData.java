@@ -70,6 +70,14 @@ public class CalibrationData {
   }
 
   public int getShort(int idx) {
-    return ((getByte(idx + 1) << 8) | getByte(idx));
+    return (getByte(idx + 1) << 8) | getByte(idx);
+  }
+
+  public int getSignedShort(int idx) {
+    return (short) getShort(idx);
+  }
+
+  public int getSignedByte(int idx) {
+    return (byte) getByte(idx);
   }
 }

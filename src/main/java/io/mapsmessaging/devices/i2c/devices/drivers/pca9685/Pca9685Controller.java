@@ -19,6 +19,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.drivers.pca9685;
 
+import com.google.gson.JsonObject;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
@@ -76,13 +77,17 @@ public class Pca9685Controller extends I2CDeviceController {
   }
 
   public SchemaConfig getSchema() {
-    JsonSchemaConfig config = new JsonSchemaConfig();
+    JsonObject schema = new JsonObject();
+    schema.addProperty("type", "object");
+    schema.add("properties", new JsonObject());
+    schema.addProperty("additionalProperties", false);
+    JsonSchemaConfig config = new JsonSchemaConfig(gson.toJson(schema));
     config.setComments(DESCRIPTION);
     config.setUniqueId(getSchemaId());
     config.setTitle(getName());
     config.setVersion(1);
     config.setResourceType("driver");
-    config.setDescription("Manages the output of 16 PWM devices");
+    config.setDescription("Controls 16 PWM outputs; getDeviceState() currently emits an empty JSON object");
     return config;
   }
 

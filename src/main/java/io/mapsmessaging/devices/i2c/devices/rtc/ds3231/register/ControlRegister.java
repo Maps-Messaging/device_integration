@@ -43,11 +43,11 @@ public class ControlRegister extends SingleByteRegister {
   }
 
   public boolean isOscillatorEnabled() {
-    return (registerValue & ENABLE_OSC) != 0;
+    return (registerValue & ENABLE_OSC) == 0;
   }
 
   public void setOscillatorEnabled(boolean enabled) throws IOException {
-    setControlRegister(~ENABLE_OSC, enabled ? ENABLE_OSC : 0);
+    setControlRegister(~ENABLE_OSC, enabled ? 0 : ENABLE_OSC);
   }
 
   public boolean isSquareWaveEnabled() {

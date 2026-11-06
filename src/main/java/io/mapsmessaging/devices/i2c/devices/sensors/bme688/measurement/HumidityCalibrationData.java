@@ -34,11 +34,11 @@ public class HumidityCalibrationData {
   public HumidityCalibrationData(CalibrationData calibrationData) {
     parH1 = (calibrationData.getByte(25) << 4) | (calibrationData.getByte(24) & 0x0F);
     parH2 = (calibrationData.getByte(23) << 4) | (calibrationData.getByte(24) >> 4);
-    parH3 = calibrationData.getByte(26);
-    parH4 = calibrationData.getByte(27);
-    parH5 = calibrationData.getByte(28);
+    parH3 = calibrationData.getSignedByte(26);
+    parH4 = calibrationData.getSignedByte(27);
+    parH5 = calibrationData.getSignedByte(28);
     parH6 = calibrationData.getByte(29);
-    parH7 = calibrationData.getByte(30);
+    parH7 = calibrationData.getSignedByte(30);
   }
 
 

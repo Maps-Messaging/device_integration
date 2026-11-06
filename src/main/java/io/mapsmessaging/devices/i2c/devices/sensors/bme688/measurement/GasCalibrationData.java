@@ -32,12 +32,12 @@ public class GasCalibrationData {
   private final int rangeSwErr;
 
   public GasCalibrationData(CalibrationData calibrationData) {
-    parG1 = calibrationData.getByte(35);
-    parG2 = calibrationData.getShort(33);
-    parG3 = calibrationData.getByte(36);
+    parG1 = calibrationData.getSignedByte(35);
+    parG2 = calibrationData.getSignedShort(33);
+    parG3 = calibrationData.getSignedByte(36);
     heatRange = (calibrationData.getByte(39) & 0x30) >> 4;
-    heatVal = calibrationData.getByte(37);
-    rangeSwErr = (calibrationData.getByte(41) & 0xf0) >> 4;
+    heatVal = calibrationData.getSignedByte(37);
+    rangeSwErr = (byte) (calibrationData.getByte(41) & 0xf0) >> 4;
   }
 
 

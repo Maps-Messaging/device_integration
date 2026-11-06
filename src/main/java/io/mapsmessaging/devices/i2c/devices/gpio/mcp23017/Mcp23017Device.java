@@ -139,22 +139,24 @@ public class Mcp23017Device extends I2CDevice implements Sensor, Resetable, Gpio
 
   @Override
   public void setHigh(int pin) throws IOException {
-    gpio.set(pin);
+    olat.set(pin);
   }
 
   @Override
   public void setLow(int pin) throws IOException {
-    gpio.clear(pin);
+    olat.clear(pin);
   }
 
   @Override
   public void setOnHigh(int pin) throws IOException {
-    defVal.set(pin);
+    defVal.clear(pin);
+    intCon.set(pin);
   }
 
   @Override
   public void setOnLow(int pin) throws IOException {
-    defVal.clear(pin);
+    defVal.set(pin);
+    intCon.set(pin);
   }
 
   @Override

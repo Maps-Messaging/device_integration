@@ -99,7 +99,7 @@ public class GasSensor extends I2CDevice implements Sensor {
         (float) sensorType.getMinimumRange(),
         (float) sensorType.getMaximumRange(),
         sensorType.getResolution(),
-        this::getConcentration
+        this::getTemperatureAdjustedConcentration
     );
 
     FloatSensorReading temperature = new FloatSensorReading(
