@@ -42,7 +42,7 @@ public class StopMeasurementCommand implements Sen6xCommand<Boolean> {
   public boolean stop() {
     try {
       return execute();
-    } catch (IOException e) {
+    } catch (IOException _) {
       return false;
     }
   }

@@ -66,7 +66,7 @@ public class BMP280Controller extends I2CDeviceController {
   public boolean detect(AddressableDevice i2cDevice) {
     try {
       return i2cDevice.readRegister(0xd0) == 0x58;
-    } catch (Pi4JException exception) {
+    } catch (Pi4JException _) {
       return false;
     }
   }

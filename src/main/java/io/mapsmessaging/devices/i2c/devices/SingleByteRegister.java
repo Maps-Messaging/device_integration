@@ -52,7 +52,7 @@ public class SingleByteRegister extends Register {
   public String toString(int length) {
     try {
       reload();
-    } catch (IOException e) {
+    } catch (IOException _) {
       // ignore, its a toString() function
     }
     return displayRegister(length, getAddress(), registerValue);

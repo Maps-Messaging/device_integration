@@ -63,7 +63,7 @@ public class I2CMockBusManager extends I2CBusManager {
       if (devices != null && !devices.isEmpty()) {
         try {
           processDeviceList(addr, devices.get(0));
-        } catch (IOException e) {
+        } catch (IOException _) {
           // Ignore this
         }
       }

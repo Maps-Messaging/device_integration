@@ -101,7 +101,7 @@ public class AM2320Sensor extends I2CDevice implements Sensor {
       byte[] response = new byte[8];
       try {
         write(0);
-      } catch (Exception e) {
+      } catch (Exception _) {
         // Wake it up.. it sleeps all the time
       }
       delay(10);
@@ -122,7 +122,7 @@ public class AM2320Sensor extends I2CDevice implements Sensor {
       }
       humidity = (((response[2] & 0xff) << 8) | (response[3] & 0xff)) / 10.0f;
       int rawTemperature = ((response[4] & 0xff) << 8) | (response[5] & 0xff);
-      temperature = ((rawTemperature & 0x7fff) / 10.0f) * ((rawTemperature & 0x8000) != 0 ? -1 : 1);
+      temperature = ((rawTemperature & 0x7fff) / 10.0f) * ((rawTemperature & 0x8000) == 0 ? 1 : -1);
       lastRead = System.currentTimeMillis() + 1000;
     }
   }

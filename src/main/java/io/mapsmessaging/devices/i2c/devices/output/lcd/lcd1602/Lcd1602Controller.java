@@ -37,12 +37,11 @@ import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import java.io.IOException;
 
 public class Lcd1602Controller extends I2CDeviceController {
+  private static final String SCHEMA_INTEGER = "integer";
+  private static final String SCHEMA_MINIMUM = "minimum";
   private static final String TYPE_OBJECT = "object";
   private static final String TYPE_STRING = "string";
-  private static final String TYPE_NUMBER = "number";
   private static final String TYPE_ARRAY = "array";
-  private static final String FIELD_ROWS = "rows";
-  private static final String FIELD_COLUMNS = "columns";
   private static final String FIELD_ACTION = "action";
   private static final String FIELD_ADDRESS = "address";
   private static final String FIELD_DATA = "data";
@@ -51,7 +50,6 @@ public class Lcd1602Controller extends I2CDeviceController {
   private static final String FIELD_DESCRIPTION = "description";
   private static final String FIELD_SCHEMA = "$schema";
   private static final String FIELD_TITLE = "title";
-  private static final String FIELD_DEVICE_STATIC = "deviceStatic";
   private static final String FIELD_DEVICE_WRITE = "deviceWrite";
 
   private static final String SUCCESS = "success";
@@ -100,7 +98,7 @@ public class Lcd1602Controller extends I2CDeviceController {
     JsonNode payload;
     try {
       payload = mapper.readTree(val);
-    } catch (IOException exception) {
+    } catch (IOException _) {
       payload = null; // Preserve the existing plain-text display interface.
     }
     if (payload != null && payload.isObject()) {
@@ -110,36 +108,7 @@ public class Lcd1602Controller extends I2CDeviceController {
       if (display == null) {
         return mapper.writeValueAsBytes(new Lcd1602Response(ERROR, new byte[0]));
       }
-      JsonNode actionNode = payload.get(FIELD_ACTION);
-      if (actionNode == null || !actionNode.isTextual()) {
-        throw new IOException("LCD1602 command requires an action");
-      }
-      ActionType action;
-      try {
-        action = ActionType.valueOf(actionNode.asText());
-      } catch (IllegalArgumentException exception) {
-        throw new IOException("Unknown LCD1602 action: " + actionNode.asText(), exception);
-      }
-      int address = payload.path(FIELD_ADDRESS).asInt(0);
-      Lcd1602Response response;
-      switch (action) {
-        case READ -> response = new Lcd1602Response(SUCCESS,
-            display.readBlock(address, payload.path("length").asInt(0)));
-        case WRITE -> {
-          JsonNode data = payload.get(FIELD_DATA);
-          if (data == null || data.isNull()) {
-            throw new IOException("LCD1602 WRITE requires data");
-          }
-          display.writeBlock(address, mapper.treeToValue(data, byte[].class));
-          response = new Lcd1602Response(SUCCESS, new byte[0]);
-        }
-        case CLEAR -> {
-          display.clearDisplay();
-          response = new Lcd1602Response(SUCCESS, new byte[0]);
-        }
-        default -> throw new IOException("Unsupported LCD1602 action");
-      }
-      return mapper.writeValueAsBytes(response);
+      return executeCommand(mapper, payload);
     }
     if (display == null) {
       return mapper.writeValueAsBytes(new Lcd1602Response(ERROR, new byte[0]));
@@ -147,6 +116,39 @@ public class Lcd1602Controller extends I2CDeviceController {
     display.clearDisplay();
     display.writeBlock(0, val);
     return mapper.writeValueAsBytes(new Lcd1602Response(SUCCESS, new byte[0]));
+  }
+
+  private byte[] executeCommand(ObjectMapper mapper, JsonNode payload) throws IOException {
+    JsonNode actionNode = payload.get(FIELD_ACTION);
+    if (actionNode == null || !actionNode.isTextual()) {
+      throw new IOException("LCD1602 command requires an action");
+    }
+    ActionType action;
+    try {
+      action = ActionType.valueOf(actionNode.asText());
+    } catch (IllegalArgumentException exception) {
+      throw new IOException("Unknown LCD1602 action: " + actionNode.asText(), exception);
+    }
+    int address = payload.path(FIELD_ADDRESS).asInt(0);
+    Lcd1602Response response;
+    switch (action) {
+      case READ -> response = new Lcd1602Response(SUCCESS,
+          display.readBlock(address, payload.path("length").asInt(0)));
+      case WRITE -> {
+        JsonNode data = payload.get(FIELD_DATA);
+        if (data == null || data.isNull()) {
+          throw new IOException("LCD1602 WRITE requires data");
+        }
+        display.writeBlock(address, mapper.treeToValue(data, byte[].class));
+        response = new Lcd1602Response(SUCCESS, new byte[0]);
+      }
+      case CLEAR -> {
+        display.clearDisplay();
+        response = new Lcd1602Response(SUCCESS, new byte[0]);
+      }
+      default -> throw new IOException("Unsupported LCD1602 action");
+    }
+    return mapper.writeValueAsBytes(response);
   }
 
   @Override
@@ -191,16 +193,16 @@ public class Lcd1602Controller extends I2CDeviceController {
     actions.add("CLEAR");
     action.add("enum", actions);
     writeProps.add(FIELD_ACTION, action);
-    JsonObject address = property("integer", "Starting offset in the 32-byte display buffer");
-    address.addProperty("minimum", 0);
+    JsonObject address = property(SCHEMA_INTEGER, "Starting offset in the 32-byte display buffer");
+    address.addProperty(SCHEMA_MINIMUM, 0);
     address.addProperty("maximum", 32);
     writeProps.add(FIELD_ADDRESS, address);
-    JsonObject length = property("integer", "Number of bytes to return for READ");
-    length.addProperty("minimum", 0);
+    JsonObject length = property(SCHEMA_INTEGER, "Number of bytes to return for READ");
+    length.addProperty(SCHEMA_MINIMUM, 0);
     writeProps.add("length", length);
     JsonObject data = property(TYPE_ARRAY, "Unsigned byte values to write for WRITE");
-    JsonObject element = property("integer", "Character byte");
-    element.addProperty("minimum", 0);
+    JsonObject element = property(SCHEMA_INTEGER, "Character byte");
+    element.addProperty(SCHEMA_MINIMUM, 0);
     element.addProperty("maximum", 255);
     data.add("items", element);
     writeProps.add(FIELD_DATA, data);

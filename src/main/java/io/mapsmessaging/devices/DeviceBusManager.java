@@ -114,7 +114,7 @@ public class DeviceBusManager {
         i2c.getDevice();
         result = true;
       }
-    } catch (Throwable e) {
+    } catch (Throwable _) {
      // ignore
     }
     return result;

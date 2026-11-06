@@ -61,7 +61,7 @@ public class H3LIS200DLController extends I2CDeviceController {
   public boolean detect(AddressableDevice device) {
     try {
       return device.readRegister(H3LIS200DLSensor.WHO_AM_I) == H3LIS200DLSensor.CHIP_ID;
-    } catch (Pi4JException exception) {
+    } catch (Pi4JException _) {
       return false;
     }
   }

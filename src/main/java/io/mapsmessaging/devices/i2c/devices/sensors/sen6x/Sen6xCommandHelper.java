@@ -160,7 +160,7 @@ public class Sen6xCommandHelper {
     }
     try {
       Thread.sleep(delayMs);
-    } catch (InterruptedException exception) {
+    } catch (InterruptedException _) {
       Thread.currentThread().interrupt();
     }
   }

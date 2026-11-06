@@ -39,7 +39,7 @@ public class UuidGenerator {
       MessageDigest messageDigest = MessageDigest.getInstance("SHA-1");
 
       uuidGenerator = Generators.nameBasedGenerator(uuid, messageDigest);
-    } catch (NoSuchAlgorithmException e) {
+    } catch (NoSuchAlgorithmException _) {
       uuidGenerator = null;
     }
     namespaceGenerator = uuidGenerator;

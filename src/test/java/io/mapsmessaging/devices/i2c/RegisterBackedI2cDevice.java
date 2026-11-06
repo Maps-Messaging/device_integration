@@ -28,7 +28,7 @@ public class RegisterBackedI2cDevice implements AddressableDevice {
   }
 
   @Override
-  public void close() { }
+  public void close() { /* In-memory fixture owns no hardware resources. */ }
 
   @Override
   public int getBus() { return 1; }

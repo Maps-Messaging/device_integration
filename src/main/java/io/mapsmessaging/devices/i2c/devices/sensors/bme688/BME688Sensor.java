@@ -152,7 +152,7 @@ public class BME688Sensor extends I2CDevice implements PowerManagement, Sensor {
   private String getHeaterStatus() {
     try {
       return controlGas1Register.isRunGas() ? "ON" : "OFF";
-    } catch (IOException e) {
+    } catch (IOException _) {
       return "ERROR";
     }
   }

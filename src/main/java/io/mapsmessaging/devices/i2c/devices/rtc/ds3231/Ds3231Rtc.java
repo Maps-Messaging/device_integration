@@ -173,20 +173,33 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
       if (weekday < 1 || weekday > 7 || !validBcd(date, 1, 31)
           || (month & 0x60) != 0 || !validBcd(month & 0x1f, 1, 12) || !validBcd(year, 0, 99)
           || (data[15] & 0x70) != 0 || (data[18] & 0x3f) != 0) return false;
-      try {
-        LocalDate.of(2000 + ((month & 0x80) != 0 ? 100 : 0) + fromBcd(year), fromBcd(month & 0x1f), fromBcd(date));
-      } catch (DateTimeException invalid) {
+      if (!validDate(date, month, year)) {
         return false;
       }
       // Exclude a successful MPU-60x0 identity read. DS3231 itself has no chip ID,
       // and its backend may reject registers outside the documented 0x00..0x12 map.
-      try {
-        return i2cDevice.readRegister(0x75) != 0x68;
-      } catch (com.pi4j.exception.Pi4JException unsupportedRegister) {
-        return true;
-      }
+      return excludesMpu6050(i2cDevice);
     } catch (com.pi4j.exception.Pi4JException exception) {
       throw new IOException("Unable to probe DS3231 registers", exception);
+    }
+  }
+
+  // LocalDate.of validates the calendar date by throwing DateTimeException; the value itself is not needed.
+  @SuppressWarnings("java:S2201")
+  private static boolean validDate(int date, int month, int year) {
+    try {
+      LocalDate.of(2000 + ((month & 0x80) == 0 ? 0 : 100) + fromBcd(year), fromBcd(month & 0x1f), fromBcd(date));
+      return true;
+    } catch (DateTimeException _) {
+      return false;
+    }
+  }
+
+  private static boolean excludesMpu6050(AddressableDevice i2cDevice) {
+    try {
+      return i2cDevice.readRegister(0x75) != 0x68;
+    } catch (com.pi4j.exception.Pi4JException _) {
+      return true;
     }
   }
 
@@ -211,7 +224,7 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
           return true;
         }
       }
-    } catch (IOException e) {
+    } catch (IOException _) {
       // ignore
     }
     return false;
@@ -274,11 +287,11 @@ public class Ds3231Rtc extends I2CDevice implements Clock, Sensor {
       hours = fromBcd(hourRegisterValue & 0x3f);
     } else {
       int hour12 = fromBcd(hourRegisterValue & 0x1f);
-      hours = (hour12 % 12) + ((hourRegisterValue & 0x20) != 0 ? 12 : 0);
+      hours = (hour12 % 12) + ((hourRegisterValue & 0x20) == 0 ? 0 : 12);
     }
     int day = fromBcd(snapshot[4] & 0x3f);
     int month = fromBcd(snapshot[5] & 0x1f);
-    int year = 2000 + ((snapshot[5] & 0x80) != 0 ? 100 : 0) + fromBcd(snapshot[6] & 0xff);
+    int year = 2000 + ((snapshot[5] & 0x80) == 0 ? 0 : 100) + fromBcd(snapshot[6] & 0xff);
     LocalDateTime dateTime;
     try {
       dateTime = LocalDateTime.of(year, month, day, hours, minutes, seconds);

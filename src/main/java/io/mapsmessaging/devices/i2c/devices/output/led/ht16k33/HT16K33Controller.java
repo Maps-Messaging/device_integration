@@ -36,6 +36,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public abstract class HT16K33Controller extends I2CDeviceController {
+  private static final String SCHEMA_DEVICESTATIC = "deviceStatic";
+  private static final String SCHEMA_DEVICEWRITE = "deviceWrite";
 
   private static final String OBJECT = "object";
   private static final String PROPERTIES = "properties";
@@ -123,15 +125,15 @@ public abstract class HT16K33Controller extends I2CDeviceController {
       JsonObject jsonObject = null;
       try {
         jsonObject = JsonParser.parseString(new String(val, StandardCharsets.UTF_8)).getAsJsonObject();
-      } catch (Exception ignore) {
+      } catch (Exception _) {
         // fallback below
       }
 
       if (jsonObject != null) {
-        JsonObject settings = jsonObject.has("deviceStatic") && jsonObject.get("deviceStatic").isJsonObject()
-            ? jsonObject.getAsJsonObject("deviceStatic") : jsonObject;
-        JsonObject write = jsonObject.has("deviceWrite") && jsonObject.get("deviceWrite").isJsonObject()
-            ? jsonObject.getAsJsonObject("deviceWrite") : jsonObject;
+        JsonObject settings = jsonObject.has(SCHEMA_DEVICESTATIC) && jsonObject.get(SCHEMA_DEVICESTATIC).isJsonObject()
+            ? jsonObject.getAsJsonObject(SCHEMA_DEVICESTATIC) : jsonObject;
+        JsonObject write = jsonObject.has(SCHEMA_DEVICEWRITE) && jsonObject.get(SCHEMA_DEVICEWRITE).isJsonObject()
+            ? jsonObject.getAsJsonObject(SCHEMA_DEVICEWRITE) : jsonObject;
         processBrightness(settings, response);
         processBlink(settings, response);
         processEnabled(settings, response);

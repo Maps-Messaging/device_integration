@@ -71,7 +71,7 @@ public class HourRegister extends SingleByteRegister {
     if (hours < 1 || hours > 12) {
       throw new IOException("Invalid DS3231 twelve-hour clock value: " + hours);
     }
-    return (hours % 12) + ((registerValue & AM_PM) != 0 ? 12 : 0);
+    return (hours % 12) + ((registerValue & AM_PM) == 0 ? 0 : 12);
   }
 
   public void setHours(int val) throws IOException {

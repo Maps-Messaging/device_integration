@@ -52,7 +52,7 @@ public class GpioDigitalInput extends BaseDigitalInput {
       if (gpio.isSet(pin)) {
         return DigitalState.HIGH;
       }
-    } catch (IOException e) {
+    } catch (IOException _) {
       //
     }
     return DigitalState.LOW;
@@ -63,7 +63,7 @@ public class GpioDigitalInput extends BaseDigitalInput {
     if (listenerList.isEmpty()) {
       try {
         gpio.enableInterrupt(pin);
-      } catch (IOException e) {
+      } catch (IOException _) {
         //
       }
     }
@@ -76,7 +76,7 @@ public class GpioDigitalInput extends BaseDigitalInput {
     if (listenerList.isEmpty()) {
       try {
         gpio.disableInterrupt(pin);
-      } catch (IOException e) {
+      } catch (IOException _) {
         //
       }
     }

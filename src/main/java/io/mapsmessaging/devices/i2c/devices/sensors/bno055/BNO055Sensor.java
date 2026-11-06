@@ -156,7 +156,7 @@ public class BNO055Sensor extends I2CDevice implements Sensor {
   public boolean isConnected() {
     try {
       return readRegister(BNO055Constants.BNO055_CHIP_ID_ADDR) == BNO055Constants.BNO055_ID;
-    } catch (IOException e) {
+    } catch (IOException _) {
       return false;
     }
   }

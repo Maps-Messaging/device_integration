@@ -55,7 +55,7 @@ public class Clock implements Task {
         hasColon = !hasColon;
         Delay.pause(450);
       }
-    } catch (IOException e) {
+    } catch (IOException _) {
       int bus = controller.getDevice().getBus();
       DeviceBusManager.getInstance().getI2cBusManager()[bus].close(controller);
       // ignore since we may have lost the device

@@ -45,7 +45,7 @@ public class GetDataReadyFlagCommand implements Sen6xCommand<Boolean> {
   public boolean isReady() {
     try {
       return execute();
-    } catch (IOException e) {
+    } catch (IOException _) {
       // No Op
     }
     return false;

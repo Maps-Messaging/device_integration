@@ -70,6 +70,9 @@ public class SpiBusManager {
     SpiDeviceController controller = knownDevices.get(name);
     if (controller != null) {
       SpiDeviceController mounted = controller.mount(pi4j, config);
+      if (mounted == null) {
+        return null;
+      }
       activeDevices.put(mounted.getName(), new SpiDeviceScheduler(mounted));
       return mounted;
     }

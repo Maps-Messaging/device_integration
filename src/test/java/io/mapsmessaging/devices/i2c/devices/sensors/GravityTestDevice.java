@@ -25,7 +25,7 @@ final class GravityTestDevice implements AddressableDevice {
     return new RegisterBus(this);
   }
 
-  @Override public void close() { }
+  @Override public void close() { /* In-memory fixture owns no hardware resources. */ }
   @Override public int getBus() { return 1; }
   @Override public int getDevice() { return 0x76; }
   @Override public int write(int value) { throw new AssertionError("Expected a command frame"); }

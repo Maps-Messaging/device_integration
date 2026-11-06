@@ -51,7 +51,7 @@ public class Mpu6050Controller extends I2CDeviceController {
     try {
       return (device.getDevice() == 0x68 || device.getDevice() == 0x69)
           && device.readRegister(Mpu6050Sensor.WHO_AM_I) == Mpu6050Sensor.CHIP_ID;
-    } catch (Pi4JException exception) {
+    } catch (Pi4JException _) {
       return false;
     }
   }

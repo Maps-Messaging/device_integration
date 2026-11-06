@@ -53,7 +53,7 @@ public abstract class Register {
     while (wait && count < 100) {
       try {
         wait = sensor.readRegister(address) > -1;
-      } catch (IOException e) {
+      } catch (IOException _) {
         // ignore
       }
       if (wait) {

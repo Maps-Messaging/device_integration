@@ -40,6 +40,8 @@ import java.util.Map;
 @Getter
 @Setter
 public class Mcp3y0xController extends SpiDeviceController {
+  private static final String SCHEMA_CURRENT = "current";
+  private static final String SCHEMA_INTEGER = "integer";
 
   private static final String RESOLUTION = "resolution";
   private static final String CHANNELS = "channels";
@@ -110,7 +112,7 @@ public class Mcp3y0xController extends SpiDeviceController {
         jsonArray.add(device.readFromChannel(false, x));
       }
     }
-    jsonObject.add("current", jsonArray);
+    jsonObject.add(SCHEMA_CURRENT, jsonArray);
     return gson.toJson(jsonObject).getBytes(StandardCharsets.UTF_8);
   }
 
@@ -136,9 +138,9 @@ public class Mcp3y0xController extends SpiDeviceController {
 
     JsonObject values = new JsonObject();
     values.addProperty("type", "array");
-    values.addProperty("description", "Current ADC conversion codes in ascending channel order");
+    values.addProperty(DESCRIPTION, "Current ADC conversion codes in ascending channel order");
     JsonObject sample = new JsonObject();
-    sample.addProperty("type", "integer");
+    sample.addProperty("type", SCHEMA_INTEGER);
     sample.addProperty("minimum", 0);
     sample.addProperty("maximum", device == null ? 4095 : (1 << device.getBits()) - 1);
     values.add("items", sample);
@@ -147,10 +149,10 @@ public class Mcp3y0xController extends SpiDeviceController {
     values.addProperty("maxItems", channelCount);
 
     JsonObject stateProperties = new JsonObject();
-    stateProperties.add("current", values);
+    stateProperties.add(SCHEMA_CURRENT, values);
     schema.add("properties", stateProperties);
     JsonArray required = new JsonArray();
-    required.add("current");
+    required.add(SCHEMA_CURRENT);
     schema.add("required", required);
     schema.addProperty("additionalProperties", false);
 
@@ -159,24 +161,24 @@ public class Mcp3y0xController extends SpiDeviceController {
     configuration.addProperty("type", "object");
     JsonObject configurationProperties = new JsonObject();
     JsonObject resolution = new JsonObject();
-    resolution.addProperty("type", "integer");
-    resolution.addProperty("description", "ADC resolution in bits");
+    resolution.addProperty("type", SCHEMA_INTEGER);
+    resolution.addProperty(DESCRIPTION, "ADC resolution in bits");
     JsonArray supportedResolutions = new JsonArray();
     supportedResolutions.add(10);
     supportedResolutions.add(12);
     resolution.add("enum", supportedResolutions);
     configurationProperties.add(RESOLUTION, resolution);
     JsonObject channels = new JsonObject();
-    channels.addProperty("type", "integer");
-    channels.addProperty("description", "Number of ADC channels");
+    channels.addProperty("type", SCHEMA_INTEGER);
+    channels.addProperty(DESCRIPTION, "Number of ADC channels");
     JsonArray supportedChannelCounts = new JsonArray();
     supportedChannelCounts.add(4);
     supportedChannelCounts.add(8);
     channels.add("enum", supportedChannelCounts);
     configurationProperties.add(CHANNELS, channels);
     JsonObject dutyCycle = new JsonObject();
-    dutyCycle.addProperty("type", "integer");
-    dutyCycle.addProperty("description", "Legacy dutyCycle metadata value, not a measured conversion rate");
+    dutyCycle.addProperty("type", SCHEMA_INTEGER);
+    dutyCycle.addProperty(DESCRIPTION, "Legacy dutyCycle metadata value, not a measured conversion rate");
     configurationProperties.add("dutyCycle", dutyCycle);
     configuration.add("properties", configurationProperties);
     schema.add("x-deviceConfiguration", configuration);

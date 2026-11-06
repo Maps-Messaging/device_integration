@@ -14,7 +14,7 @@ final class MotionStartupTestDevice implements AddressableDevice {
   final List<byte[]> rawWrites = new ArrayList<>();
   boolean shortRead;
   int resets;
-  @Override public void close() { }
+  @Override public void close() { /* In-memory fixture owns no hardware resources. */ }
   @Override
   public int getBus() {
     return 1;

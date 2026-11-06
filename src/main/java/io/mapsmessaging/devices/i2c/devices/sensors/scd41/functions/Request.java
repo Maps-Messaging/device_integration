@@ -87,7 +87,7 @@ public abstract class Request {
   protected void pause() {
     try {
       TimeUnit.MILLISECONDS.sleep(msDelay);
-    } catch (InterruptedException e) {
+    } catch (InterruptedException _) {
       Thread.currentThread().interrupt();
     }
   }

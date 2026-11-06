@@ -42,7 +42,7 @@ public class StartMeasurementCommand implements Sen6xCommand<Boolean> {
   public boolean start() {
     try {
       return execute();
-    } catch (IOException e) {
+    } catch (IOException _) {
       return false;
     }
   }

@@ -81,7 +81,7 @@ public class BMP280Sensor extends I2CDevice implements Sensor {
   public boolean isConnected() {
     try {
       return readRegister(0xd0) == 0x58;
-    } catch (IOException exception) {
+    } catch (IOException _) {
       return false;
     }
   }

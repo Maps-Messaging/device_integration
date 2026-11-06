@@ -38,6 +38,13 @@ import io.mapsmessaging.schemas.config.impl.JsonSchemaConfig;
 import java.io.IOException;
 
 public class AT24CnnController extends I2CDeviceController {
+  private static final String SCHEMA_OBJECT = "object";
+  private static final String SCHEMA_STRING = "string";
+  private static final String SCHEMA_DESCRIPTION = "description";
+  private static final String SCHEMA_INTEGER = "integer";
+  private static final String SCHEMA_MINIMUM = "minimum";
+  private static final String SCHEMA_CLASS = "@class";
+  private static final String SCHEMA_PROPERTIES = "properties";
 
   private final AT24CnnDevice sensor;
 
@@ -56,6 +63,8 @@ public class AT24CnnController extends I2CDeviceController {
     return "AT24C32/64/128/256/512 eeprom";
   }
 
+  // Retain the public checked-exception contract so existing callers can keep their IOException handling.
+  @SuppressWarnings("java:S1130")
   protected AT24CnnController(AddressableDevice device) throws IOException {
     super(device);
     sensor = new AT24CnnDevice(device);
@@ -126,77 +135,77 @@ public class AT24CnnController extends I2CDeviceController {
 
   public SchemaConfig getSchema() {
     JsonObject state = new JsonObject();
-    state.addProperty("type", "object");
+    state.addProperty("type", SCHEMA_OBJECT);
     JsonObject stateProperties = new JsonObject();
     JsonObject name = new JsonObject();
-    name.addProperty("type", "string");
-    name.addProperty("description", "Configured AT24C EEPROM model");
+    name.addProperty("type", SCHEMA_STRING);
+    name.addProperty(SCHEMA_DESCRIPTION, "Configured AT24C EEPROM model");
     stateProperties.add("name", name);
     JsonObject size = new JsonObject();
-    size.addProperty("type", "integer");
-    size.addProperty("minimum", 4096);
+    size.addProperty("type", SCHEMA_INTEGER);
+    size.addProperty(SCHEMA_MINIMUM, 4096);
     size.addProperty("maximum", 65536);
-    size.addProperty("description", "Configured EEPROM capacity in bytes, not discovered by destructive probing");
+    size.addProperty(SCHEMA_DESCRIPTION, "Configured EEPROM capacity in bytes, not discovered by destructive probing");
     stateProperties.add("size", size);
     JsonObject typeId = new JsonObject();
-    typeId.addProperty("type", "string");
-    typeId.addProperty("description", "Optional Jackson @class discriminator");
-    stateProperties.add("@class", typeId);
-    state.add("properties", stateProperties);
+    typeId.addProperty("type", SCHEMA_STRING);
+    typeId.addProperty(SCHEMA_DESCRIPTION, "Optional Jackson @class discriminator");
+    stateProperties.add(SCHEMA_CLASS, typeId);
+    state.add(SCHEMA_PROPERTIES, stateProperties);
     state.addProperty("additionalProperties", false);
 
     JsonObject command = new JsonObject();
-    command.addProperty("type", "object");
+    command.addProperty("type", SCHEMA_OBJECT);
     JsonObject commandProperties = new JsonObject();
     JsonObject action = new JsonObject();
-    action.addProperty("type", "string");
+    action.addProperty("type", SCHEMA_STRING);
     JsonArray actions = new JsonArray();
     actions.add("READ");
     actions.add("WRITE");
     action.add("enum", actions);
     commandProperties.add("action", action);
     JsonObject address = new JsonObject();
-    address.addProperty("type", "integer");
-    address.addProperty("minimum", 0);
+    address.addProperty("type", SCHEMA_INTEGER);
+    address.addProperty(SCHEMA_MINIMUM, 0);
     commandProperties.add("address", address);
     JsonObject length = new JsonObject();
-    length.addProperty("type", "integer");
-    length.addProperty("minimum", 0);
-    length.addProperty("description", "Number of bytes to read");
+    length.addProperty("type", SCHEMA_INTEGER);
+    length.addProperty(SCHEMA_MINIMUM, 0);
+    length.addProperty(SCHEMA_DESCRIPTION, "Number of bytes to read");
     commandProperties.add("length", length);
     JsonObject data = new JsonObject();
     JsonArray formats = new JsonArray();
     JsonObject base64 = new JsonObject();
-    base64.addProperty("type", "string");
+    base64.addProperty("type", SCHEMA_STRING);
     base64.addProperty("contentEncoding", "base64");
     formats.add(base64);
     JsonObject bytes = new JsonObject();
     bytes.addProperty("type", "array");
     JsonObject element = new JsonObject();
-    element.addProperty("type", "integer");
-    element.addProperty("minimum", 0);
+    element.addProperty("type", SCHEMA_INTEGER);
+    element.addProperty(SCHEMA_MINIMUM, 0);
     element.addProperty("maximum", 255);
     bytes.add("items", element);
     formats.add(bytes);
     data.add("anyOf", formats);
-    data.addProperty("description", "Bytes to write; required for WRITE operations");
+    data.addProperty(SCHEMA_DESCRIPTION, "Bytes to write; required for WRITE operations");
     commandProperties.add("data", data);
-    commandProperties.add("@class", typeId.deepCopy());
-    command.add("properties", commandProperties);
+    commandProperties.add(SCHEMA_CLASS, typeId.deepCopy());
+    command.add(SCHEMA_PROPERTIES, commandProperties);
     state.add("x-deviceCommand", command);
 
     JsonObject response = new JsonObject();
-    response.addProperty("type", "object");
+    response.addProperty("type", SCHEMA_OBJECT);
     JsonObject responseProperties = new JsonObject();
     JsonObject status = new JsonObject();
-    status.addProperty("type", "string");
+    status.addProperty("type", SCHEMA_STRING);
     responseProperties.add("status", status);
     JsonObject responseData = new JsonObject();
-    responseData.addProperty("type", "string");
+    responseData.addProperty("type", SCHEMA_STRING);
     responseData.addProperty("contentEncoding", "base64");
     responseProperties.add("data", responseData);
-    responseProperties.add("@class", typeId.deepCopy());
-    response.add("properties", responseProperties);
+    responseProperties.add(SCHEMA_CLASS, typeId.deepCopy());
+    response.add(SCHEMA_PROPERTIES, responseProperties);
     state.add("x-deviceResponse", response);
 
     JsonSchemaConfig config = new JsonSchemaConfig(gson.toJson(state));

@@ -38,7 +38,7 @@ public class FreefallThRegister extends SingleByteRegister {
   }
 
   public void setFreefallThreshold(int threshold) throws IOException {
-    threshold = (int) Math.max(0, Math.min(255, threshold / 7.81f));
+    threshold = (int) Math.clamp(threshold / 7.81f, 0, 255);
     registerValue = (byte) threshold;
     sensor.write(address, registerValue);
   }

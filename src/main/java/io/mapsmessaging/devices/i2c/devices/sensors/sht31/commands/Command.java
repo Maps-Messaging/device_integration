@@ -41,7 +41,7 @@ public abstract class Command {
   public byte[] sendCommand(Sht31Sensor sensor, AddressableDevice device) {
     try {
       checkInterrupted();
-      byte[] commandBytes = new byte[] {(byte) (cmd >>> 8), (byte) cmd};
+      byte[] commandBytes =  {(byte) (cmd >>> 8), (byte) cmd};
       int written = device.write(commandBytes);
       if (written != commandBytes.length) {
         throw new IOException("Incomplete SHT31 write: expected 2 bytes, wrote " + written);

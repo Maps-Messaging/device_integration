@@ -83,7 +83,7 @@ public class Sen0657Controller extends SerialDeviceController {
       List<SensorReading<?>> readings = sensor.getReadings();
       walkSensorReadings(jsonObject, readings);
       return convert(jsonObject);
-    } catch (Exception e) {
+    } catch (Exception _) {
       // Log this
     }
     return "{}".getBytes();

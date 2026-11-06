@@ -22,8 +22,6 @@ package io.mapsmessaging.devices.i2c.devices.sensors.gravity.registers;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.devices.Register;
 import io.mapsmessaging.devices.i2c.devices.sensors.gravity.config.Command;
-import io.mapsmessaging.logging.Logger;
-import io.mapsmessaging.logging.LoggerFactory;
 
 import java.io.IOException;
 
@@ -31,7 +29,6 @@ import static java.lang.Math.log;
 
 public class CrcValidatingRegister extends Register {
 
-  private static final Logger logger = LoggerFactory.getLogger(CrcValidatingRegister.class);
   private final Command command;
 
   public CrcValidatingRegister(I2CDevice sensor, Command command) {
@@ -66,6 +63,8 @@ public class CrcValidatingRegister extends Register {
     return null;
   }
 
+  // All callers allocate nine-byte response buffers, and incomplete reads are rejected before checksum access.
+  @SuppressWarnings("javabugs:S6466")
   protected boolean request(byte[] buf, byte[] result) throws IOException {
     buf[0] = command.getCommandValue();
     sensor.write(0, pack(buf));

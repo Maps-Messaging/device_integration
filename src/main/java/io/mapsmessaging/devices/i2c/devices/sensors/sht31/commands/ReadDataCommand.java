@@ -30,6 +30,8 @@ public class ReadDataCommand extends Command {
   private long lastReadTime = 0;
   private final int nextReadingIntervalMillis;
 
+  // Retain the public constructor signature; repeatability is set by the periodic-measurement command, not the fetch command.
+  @SuppressWarnings("java:S1172")
   public ReadDataCommand(Repeatability repeatability, Mps mps) {
     super(0xE000, 0, 6);
     nextReadingIntervalMillis = mps.getIntervalMillis();

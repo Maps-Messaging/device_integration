@@ -124,19 +124,13 @@ public abstract class DeviceController {
         value = optional.get();
       }
 
-      if (value instanceof LocalDateTime dateTime) {
-        jsonObject.addProperty(reading.getName(), dateTime.toInstant(ZoneOffset.UTC).toString());
-      } else if (value instanceof Number number) {
-        jsonObject.addProperty(reading.getName(), number);
-      } else if (value instanceof Boolean bool) {
-        jsonObject.addProperty(reading.getName(), bool);
-      } else if (value instanceof Character character) {
-        jsonObject.addProperty(reading.getName(), character);
-      } else if (value instanceof String str) {
-        jsonObject.addProperty(reading.getName(), str);
-      } else {
-        // Fallback to stringified JSON
-        jsonObject.add(reading.getName(), gson.toJsonTree(value));
+      switch (value) {
+        case LocalDateTime dateTime -> jsonObject.addProperty(reading.getName(), dateTime.toInstant(ZoneOffset.UTC).toString());
+        case Number number -> jsonObject.addProperty(reading.getName(), number);
+        case Boolean bool -> jsonObject.addProperty(reading.getName(), bool);
+        case Character character -> jsonObject.addProperty(reading.getName(), character);
+        case String str -> jsonObject.addProperty(reading.getName(), str);
+        case null, default -> jsonObject.add(reading.getName(), gson.toJsonTree(value));
       }
     } else {
       if (raiseExceptionOnError) {

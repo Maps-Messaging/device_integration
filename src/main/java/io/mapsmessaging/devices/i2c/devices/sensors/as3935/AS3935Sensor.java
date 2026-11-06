@@ -75,6 +75,8 @@ public class AS3935Sensor extends I2CDevice implements PowerManagement, Sensor, 
     private IOException failure;
   }
 
+  // Preserve superclass validation and allocation logging before device-specific validation.
+  @SuppressWarnings("java:S8433")
   public AS3935Sensor(AddressableDevice device, int tuning) throws IOException {
     super(device, LoggerFactory.getLogger(AS3935Sensor.class));
     if (tuning < 0 || tuning > 15) {
@@ -133,7 +135,7 @@ public class AS3935Sensor extends I2CDevice implements PowerManagement, Sensor, 
   public boolean isConnected() {
     try {
       return readRegister(0) >= 0;
-    } catch (IOException e) {
+    } catch (IOException _) {
       return false;
     }
   }
@@ -234,6 +236,8 @@ public class AS3935Sensor extends I2CDevice implements PowerManagement, Sensor, 
     invalidateSample();
   }
 
+  // Retain the public checked-exception contract so existing callers can keep their IOException handling.
+  @SuppressWarnings("java:S1130")
   protected String getInterruptReason() throws IOException {
     return interruptRegister.getInterruptReason().getDescription();
   }

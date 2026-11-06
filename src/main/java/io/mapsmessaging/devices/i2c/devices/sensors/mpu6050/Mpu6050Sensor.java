@@ -128,7 +128,7 @@ public class Mpu6050Sensor extends I2CDevice implements Sensor {
   public boolean isConnected() {
     try {
       return readRegister(WHO_AM_I) == CHIP_ID;
-    } catch (IOException exception) {
+    } catch (IOException _) {
       return false;
     }
   }

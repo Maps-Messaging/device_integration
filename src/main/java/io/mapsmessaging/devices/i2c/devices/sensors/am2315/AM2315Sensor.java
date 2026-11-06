@@ -197,7 +197,7 @@ public class AM2315Sensor extends I2CDevice implements Sensor {
     for (int index = 0; index < expected - 2; index++) {
       crc ^= response[index] & 0xff;
       for (int bit = 0; bit < 8; bit++) {
-        crc = (crc & 1) != 0 ? (crc >>> 1) ^ 0xa001 : crc >>> 1;
+        crc = (crc & 1) == 0 ? crc >>> 1 : (crc >>> 1) ^ 0xa001;
       }
     }
     int receivedCrc = (response[expected - 2] & 0xff) | ((response[expected - 1] & 0xff) << 8);

@@ -56,7 +56,7 @@ public class GetDeviceStatusCommand implements Sen6xCommand<Sen6xStatus> {
   public Sen6xStatus get() {
     try {
       return execute();
-    } catch (IOException e) {
+    } catch (IOException _) {
       return new Sen6xStatus(0); // or optionally throw / log
     }
   }

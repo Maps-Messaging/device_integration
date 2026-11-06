@@ -71,7 +71,7 @@ public class AS3935Controller extends I2CDeviceController {
       return afe >= 0 && threshold >= 0 && lightning >= 0
           && (afe & 0xc0) == 0 && (gain == 0x12 || gain == 0x0e)
           && (threshold & 0x80) == 0 && (lightning & 0x80) != 0;
-    } catch (com.pi4j.exception.Pi4JException e) {
+    } catch (com.pi4j.exception.Pi4JException _) {
       return false;
     }
   }

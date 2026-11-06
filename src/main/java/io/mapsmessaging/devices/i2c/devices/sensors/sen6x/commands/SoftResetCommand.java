@@ -42,7 +42,7 @@ public class SoftResetCommand implements Sen6xCommand<Boolean> {
   public boolean reset() {
     try {
       return execute();
-    } catch (IOException e) {
+    } catch (IOException _) {
       return false;
     }
   }

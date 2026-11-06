@@ -35,17 +35,18 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 public class St7735Controller extends I2CDeviceController {
+  private static final String SCHEMA_INTEGER = "integer";
+  private static final String SCHEMA_MINIMUM = "minimum";
+  private static final String SCHEMA_MAXIMUM = "maximum";
   private static final String FIELD_TYPE = "type";
   private static final String FIELD_PROPERTIES = "properties";
   private static final String FIELD_DESCRIPTION = "description";
   private static final String FIELD_SCHEMA = "$schema";
   private static final String FIELD_TITLE = "title";
-  private static final String FIELD_DEVICE_STATIC = "deviceStatic";
   private static final String FIELD_DEVICE_WRITE = "deviceWrite";
 
   private static final String TYPE_OBJECT = "object";
   private static final String TYPE_STRING = "string";
-  private static final String TYPE_NUMBER = "number";
 
   private static final String FIELD_WIDTH = "width";
   private static final String FIELD_HEIGHT = "height";
@@ -117,21 +118,7 @@ public class St7735Controller extends I2CDeviceController {
         switch (action) {
           case "CLEAR" -> display.lcdFillScreen(color);
           case "SET_PIXEL" -> display.lcdFillRectangle(x, y, 1, 1, color);
-          case "DRAW_IMAGE" -> {
-            if (!command.has("width") || !command.has("height") || !command.has(FIELD_DATA)) {
-              throw new IOException("ST7735 DRAW_IMAGE requires width, height and Base64 data");
-            }
-            int width = command.get("width").getAsInt();
-            int height = command.get("height").getAsInt();
-            if (x < 0 || y < 0 || width <= 0 || height <= 0 || x + (long) width > 160 || y + (long) height > 80) {
-              throw new IOException("ST7735 image coordinates exceed display bounds");
-            }
-            byte[] pixels = Base64.getDecoder().decode(command.get(FIELD_DATA).getAsString());
-            if (pixels.length != (long) width * height * 2) {
-              throw new IOException("ST7735 image must contain two RGB565 bytes per pixel");
-            }
-            display.lcdDrawImage(x, y, width, height, pixels);
-          }
+          case "DRAW_IMAGE" -> drawImage(command, x, y);
           default -> throw new IOException("Unsupported ST7735 command: " + action);
         }
       }
@@ -142,6 +129,22 @@ public class St7735Controller extends I2CDeviceController {
     response.addProperty("status", "success");
     response.addProperty(FIELD_COMMAND, action);
     return gson.toJson(response).getBytes(StandardCharsets.UTF_8);
+  }
+
+  private void drawImage(JsonObject command, int x, int y) throws IOException {
+    if (!command.has(FIELD_WIDTH) || !command.has(FIELD_HEIGHT) || !command.has(FIELD_DATA)) {
+      throw new IOException("ST7735 DRAW_IMAGE requires width, height and Base64 data");
+    }
+    int width = command.get(FIELD_WIDTH).getAsInt();
+    int height = command.get(FIELD_HEIGHT).getAsInt();
+    if (x < 0 || y < 0 || width <= 0 || height <= 0 || x + (long) width > 160 || y + (long) height > 80) {
+      throw new IOException("ST7735 image coordinates exceed display bounds");
+    }
+    byte[] pixels = Base64.getDecoder().decode(command.get(FIELD_DATA).getAsString());
+    if (pixels.length != (long) width * height * 2) {
+      throw new IOException("ST7735 image must contain two RGB565 bytes per pixel");
+    }
+    display.lcdDrawImage(x, y, width, height, pixels);
   }
 
   private static int parseColor(JsonObject command) throws IOException {
@@ -209,26 +212,26 @@ public class St7735Controller extends I2CDeviceController {
     action.add("enum", actions);
     writeProps.add(FIELD_COMMAND, action);
 
-    JsonObject x = property("integer", "X coordinate, 0 through 159");
-    x.addProperty("minimum", 0);
-    x.addProperty("maximum", 159);
+    JsonObject x = property(SCHEMA_INTEGER, "X coordinate, 0 through 159");
+    x.addProperty(SCHEMA_MINIMUM, 0);
+    x.addProperty(SCHEMA_MAXIMUM, 159);
     writeProps.add(FIELD_X, x);
-    JsonObject y = property("integer", "Y coordinate, 0 through 79");
-    y.addProperty("minimum", 0);
-    y.addProperty("maximum", 79);
+    JsonObject y = property(SCHEMA_INTEGER, "Y coordinate, 0 through 79");
+    y.addProperty(SCHEMA_MINIMUM, 0);
+    y.addProperty(SCHEMA_MAXIMUM, 79);
     writeProps.add(FIELD_Y, y);
     writeProps.add(FIELD_COLOR, property(TYPE_STRING, "RGB hex #RRGGBB or BLACK, WHITE, RED, GREEN, BLUE"));
 
     JsonObject data = property(TYPE_STRING, "RGB565 pixel data in Base64, two bytes per pixel");
     data.addProperty("contentEncoding", "base64");
     writeProps.add(FIELD_DATA, data);
-    JsonObject width = property("integer", "DRAW_IMAGE width");
-    width.addProperty("minimum", 1);
-    width.addProperty("maximum", 160);
+    JsonObject width = property(SCHEMA_INTEGER, "DRAW_IMAGE width");
+    width.addProperty(SCHEMA_MINIMUM, 1);
+    width.addProperty(SCHEMA_MAXIMUM, 160);
     writeProps.add(FIELD_WIDTH, width);
-    JsonObject height = property("integer", "DRAW_IMAGE height");
-    height.addProperty("minimum", 1);
-    height.addProperty("maximum", 80);
+    JsonObject height = property(SCHEMA_INTEGER, "DRAW_IMAGE height");
+    height.addProperty(SCHEMA_MINIMUM, 1);
+    height.addProperty(SCHEMA_MAXIMUM, 80);
     writeProps.add(FIELD_HEIGHT, height);
     writeSchema.add(FIELD_PROPERTIES, writeProps);
     JsonArray required = new JsonArray();

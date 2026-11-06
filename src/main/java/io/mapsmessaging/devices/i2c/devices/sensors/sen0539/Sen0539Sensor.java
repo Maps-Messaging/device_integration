@@ -133,7 +133,7 @@ public class Sen0539Sensor extends I2CDevice implements Sensor {
   }
 
   public void setVolume(int vol) throws IOException {
-    int v = Math.max(0, Math.min(7, vol));
+    int v = Math.clamp(vol, 0, 7);
     write(REG_BASE + OFF_VOL, (byte) v);
   }
 
@@ -144,7 +144,7 @@ public class Sen0539Sensor extends I2CDevice implements Sensor {
   }
 
   public void setWakeTimeSeconds(int seconds) throws IOException {
-    int s = Math.max(0, Math.min(255, seconds));
+    int s = Math.clamp(seconds, 0, 255);
     write(REG_BASE + OFF_WAKE, (byte) s);
   }
 

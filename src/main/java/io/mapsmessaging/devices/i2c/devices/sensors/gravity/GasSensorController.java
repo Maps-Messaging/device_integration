@@ -52,6 +52,8 @@ public class GasSensorController extends I2CDeviceController {
   }
 
   @Override
+  // Keep the bus locked between the request and response; wait() would allow another transaction to interfere.
+  @SuppressWarnings("java:S2276")
   public boolean detect(AddressableDevice i2cDevice) {
     synchronized (I2CDeviceScheduler.getI2cBusLock()) {
       try {
@@ -74,9 +76,9 @@ public class GasSensorController extends I2CDeviceController {
         SensorType type = SensorType.getByType(response[4] & 255);
         return (response[8] & 255) == (-checksum & 255)
             && type != null && type != SensorType.UNKNOWN && (response[5] & 255) <= 2;
-      } catch (Pi4JException exception) {
+      } catch (Pi4JException _) {
         return false;
-      } catch (InterruptedException exception) {
+      } catch (InterruptedException _) {
         Thread.currentThread().interrupt();
         return false;
       }

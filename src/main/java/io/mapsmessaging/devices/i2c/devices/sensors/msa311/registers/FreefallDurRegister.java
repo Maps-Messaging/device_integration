@@ -38,7 +38,7 @@ public class FreefallDurRegister extends SingleByteRegister {
   }
 
   public void setFreefallDuration(int duration) throws IOException {
-    duration = Math.max(2, Math.min(512, duration));
+    duration = Math.clamp(duration, 2, 512);
     registerValue = (byte) (duration - 1);
     sensor.write(address, registerValue);
   }

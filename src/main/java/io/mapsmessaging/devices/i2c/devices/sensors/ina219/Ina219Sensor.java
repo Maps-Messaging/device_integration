@@ -229,7 +229,7 @@ public class Ina219Sensor extends I2CDevice implements Sensor {
   public boolean isConnected() {
     try {
       return initialized && readDevice(Registers.CALIBRATION) == calculateCalibration(CURRENT_LSB, 0.1);
-    } catch (IOException exception) {
+    } catch (IOException _) {
       return false;
     }
   }

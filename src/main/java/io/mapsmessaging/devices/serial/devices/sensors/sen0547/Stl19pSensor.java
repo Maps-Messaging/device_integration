@@ -197,13 +197,13 @@ public class Stl19pSensor implements Device, Sensor {
     }
 
     if (frameIndex == 1) {
-      if (value == FRAME_VER_LEN) {
-        frameBuffer[frameIndex++] = (byte) value;
-      } else if (value == FRAME_HEADER) {
-        frameBuffer[0] = (byte) value;
-        frameIndex = 1;
-      } else {
-        frameIndex = 0;
+      switch (value) {
+        case FRAME_VER_LEN -> frameBuffer[frameIndex++] = (byte) value;
+        case FRAME_HEADER -> {
+          frameBuffer[0] = (byte) value;
+          frameIndex = 1;
+        }
+        default -> frameIndex = 0;
       }
       return;
     }

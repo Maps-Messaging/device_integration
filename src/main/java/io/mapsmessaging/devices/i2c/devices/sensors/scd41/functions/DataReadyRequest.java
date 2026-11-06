@@ -32,6 +32,8 @@ public class DataReadyRequest extends Request {
   }
 
   @Override
+  // The constructor fixes responseLength at three bytes; Request rejects short reads before returning.
+  @SuppressWarnings("javabugs:S6466")
   public byte[] getResponse() {
     byte[] response = super.getResponse();
     if (generateCrc(response, 0) != response[2]) {

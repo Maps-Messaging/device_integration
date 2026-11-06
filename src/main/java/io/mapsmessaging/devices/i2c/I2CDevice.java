@@ -179,7 +179,7 @@ public abstract class I2CDevice implements Device, AutoCloseable {
       synchronized (I2CDeviceScheduler.getI2cBusLock()) {
         I2CDeviceScheduler.getI2cBusLock().wait(ms);
       }
-    } catch (InterruptedException e) {
+    } catch (InterruptedException _) {
       // Ignore the interrupt
       Thread.currentThread().interrupt(); // Pass it up
     }

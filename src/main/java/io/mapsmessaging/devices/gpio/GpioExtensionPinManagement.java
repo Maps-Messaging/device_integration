@@ -87,7 +87,7 @@ public class GpioExtensionPinManagement extends PinManagement implements Interru
           input.stateChange();
         }
       }
-    } catch (IOException e) {
+    } catch (IOException _) {
       //
     }
   }

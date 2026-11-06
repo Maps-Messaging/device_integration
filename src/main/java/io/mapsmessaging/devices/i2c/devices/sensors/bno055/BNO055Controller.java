@@ -36,6 +36,11 @@ import java.nio.charset.StandardCharsets;
 
 
 public class BNO055Controller extends I2CDeviceController {
+  private static final String SCHEMA_ACCELEROMETER = "accelerometer";
+  private static final String SCHEMA_MAGNETOMETER = "magnetometer";
+  private static final String SCHEMA_GYROSCOPE = "gyroscope";
+  private static final String SCHEMA_OBJECT = "object";
+  private static final String SCHEMA_PROPERTIES = "properties";
 
   private final int[] i2cAddr = {0x28, 0x29};
   private final BNO055Sensor sensor;
@@ -101,10 +106,10 @@ public class BNO055Controller extends I2CDeviceController {
     if (sensor != null) {
       JsonObject calibrationStatus = new JsonObject();
       calibrationStatus.addProperty("isCalibrated", sensor.isSystemCalibration());
-      calibrationStatus.addProperty("accelerometer", sensor.getAccelerometerCalibration().name());
-      calibrationStatus.addProperty("magnetometer", sensor.getMagnetometerCalibration().name());
+      calibrationStatus.addProperty(SCHEMA_ACCELEROMETER, sensor.getAccelerometerCalibration().name());
+      calibrationStatus.addProperty(SCHEMA_MAGNETOMETER, sensor.getMagnetometerCalibration().name());
       calibrationStatus.addProperty("system", sensor.getSystemCalibration().name());
-      calibrationStatus.addProperty("gyroscope", sensor.getGryoscopeCalibration().name());
+      calibrationStatus.addProperty(SCHEMA_GYROSCOPE, sensor.getGryoscopeCalibration().name());
 
       JsonArray statusArray = new JsonArray();
       for (SystemStatus status : sensor.getSystemStatusRegister().getStatus()) {
@@ -124,7 +129,7 @@ public class BNO055Controller extends I2CDeviceController {
 
   public SchemaConfig getSchema() {
     JsonObject state = new JsonObject();
-    state.addProperty("type", "object");
+    state.addProperty("type", SCHEMA_OBJECT);
     JsonObject fields = new JsonObject();
     for (String field : new String[] {"heading", "roll", "pitch"}) {
       JsonObject value = new JsonObject();
@@ -133,12 +138,12 @@ public class BNO055Controller extends I2CDeviceController {
       value.addProperty("readOnly", true);
       fields.add(field, value);
     }
-    state.add("properties", fields);
+    state.add(SCHEMA_PROPERTIES, fields);
     state.addProperty("additionalProperties", false);
 
     // The calibration report is returned by getDeviceConfiguration(), not getDeviceState().
     JsonObject configuration = new JsonObject();
-    configuration.addProperty("type", "object");
+    configuration.addProperty("type", SCHEMA_OBJECT);
     JsonObject configurationProperties = new JsonObject();
     JsonObject statuses = new JsonObject();
     statuses.addProperty("type", "array");
@@ -148,7 +153,7 @@ public class BNO055Controller extends I2CDeviceController {
     configurationProperties.add("systemStatus", statuses);
     configurationProperties.add("errorStatus", statusText.deepCopy());
     JsonObject calibration = new JsonObject();
-    calibration.addProperty("type", "object");
+    calibration.addProperty("type", SCHEMA_OBJECT);
     JsonObject calibrationProperties = new JsonObject();
     JsonObject calibrated = new JsonObject();
     calibrated.addProperty("type", "boolean");
@@ -161,25 +166,25 @@ public class BNO055Controller extends I2CDeviceController {
       calibrationValues.add(value.name());
     }
     status.add("enum", calibrationValues);
-    for (String component : new String[] {"accelerometer", "magnetometer", "system", "gyroscope"}) {
+    for (String component : new String[] {SCHEMA_ACCELEROMETER, SCHEMA_MAGNETOMETER, "system", SCHEMA_GYROSCOPE}) {
       calibrationProperties.add(component, status.deepCopy());
     }
-    calibration.add("properties", calibrationProperties);
+    calibration.add(SCHEMA_PROPERTIES, calibrationProperties);
     configurationProperties.add("calibrationStatus", calibration);
     JsonObject version = new JsonObject();
-    version.addProperty("type", "object");
+    version.addProperty("type", SCHEMA_OBJECT);
     JsonObject versionProperties = new JsonObject();
     JsonObject software = new JsonObject();
     software.addProperty("type", "number");
     versionProperties.add("software", software);
     JsonObject revision = new JsonObject();
     revision.addProperty("type", "integer");
-    for (String component : new String[] {"bootloader", "accelerometer", "magnetometer", "gyroscope"}) {
+    for (String component : new String[] {"bootloader", SCHEMA_ACCELEROMETER, SCHEMA_MAGNETOMETER, SCHEMA_GYROSCOPE}) {
       versionProperties.add(component, revision.deepCopy());
     }
-    version.add("properties", versionProperties);
+    version.add(SCHEMA_PROPERTIES, versionProperties);
     configurationProperties.add("version", version);
-    configuration.add("properties", configurationProperties);
+    configuration.add(SCHEMA_PROPERTIES, configurationProperties);
     state.add("x-deviceConfiguration", configuration);
 
     JsonSchemaConfig config = new JsonSchemaConfig(gson.toJson(state));

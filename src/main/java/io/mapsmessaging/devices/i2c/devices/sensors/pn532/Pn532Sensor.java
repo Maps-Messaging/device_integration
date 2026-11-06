@@ -89,11 +89,13 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
     }
   }
 
+  // The probe borrows the caller-owned device; closing this temporary wrapper would close the shared handle.
+  @SuppressWarnings("java:S2095")
   public static boolean probe(AddressableDevice device) {
     try {
       new Pn532Sensor(device, false).verifyFirmware();
       return true;
-    } catch (IOException e) {
+    } catch (IOException _) {
       return false;
     }
   }
@@ -114,7 +116,7 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
         begin();
       }
       return true;
-    } catch (IOException | UncheckedIOException e) {
+    } catch (IOException | UncheckedIOException _) {
       invalidateConnection();
       return false;
     }
@@ -307,7 +309,7 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
     ci.atqa1 = p[3];
     ci.sak = p[4];
     int uidLen = p[5] & 0xFF;
-    ci.uid = Arrays.copyOfRange(p, 6, 6 + Math.min(uidLen, Math.max(0, p.length - 6)));
+    ci.uid = Arrays.copyOfRange(p, 6, 6 + Math.clamp(p.length - 6, 0, uidLen));
     ci.uidLength = ci.uid.length;
 
     // NTAG/Ultralight identification chain
@@ -376,7 +378,7 @@ public class Pn532Sensor extends I2CDevice implements Sensor {
   }
 
   public String readUid() {
-    try { return poll(); } catch (IOException e) { return ""; }
+    try { return poll(); } catch (IOException _) { return ""; }
   }
 
   // ---------- Low level ----------

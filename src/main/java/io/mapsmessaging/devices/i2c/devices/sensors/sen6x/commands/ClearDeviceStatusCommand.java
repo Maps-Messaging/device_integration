@@ -43,7 +43,7 @@ public class ClearDeviceStatusCommand implements Sen6xCommand<Boolean> {
   public boolean clear() {
     try {
       return execute();
-    } catch (IOException e) {
+    } catch (IOException _) {
       return false;
     }
   }

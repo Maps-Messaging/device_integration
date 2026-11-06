@@ -33,6 +33,19 @@ class SpiBusManagerTest {
   }
 
   @Test
+  void unsuccessfulMountDoesNotRegisterAnActiveDevice() {
+    SimulatedAdc controller = new SimulatedAdc() {
+      @Override
+      public SpiDeviceController mount(Context context, Map<String, String> config) {
+        return null;
+      }
+    };
+    SpiBusManager manager = new SpiBusManager(null, List.of(controller));
+    assertNull(manager.mount("Mcp3y0x", Map.of()));
+    assertTrue(manager.getActive().isEmpty());
+  }
+
+  @Test
   void registeredControllersAreDiscoverableWithoutOpeningSpi() {
     SpiBusManager manager = new SpiBusManager(null);
     List<String> names = ServiceLoader.load(SpiDeviceController.class).stream()

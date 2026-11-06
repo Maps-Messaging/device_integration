@@ -151,7 +151,7 @@ public class TestTask implements Task {
         blinkColon(panel);
         panel.clear();
       }
-    } catch (IOException e) {
+    } catch (IOException _) {
       int bus = controller.getDevice().getBus();
       DeviceBusManager.getInstance().getI2cBusManager()[bus].close(controller);
       // ignore since we have exited now

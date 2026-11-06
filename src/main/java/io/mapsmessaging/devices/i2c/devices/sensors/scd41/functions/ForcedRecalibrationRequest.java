@@ -26,6 +26,8 @@ public class ForcedRecalibrationRequest extends Request {
     super(400, 0x362f, 3, device);
   }
 
+  // The constructor fixes responseLength at three bytes; Request rejects short reads before returning.
+  @SuppressWarnings("javabugs:S6466")
   public int recalibrate(int referencePpm) {
     if (referencePpm < 1 || referencePpm > 0xffff) {
       throw new IllegalArgumentException("SCD41 reference CO2 must be between 1 and 65535 ppm");

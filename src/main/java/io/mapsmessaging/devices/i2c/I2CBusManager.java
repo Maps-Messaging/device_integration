@@ -167,7 +167,7 @@ public class I2CBusManager {
     if (devices.size() == 1) {
       try {
         createAndMountDevice(addr, devices.get(0));
-      } catch (IOException e) {
+      } catch (IOException _) {
         // Log here
       }
     } else {
@@ -183,7 +183,7 @@ public class I2CBusManager {
         try {
           createAndMountDevice(addr, device);
           located = true;
-        } catch (IOException e) {
+        } catch (IOException _) {
           // Log here
         }
       }
@@ -211,7 +211,7 @@ public class I2CBusManager {
               found.add(x);
             }
           }
-        } catch (Exception e) {
+        } catch (Exception _) {
           // Ignore since we are simply looking for devices
         }
       }
@@ -237,30 +237,32 @@ public class I2CBusManager {
   private boolean isOnBus(int addr, I2C device) {
     try {
       byte[] buf = new byte[1];
-      if (addr == 0x5c) {
-        device.read(buf, 0, 1);
-        TimeUnit.MILLISECONDS.sleep(20);
-      } else if (addr == 0x62) {
-        // special case for the SCD41 device
-        byte[] req = {0x36, (byte) 0x82};
-        device.write(req);
-        TimeUnit.MILLISECONDS.sleep(1);
-        byte[] response = new byte[9];
-        int read = device.read(response);
-        if (read == 9) return true;
-      }
-      else if(addr == 0x44){
-        SoftResetCommand command = new SoftResetCommand();
-        I2CDeviceImpl deviceImpl = new I2CDeviceImpl(device);
-        command.sendCommand(null, deviceImpl);
-        return true;
-      } else {
-        TimeUnit.MILLISECONDS.sleep(1);
+      switch (addr) {
+        case 0x5c -> {
+          device.read(buf, 0, 1);
+          TimeUnit.MILLISECONDS.sleep(20);
+        }
+        case 0x62 -> {
+          // special case for the SCD41 device
+          byte[] req = {0x36, (byte) 0x82};
+          device.write(req);
+          TimeUnit.MILLISECONDS.sleep(1);
+          byte[] response = new byte[9];
+          int read = device.read(response);
+          if (read == 9) return true;
+        }
+        case 0x44 -> {
+          SoftResetCommand command = new SoftResetCommand();
+          I2CDeviceImpl deviceImpl = new I2CDeviceImpl(device);
+          command.sendCommand(null, deviceImpl);
+          return true;
+        }
+        default -> TimeUnit.MILLISECONDS.sleep(1);
       }
       return device.read(buf, 0, 1) == 1;
-    } catch (InterruptedException e) {
+    } catch (InterruptedException _) {
       Thread.currentThread().interrupt();
-    } catch (Exception ex) {
+    } catch (Exception _) {
       // Ignore
     }
     return false;

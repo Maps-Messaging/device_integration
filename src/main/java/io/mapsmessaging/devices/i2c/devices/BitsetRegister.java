@@ -152,7 +152,7 @@ public class BitsetRegister extends Register {
   public String toString(int length) {
     try {
       reload();
-    } catch (IOException e) {
+    } catch (IOException _) {
       // ignore
     }
     StringBuilder stringBuilder = new StringBuilder();

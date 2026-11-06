@@ -170,6 +170,8 @@ public class Pmsa003iSensor extends I2CDevice implements Sensor {
     return errorCodeRegister.getValueReverse();
   }
 
+  // The final data buffer is allocated with 32 bytes; frame has that same length and short reads are rejected.
+  @SuppressWarnings("javabugs:S6466")
   protected synchronized void update() throws IOException {
     if (lastRead < System.currentTimeMillis()) {
       byte[] frame = new byte[data.length];

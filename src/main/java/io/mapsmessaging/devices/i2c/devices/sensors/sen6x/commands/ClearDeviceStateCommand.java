@@ -42,7 +42,7 @@ public class ClearDeviceStateCommand implements Sen6xCommand<Void> {
   public void clear() {
     try {
       execute();
-    } catch (IOException e) {
+    } catch (IOException _) {
       // ignore
     }
   }

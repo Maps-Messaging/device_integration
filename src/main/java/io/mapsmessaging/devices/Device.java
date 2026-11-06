@@ -38,7 +38,7 @@ public interface Device {
   default void delay(int ms) {
     try {
       TimeUnit.MILLISECONDS.sleep(ms);
-    } catch (InterruptedException e) {
+    } catch (InterruptedException _) {
       // Ignore the interrupt
       Thread.currentThread().interrupt(); // Pass it up
     }

@@ -38,7 +38,12 @@ public class ForcedRecalRegister extends RequestRegister {
     return ((ForcedRecalibrationRequest) request).recalibrate(referencePpm);
   }
 
-  @Deprecated
+  /**
+   * @deprecated Use {@link #forceRecallibration(int)} with an independently measured CO2 reference in ppm.
+   */
+  @Deprecated(forRemoval = false)
+  // Keep the deprecated overload for caller compatibility; recalibration requires the explicit-reference overload.
+  @SuppressWarnings("java:S1133")
   public void forceRecallibration() {
     throw new UnsupportedOperationException("SCD41 forced recalibration requires an explicit CO2 reference in ppm");
   }

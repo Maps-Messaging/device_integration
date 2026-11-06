@@ -24,6 +24,7 @@ import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.Sen6xCommandHelper;
 import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.data.MeasurementBlock;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class Sen6xMeasurementManager {
 
@@ -33,9 +34,9 @@ public abstract class Sen6xMeasurementManager {
   private long lastReadTime = System.currentTimeMillis();
   private MeasurementBlock cachedBlock;
   private boolean receivedMeasurement;
-  private GetDataReadyFlagCommand getReadyFlagCommand;
+  private final GetDataReadyFlagCommand getReadyFlagCommand;
   // Installed by the owning sensor before publication; bound reads acquire the sensor lock before this manager.
-  private volatile ResetMonitor resetMonitor;
+  private final AtomicReference<ResetMonitor> resetMonitor = new AtomicReference<>();
 
   protected Sen6xMeasurementManager(Sen6xCommandHelper helper, int commandId, int length) {
     this.helper = helper;
@@ -50,11 +51,11 @@ public abstract class Sen6xMeasurementManager {
   }
 
   public void setResetMonitor(ResetMonitor resetMonitor) {
-    this.resetMonitor = resetMonitor;
+    this.resetMonitor.set(resetMonitor);
   }
 
   public MeasurementBlock getMeasurementBlock() throws IOException {
-    ResetMonitor monitor = resetMonitor;
+    ResetMonitor monitor = resetMonitor.get();
     if (monitor != null) {
       return monitor.read(this::readMeasurementBlock);
     }

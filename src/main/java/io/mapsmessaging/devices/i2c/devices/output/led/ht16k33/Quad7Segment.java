@@ -33,6 +33,8 @@ public class Quad7Segment extends HT16K33Driver {
     write("     ");
   }
 
+  // position counts output digits, not input characters; colons and decimal points must not advance it.
+  @SuppressWarnings("java:S1994")
   public byte[] encode(String val) {
     Arrays.fill(buf, (byte) 0);
     int position = 0;
@@ -40,19 +42,27 @@ public class Quad7Segment extends HT16K33Driver {
       char character = val.charAt(index);
       if (character == ':') {
         buf[4] = 0x02; // Colon at HT16K33 RAM location 0x04.
-        continue;
-      }
-      if (character == '.' && position > 0) {
+      } else if (character == '.' && position > 0) {
         int previous = ((position - 1) + ((position - 1) >= 2 ? 1 : 0)) * 2;
         buf[previous] |= (byte) 0x80;
-        continue;
+      } else {
+        int ramPosition = (position + (position >= 2 ? 1 : 0)) * 2;
+        buf[ramPosition] = (byte) segments(character);
+        position++;
       }
-      int ramPosition = (position + (position >= 2 ? 1 : 0)) * 2;
-      int segments = character >= '0' && character <= '9' ? font[character - '0'] : character == ' ' ? 0 : character == '-' ? 0x40 : 0xff;
-      buf[ramPosition] = (byte) segments;
-      position++;
     }
     return buf;
+  }
+
+  private int segments(char character) {
+    if (character >= '0' && character <= '9') {
+      return font[character - '0'];
+    }
+    return switch (character) {
+      case ' ' -> 0;
+      case '-' -> 0x40;
+      default -> 0xff;
+    };
   }
 
   @Override

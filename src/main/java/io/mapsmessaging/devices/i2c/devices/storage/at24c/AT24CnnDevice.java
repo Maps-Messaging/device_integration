@@ -38,6 +38,8 @@ public class AT24CnnDevice extends I2CDevice implements Storage {
     this(device, DEFAULT_CAPACITY);
   }
 
+  // Preserve superclass validation and allocation logging before device-specific validation.
+  @SuppressWarnings("java:S8433")
   public AT24CnnDevice(AddressableDevice device, int capacityBytes) {
     super(device, LoggerFactory.getLogger(AT24CnnDevice.class));
     if (capacityBytes != 4096 && capacityBytes != 8192 && capacityBytes != 16384
@@ -45,11 +47,18 @@ public class AT24CnnDevice extends I2CDevice implements Storage {
       throw new IllegalArgumentException("Unsupported AT24C EEPROM capacity in bytes: " + capacityBytes);
     }
     memorySize = capacityBytes;
-    pageSize = capacityBytes == 65536 ? 128 : capacityBytes >= 16384 ? 64 : 32;
+    pageSize = physicalPageSize(capacityBytes);
+  }
+
+  private static int physicalPageSize(int capacityBytes) {
+    if (capacityBytes == 65536) {
+      return 128;
+    }
+    return capacityBytes >= 16384 ? 64 : 32;
   }
 
   public void setPageSize(int pageSize) {
-    int physicalPageSize = memorySize == 65536 ? 128 : memorySize >= 16384 ? 64 : 32;
+    int physicalPageSize = physicalPageSize(memorySize);
     if (pageSize <= 0 || pageSize > physicalPageSize || physicalPageSize % pageSize != 0) {
       throw new IllegalArgumentException("EEPROM page size must divide the physical page size: " + physicalPageSize);
     }

@@ -42,6 +42,7 @@ import java.util.Map;
 @Getter
 @Setter
 public abstract class I2CDeviceController extends DeviceController {
+  private static final String SCHEMA_PROPERTIES = "properties";
 
   @Getter
   @Setter
@@ -70,7 +71,7 @@ public abstract class I2CDeviceController extends DeviceController {
     if (sensor == null) {
       JsonObject unmounted = new JsonObject();
       unmounted.addProperty("type", "object");
-      unmounted.add("properties", new JsonObject());
+      unmounted.add(SCHEMA_PROPERTIES, new JsonObject());
       unmounted.addProperty("additionalProperties", false);
       return gson.toJson(unmounted);
     }
@@ -95,7 +96,7 @@ public abstract class I2CDeviceController extends DeviceController {
     // A failed I2C read may return an error message instead of a value, or the
     // controller may return an empty state if its entire read operation fails.
     schema.remove("required");
-    JsonObject properties = schema.getAsJsonObject("properties");
+    JsonObject properties = schema.getAsJsonObject(SCHEMA_PROPERTIES);
     if (properties == null) {
       return;
     }
@@ -104,7 +105,7 @@ public abstract class I2CDeviceController extends DeviceController {
         continue;
       }
       JsonObject value = property.getValue().getAsJsonObject();
-      if (value.has("properties") && value.get("properties").isJsonObject()) {
+      if (value.has(SCHEMA_PROPERTIES) && value.get(SCHEMA_PROPERTIES).isJsonObject()) {
         normalizeReadingProperties(value);
       }
       String type = value.has("type") && value.get("type").isJsonPrimitive()
@@ -166,7 +167,7 @@ public abstract class I2CDeviceController extends DeviceController {
         walkSensorReadings(jsonObject, readings);
       }
       return convert(jsonObject);
-    } catch (Exception e) {
+    } catch (Exception _) {
       // Log this
     }
     return "{}".getBytes();
