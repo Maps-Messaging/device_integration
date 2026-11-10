@@ -97,7 +97,7 @@ public class I2CDeviceScheduler extends I2CDeviceController {
   public byte[] getDeviceConfiguration() throws IOException {
     synchronized (deviceController) {
       synchronized (I2C_BUS_LOCK) {
-        return deviceController.getDeviceConfiguration();
+        return deviceController.getConfigEventDescription();
       }
     }
   }
@@ -115,7 +115,7 @@ public class I2CDeviceScheduler extends I2CDeviceController {
   public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
     synchronized (deviceController) {
       synchronized (I2C_BUS_LOCK) {
-        return deviceController.updateDeviceConfiguration(val);
+        return deviceController.executeConfigCommand(val);
       }
     }
   }

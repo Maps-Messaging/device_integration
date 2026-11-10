@@ -173,6 +173,16 @@ public abstract class I2CDeviceController extends DeviceController {
     return "{}".getBytes();
   }
 
+  /** Config-topic capability description; direct legacy configuration access is unchanged. */
+  public byte[] getConfigEventDescription() throws IOException {
+    return I2CConfigurationContract.describe(this);
+  }
+
+  /** Routes config-topic named commands to existing device operations. */
+  public byte[] executeConfigCommand(byte[] payload) throws IOException {
+    return I2CConfigurationContract.dispatch(this, payload);
+  }
+
   public boolean canDetect() {
     return false;
   }
