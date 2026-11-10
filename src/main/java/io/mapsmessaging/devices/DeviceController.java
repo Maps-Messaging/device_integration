@@ -75,6 +75,16 @@ public abstract class DeviceController {
 
   public abstract SchemaConfig getSchema();
 
+  /** Describes available config-topic commands; non-command devices are read-only. */
+  public byte[] getConfigEventDescription() throws IOException {
+    JsonObject description = new JsonObject();
+    description.addProperty("device", getName());
+    description.addProperty("description", getDescription());
+    description.add("commands", new JsonObject());
+    description.addProperty("readOnly", true);
+    return convert(description);
+  }
+
   public abstract byte[] getDeviceConfiguration() throws IOException;
 
   public abstract DeviceType getType();

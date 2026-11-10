@@ -72,8 +72,8 @@ public class Sen0642Controller extends SerialDeviceController {
   }
 
   @Override
-  public byte[] getDeviceConfiguration() {
-    return "{}".getBytes();
+  public byte[] getDeviceConfiguration() throws IOException {
+    return getConfigEventDescription();
   }
 
   @Override

@@ -72,8 +72,8 @@ public class Stl19pController extends SerialDeviceController {
   }
 
   @Override
-  public byte[] getDeviceConfiguration() {
-    return "{}".getBytes();
+  public byte[] getDeviceConfiguration() throws IOException {
+    return getConfigEventDescription();
   }
 
   @Override

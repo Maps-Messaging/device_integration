@@ -89,8 +89,8 @@ public class DS18B20Controller extends OneWireDeviceController {
   }
 
   @Override
-  public byte[] getDeviceConfiguration() {
-    return "{}".getBytes();
+  public byte[] getDeviceConfiguration() throws IOException {
+    return getConfigEventDescription();
   }
 
   @Override

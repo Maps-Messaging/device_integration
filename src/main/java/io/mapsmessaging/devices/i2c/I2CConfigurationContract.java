@@ -36,8 +36,9 @@ public final class I2CConfigurationContract {
     JsonObject schema = schema(controller);
     describeOperations(commands, schema, "x-deviceCommand");
     describeOperations(commands, schema, "x-deviceWrite");
-    describeSettings(commands, schema, "x-deviceStatic");
-    describeSettings(commands, schema, "x-deviceConfiguration");
+    describeSettings(commands, schema, "x-deviceStatic", controller);
+    describeSettings(commands, schema, "x-deviceConfiguration", controller);
+    I2CDeviceActions.describe(controller.getDevice(), commands);
     if (registerUpdates(controller) && controller.getDevice() != null) {
       for (Register register : controller.getDevice().getRegisterMap().getRegisters()) {
         if (!writable(register)) {
@@ -82,6 +83,11 @@ public final class I2CConfigurationContract {
       throw new IOException("Config command must be a string");
     }
     String command = requested.getAsString();
+    JsonObject actions = new JsonObject();
+    I2CDeviceActions.describe(controller.getDevice(), actions);
+    if (actions.has(command)) {
+      return I2CDeviceActions.execute(controller.getDevice(), command, request);
+    }
     if (registerUpdates(controller) && controller.getDevice() != null) {
       for (Register register : controller.getDevice().getRegisterMap().getRegisters()) {
         if (writable(register) && registerCommand(register).equals(command)) {
@@ -91,8 +97,8 @@ public final class I2CConfigurationContract {
     }
 
     JsonObject schema = schema(controller);
-    if ("SET_CONFIG".equals(command) && (object(schema, "x-deviceStatic") != null
-        || object(schema, "x-deviceConfiguration") != null)) {
+    if ("SET_CONFIG".equals(command) && !registerUpdates(controller)
+        && (object(schema, "x-deviceStatic") != null || object(schema, "x-deviceConfiguration") != null)) {
       return cleanResponse(controller.updateDeviceConfiguration(withoutCommand(request)));
     }
     for (String extension : new String[]{"x-deviceCommand", "x-deviceWrite"}) {
@@ -200,9 +206,11 @@ public final class I2CConfigurationContract {
     }
   }
 
-  private static void describeSettings(JsonObject commands, JsonObject schema, String extension) {
+  private static void describeSettings(JsonObject commands, JsonObject schema, String extension,
+                                       I2CDeviceController controller) {
     JsonObject definition = object(schema, extension);
-    if (definition != null) {
+    // Diagnostic/read-only configuration must not be advertised as writable.
+    if (definition != null && !registerUpdates(controller)) {
       addCommand(commands, "SET_CONFIG", definition, null, schema);
     }
   }

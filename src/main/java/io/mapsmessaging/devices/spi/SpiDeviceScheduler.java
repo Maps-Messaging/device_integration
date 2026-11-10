@@ -56,7 +56,7 @@ public class SpiDeviceScheduler extends SpiDeviceController {
   public byte[] getDeviceConfiguration() throws IOException {
     try {
       SPI_BUS_SEMAPHORE.acquireUninterruptibly();
-      return deviceController.getDeviceConfiguration();
+      return deviceController.getConfigEventDescription();
     } finally {
       SPI_BUS_SEMAPHORE.release();
     }
