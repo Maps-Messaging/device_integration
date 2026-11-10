@@ -240,18 +240,23 @@ public class Lcd1602Device extends I2CDevice implements Output, Storage, Resetab
   public void update(int startPos, byte[] data, int offset) {
     int pos = startPos;
     int remainingData = data.length - offset;
+
     while (remainingData > 0 && pos < buffer.length) {
       byte row = (byte) (pos / columns);
       byte col = (byte) (pos % columns);
       int bufEnd = (row + 1) * columns;
       int end = Math.min(bufEnd - pos, remainingData);
+
       setCursor(row, col);
-      int idx = offset;
-      for (int x = pos; x < pos + end; x++) {
-        buffer[x] = data[idx];
-        writeChar(buffer[x]);
-        idx++;
-      }
+
+      byte[] writeBuffer = new byte[end + 1];
+      writeBuffer[0] = 0x40;
+      System.arraycopy(data, offset, writeBuffer, 1, end);
+
+      device.write(writeBuffer);
+      System.arraycopy(data, offset, buffer, pos, end);
+      cursorPos = pos + end;
+
       pos = bufEnd;
       offset += end;
       remainingData -= end;
