@@ -35,6 +35,11 @@ public class RegisterMap {
     map = new LinkedHashMap<>();
   }
 
+  /** Exposes register metadata to the I2C configuration contract, not to message clients. */
+  public List<Register> getRegisters() {
+    return List.copyOf(map.values());
+  }
+
   public void addRegister(Register register) {
     if (map.containsKey(register.getAddress())) {
       Register existing = map.get(register.getAddress());

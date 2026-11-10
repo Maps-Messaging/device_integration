@@ -21,6 +21,7 @@ package io.mapsmessaging.devices.i2c.devices.storage.at24c;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonArray;
@@ -117,8 +118,26 @@ public class AT24CnnController extends I2CDeviceController {
   public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
     ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    JavaType type = objectMapper.getTypeFactory().constructType(AT24CnnCommand.class);
-    AT24CnnCommand command = objectMapper.readValue(new String(val), type);
+    JsonNode payload = objectMapper.readTree(val);
+    AT24CnnCommand command;
+    if (payload.has(SCHEMA_CLASS)) {
+      JavaType type = objectMapper.getTypeFactory().constructType(AT24CnnCommand.class);
+      command = objectMapper.readValue(new String(val), type);
+    } else {
+      command = new AT24CnnCommand();
+      if (payload.has("action") && payload.get("action").isTextual()) {
+        try {
+          command.setAction(ActionType.valueOf(payload.get("action").asText()));
+        } catch (IllegalArgumentException exception) {
+          throw new IOException("Unknown AT24C action", exception);
+        }
+      }
+      command.setAddress(payload.path("address").asInt(0));
+      command.setLength(payload.path("length").asInt(0));
+      if (payload.has("data") && !payload.get("data").isNull()) {
+        command.setData(objectMapper.treeToValue(payload.get("data"), byte[].class));
+      }
+    }
     AT24CnnResponse response = null;
     if (sensor != null) {
       if (command.getAction() == ActionType.READ) {
