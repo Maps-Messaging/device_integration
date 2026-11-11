@@ -24,34 +24,9 @@ import io.mapsmessaging.devices.deviceinterfaces.PowerManagement;
 import io.mapsmessaging.devices.deviceinterfaces.Resetable;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.i2c.I2CDevice;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.ClearDeviceStateCommand;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.Co2MeasurementCommand;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.GetDeviceStatusCommand;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.GetFanCleaningIntervalCommand;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.GetFirmwareVersionCommand;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.GetProductNameCommand;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.GetSerialNumberCommand;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.HchoMeasurementCommand;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.HumidityMeasurementCommand;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.NoxIndexMeasurementCommand;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.Pm10_0MeasurementCommand;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.Pm1_0MeasurementCommand;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.Pm2_5MeasurementCommand;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.Pm4_0MeasurementCommand;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.Sen6xMeasurementManager;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.SetFanCleaningIntervalCommand;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.SoftResetCommand;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.StartFanCleaningCommand;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.StartMeasurementCommand;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.StopMeasurementCommand;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.TemperatureMeasurementCommand;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.VocIndexMeasurementCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.*;
 import io.mapsmessaging.devices.impl.AddressableDevice;
-import io.mapsmessaging.devices.sensorreadings.GroupSensorReading;
-import io.mapsmessaging.devices.sensorreadings.OptionalBooleanSensorReading;
-import io.mapsmessaging.devices.sensorreadings.ReadingSupplier;
-import io.mapsmessaging.devices.sensorreadings.SensorReading;
-import io.mapsmessaging.devices.sensorreadings.StringSensorReading;
+import io.mapsmessaging.devices.sensorreadings.*;
 import io.mapsmessaging.logging.LoggerFactory;
 import lombok.Getter;
 
@@ -75,8 +50,6 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
   private final SoftResetCommand softResetCommand;
   private final GetDeviceStatusCommand getDeviceStatusCommand;
   private final GetFirmwareVersionCommand getFirmwareVersionCommand;
-  private final GetFanCleaningIntervalCommand getFanCleaningIntervalCommand;
-  private final SetFanCleaningIntervalCommand setFanCleaningIntervalCommand;
   private final StartFanCleaningCommand startFanCleaningCommand;
   private final ClearDeviceStateCommand clearDeviceStateCommand;
   private final List<SensorReading<?>> readings;
@@ -99,10 +72,8 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
     softResetCommand = new SoftResetCommand(helper);
     getDeviceStatusCommand = new GetDeviceStatusCommand(helper);
     getFirmwareVersionCommand = new GetFirmwareVersionCommand(helper);
-    getFanCleaningIntervalCommand = new GetFanCleaningIntervalCommand(helper);
     startFanCleaningCommand = new StartFanCleaningCommand(helper);
     clearDeviceStateCommand = new ClearDeviceStateCommand(helper);
-    setFanCleaningIntervalCommand = new SetFanCleaningIntervalCommand(helper);
 
     productName = getProductNameCommand.get();
     StringSensorReading productNameReading = new StringSensorReading(
@@ -237,10 +208,6 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
     }
   }
 
-  public void setGetFanCleaningInterval(int interval) {
-    setFanCleaningIntervalCommand.set(interval);
-  }
-
   @Override
   public void softReset() throws IOException {
     reset();
@@ -295,10 +262,6 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
     return getFirmwareVersionCommand.get();
   }
 
-  public int getFanCleaningInterval() {
-    return getFanCleaningIntervalCommand.get();
-  }
-
   public synchronized void startFanCleaning() {
     boolean resume = measuring;
     try {
@@ -310,10 +273,6 @@ public abstract class Sen6xSensor extends I2CDevice implements Sensor, Resetable
     } catch (IOException exception) {
       throw new UncheckedIOException("Unable to clean SEN6x fan", exception);
     }
-  }
-
-  public void setFanCleaningInterval(int days) {
-    setFanCleaningIntervalCommand.set(days);
   }
 
   public void clearDeviceState() {

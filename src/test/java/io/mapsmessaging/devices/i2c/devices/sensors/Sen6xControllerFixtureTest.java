@@ -1,17 +1,25 @@
 package io.mapsmessaging.devices.i2c.devices.sensors;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static io.mapsmessaging.devices.i2c.devices.sensors.Sen6xProtocolTest.frame;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.*;
-import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.*;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.Sen6xController;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.Sen6xSensor;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.ClearDeviceStateCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.ClearDeviceStatusCommand;
+import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.Sen66MeasurementManager;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.*;
+
+import static io.mapsmessaging.devices.i2c.devices.sensors.Sen6xProtocolTest.frame;
+import static org.junit.jupiter.api.Assertions.*;
 
 class Sen6xControllerFixtureTest {
   @TestFactory
@@ -117,8 +125,6 @@ class Sen6xControllerFixtureTest {
       assertEquals("1.2", sensor.getFirmwareVersion());
       sensor.clearDeviceState();
       assertEquals(List.of(0xd100, 0xd210), bus.commands);
-      assertThrows(UnsupportedOperationException.class, sensor::getFanCleaningInterval);
-      assertThrows(UnsupportedOperationException.class, () -> sensor.setFanCleaningInterval(7));
       assertEquals(2, bus.commands.size());
     } finally { controller.close(); }
   }

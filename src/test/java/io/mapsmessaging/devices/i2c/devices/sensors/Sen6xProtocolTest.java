@@ -1,13 +1,14 @@
 package io.mapsmessaging.devices.i2c.devices.sensors;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.Sen6xCommandHelper;
 import io.mapsmessaging.devices.i2c.devices.sensors.sen6x.commands.*;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class Sen6xProtocolTest {
 
@@ -97,14 +98,6 @@ class Sen6xProtocolTest {
   void clearStatusConsumesAndValidatesResponse() {
     ScriptedI2CDevice bus = new ScriptedI2CDevice(0x6b, new byte[] {0, 0, 0, 0, 0, 0});
     assertThrows(IOException.class, () -> new ClearDeviceStatusCommand(helper(bus)).execute());
-  }
-
-  @Test
-  void unsupportedFanIntervalCommandsNeverTouchTheBus() {
-    ScriptedI2CDevice bus = new ScriptedI2CDevice(0x6b, frame(0));
-    assertThrows(UnsupportedOperationException.class, () -> new GetFanCleaningIntervalCommand(helper(bus)).execute());
-    assertThrows(UnsupportedOperationException.class, () -> new SetFanCleaningIntervalCommand(helper(bus)).execute());
-    assertTrue(bus.writes().isEmpty());
   }
 
   @Test
