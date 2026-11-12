@@ -280,7 +280,7 @@ public final class I2CConfigurationContract {
 
   private static String registerCommand(Register register) {
     return "SET_" + register.getName().replaceAll("[^A-Za-z0-9]+", "_")
-        .replaceAll("^_|_$", "").toUpperCase(Locale.ROOT);
+        .replaceAll("(?:^_|_$)", "").toUpperCase(Locale.ROOT);
   }
 
   private static JsonObject schema(I2CDeviceController controller) {
