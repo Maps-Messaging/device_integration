@@ -26,7 +26,6 @@ import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
 
@@ -48,7 +47,9 @@ class Stl19pSensorTest {
 
     Stl19pSensor sensor = new Stl19pSensor(new TestSerialDevice(stream.toByteArray()));
     try {
-      Stl19pSensor.Scan scan = sensor.readScan();
+      waitFor(() -> sensor.hasData());
+      Stl19pSensor.Scan scan = sensor.getData();
+      assertTrue(scan != null);
 
       Instant.parse(scan.getTimestamp());
       assertEquals(24, scan.getPoints().size());
@@ -73,7 +74,6 @@ class Stl19pSensorTest {
 
     TestSerialDevice serialDevice = new TestSerialDevice(stream.toByteArray());
     Stl19pSensor sensor = new Stl19pSensor(serialDevice);
-    sensor.setResponseTimeout(Duration.ofSeconds(1));
     try {
       long deadline = System.nanoTime() + Duration.ofSeconds(1).toNanos();
       while (!serialDevice.isExhausted() && System.nanoTime() < deadline) {
@@ -82,11 +82,75 @@ class Stl19pSensorTest {
 
       assertTrue(serialDevice.isExhausted());
       assertEquals(Stl19pSensor.MAX_QUEUED_SCANS, sensor.getQueuedScanCount());
-      Stl19pSensor.Scan oldestRetained = sensor.readScan();
+      assertTrue(sensor.hasOverrun());
+      assertTrue(!sensor.hasOverrun());
+      Stl19pSensor.Scan oldestRetained = sensor.getData();
+      assertTrue(oldestRetained != null);
       assertEquals(2400, oldestRetained.getPoints().get(0).getDistanceMm());
     } finally {
       sensor.close();
     }
+  }
+
+  @Test
+  void testChangeBufferSuppressesNoiseAndAccumulatesMovement() throws Exception {
+    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+    stream.writeBytes(buildFrame(35000, 35900, 1000, 1000));
+    stream.writeBytes(buildFrame(100, 1100, 1000, 1100));
+    stream.writeBytes(buildFrame(35000, 35900, 1010, 1200));
+    stream.writeBytes(buildFrame(100, 1100, 1010, 1300));
+    stream.writeBytes(buildFrame(35000, 35900, 1060, 1400));
+    stream.writeBytes(buildFrame(100, 1100, 1060, 1500));
+    stream.writeBytes(buildFrame(35000, 35900, 1200, 1600));
+    stream.writeBytes(buildFrame(100, 1100, 1200, 1700));
+    stream.writeBytes(buildFrame(35000, 35900, 1200, 1800));
+
+    TestSerialDevice serial = new TestSerialDevice(stream.toByteArray());
+    Stl19pSensor sensor = new Stl19pSensor(serial);
+    try {
+      waitFor(serial::isExhausted);
+      assertTrue(sensor.changes().hasData());
+      Stl19pScanDiffer.ScanChange change = sensor.changes().getData();
+      assertTrue(change.hasChanges());
+      assertTrue(change.changes().stream().anyMatch(c -> c.currentDistanceMm() - c.previousDistanceMm() >= 150));
+      assertTrue(!sensor.changes().hasData());
+    } finally {
+      sensor.close();
+    }
+  }
+
+  @Test
+  void testControllerChangeThresholdCommand() throws Exception {
+    Stl19pController controller = new Stl19pController(new TestSerialDevice(new byte[0]));
+    try {
+      byte[] result = controller.updateDeviceConfiguration(
+          "{\"command\":\"SET_CHANGE_THRESHOLD\",\"thresholdMm\":200}".getBytes(StandardCharsets.UTF_8));
+      assertEquals(200, controller.getChangeThresholdMm());
+      assertTrue(new String(result, StandardCharsets.UTF_8).contains("success"));
+      assertTrue(new String(controller.getDeviceState(), StandardCharsets.UTF_8).contains("hasData"));
+    } finally {
+      controller.close();
+    }
+  }
+
+  @Test
+  void testEmptyFifoReadReturnsImmediately() throws Exception {
+    Stl19pSensor sensor = new Stl19pSensor(new TestSerialDevice(new byte[0]));
+    try {
+      assertTrue(!sensor.hasData());
+      assertEquals(null, sensor.getData());
+      assertEquals(0, sensor.queueDepth());
+    } finally {
+      sensor.close();
+    }
+  }
+
+  private static void waitFor(java.util.function.BooleanSupplier condition) throws Exception {
+    long deadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(1);
+    while (!condition.getAsBoolean() && System.nanoTime() < deadline) {
+      Thread.sleep(1);
+    }
+    assertTrue(condition.getAsBoolean(), "Timed out waiting for sensor reader");
   }
 
   private static byte[] buildFrame(int startAngle, int endAngle, int distanceBase, int timestamp) {

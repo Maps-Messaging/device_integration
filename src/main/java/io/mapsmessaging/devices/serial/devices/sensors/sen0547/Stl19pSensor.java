@@ -25,17 +25,16 @@ import io.mapsmessaging.devices.deviceinterfaces.Sensor;
 import io.mapsmessaging.devices.sensorreadings.SensorReading;
 import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
 import java.io.IOException;
-import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayDeque;
+import io.mapsmessaging.devices.queue.HardwareQueue;
+import io.mapsmessaging.devices.queue.HardwareRingBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
+import java.util.concurrent.TimeUnit;
 
-public class Stl19pSensor implements Device, Sensor {
+public class Stl19pSensor implements Device, Sensor, HardwareQueue<Stl19pSensor.Scan> {
 
   static final int FRAME_LENGTH = 47;
   static final int POINTS_PER_FRAME = 12;
@@ -47,7 +46,11 @@ public class Stl19pSensor implements Device, Sensor {
   private final byte[] frameBuffer = new byte[FRAME_LENGTH];
   private final byte[] readBuffer = new byte[1024];
   private final List<Point> currentScan = new ArrayList<>(600);
-  private final ArrayDeque<Scan> scanQueue = new ArrayDeque<>(MAX_QUEUED_SCANS);
+  private final HardwareRingBuffer<Scan> scanQueue = new HardwareRingBuffer<>(MAX_QUEUED_SCANS);
+  private final HardwareRingBuffer<Stl19pScanDiffer.ScanChange> changeQueue = new HardwareRingBuffer<>(64);
+  private final Stl19pScanDiffer differ = new Stl19pScanDiffer(Stl19pScanDiffer.DEFAULT_THRESHOLD_MM);
+  // Reference baseline advances only after a meaningful change; slow changes accumulate.
+  private Scan referenceScan;
   private final List<SensorReading<?>> readings;
   private final Thread readerThread;
 
@@ -55,9 +58,8 @@ public class Stl19pSensor implements Device, Sensor {
   private boolean scanStarted;
   private double previousAngleDegrees = Double.NaN;
   private String currentScanTimestamp;
-  private Duration responseTimeout = Duration.ofSeconds(1);
   private volatile boolean running;
-  private final AtomicReference<IOException> readerException = new AtomicReference<>();
+  private volatile IOException readerException;
 
   public Stl19pSensor(SerialDevice serialPort) throws IOException {
     this.serialPort = Objects.requireNonNull(serialPort, "serialPort");
@@ -103,51 +105,26 @@ public class Stl19pSensor implements Device, Sensor {
     if (serialPort.isOpen()) {
       serialPort.closePort();
     }
-    synchronized (scanQueue) {
-      scanQueue.notifyAll();
-    }
     readerThread.interrupt();
   }
 
-  public void setResponseTimeout(Duration responseTimeout) {
-    this.responseTimeout = Objects.requireNonNull(responseTimeout, "responseTimeout");
+  /** Compatibility accessor; returns immediately, including null when empty. */
+  public Scan readScan() {
+    return getData();
   }
 
-  public Scan readScan() throws IOException {
-    long deadline = System.nanoTime() + responseTimeout.toNanos();
-    synchronized (scanQueue) {
-      while (scanQueue.isEmpty()) {
-        IOException exception = readerException.get();
-        if (exception != null) {
-          throw exception;
-        }
-        if (!running) {
-          throw new IOException("STL-19P sensor is closed");
-        }
+  @Override public Scan getData() { return scanQueue.getData(); }
+  @Override public int queueDepth() { return scanQueue.queueDepth(); }
+  @Override public boolean hasData() { return scanQueue.hasData(); }
+  @Override public boolean hasOverrun() { return scanQueue.hasOverrun(); }
 
-        long remaining = deadline - System.nanoTime();
-        if (remaining <= 0) {
-          throw new IOException("Timeout waiting for complete STL-19P scan");
-        }
+  /** Independent FIFO for meaningful scan changes. */
+  public HardwareQueue<Stl19pScanDiffer.ScanChange> changes() { return changeQueue; }
+  public int getChangeThresholdMm() { return differ.getThresholdMm(); }
+  public void setChangeThresholdMm(int thresholdMm) { differ.setThresholdMm(thresholdMm); }
+  public IOException getReaderException() { return readerException; }
 
-        long millis = TimeUnit.NANOSECONDS.toMillis(remaining);
-        int nanos = (int) (remaining - TimeUnit.MILLISECONDS.toNanos(millis));
-        try {
-          scanQueue.wait(millis, nanos);
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-          throw new IOException("Interrupted waiting for complete STL-19P scan", e);
-        }
-      }
-      return scanQueue.pollFirst();
-    }
-  }
-
-  int getQueuedScanCount() {
-    synchronized (scanQueue) {
-      return scanQueue.size();
-    }
-  }
+  int getQueuedScanCount() { return scanQueue.queueDepth(); }
 
   private void readLoop() {
     while (running) {
@@ -176,10 +153,7 @@ public class Stl19pSensor implements Device, Sensor {
   }
 
   private void setReaderException(IOException exception) {
-    readerException.set(exception);
-    synchronized (scanQueue) {
-      scanQueue.notifyAll();
-    }
+    readerException = exception;
   }
 
   private void processBytes(byte[] data, int length) {
@@ -253,12 +227,16 @@ public class Stl19pSensor implements Device, Sensor {
   }
 
   private void enqueueScan(Scan scan) {
-    synchronized (scanQueue) {
-      if (scanQueue.size() == MAX_QUEUED_SCANS) {
-        scanQueue.pollFirst();
-      }
-      scanQueue.offerLast(scan);
-      scanQueue.notifyAll();
+    scanQueue.offer(scan);
+    Scan previous = referenceScan;
+    if (previous == null) {
+      referenceScan = scan;
+      return;
+    }
+    Stl19pScanDiffer.ScanChange change = differ.compare(previous, scan);
+    if (change.hasChanges()) {
+      changeQueue.offer(change);
+      referenceScan = scan;
     }
   }
 

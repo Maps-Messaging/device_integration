@@ -21,6 +21,8 @@ package io.mapsmessaging.devices.serial.devices.sensors.sen0547;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import java.nio.charset.StandardCharsets;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.serial.SerialDeviceController;
 import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
@@ -83,13 +85,93 @@ public class Stl19pController extends SerialDeviceController {
 
   @Override
   public byte[] getDeviceState() throws IOException {
-    Stl19pSensor.Scan scan = sensor.readScan();
-    return convert(gson.toJsonTree(scan).getAsJsonObject());
+    Stl19pSensor.Scan scan = sensor.getData();
+    if (scan == null) {
+      JsonObject unavailable = new JsonObject();
+      unavailable.addProperty("hasData", false);
+      return convert(unavailable);
+    }
+    JsonObject result = gson.toJsonTree(scan).getAsJsonObject();
+    result.addProperty("hasData", true);
+    return convert(result);
   }
 
   @Override
-  public byte[] updateDeviceConfiguration(byte[] val) {
-    return "{}".getBytes();
+  public byte[] getConfigEventDescription() throws IOException {
+    JsonObject contract = new JsonObject();
+    contract.addProperty("device", getName());
+    contract.addProperty("description", getDescription());
+    JsonObject commands = new JsonObject();
+    JsonObject command = new JsonObject();
+    command.addProperty("description", "Configure minimum meaningful LiDAR distance change");
+    JsonObject parameters = new JsonObject();
+    parameters.addProperty("type", "object");
+    JsonObject properties = new JsonObject();
+    JsonObject distance = new JsonObject();
+    distance.addProperty("type", "integer");
+    distance.addProperty("minimum", 1);
+    distance.addProperty("maximum", 65535);
+    properties.add("thresholdMm", distance);
+    parameters.add("properties", properties);
+    JsonArray required = new JsonArray();
+    required.add("thresholdMm");
+    parameters.add("required", required);
+    parameters.addProperty("additionalProperties", false);
+    command.add("parameters", parameters);
+    commands.add("SET_CHANGE_THRESHOLD", command);
+    contract.add("commands", commands);
+    contract.addProperty("readOnly", false);
+    return convert(contract);
+  }
+
+  @Override
+  public byte[] updateDeviceConfiguration(byte[] val) throws IOException {
+    JsonObject request;
+    try {
+      request = JsonParser.parseString(new String(val, StandardCharsets.UTF_8)).getAsJsonObject();
+    } catch (IllegalStateException | com.google.gson.JsonParseException exception) {
+      return "{}".getBytes(StandardCharsets.UTF_8);
+    }
+    if (!request.has("command")) {
+      return "{}".getBytes(StandardCharsets.UTF_8);
+    }
+    if (request.size() != 2 || !request.has("thresholdMm")
+        || !request.get("command").isJsonPrimitive()
+        || !request.get("command").getAsJsonPrimitive().isString()
+        || !"SET_CHANGE_THRESHOLD".equals(request.get("command").getAsString())
+        || !request.get("thresholdMm").isJsonPrimitive()
+        || !request.get("thresholdMm").getAsJsonPrimitive().isNumber()) {
+      throw new IOException("Invalid STL-19P change-threshold command");
+    }
+    int threshold;
+    try {
+      threshold = request.get("thresholdMm").getAsBigDecimal().intValueExact();
+      sensor.setChangeThresholdMm(threshold);
+    } catch (ArithmeticException | IllegalArgumentException exception) {
+      throw new IOException("Invalid LiDAR change threshold", exception);
+    }
+    JsonObject response = new JsonObject();
+    response.addProperty("status", "success");
+    response.addProperty("thresholdMm", threshold);
+    return convert(response);
+  }
+
+  public byte[] getChangeState() throws IOException {
+    Stl19pScanDiffer.ScanChange change = sensor.changes().getData();
+    JsonObject result = new JsonObject();
+    result.addProperty("hasData", change != null);
+    if (change != null) {
+      result.add("change", gson.toJsonTree(change));
+    }
+    return convert(result);
+  }
+
+  public int getChangeThresholdMm() {
+    return sensor.getChangeThresholdMm();
+  }
+
+  public void setChangeThresholdMm(int thresholdMm) {
+    sensor.setChangeThresholdMm(thresholdMm);
   }
 
   @Override
@@ -111,6 +193,9 @@ public class Stl19pController extends SerialDeviceController {
     timestamp.addProperty(DESCRIPTION, "ISO 8601 UTC timestamp at the start of scan acquisition");
     timestamp.addProperty("readOnly", true);
     properties.add("timestamp", timestamp);
+    JsonObject available = new JsonObject();
+    available.addProperty("type", "boolean");
+    properties.add("hasData", available);
 
     JsonObject points = new JsonObject();
     points.addProperty("type", "array");
@@ -119,10 +204,8 @@ public class Stl19pController extends SerialDeviceController {
     properties.add("points", points);
 
     root.add("properties", properties);
-    JsonArray required = new JsonArray();
-    required.add("timestamp");
-    required.add("points");
-    root.add("required", required);
+    // An empty FIFO produces only hasData=false, so scan fields are optional.
+    root.addProperty("additionalProperties", false);
     return gson.toJson(root);
   }
 
