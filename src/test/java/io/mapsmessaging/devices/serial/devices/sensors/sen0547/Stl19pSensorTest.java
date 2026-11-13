@@ -19,6 +19,8 @@
 
 package io.mapsmessaging.devices.serial.devices.sensors.sen0547;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
 import org.junit.jupiter.api.Test;
 
@@ -28,6 +30,8 @@ import java.time.Duration;
 import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class Stl19pSensorTest {
@@ -146,6 +150,116 @@ class Stl19pSensorTest {
     }
   }
 
+  @Test
+  void testMergedScanOutputAndConfiguration() throws Exception {
+    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+    stream.writeBytes(buildFrame(35000, 35900, 1000, 1000));
+    stream.writeBytes(buildFrame(100, 1100, 1100, 1100));
+    stream.writeBytes(buildFrame(35000, 35900, 1000, 1200));
+    stream.writeBytes(buildFrame(100, 1100, 1300, 1300));
+    stream.writeBytes(buildFrame(35000, 35900, 1000, 1400));
+
+    TestSerialDevice serial = new TestSerialDevice(stream.toByteArray(), true);
+    Stl19pController controller = new Stl19pController(serial);
+    try {
+      JsonObject config = JsonParser.parseString(new String(controller.getConfigEventDescription(), StandardCharsets.UTF_8)).getAsJsonObject();
+      assertTrue(config.getAsJsonObject("commands").has("SET_SCAN_CONFIGURATION"));
+      assertTrue(controller.getSchema() != null);
+      byte[] response = controller.updateDeviceConfiguration(
+          "{\"command\":\"SET_SCAN_CONFIGURATION\",\"scanMode\":\"merged\",\"mergeScans\":2}".getBytes(StandardCharsets.UTF_8));
+      assertTrue(new String(response, StandardCharsets.UTF_8).contains("success"));
+      serial.release();
+      waitFor(serial::isExhausted);
+      JsonObject state = JsonParser.parseString(new String(controller.getDeviceState(), StandardCharsets.UTF_8)).getAsJsonObject();
+      assertTrue(state.get("hasData").getAsBoolean());
+      assertEquals(24, state.getAsJsonArray("points").size());
+      JsonObject point = state.getAsJsonArray("points").get(0).getAsJsonObject();
+      assertTrue(point.has("angle"));
+      assertTrue(point.has("distance"));
+      assertFalse(point.has("angleDegrees"));
+      assertFalse(point.has("distanceMm"));
+      assertFalse(point.has("intensity"));
+      assertFalse(JsonParser.parseString(new String(controller.getDeviceState(), StandardCharsets.UTF_8))
+          .getAsJsonObject().get("hasData").getAsBoolean());
+      assertThrows(java.io.IOException.class, () -> controller.updateDeviceConfiguration(
+          "{\"command\":\"SET_SCAN_CONFIGURATION\",\"scanMode\":\"merged\",\"mergeScans\":6}".getBytes(StandardCharsets.UTF_8)));
+    } finally {
+      controller.close();
+    }
+  }
+
+  @Test
+  void testRawModeRetainsExistingPayload() throws Exception {
+    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+    stream.writeBytes(buildFrame(35000, 35900, 1000, 1000));
+    stream.writeBytes(buildFrame(100, 1100, 1100, 1100));
+    stream.writeBytes(buildFrame(35000, 35900, 1200, 1200));
+
+    TestSerialDevice serial = new TestSerialDevice(stream.toByteArray(), true);
+    Stl19pController controller = new Stl19pController(serial);
+    try {
+      controller.updateDeviceConfiguration(
+          "{\"command\":\"SET_SCAN_CONFIGURATION\",\"scanMode\":\"raw\",\"mergeScans\":1}".getBytes(StandardCharsets.UTF_8));
+      serial.release();
+      waitFor(serial::isExhausted);
+      JsonObject state = JsonParser.parseString(new String(controller.getDeviceState(), StandardCharsets.UTF_8)).getAsJsonObject();
+      JsonObject point = state.getAsJsonArray("points").get(0).getAsJsonObject();
+      assertTrue(point.has("angleDegrees"));
+      assertTrue(point.has("distanceMm"));
+      assertTrue(point.has("intensity"));
+      assertFalse(point.has("angle"));
+    } finally {
+      controller.close();
+    }
+  }
+
+  @Test
+  void testMergedDiffMatchesRoundedBuckets() throws Exception {
+    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+    stream.writeBytes(buildFrame(35000, 35900, 1000, 1000));
+    stream.writeBytes(buildFrame(100, 1100, 1000, 1100));
+    stream.writeBytes(buildFrame(35000, 35900, 1000, 1200));
+    stream.writeBytes(buildFrame(110, 1110, 1500, 1300));
+    stream.writeBytes(buildFrame(35000, 35900, 1000, 1400));
+
+    TestSerialDevice serial = new TestSerialDevice(stream.toByteArray(), true);
+    Stl19pSensor sensor = new Stl19pSensor(serial);
+    try {
+      serial.release();
+      waitFor(serial::isExhausted);
+      assertFalse(sensor.changes().hasData(), "Readings from different 0.1-degree buckets must not be compared");
+    } finally {
+      sensor.close();
+    }
+  }
+
+  @Test
+  void testMergedDiffUsesCompactFields() throws Exception {
+    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+    stream.writeBytes(buildFrame(35000, 35900, 1000, 1000));
+    stream.writeBytes(buildFrame(100, 1100, 1000, 1100));
+    stream.writeBytes(buildFrame(35000, 35900, 1000, 1200));
+    stream.writeBytes(buildFrame(100, 1100, 1300, 1300));
+    stream.writeBytes(buildFrame(35000, 35900, 1000, 1400));
+
+    TestSerialDevice serial = new TestSerialDevice(stream.toByteArray(), true);
+    Stl19pController controller = new Stl19pController(serial);
+    try {
+      serial.release();
+      waitFor(serial::isExhausted);
+      JsonObject state = JsonParser.parseString(new String(controller.getChangeState(), StandardCharsets.UTF_8)).getAsJsonObject();
+      assertTrue(state.get("hasData").getAsBoolean());
+      JsonObject entry = state.getAsJsonObject("change").getAsJsonArray("changes").get(0).getAsJsonObject();
+      assertTrue(entry.has("angle"));
+      assertTrue(entry.has("distance"));
+      assertTrue(entry.has("previousDistance"));
+      assertFalse(entry.has("angleDegrees"));
+      assertFalse(entry.has("currentDistanceMm"));
+    } finally {
+      controller.close();
+    }
+  }
+
   private static void waitFor(java.util.function.BooleanSupplier condition) throws Exception {
     long deadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(1);
     while (!condition.getAsBoolean() && System.nanoTime() < deadline) {
@@ -183,10 +297,18 @@ class Stl19pSensorTest {
     private int offset;
     private boolean open;
     private volatile boolean exhausted;
+    private volatile boolean blocked;
 
     private TestSerialDevice(byte[] data) {
-      this.data = data;
+      this(data, false);
     }
+
+    private TestSerialDevice(byte[] data, boolean blocked) {
+      this.data = data;
+      this.blocked = blocked;
+    }
+
+    private void release() { blocked = false; }
 
     @Override
     public boolean isOpen() {
@@ -216,6 +338,7 @@ class Stl19pSensorTest {
 
     @Override
     public int readBytes(byte[] buffer, int remaining) {
+      if (blocked) return 0;
       if (offset >= data.length) {
         exhausted = true;
         return 0;

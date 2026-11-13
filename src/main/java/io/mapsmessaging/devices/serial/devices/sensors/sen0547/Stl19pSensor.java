@@ -53,6 +53,13 @@ public class Stl19pSensor implements Device, Sensor, HardwareQueue<Stl19pSensor.
   private Scan referenceScan;
   private final List<SensorReading<?>> readings;
   private final Thread readerThread;
+  private static final int MERGED_BUCKETS = 3600;
+  private final long[] mergedDistances = new long[MERGED_BUCKETS];
+  private final int[] mergedCounts = new int[MERGED_BUCKETS];
+  private volatile String scanMode = "merged";
+  private volatile int mergeScans = 1;
+  private int collectedScans;
+  private String mergedTimestamp;
 
   private int frameIndex;
   private boolean scanStarted;
@@ -125,6 +132,31 @@ public class Stl19pSensor implements Device, Sensor, HardwareQueue<Stl19pSensor.
   public IOException getReaderException() { return readerException; }
 
   int getQueuedScanCount() { return scanQueue.queueDepth(); }
+
+  public String getScanMode() { return scanMode; }
+  public int getMergeScans() { return mergeScans; }
+
+  public synchronized void setScanConfiguration(String mode, int scans) {
+    if (!"raw".equals(mode) && !"merged".equals(mode)) {
+      throw new IllegalArgumentException("scanMode must be raw or merged");
+    }
+    if (scans < 1 || scans > 5) {
+      throw new IllegalArgumentException("mergeScans must be 1..5");
+    }
+    if (mode.equals(scanMode) && scans == mergeScans) return;
+    scanMode = mode;
+    mergeScans = scans;
+    currentScan.clear();
+    scanStarted = false;
+    previousAngleDegrees = Double.NaN;
+    collectedScans = 0;
+    mergedTimestamp = null;
+    java.util.Arrays.fill(mergedDistances, 0L);
+    java.util.Arrays.fill(mergedCounts, 0);
+    referenceScan = null;
+    while (scanQueue.hasData()) scanQueue.getData();
+    while (changeQueue.hasData()) changeQueue.getData();
+  }
 
   private void readLoop() {
     while (running) {
@@ -209,7 +241,7 @@ public class Stl19pSensor implements Device, Sensor, HardwareQueue<Stl19pSensor.
     }
   }
 
-  private void processPoint(Point point) {
+  private synchronized void processPoint(Point point) {
     boolean wrapped = !Double.isNaN(previousAngleDegrees) && point.angleDegrees < 20.0 && previousAngleDegrees > 340.0;
     if (wrapped) {
       if (scanStarted && !currentScan.isEmpty()) {
@@ -227,6 +259,33 @@ public class Stl19pSensor implements Device, Sensor, HardwareQueue<Stl19pSensor.
   }
 
   private void enqueueScan(Scan scan) {
+    if ("raw".equals(scanMode)) {
+      publishScan(scan);
+      return;
+    }
+    if (collectedScans == 0) mergedTimestamp = scan.getTimestamp();
+    for (Point point : scan.getPoints()) {
+      if (point.getDistanceMm() <= 0) continue;
+      int bucket = ((int) Math.round(point.getAngleDegrees() * 10.0)) % MERGED_BUCKETS;
+      mergedDistances[bucket] += point.getDistanceMm();
+      mergedCounts[bucket]++;
+    }
+    if (++collectedScans < mergeScans) return;
+    List<Point> points = new ArrayList<>();
+    for (int bucket = 0; bucket < MERGED_BUCKETS; bucket++) {
+      if (mergedCounts[bucket] > 0) {
+        int distance = (int) Math.round((double) mergedDistances[bucket] / mergedCounts[bucket]);
+        points.add(new Point(bucket / 10.0, distance, 0));
+      }
+    }
+    publishScan(new Scan(mergedTimestamp, points, true));
+    java.util.Arrays.fill(mergedDistances, 0L);
+    java.util.Arrays.fill(mergedCounts, 0);
+    collectedScans = 0;
+    mergedTimestamp = null;
+  }
+
+  private void publishScan(Scan scan) {
     scanQueue.offer(scan);
     Scan previous = referenceScan;
     if (previous == null) {
@@ -262,11 +321,19 @@ public class Stl19pSensor implements Device, Sensor, HardwareQueue<Stl19pSensor.
   public static final class Scan {
     private final String timestamp;
     private final List<Point> points;
+    private final boolean merged;
 
     private Scan(String timestamp, List<Point> points) {
+      this(timestamp, points, false);
+    }
+
+    private Scan(String timestamp, List<Point> points, boolean merged) {
       this.timestamp = timestamp;
       this.points = List.copyOf(points);
+      this.merged = merged;
     }
+
+    public boolean isMerged() { return merged; }
 
     public String getTimestamp() {
       return timestamp;

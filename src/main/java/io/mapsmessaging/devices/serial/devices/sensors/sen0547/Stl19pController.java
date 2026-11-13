@@ -80,7 +80,7 @@ public class Stl19pController extends SerialDeviceController {
     cfg.setTitle(getName());
     cfg.setComments(getDescription());
     cfg.setResourceType("sensor");
-    cfg.setVersion(1);
+    cfg.setVersion(2);
     cfg.setUniqueId(getSchemaId());
     cfg.setDescription("Serial 230400 8N1, receive-only");
     return cfg;
@@ -105,6 +105,17 @@ public class Stl19pController extends SerialDeviceController {
       return convert(unavailable);
     }
     JsonObject result = gson.toJsonTree(scan).getAsJsonObject();
+    result.remove("merged");
+    if (scan.isMerged()) {
+      JsonArray points = new JsonArray();
+      for (Stl19pSensor.Point point : scan.getPoints()) {
+        JsonObject entry = new JsonObject();
+        entry.addProperty("angle", point.getAngleDegrees());
+        entry.addProperty("distance", point.getDistanceMm());
+        points.add(entry);
+      }
+      result.add("points", points);
+    }
     result.addProperty("hasData", true);
     return convert(result);
   }
@@ -132,6 +143,33 @@ public class Stl19pController extends SerialDeviceController {
     parameters.addProperty("additionalProperties", false);
     command.add("parameters", parameters);
     commands.add("SET_CHANGE_THRESHOLD", command);
+    JsonObject scanCommand = new JsonObject();
+    scanCommand.addProperty("description", "Set raw or merged LiDAR output and revolutions per merged scan");
+    JsonObject scanParameters = new JsonObject();
+    scanParameters.addProperty("type", "object");
+    JsonObject scanProperties = new JsonObject();
+    JsonObject mode = new JsonObject();
+    mode.addProperty("type", "string");
+    mode.addProperty("default", "merged");
+    JsonArray modes = new JsonArray();
+    modes.add("raw");
+    modes.add("merged");
+    mode.add("enum", modes);
+    scanProperties.add("scanMode", mode);
+    JsonObject merge = new JsonObject();
+    merge.addProperty("type", "integer");
+    merge.addProperty("default", 1);
+    merge.addProperty("minimum", 1);
+    merge.addProperty("maximum", 5);
+    scanProperties.add("mergeScans", merge);
+    scanParameters.add("properties", scanProperties);
+    JsonArray scanRequired = new JsonArray();
+    scanRequired.add("scanMode");
+    scanRequired.add("mergeScans");
+    scanParameters.add("required", scanRequired);
+    scanParameters.addProperty("additionalProperties", false);
+    scanCommand.add("parameters", scanParameters);
+    commands.add("SET_SCAN_CONFIGURATION", scanCommand);
     contract.add("commands", commands);
     contract.addProperty("readOnly", false);
     return convert(contract);
@@ -147,6 +185,30 @@ public class Stl19pController extends SerialDeviceController {
     }
     if (!request.has("command")) {
       return "{}".getBytes(StandardCharsets.UTF_8);
+    }
+    if (request.has("command") && request.get("command").isJsonPrimitive()
+        && request.get("command").getAsJsonPrimitive().isString()
+        && "SET_SCAN_CONFIGURATION".equals(request.get("command").getAsString())) {
+      if (request.size() != 3 || !request.has("scanMode") || !request.has("mergeScans")
+          || !request.get("scanMode").isJsonPrimitive()
+          || !request.get("scanMode").getAsJsonPrimitive().isString()
+          || !request.get("mergeScans").isJsonPrimitive()
+          || !request.get("mergeScans").getAsJsonPrimitive().isNumber()) {
+        throw new IOException("Invalid STL-19P scan configuration");
+      }
+      String mode = request.get("scanMode").getAsString();
+      int scans;
+      try {
+        scans = request.get("mergeScans").getAsBigDecimal().intValueExact();
+        sensor.setScanConfiguration(mode, scans);
+      } catch (ArithmeticException | IllegalArgumentException exception) {
+        throw new IOException("Invalid STL-19P scan configuration", exception);
+      }
+      JsonObject response = new JsonObject();
+      response.addProperty("status", "success");
+      response.addProperty("scanMode", sensor.getScanMode());
+      response.addProperty("mergeScans", sensor.getMergeScans());
+      return convert(response);
     }
     if (request.size() != 2 || !request.has("thresholdMm")
         || !request.get("command").isJsonPrimitive()
@@ -174,7 +236,19 @@ public class Stl19pController extends SerialDeviceController {
     JsonObject result = new JsonObject();
     result.addProperty("hasData", change != null);
     if (change != null) {
-      result.add("change", gson.toJsonTree(change));
+      JsonObject payload = gson.toJsonTree(change).getAsJsonObject();
+      if ("merged".equals(sensor.getScanMode())) {
+        JsonArray changes = new JsonArray();
+        for (Stl19pScanDiffer.BinChange entry : change.changes()) {
+          JsonObject point = new JsonObject();
+          point.addProperty("angle", entry.angleDegrees() / 10.0);
+          point.addProperty("previousDistance", entry.previousDistanceMm());
+          point.addProperty("distance", entry.currentDistanceMm());
+          changes.add(point);
+        }
+        payload.add("changes", changes);
+      }
+      result.add("change", payload);
     }
     return convert(result);
   }
@@ -214,13 +288,44 @@ public class Stl19pController extends SerialDeviceController {
     JsonObject points = new JsonObject();
     points.addProperty("type", "array");
     points.addProperty(DESCRIPTION, "Polar range samples ordered in scan acquisition order");
-    points.add("items", buildPointSchema());
+    JsonObject pointVariants = new JsonObject();
+    JsonArray variants = new JsonArray();
+    variants.add(buildPointSchema());
+    variants.add(buildMergedPointSchema());
+    pointVariants.add("oneOf", variants);
+    points.add("items", pointVariants);
     properties.add("points", points);
 
     root.add("properties", properties);
     // An empty FIFO produces only hasData=false, so scan fields are optional.
     root.addProperty("additionalProperties", false);
     return gson.toJson(root);
+  }
+
+  private JsonObject buildMergedPointSchema() {
+    JsonObject point = new JsonObject();
+    point.addProperty("type", "object");
+    JsonObject properties = new JsonObject();
+    JsonObject angle = new JsonObject();
+    angle.addProperty("type", "number");
+    angle.addProperty(MINIMUM, 0);
+    angle.addProperty(MAXIMUM, 359.9);
+    angle.addProperty("multipleOf", 0.1);
+    angle.addProperty(DESCRIPTION, "Bearing in degrees, rounded to 0.1 degree");
+    properties.add("angle", angle);
+    JsonObject distance = new JsonObject();
+    distance.addProperty("type", "integer");
+    distance.addProperty(MINIMUM, 0);
+    distance.addProperty(MAXIMUM, 65535);
+    distance.addProperty(DESCRIPTION, "Distance in millimetres");
+    properties.add("distance", distance);
+    point.add("properties", properties);
+    JsonArray required = new JsonArray();
+    required.add("angle");
+    required.add("distance");
+    point.add("required", required);
+    point.addProperty("additionalProperties", false);
+    return point;
   }
 
   private JsonObject buildPointSchema() {
