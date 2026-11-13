@@ -1,4 +1,4 @@
-package io.mapsmessaging.devices.i2c.devices.sensors.humanpose;
+package io.mapsmessaging.devices.i2c.devices.sensors.sen0670;
 
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import org.junit.jupiter.api.Test;
@@ -8,30 +8,31 @@ import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Queue;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class HumanPoseProtocolTest {
+class Sen0670ProtocolTest {
 
   @Test
   void completedPoseBatchKeepsBoundingBoxAndKeypoints() throws Exception {
     FakeBus bus = new FakeBus();
-    List<HumanPoseProtocol.Detection> results = new HumanPoseProtocol(bus).invoke();
+    List<Sen0670Protocol.Detection> results = new Sen0670Protocol(bus).invoke();
     assertEquals(1, results.size());
-    HumanPoseProtocol.Detection result = results.getFirst();
+    Sen0670Protocol.Detection result = results.getFirst();
     assertEquals(7, result.id());
     assertEquals(120, result.x());
     assertEquals(180, result.y());
     assertEquals(60, result.width());
     assertEquals(75, result.height());
     assertEquals(95, result.score());
-    assertEquals(new HumanPoseProtocol.Point(21, 34), result.keypoints().getFirst());
-    assertThrows(UnsupportedOperationException.class, () -> result.keypoints().add(new HumanPoseProtocol.Point(1, 1)));
+    assertEquals(new Sen0670Protocol.Point(21, 34), result.keypoints().getFirst());
+    assertThrows(UnsupportedOperationException.class, () -> result.keypoints().add(new Sen0670Protocol.Point(1, 1)));
   }
 
   @Test
   void datasetRetainsCompletionTimeAndRejectsMutation() {
-    HumanPoseDataSet result = new HumanPoseDataSet(java.time.Instant.EPOCH, 3,
-        List.of(new HumanPoseProtocol.Detection(0, "unknown", 1, 2, 3, 4, 95, List.of())));
+    Sen0670DataSet result = new Sen0670DataSet(java.time.Instant.EPOCH, 3,
+        List.of(new Sen0670Protocol.Detection(0, "unknown", 1, 2, 3, 4, 95, List.of())));
     assertEquals(java.time.Instant.EPOCH, result.timestamp());
     assertThrows(UnsupportedOperationException.class, () -> result.detections().clear());
   }

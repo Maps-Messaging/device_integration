@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2026 MapsMessaging B.V. Licensed under the project's license.
  */
-package io.mapsmessaging.devices.i2c.devices.sensors.humanpose;
+package io.mapsmessaging.devices.i2c.devices.sensors.sen0670;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -19,26 +19,26 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /** SEN0670 controller: only cached complete inference batches are returned to applications. */
-public final class HumanPoseController extends I2CDeviceController {
-  private final HumanPoseSensor sensor;
+public final class Sen0670Controller extends I2CDeviceController {
+  private final Sen0670Sensor sensor;
 
-  public HumanPoseController() { sensor = null; }
+  public Sen0670Controller() { sensor = null; }
 
-  public HumanPoseController(AddressableDevice device) throws IOException {
+  public Sen0670Controller(AddressableDevice device) throws IOException {
     super(device);
-    sensor = new HumanPoseSensor(device);
+    sensor = new Sen0670Sensor(device);
   }
 
   @Override public String getName() { return "SEN0670"; }
   @Override public String getDescription() { return "DFRobot Human Pose, Hand and Gesture sensor"; }
   @Override public DeviceType getType() { return DeviceType.SENSOR; }
   @Override public I2CDevice getDevice() { return sensor; }
-  @Override public int[] getAddressRange() { return new int[]{HumanPoseProtocol.ADDRESS}; }
+  @Override public int[] getAddressRange() { return new int[]{Sen0670Protocol.ADDRESS}; }
   @Override public boolean canDetect() { return true; }
 
   @Override public boolean detect(AddressableDevice device) {
     try {
-      new HumanPoseProtocol(device).initialize();
+      new Sen0670Protocol(device).initialize();
       return true;
     } catch (IOException exception) {
       return false;
@@ -46,7 +46,7 @@ public final class HumanPoseController extends I2CDeviceController {
   }
 
   @Override public I2CDeviceController mount(AddressableDevice device) throws IOException {
-    return new HumanPoseController(device);
+    return new Sen0670Controller(device);
   }
 
   @Override public SchemaConfig getSchema() {
@@ -102,14 +102,14 @@ public final class HumanPoseController extends I2CDeviceController {
 
   @Override public byte[] getDeviceState() throws IOException {
     if (sensor == null) throw new IOException("SEN0670 is not mounted");
-    HumanPoseDataSet batch = sensor.getData();
+    Sen0670DataSet batch = sensor.getData();
     JsonObject state = new JsonObject();
     state.addProperty("hasData", batch != null);
     if (batch == null) return state.toString().getBytes(StandardCharsets.UTF_8);
     state.addProperty("timestamp", batch.timestamp().toString());
     state.addProperty("model", batch.model());
     JsonArray detections = new JsonArray();
-    for (HumanPoseProtocol.Detection detection : batch.detections()) {
+    for (Sen0670Protocol.Detection detection : batch.detections()) {
       JsonObject result = new JsonObject();
       result.addProperty("id", detection.id());
       result.addProperty("name", detection.name());
@@ -119,7 +119,7 @@ public final class HumanPoseController extends I2CDeviceController {
       result.addProperty("height", detection.height());
       result.addProperty("score", detection.score());
       JsonArray points = new JsonArray();
-      for (HumanPoseProtocol.Point point : detection.keypoints()) {
+      for (Sen0670Protocol.Point point : detection.keypoints()) {
         if (point == null) {
           points.add((JsonElement) null);
         } else {
