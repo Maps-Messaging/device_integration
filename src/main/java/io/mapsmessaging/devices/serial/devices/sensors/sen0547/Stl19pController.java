@@ -24,6 +24,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.nio.charset.StandardCharsets;
 import io.mapsmessaging.devices.DeviceType;
+import io.mapsmessaging.devices.DeviceController;
+import java.util.List;
 import io.mapsmessaging.devices.serial.SerialDeviceController;
 import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
@@ -37,18 +39,29 @@ public class Stl19pController extends SerialDeviceController {
   private static final String MAXIMUM = "maximum";
 
   private final Stl19pSensor sensor;
+  private final Stl19pChangeController changeController;
 
   public Stl19pController() {
     sensor = null;
+    changeController = null;
   }
 
   public Stl19pController(SerialDevice serial) throws IOException {
     sensor = new Stl19pSensor(serial);
+    changeController = new Stl19pChangeController(sensor);
   }
 
   @Override
   public SerialDeviceController mount(SerialDevice serialDevice) throws IOException {
     return new Stl19pController(serialDevice);
+  }
+
+  @Override
+  public boolean hasComputedDevices() { return changeController != null; }
+
+  @Override
+  public List<? extends DeviceController> getComputedDevices() {
+    return changeController == null ? List.of() : List.of(changeController);
   }
 
   @Override
@@ -177,6 +190,7 @@ public class Stl19pController extends SerialDeviceController {
   @Override
   public void close() {
     if (sensor != null) {
+      if (changeController != null) changeController.close();
       sensor.close();
     }
   }

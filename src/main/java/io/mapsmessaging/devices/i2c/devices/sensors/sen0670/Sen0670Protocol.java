@@ -3,7 +3,7 @@
  * Binary SEN0670 protocol port based on DFRobot_HumanPose, Copyright (c) 2026 DFRobot.
  * DFRobot's implementation is MIT licensed; preserve its copyright and MIT notice.
  */
-package io.mapsmessaging.devices.i2c.devices.sensors.humanpose;
+package io.mapsmessaging.devices.i2c.devices.sensors.sen0670;
 
 import io.mapsmessaging.devices.i2c.I2CDeviceScheduler;
 import io.mapsmessaging.devices.impl.AddressableDevice;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /** Binary-framed AT protocol over DFRobot's I2C transport. Not thread-safe; worker owns it. */
-public final class HumanPoseProtocol {
+public final class Sen0670Protocol {
   static final int ADDRESS = 0x3a;
   private static final int TRANSFER = 50;
   private static final int FRAME_LIMIT = 32768;
@@ -46,7 +46,7 @@ public final class HumanPoseProtocol {
   private boolean eventComplete;
   private int eventStatus;
 
-  public HumanPoseProtocol(AddressableDevice bus) {
+  public Sen0670Protocol(AddressableDevice bus) {
     this.bus = bus;
   }
 

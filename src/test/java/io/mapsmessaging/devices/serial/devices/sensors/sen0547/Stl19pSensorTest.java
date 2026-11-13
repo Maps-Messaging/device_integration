@@ -19,15 +19,16 @@
 
 package io.mapsmessaging.devices.serial.devices.sensors.sen0547;
 
+import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
+import org.junit.jupiter.api.Test;
+
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import org.junit.jupiter.api.Test;
 
 class Stl19pSensorTest {
 
@@ -38,7 +39,7 @@ class Stl19pSensorTest {
   }
 
   @Test
-  void testCompleteScanAssembly() throws IOException {
+  void testCompleteScanAssembly() throws Exception {
     ByteArrayOutputStream stream = new ByteArrayOutputStream();
     stream.writeBytes(buildFrame(35000, 35900, 1000, 1000));
     stream.writeBytes(buildFrame(100, 1100, 1100, 1100));

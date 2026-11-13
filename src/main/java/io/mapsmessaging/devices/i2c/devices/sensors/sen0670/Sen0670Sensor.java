@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2026 MapsMessaging B.V. Licensed under the project's license.
  */
-package io.mapsmessaging.devices.i2c.devices.sensors.humanpose;
+package io.mapsmessaging.devices.i2c.devices.sensors.sen0670;
 
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.deviceinterfaces.Sensor;
@@ -24,11 +24,11 @@ import java.util.concurrent.atomic.AtomicReference;
  * SEN0670 producer: only its worker touches the protocol after initialisation.
  * Applications consume independent, fully constructed batches from the hardware FIFO.
  */
-public final class HumanPoseSensor extends I2CDevice implements Sensor, HardwareQueue<HumanPoseDataSet> {
+public final class Sen0670Sensor extends I2CDevice implements Sensor, HardwareQueue<Sen0670DataSet> {
   public static final int DEFAULT_CAPACITY = 16;
 
-  private final HumanPoseProtocol protocol;
-  private final HardwareRingBuffer<HumanPoseDataSet> fifo;
+  private final Sen0670Protocol protocol;
+  private final HardwareRingBuffer<Sen0670DataSet> fifo;
   private final ConcurrentLinkedQueue<Configuration> commands = new ConcurrentLinkedQueue<>();
   private final AtomicReference<IOException> lastError = new AtomicReference<>();
   private final Thread worker;
@@ -37,14 +37,14 @@ public final class HumanPoseSensor extends I2CDevice implements Sensor, Hardware
   private volatile int currentModel;
   private volatile List<String> learnedNames = List.of();
 
-  public HumanPoseSensor(AddressableDevice device) throws IOException {
+  public Sen0670Sensor(AddressableDevice device) throws IOException {
     this(device, DEFAULT_CAPACITY);
   }
 
-  public HumanPoseSensor(AddressableDevice device, int capacity) throws IOException {
-    super(device, LoggerFactory.getLogger(HumanPoseSensor.class));
+  public Sen0670Sensor(AddressableDevice device, int capacity) throws IOException {
+    super(device, LoggerFactory.getLogger(Sen0670Sensor.class));
     fifo = new HardwareRingBuffer<>(capacity);
-    protocol = new HumanPoseProtocol(device);
+    protocol = new Sen0670Protocol(device);
     protocol.initialize();
     currentModel = protocol.getModel();
     readings = generateSensorReadings(List.of(
@@ -69,8 +69,8 @@ public final class HumanPoseSensor extends I2CDevice implements Sensor, Hardware
         }
         if (!connected) break;
         try {
-          List<HumanPoseProtocol.Detection> detections = protocol.invoke();
-          HumanPoseDataSet complete = new HumanPoseDataSet(Instant.now(), protocol.getModel(), detections);
+          List<Sen0670Protocol.Detection> detections = protocol.invoke();
+          Sen0670DataSet complete = new Sen0670DataSet(Instant.now(), protocol.getModel(), detections);
           currentModel = complete.model();
           fifo.offer(complete);
           lastError.set(null);
@@ -129,7 +129,7 @@ public final class HumanPoseSensor extends I2CDevice implements Sensor, Hardware
   public IOException getLastError() { return lastError.get(); }
   public List<String> getLearnedNames() { return learnedNames; }
 
-  @Override public HumanPoseDataSet getData() { return fifo.getData(); }
+  @Override public Sen0670DataSet getData() { return fifo.getData(); }
   @Override public int queueDepth() { return fifo.queueDepth(); }
   @Override public boolean hasData() { return fifo.hasData(); }
   @Override public boolean hasOverrun() { return fifo.hasOverrun(); }
