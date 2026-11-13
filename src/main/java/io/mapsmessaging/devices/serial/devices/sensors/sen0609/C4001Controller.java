@@ -8,6 +8,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.mapsmessaging.devices.DeviceType;
+import io.mapsmessaging.devices.DeviceController;
+import java.util.List;
 import io.mapsmessaging.devices.serial.SerialDeviceController;
 import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
 import io.mapsmessaging.schemas.config.SchemaConfig;
@@ -18,11 +20,19 @@ import java.nio.charset.StandardCharsets;
 /** Serial C4001 controller using the same schema/config/state paths as other serial devices. */
 public final class C4001Controller extends SerialDeviceController {
   private final C4001Sensor sensor;
+  private final C4001ChangeController changeController;
 
-  public C4001Controller() { sensor = null; }
-  public C4001Controller(SerialDevice serial) throws IOException { sensor = new C4001Sensor(serial); }
+  public C4001Controller() { sensor = null; changeController = null; }
+  public C4001Controller(SerialDevice serial) throws IOException {
+    sensor = new C4001Sensor(serial);
+    changeController = new C4001ChangeController(sensor);
+  }
 
   @Override public SerialDeviceController mount(SerialDevice port) throws IOException { return new C4001Controller(port); }
+  @Override public boolean hasComputedDevices() { return changeController != null; }
+  @Override public List<? extends DeviceController> getComputedDevices() {
+    return changeController == null ? List.of() : List.of(changeController);
+  }
   @Override public String getName() { return "SEN0609"; }
   @Override public String getDescription() { return "DFRobot C4001 24 GHz radar (UART 9600 8N1)"; }
   @Override public DeviceType getType() { return DeviceType.SENSOR; }
@@ -173,5 +183,8 @@ public final class C4001Controller extends SerialDeviceController {
     if (sensor == null) throw new IOException("SEN0609 is not mounted");
   }
 
-  @Override public void close() { if (sensor != null) sensor.close(); }
+  @Override public void close() {
+    if (changeController != null) changeController.close();
+    if (sensor != null) sensor.close();
+  }
 }

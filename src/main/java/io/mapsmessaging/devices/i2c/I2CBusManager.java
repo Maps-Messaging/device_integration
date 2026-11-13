@@ -25,6 +25,7 @@ import com.pi4j.io.i2c.I2CConfig;
 import com.pi4j.io.i2c.I2CImplementation;
 import com.pi4j.io.i2c.I2CProvider;
 import io.mapsmessaging.devices.DeviceController;
+import io.mapsmessaging.devices.ComputedDeviceRegistration;
 import io.mapsmessaging.devices.i2c.devices.demo.I2cDemoController;
 import io.mapsmessaging.devices.i2c.devices.sensors.sht31.commands.SoftResetCommand;
 import io.mapsmessaging.devices.impl.I2CDeviceImpl;
@@ -128,8 +129,23 @@ public class I2CBusManager {
           String key = Integer.toHexString(mounted.getMountedAddress());
           DeviceController activeController = activeDevices.get(key);
           if (activeController instanceof I2CDeviceController current && unwrap(current) == mounted) {
+            // Physical owner: invalidate its logical children first.
+            for (String registeredKey : new ArrayList<>(activeDevices.keySet())) {
+              if (registeredKey.startsWith(key + "_")) {
+                DeviceController secondary = activeDevices.remove(registeredKey);
+                if (secondary != null) secondary.close();
+              }
+            }
             activeDevices.remove(key, activeController);
             physicalDevices.remove(mounted.getMountedAddress());
+          } else {
+            // Computed controller: remove only its own registration and state.
+            for (Map.Entry<String, DeviceController> entry : activeDevices.entrySet()) {
+              if (entry.getValue() == deviceController) {
+                activeDevices.remove(entry.getKey(), deviceController);
+                break;
+              }
+            }
           }
           deviceController.close();
         }
@@ -287,7 +303,21 @@ public class I2CBusManager {
         I2CDeviceImpl i2CDevice = new I2CDeviceImpl(i2c);
         I2CDeviceController device = deviceEntry.mount(i2CDevice);
         I2CDeviceController controller = new I2CDeviceScheduler(device);
+        Map<String, I2CDeviceController> computed;
+        try {
+          computed = ComputedDeviceRegistration.collect(device, key, I2CDeviceController.class, activeDevices);
+          for (I2CDeviceController secondary : computed.values()) {
+            if (!(secondary instanceof ComputedI2CDeviceController) || secondary.getMountedAddress() != i2cAddress) {
+              throw new IOException("Computed I2C controller must use its parent's address");
+            }
+          }
+        } catch (IOException | RuntimeException exception) {
+          controller.close();
+          physicalDevices.remove(i2cAddress);
+          throw exception;
+        }
         activeDevices.put(key, controller);
+        activeDevices.putAll(computed);
         return controller;
       }
     }

@@ -69,6 +69,21 @@ public abstract class DeviceController {
   }
 
 
+  /** Existing physical controllers remain single-device unless they opt in. */
+  public boolean hasComputedDevices() {
+    return false;
+  }
+
+  /** Secondary controllers share the parent's acquisition instance. */
+  public List<? extends DeviceController> getComputedDevices() {
+    return List.of();
+  }
+
+  /** Stable, controller-defined suffix for secondary registration, e.g. "change". */
+  public String getComputedDeviceSuffix() {
+    return "";
+  }
+
   public abstract String getName();
 
   public abstract String getDescription();

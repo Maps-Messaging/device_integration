@@ -20,6 +20,8 @@
 package io.mapsmessaging.devices.serial;
 
 import io.mapsmessaging.devices.DeviceController;
+import io.mapsmessaging.devices.ComputedDeviceRegistration;
+import java.util.ArrayList;
 import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
 
 import java.io.IOException;
@@ -50,17 +52,49 @@ public class SerialBusManager {
     return activeDevices;
   }
 
-  public SerialDeviceController mount(String name, SerialDevice serialDevice) throws IOException {
+  public synchronized SerialDeviceController mount(String name, SerialDevice serialDevice) throws IOException {
     SerialDeviceController controller = knownDevices.get(name);
     if (controller != null) {
+      DeviceController current = activeDevices.get(name);
+      if (current instanceof SerialDeviceController mounted) {
+        return mounted;
+      }
       controller = controller.mount(serialDevice);
+      Map<String, SerialDeviceController> computed;
+      try {
+        computed = ComputedDeviceRegistration.collect(controller, name, SerialDeviceController.class, activeDevices);
+        for (SerialDeviceController secondary : computed.values()) {
+          if (!(secondary instanceof ComputedSerialDeviceController)) {
+            throw new IOException("Secondary serial controllers must extend ComputedSerialDeviceController");
+          }
+        }
+      } catch (IOException | RuntimeException exception) {
+        controller.close();
+        throw exception;
+      }
       activeDevices.put(name, controller);
+      activeDevices.putAll(computed);
     }
     return controller;
   }
 
-  public void unmount (SerialDeviceController serialDevice) {
-    activeDevices.remove(serialDevice.getName());
+  public synchronized void unmount(SerialDeviceController serialDevice) {
+    String key = serialDevice.getName();
+    DeviceController current = activeDevices.get(key);
+    if (current != serialDevice) return;
+    if (serialDevice.getComputedDeviceSuffix().isEmpty()) {
+      // Primary ownership remains with the caller, as in the existing serial API.
+      for (String childKey : new ArrayList<>(activeDevices.keySet())) {
+        if (childKey.startsWith(key + "_")) {
+          DeviceController secondary = activeDevices.remove(childKey);
+          if (secondary != null) secondary.close();
+        }
+      }
+    } else {
+      // Only the computed controller's logical close is invoked.
+      serialDevice.close();
+    }
+    activeDevices.remove(key, serialDevice);
   }
 
 }
