@@ -17,13 +17,13 @@ class ComputedSensorIntegrationTest {
     assertNotNull(primary);
     assertSame(primary, manager.mount("SEN0547", port));
     assertEquals(1, port.opens.get());
-    assertSame(primary, manager.getActive().get("SEN0547"));
-    DeviceController child = manager.getActive().get("SEN0547_change");
+    assertSame(primary, manager.getActive().get("test-port"));
+    DeviceController child = manager.getActive().get("test-port_change");
     assertNotNull(child);
     assertNotEquals(primary.getSchemaId(), child.getSchemaId());
     assertTrue(new String(child.getDeviceState(), StandardCharsets.UTF_8).contains("hasData"));
     manager.unmount((SerialDeviceController) child);
-    assertFalse(manager.getActive().containsKey("SEN0547_change"));
+    assertFalse(manager.getActive().containsKey("test-port_change"));
     assertTrue(port.open);
     assertThrows(java.io.IOException.class, child::getDeviceState);
     primary.close();
@@ -36,7 +36,7 @@ class ComputedSensorIntegrationTest {
     SerialBusManager manager = new SerialBusManager();
     SerialDeviceController primary = manager.mount("SEN0609", port);
     assertNotNull(primary);
-    DeviceController child = manager.getActive().get("SEN0609_change");
+    DeviceController child = manager.getActive().get("test-port_change");
     assertNotNull(child);
     assertEquals("SEN0609_change", child.getName());
     assertNotEquals(primary.getSchemaId(), child.getSchemaId());

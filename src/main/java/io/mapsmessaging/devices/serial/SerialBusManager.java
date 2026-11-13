@@ -21,8 +21,9 @@ package io.mapsmessaging.devices.serial;
 
 import io.mapsmessaging.devices.DeviceController;
 import io.mapsmessaging.devices.ComputedDeviceRegistration;
-import java.util.ArrayList;
 import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
+import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 
 import java.io.IOException;
 import java.util.Map;
@@ -33,10 +34,12 @@ public class SerialBusManager {
 
   private final Map<String, SerialDeviceController> knownDevices;
   private final Map<String, DeviceController> activeDevices;
+  private final Map<String, Map<String, SerialDeviceController>> computedDevices;
 
   public SerialBusManager() {
     knownDevices = new ConcurrentHashMap<>();
     activeDevices = new ConcurrentHashMap<>();
+    computedDevices = new ConcurrentHashMap<>();
     ServiceLoader<SerialDeviceController> known = ServiceLoader.load(SerialDeviceController.class);
     for (SerialDeviceController device : known) {
       knownDevices.put(device.getName(), device);
@@ -52,49 +55,74 @@ public class SerialBusManager {
     return activeDevices;
   }
 
+  /**
+   * Register the physical controller under its serial port, and logical controllers
+   * under port_suffix, as I2C does with address and address_suffix.
+   */
   public synchronized SerialDeviceController mount(String name, SerialDevice serialDevice) throws IOException {
-    SerialDeviceController controller = knownDevices.get(name);
-    if (controller != null) {
-      DeviceController current = activeDevices.get(name);
-      if (current instanceof SerialDeviceController mounted) {
+    SerialDeviceController factory = knownDevices.get(name);
+    if (factory == null) return null;
+
+    if (serialDevice == null || serialDevice.getSystemPortName() == null
+        || serialDevice.getSystemPortName().isBlank()) {
+      throw new IOException("Serial device must have a physical port name");
+    }
+    String portName = serialDevice.getSystemPortName();
+    DeviceController existing = activeDevices.get(portName);
+    if (existing != null) {
+      if (existing instanceof SerialDeviceController mounted && mounted.getName().equals(name)) {
         return mounted;
       }
-      controller = controller.mount(serialDevice);
-      Map<String, SerialDeviceController> computed;
-      try {
-        computed = ComputedDeviceRegistration.collect(controller, name, SerialDeviceController.class, activeDevices);
-        for (SerialDeviceController secondary : computed.values()) {
-          if (!(secondary instanceof ComputedSerialDeviceController)) {
-            throw new IOException("Secondary serial controllers must extend ComputedSerialDeviceController");
-          }
-        }
-      } catch (IOException | RuntimeException exception) {
-        controller.close();
-        throw exception;
-      }
-      activeDevices.put(name, controller);
-      activeDevices.putAll(computed);
+      throw new IOException("Serial port is already mounted: " + portName);
     }
+
+    SerialDeviceController controller = factory.mount(serialDevice);
+    Map<String, SerialDeviceController> computed;
+    try {
+      computed = ComputedDeviceRegistration.collect(controller, portName, SerialDeviceController.class, activeDevices);
+      for (SerialDeviceController secondary : computed.values()) {
+        if (!(secondary instanceof ComputedSerialDeviceController)) {
+          throw new IOException("Secondary serial controllers must extend ComputedSerialDeviceController");
+        }
+      }
+    } catch (IOException | RuntimeException exception) {
+      controller.close();
+      throw exception;
+    }
+
+    activeDevices.put(portName, controller);
+    activeDevices.putAll(computed);
+    computedDevices.put(portName, new LinkedHashMap<>(computed));
     return controller;
   }
 
+  /** Detach an individual logical device, or every logical child of its physical owner. */
   public synchronized void unmount(SerialDeviceController serialDevice) {
-    String key = serialDevice.getName();
-    DeviceController current = activeDevices.get(key);
-    if (current != serialDevice) return;
-    if (serialDevice.getComputedDeviceSuffix().isEmpty()) {
-      // Primary ownership remains with the caller, as in the existing serial API.
-      for (String childKey : new ArrayList<>(activeDevices.keySet())) {
-        if (childKey.startsWith(key + "_")) {
-          DeviceController secondary = activeDevices.remove(childKey);
-          if (secondary != null) secondary.close();
+    String key = null;
+    for (Entry<String, DeviceController> entry : activeDevices.entrySet()) {
+      if (entry.getValue() == serialDevice) {
+        key = entry.getKey();
+        break;
+      }
+    }
+    if (key == null) return;
+
+    if (computedDevices.containsKey(key)) {
+      Map<String, SerialDeviceController> children = computedDevices.remove(key);
+      for (Entry<String, SerialDeviceController> child : children.entrySet()) {
+        if (activeDevices.remove(child.getKey(), child.getValue())) {
+          child.getValue().close();
         }
       }
+      // Preserve the existing API: unmount unregisters but does not close the primary.
+      activeDevices.remove(key, serialDevice);
     } else {
-      // Only the computed controller's logical close is invoked.
-      serialDevice.close();
+      if (activeDevices.remove(key, serialDevice)) {
+        for (Map<String, SerialDeviceController> children : computedDevices.values()) {
+          children.remove(key);
+        }
+        serialDevice.close();
+      }
     }
-    activeDevices.remove(key, serialDevice);
   }
-
 }
