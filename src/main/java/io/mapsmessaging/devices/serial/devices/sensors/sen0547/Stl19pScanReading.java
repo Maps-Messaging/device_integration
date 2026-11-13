@@ -25,6 +25,6 @@ import io.mapsmessaging.devices.sensorreadings.SensorReading;
 public class Stl19pScanReading extends SensorReading<Stl19pSensor.Scan> {
 
   public Stl19pScanReading(ReadingSupplier<Stl19pSensor.Scan> supplier) {
-    super("scan", "", "Complete 360 degree LiDAR scan", null, true, supplier);
+    super("scan", "", "One raw 12-measurement LiDAR serial frame", null, true, supplier);
   }
 }

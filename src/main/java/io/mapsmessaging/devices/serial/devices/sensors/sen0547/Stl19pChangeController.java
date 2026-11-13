@@ -51,54 +51,34 @@ public final class Stl19pChangeController extends ComputedSerialDeviceController
     stamp.addProperty("format", "date-time");
     changeFields.add("previousTimestamp", stamp.deepCopy());
     changeFields.add("currentTimestamp", stamp.deepCopy());
+
     JsonObject entries = new JsonObject();
     entries.addProperty("type", "array");
     JsonObject item = new JsonObject();
     item.addProperty("type", "object");
     JsonObject fields = new JsonObject();
-    for (String field : new String[]{"angleDegrees", "previousDistanceMm", "currentDistanceMm"}) {
-      JsonObject number = new JsonObject();
-      number.addProperty("type", "integer");
-      fields.add(field, number);
+    JsonArray required = new JsonArray();
+    for (String field : new String[]{"angle", "previousDistance", "distance", "delta", "intensity"}) {
+      JsonObject value = new JsonObject();
+      value.addProperty("type", "integer");
+      if ("angle".equals(field)) {
+        value.addProperty("minimum", 0);
+        value.addProperty("maximum", 359);
+        value.addProperty("description", "One-degree angular sector");
+      } else if ("intensity".equals(field)) {
+        value.addProperty("minimum", 0);
+        value.addProperty("maximum", 255);
+        value.addProperty("description", "Mean return intensity in the current sector");
+      } else {
+        value.addProperty("description", "Distance or distance change in millimetres");
+      }
+      fields.add(field, value);
+      required.add(field);
     }
     item.add("properties", fields);
-    JsonArray rawRequired = new JsonArray();
-    rawRequired.add("angleDegrees");
-    rawRequired.add("previousDistanceMm");
-    rawRequired.add("currentDistanceMm");
-    item.add("required", rawRequired);
+    item.add("required", required);
     item.addProperty("additionalProperties", false);
-    JsonObject mergedItem = new JsonObject();
-    mergedItem.addProperty("type", "object");
-    JsonObject mergedFields = new JsonObject();
-    JsonObject angle = new JsonObject();
-    angle.addProperty("type", "number");
-    angle.addProperty("minimum", 0);
-    angle.addProperty("maximum", 359.9);
-    angle.addProperty("multipleOf", 0.1);
-    angle.addProperty("description", "Bearing in degrees");
-    mergedFields.add("angle", angle);
-    for (String field : new String[]{"previousDistance", "distance"}) {
-      JsonObject distance = new JsonObject();
-      distance.addProperty("type", "integer");
-      distance.addProperty("minimum", 0);
-      distance.addProperty("maximum", 65535);
-      distance.addProperty("description", "Distance in millimetres");
-      mergedFields.add(field, distance);
-    }
-    mergedItem.add("properties", mergedFields);
-    JsonArray mergedRequired = new JsonArray();
-    mergedRequired.add("angle");
-    mergedRequired.add("previousDistance");
-    mergedRequired.add("distance");
-    mergedItem.add("required", mergedRequired);
-    mergedItem.addProperty("additionalProperties", false);
-    JsonObject alternatives = new JsonObject();
-    JsonArray variants = new JsonArray();
-    variants.add(item);
-    variants.add(mergedItem);
-    alternatives.add("oneOf", variants);
-    entries.add("items", alternatives);
+    entries.add("items", item);
     changeFields.add("changes", entries);
     change.add("properties", changeFields);
     properties.add("change", change);
@@ -109,7 +89,7 @@ public final class Stl19pChangeController extends ComputedSerialDeviceController
     schema.setComments(getDescription());
     schema.setDescription(getDescription());
     schema.setResourceType("sensor");
-    schema.setVersion(2);
+    schema.setVersion(3);
     schema.setUniqueId(getSchemaId());
     return schema;
   }
@@ -120,18 +100,20 @@ public final class Stl19pChangeController extends ComputedSerialDeviceController
     JsonObject result = new JsonObject();
     result.addProperty("hasData", change != null);
     if (change != null) {
-      JsonObject payload = gson.toJsonTree(change).getAsJsonObject();
-      if ("merged".equals(sensor.getScanMode())) {
-        JsonArray changes = new JsonArray();
-        for (Stl19pScanDiffer.BinChange entry : change.changes()) {
-          JsonObject point = new JsonObject();
-          point.addProperty("angle", entry.angleDegrees() / 10.0);
-          point.addProperty("previousDistance", entry.previousDistanceMm());
-          point.addProperty("distance", entry.currentDistanceMm());
-          changes.add(point);
-        }
-        payload.add("changes", changes);
+      JsonObject payload = new JsonObject();
+      payload.addProperty("previousTimestamp", change.previousTimestamp());
+      payload.addProperty("currentTimestamp", change.currentTimestamp());
+      JsonArray changes = new JsonArray();
+      for (Stl19pScanDiffer.BinChange entry : change.changes()) {
+        JsonObject point = new JsonObject();
+        point.addProperty("angle", entry.angleDegrees());
+        point.addProperty("previousDistance", entry.previousDistanceMm());
+        point.addProperty("distance", entry.currentDistanceMm());
+        point.addProperty("delta", entry.currentDistanceMm() - entry.previousDistanceMm());
+        point.addProperty("intensity", entry.intensity());
+        changes.add(point);
       }
+      payload.add("changes", changes);
       result.add("change", payload);
     }
     return convert(result);

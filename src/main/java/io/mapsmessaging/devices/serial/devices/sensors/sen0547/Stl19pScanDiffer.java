@@ -7,7 +7,7 @@ package io.mapsmessaging.devices.serial.devices.sensors.sen0547;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Compares completed scans, never partial serial frames. */
+/** Detects movement by comparing average valid distances in matching one-degree sectors. */
 public final class Stl19pScanDiffer {
   public static final int DEFAULT_THRESHOLD_MM = 150;
   private static final int BINS = 360;
@@ -29,44 +29,50 @@ public final class Stl19pScanDiffer {
   }
 
   public ScanChange compare(Stl19pSensor.Scan previous, Stl19pSensor.Scan current) {
-    boolean merged = current.isMerged();
-    int[] before = bins(previous, merged);
-    int[] after = bins(current, merged);
+    Sector[] before = sectors(previous);
+    Sector[] after = sectors(current);
     List<BinChange> differences = new ArrayList<>();
-    int limit = thresholdMm;
-    for (int angle = 0; angle < before.length; angle++) {
-      if (before[angle] > 0 && after[angle] > 0
-          && Math.abs(after[angle] - before[angle]) >= limit) {
-        differences.add(new BinChange(angle, before[angle], after[angle]));
+    for (int angle = 0; angle < BINS; angle++) {
+      if (before[angle].count == 0 || after[angle].count == 0) continue;
+      int previousDistance = before[angle].averageDistance();
+      int currentDistance = after[angle].averageDistance();
+      if (Math.abs(currentDistance - previousDistance) >= thresholdMm) {
+        differences.add(new BinChange(angle, previousDistance, currentDistance, after[angle].averageIntensity()));
       }
     }
     return new ScanChange(previous.getTimestamp(), current.getTimestamp(), differences);
   }
 
-  private static int[] bins(Stl19pSensor.Scan scan, boolean merged) {
-    int size = merged ? 3600 : BINS;
-    int[] distances = new int[size];
-    int[] counts = new int[size];
+  private static Sector[] sectors(Stl19pSensor.Scan scan) {
+    Sector[] sectors = new Sector[BINS];
+    for (int i = 0; i < BINS; i++) sectors[i] = new Sector();
     for (Stl19pSensor.Point point : scan.getPoints()) {
-      int distance = point.getDistanceMm();
-      if (distance == 0) continue; // Invalid/no return; never interpret as an obstacle.
-      int angle = merged ? (int) Math.round(point.getAngleDegrees() * 10.0) % size
-          : (int) Math.floor(point.getAngleDegrees()) % size;
-      if (angle < 0) angle += size;
-      distances[angle] += distance;
-      counts[angle]++;
+      if (point.getDistanceMm() == 0) continue; // No return is not an obstacle.
+      int angle = (int) Math.floor(point.getAngleDegrees()) % BINS;
+      if (angle < 0) angle += BINS;
+      Sector sector = sectors[angle];
+      sector.distanceTotal += point.getDistanceMm();
+      sector.intensityTotal += point.getIntensity();
+      sector.count++;
     }
-    for (int i = 0; i < size; i++) {
-      if (counts[i] > 0) distances[i] /= counts[i];
-    }
-    return distances;
+    return sectors;
   }
 
-  public record BinChange(int angleDegrees, int previousDistanceMm, int currentDistanceMm) {}
+  private static final class Sector {
+    private long distanceTotal;
+    private long intensityTotal;
+    private int count;
+
+    private int averageDistance() { return (int) Math.round((double) distanceTotal / count); }
+    private int averageIntensity() { return (int) Math.round((double) intensityTotal / count); }
+  }
+
+  public record BinChange(int angleDegrees, int previousDistanceMm, int currentDistanceMm, int intensity) {}
   public record ScanChange(String previousTimestamp, String currentTimestamp, List<BinChange> changes) {
     public ScanChange {
       changes = List.copyOf(changes);
     }
+
     public boolean hasChanges() {
       return !changes.isEmpty();
     }

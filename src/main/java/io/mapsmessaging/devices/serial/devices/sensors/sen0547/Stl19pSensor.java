@@ -29,6 +29,7 @@ import java.time.Instant;
 import io.mapsmessaging.devices.queue.HardwareQueue;
 import io.mapsmessaging.devices.queue.HardwareRingBuffer;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.locks.LockSupport;
@@ -45,21 +46,17 @@ public class Stl19pSensor implements Device, Sensor, HardwareQueue<Stl19pSensor.
   private final SerialDevice serialPort;
   private final byte[] frameBuffer = new byte[FRAME_LENGTH];
   private final byte[] readBuffer = new byte[1024];
-  private final List<Point> currentScan = new ArrayList<>(600);
+  private static final int DETAILED_REVOLUTIONS = 7;
+  private final List<Point> currentScan = new ArrayList<>(3500);
   private final HardwareRingBuffer<Scan> scanQueue = new HardwareRingBuffer<>(MAX_QUEUED_SCANS);
+  private final HardwareRingBuffer<Scan> detailedQueue = new HardwareRingBuffer<>(MAX_QUEUED_SCANS);
   private final HardwareRingBuffer<Stl19pScanDiffer.ScanChange> changeQueue = new HardwareRingBuffer<>(64);
   private final Stl19pScanDiffer differ = new Stl19pScanDiffer(Stl19pScanDiffer.DEFAULT_THRESHOLD_MM);
   // Reference baseline advances only after a meaningful change; slow changes accumulate.
   private Scan referenceScan;
   private final List<SensorReading<?>> readings;
   private final Thread readerThread;
-  private static final int MERGED_BUCKETS = 3600;
-  private final long[] mergedDistances = new long[MERGED_BUCKETS];
-  private final int[] mergedCounts = new int[MERGED_BUCKETS];
-  private volatile String scanMode = "merged";
-  private volatile int mergeScans = 1;
-  private int collectedScans;
-  private String mergedTimestamp;
+  private int completedRevolutions;
 
   private int frameIndex;
   private boolean scanStarted;
@@ -133,30 +130,8 @@ public class Stl19pSensor implements Device, Sensor, HardwareQueue<Stl19pSensor.
 
   int getQueuedScanCount() { return scanQueue.queueDepth(); }
 
-  public String getScanMode() { return scanMode; }
-  public int getMergeScans() { return mergeScans; }
-
-  public synchronized void setScanConfiguration(String mode, int scans) {
-    if (!"raw".equals(mode) && !"merged".equals(mode)) {
-      throw new IllegalArgumentException("scanMode must be raw or merged");
-    }
-    if (scans < 1 || scans > 5) {
-      throw new IllegalArgumentException("mergeScans must be 1..5");
-    }
-    if (mode.equals(scanMode) && scans == mergeScans) return;
-    scanMode = mode;
-    mergeScans = scans;
-    currentScan.clear();
-    scanStarted = false;
-    previousAngleDegrees = Double.NaN;
-    collectedScans = 0;
-    mergedTimestamp = null;
-    java.util.Arrays.fill(mergedDistances, 0L);
-    java.util.Arrays.fill(mergedCounts, 0);
-    referenceScan = null;
-    while (scanQueue.hasData()) scanQueue.getData();
-    while (changeQueue.hasData()) changeQueue.getData();
-  }
+  /** Independent FIFO of detailed seven-revolution records. */
+  public HardwareQueue<Scan> detailed() { return detailedQueue; }
 
   private void readLoop() {
     while (running) {
@@ -229,6 +204,7 @@ public class Stl19pSensor implements Device, Sensor, HardwareQueue<Stl19pSensor.
     double angleSpanDegrees = (endAngleDegrees + 360.0 - startAngleDegrees) % 360.0;
     double angleStepDegrees = angleSpanDegrees / (POINTS_PER_FRAME - 1);
 
+    List<Point> framePoints = new ArrayList<>(POINTS_PER_FRAME);
     for (int pointIndex = 0; pointIndex < POINTS_PER_FRAME; pointIndex++) {
       int offset = 6 + (pointIndex * 3);
       int distanceMm = unsignedShortLittleEndian(frameBuffer, offset);
@@ -237,19 +213,30 @@ public class Stl19pSensor implements Device, Sensor, HardwareQueue<Stl19pSensor.
       if (angleDegrees >= 360.0) {
         angleDegrees -= 360.0;
       }
-      processPoint(new Point(angleDegrees, distanceMm, intensity));
+      Point point = new Point(angleDegrees, distanceMm, intensity);
+      framePoints.add(point);
+      processPoint(point);
     }
+    scanQueue.offer(new Scan(Instant.now().toString(), framePoints));
   }
 
   private synchronized void processPoint(Point point) {
     boolean wrapped = !Double.isNaN(previousAngleDegrees) && point.angleDegrees < 20.0 && previousAngleDegrees > 340.0;
     if (wrapped) {
-      if (scanStarted && !currentScan.isEmpty()) {
-        enqueueScan(new Scan(currentScanTimestamp, currentScan));
+      if (scanStarted && !currentScan.isEmpty() && ++completedRevolutions == DETAILED_REVOLUTIONS) {
+        List<Point> points = new ArrayList<>(currentScan.size());
+        for (Point sample : currentScan) {
+          double angle = Math.round(sample.angleDegrees * 100.0) / 100.0;
+          if (angle >= 360.0) angle -= 360.0;
+          points.add(new Point(angle, sample.distanceMm, sample.intensity));
+        }
+        points.sort(Comparator.comparingDouble(Point::getAngleDegrees));
+        publishDetailedScan(new Scan(currentScanTimestamp, points));
+        currentScan.clear();
+        completedRevolutions = 0;
       }
-      currentScan.clear();
       scanStarted = true;
-      currentScanTimestamp = Instant.now().toString();
+      if (currentScan.isEmpty()) currentScanTimestamp = Instant.now().toString();
     }
 
     if (scanStarted) {
@@ -258,35 +245,8 @@ public class Stl19pSensor implements Device, Sensor, HardwareQueue<Stl19pSensor.
     previousAngleDegrees = point.angleDegrees;
   }
 
-  private void enqueueScan(Scan scan) {
-    if ("raw".equals(scanMode)) {
-      publishScan(scan);
-      return;
-    }
-    if (collectedScans == 0) mergedTimestamp = scan.getTimestamp();
-    for (Point point : scan.getPoints()) {
-      if (point.getDistanceMm() <= 0) continue;
-      int bucket = ((int) Math.round(point.getAngleDegrees() * 10.0)) % MERGED_BUCKETS;
-      mergedDistances[bucket] += point.getDistanceMm();
-      mergedCounts[bucket]++;
-    }
-    if (++collectedScans < mergeScans) return;
-    List<Point> points = new ArrayList<>();
-    for (int bucket = 0; bucket < MERGED_BUCKETS; bucket++) {
-      if (mergedCounts[bucket] > 0) {
-        int distance = (int) Math.round((double) mergedDistances[bucket] / mergedCounts[bucket]);
-        points.add(new Point(bucket / 10.0, distance, 0));
-      }
-    }
-    publishScan(new Scan(mergedTimestamp, points, true));
-    java.util.Arrays.fill(mergedDistances, 0L);
-    java.util.Arrays.fill(mergedCounts, 0);
-    collectedScans = 0;
-    mergedTimestamp = null;
-  }
-
-  private void publishScan(Scan scan) {
-    scanQueue.offer(scan);
+  private void publishDetailedScan(Scan scan) {
+    detailedQueue.offer(scan);
     Scan previous = referenceScan;
     if (previous == null) {
       referenceScan = scan;
@@ -321,19 +281,10 @@ public class Stl19pSensor implements Device, Sensor, HardwareQueue<Stl19pSensor.
   public static final class Scan {
     private final String timestamp;
     private final List<Point> points;
-    private final boolean merged;
-
     private Scan(String timestamp, List<Point> points) {
-      this(timestamp, points, false);
-    }
-
-    private Scan(String timestamp, List<Point> points, boolean merged) {
       this.timestamp = timestamp;
       this.points = List.copyOf(points);
-      this.merged = merged;
     }
-
-    public boolean isMerged() { return merged; }
 
     public String getTimestamp() {
       return timestamp;

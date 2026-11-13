@@ -19,6 +19,8 @@
 
 package io.mapsmessaging.devices.serial.devices.sensors.sen0547;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import io.mapsmessaging.devices.serial.devices.sensors.SerialDevice;
 import org.junit.jupiter.api.Test;
 
@@ -52,11 +54,11 @@ class Stl19pSensorTest {
       assertTrue(scan != null);
 
       Instant.parse(scan.getTimestamp());
-      assertEquals(24, scan.getPoints().size());
-      assertEquals(1.0, scan.getPoints().get(0).getAngleDegrees(), 0.001);
-      assertEquals(1100, scan.getPoints().get(0).getDistanceMm());
+      assertEquals(12, scan.getPoints().size());
+      assertEquals(350.0, scan.getPoints().get(0).getAngleDegrees(), 0.001);
+      assertEquals(1000, scan.getPoints().get(0).getDistanceMm());
       assertEquals(359.0, scan.getPoints().get(scan.getPoints().size() - 1).getAngleDegrees(), 0.001);
-      assertEquals(1211, scan.getPoints().get(scan.getPoints().size() - 1).getDistanceMm());
+      assertEquals(1011, scan.getPoints().get(scan.getPoints().size() - 1).getDistanceMm());
     } finally {
       sensor.close();
     }
@@ -86,48 +88,82 @@ class Stl19pSensorTest {
       assertTrue(!sensor.hasOverrun());
       Stl19pSensor.Scan oldestRetained = sensor.getData();
       assertTrue(oldestRetained != null);
-      assertEquals(2400, oldestRetained.getPoints().get(0).getDistanceMm());
+      assertEquals(2500, oldestRetained.getPoints().get(0).getDistanceMm());
     } finally {
       sensor.close();
     }
   }
 
   @Test
-  void testChangeBufferSuppressesNoiseAndAccumulatesMovement() throws Exception {
-    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-    stream.writeBytes(buildFrame(35000, 35900, 1000, 1000));
-    stream.writeBytes(buildFrame(100, 1100, 1000, 1100));
-    stream.writeBytes(buildFrame(35000, 35900, 1010, 1200));
-    stream.writeBytes(buildFrame(100, 1100, 1010, 1300));
-    stream.writeBytes(buildFrame(35000, 35900, 1060, 1400));
-    stream.writeBytes(buildFrame(100, 1100, 1060, 1500));
-    stream.writeBytes(buildFrame(35000, 35900, 1200, 1600));
-    stream.writeBytes(buildFrame(100, 1100, 1200, 1700));
-    stream.writeBytes(buildFrame(35000, 35900, 1200, 1800));
-
-    TestSerialDevice serial = new TestSerialDevice(stream.toByteArray());
-    Stl19pSensor sensor = new Stl19pSensor(serial);
-    try {
-      waitFor(serial::isExhausted);
-      assertTrue(sensor.changes().hasData());
-      Stl19pScanDiffer.ScanChange change = sensor.changes().getData();
-      assertTrue(change.hasChanges());
-      assertTrue(change.changes().stream().anyMatch(c -> c.currentDistanceMm() - c.previousDistanceMm() >= 150));
-      assertTrue(!sensor.changes().hasData());
-    } finally {
-      sensor.close();
-    }
-  }
-
-  @Test
-  void testControllerChangeThresholdCommand() throws Exception {
+  void testRawAndComputedDeviceRegistration() throws Exception {
     Stl19pController controller = new Stl19pController(new TestSerialDevice(new byte[0]));
     try {
-      byte[] result = controller.updateDeviceConfiguration(
+      assertEquals(2, controller.getComputedDevices().size());
+      assertEquals("SEN0547_detailed", controller.getComputedDevices().get(0).getName());
+      assertEquals("SEN0547_change", controller.getComputedDevices().get(1).getName());
+      assertTrue(controller.getSchema() != null);
+      assertTrue(controller.getConfigEventDescription().length > 0);
+      assertThrows(java.io.IOException.class, () -> controller.updateDeviceConfiguration(
+          "{\"command\":\"SET_SCAN_CONFIGURATION\",\"scanMode\":\"merged\",\"mergeScans\":2}".getBytes(StandardCharsets.UTF_8)));
+      Stl19pChangeController changes = (Stl19pChangeController) controller.getComputedDevices().get(1);
+      byte[] result = changes.updateDeviceConfiguration(
           "{\"command\":\"SET_CHANGE_THRESHOLD\",\"thresholdMm\":200}".getBytes(StandardCharsets.UTF_8));
-      assertEquals(200, controller.getChangeThresholdMm());
       assertTrue(new String(result, StandardCharsets.UTF_8).contains("success"));
-      assertTrue(new String(controller.getDeviceState(), StandardCharsets.UTF_8).contains("hasData"));
+    } finally {
+      controller.close();
+    }
+  }
+
+  @Test
+  void testSevenRevolutionDetailedRecordsAndDistanceChanges() throws Exception {
+    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+    for (int revolution = 0; revolution < 16; revolution++) {
+      int distance = revolution < 8 ? 1000 : 1300;
+      stream.writeBytes(buildFrame(35000, 35900, distance, 1000 + revolution * 2));
+      stream.writeBytes(buildFrame(100, 1100, distance, 1001 + revolution * 2));
+    }
+    TestSerialDevice serial = new TestSerialDevice(stream.toByteArray(), true);
+    Stl19pController controller = new Stl19pController(serial);
+    try {
+      Stl19pDetailedController detailed = (Stl19pDetailedController) controller.getComputedDevices().get(0);
+      Stl19pChangeController changes = (Stl19pChangeController) controller.getComputedDevices().get(1);
+      assertTrue(detailed.getSchema() != null);
+      serial.release();
+      waitFor(serial::isExhausted);
+
+      JsonObject raw = JsonParser.parseString(new String(controller.getDeviceState(), StandardCharsets.UTF_8)).getAsJsonObject();
+      assertEquals(12, raw.getAsJsonArray("points").size());
+      JsonObject rawPoint = raw.getAsJsonArray("points").get(0).getAsJsonObject();
+      assertTrue(rawPoint.has("angleDegrees"));
+      assertTrue(rawPoint.has("distanceMm"));
+      assertTrue(rawPoint.has("intensity"));
+
+      JsonObject first = JsonParser.parseString(new String(detailed.getDeviceState(), StandardCharsets.UTF_8)).getAsJsonObject();
+      JsonObject second = JsonParser.parseString(new String(detailed.getDeviceState(), StandardCharsets.UTF_8)).getAsJsonObject();
+      assertTrue(first.get("hasData").getAsBoolean());
+      assertTrue(second.get("hasData").getAsBoolean());
+      assertEquals(168, first.getAsJsonArray("points").size());
+      assertEquals(168, second.getAsJsonArray("points").size());
+      double prior = -1;
+      for (com.google.gson.JsonElement item : first.getAsJsonArray("points")) {
+        JsonObject point = item.getAsJsonObject();
+        double angle = point.get("angle").getAsDouble();
+        assertTrue(angle >= prior);
+        prior = angle;
+        assertTrue(point.has("distance"));
+        assertTrue(point.has("intensity"));
+        assertFalse(point.has("distanceMm"));
+      }
+      assertFalse(JsonParser.parseString(new String(detailed.getDeviceState(), StandardCharsets.UTF_8))
+          .getAsJsonObject().get("hasData").getAsBoolean());
+
+      JsonObject change = JsonParser.parseString(new String(changes.getDeviceState(), StandardCharsets.UTF_8)).getAsJsonObject();
+      assertTrue(change.get("hasData").getAsBoolean());
+      JsonObject entry = change.getAsJsonObject("change").getAsJsonArray("changes").get(0).getAsJsonObject();
+      assertEquals(300, entry.get("delta").getAsInt());
+      assertTrue(entry.has("intensity"));
+      assertTrue(entry.has("angle"));
+      assertEquals(1300, entry.get("distance").getAsInt());
     } finally {
       controller.close();
     }
@@ -145,26 +181,6 @@ class Stl19pSensorTest {
     }
   }
 
-
-  @Test
-  void testMergedDiffMatchesRoundedBuckets() throws Exception {
-    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-    stream.writeBytes(buildFrame(35000, 35900, 1000, 1000));
-    stream.writeBytes(buildFrame(100, 1100, 1000, 1100));
-    stream.writeBytes(buildFrame(35000, 35900, 1000, 1200));
-    stream.writeBytes(buildFrame(110, 1110, 1500, 1300));
-    stream.writeBytes(buildFrame(35000, 35900, 1000, 1400));
-
-    TestSerialDevice serial = new TestSerialDevice(stream.toByteArray(), true);
-    Stl19pSensor sensor = new Stl19pSensor(serial);
-    try {
-      serial.release();
-      waitFor(serial::isExhausted);
-      assertFalse(sensor.changes().hasData(), "Readings from different 0.1-degree buckets must not be compared");
-    } finally {
-      sensor.close();
-    }
-  }
 
   private static void waitFor(java.util.function.BooleanSupplier condition) throws Exception {
     long deadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(1);
