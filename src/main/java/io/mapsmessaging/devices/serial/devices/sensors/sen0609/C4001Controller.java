@@ -87,8 +87,9 @@ public final class C4001Controller extends SerialDeviceController {
   @Override public byte[] getDeviceState() throws IOException {
     requireMounted();
     C4001Observation result = sensor.getData();
-    JsonObject state = result == null ? new JsonObject() : gson.toJsonTree(result).getAsJsonObject();
-    state.addProperty("hasData", result != null);
+    if (result == null) return null;
+    JsonObject state = gson.toJsonTree(result).getAsJsonObject();
+    state.addProperty("hasData", true);
     return convert(state);
   }
 
@@ -96,9 +97,10 @@ public final class C4001Controller extends SerialDeviceController {
   public byte[] getChangeState() throws IOException {
     requireMounted();
     C4001Change change = sensor.changes().getData();
+    if (change == null) return null;
     JsonObject result = new JsonObject();
-    result.addProperty("hasData", change != null);
-    if (change != null) result.add("change", gson.toJsonTree(change));
+    result.addProperty("hasData", true);
+    result.add("change", gson.toJsonTree(change));
     return convert(result);
   }
 

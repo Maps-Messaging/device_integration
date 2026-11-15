@@ -103,9 +103,9 @@ public final class Sen0670Controller extends I2CDeviceController {
   @Override public byte[] getDeviceState() throws IOException {
     if (sensor == null) throw new IOException("SEN0670 is not mounted");
     Sen0670DataSet batch = sensor.getData();
+    if (batch == null) return null;
     JsonObject state = new JsonObject();
-    state.addProperty("hasData", batch != null);
-    if (batch == null) return state.toString().getBytes(StandardCharsets.UTF_8);
+    state.addProperty("hasData", true);
     state.addProperty("timestamp", batch.timestamp().toString());
     state.addProperty("model", batch.model());
     JsonArray detections = new JsonArray();

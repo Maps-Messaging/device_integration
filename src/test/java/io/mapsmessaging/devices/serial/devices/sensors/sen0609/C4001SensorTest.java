@@ -34,6 +34,18 @@ class C4001SensorTest {
     assertThrows(IllegalArgumentException.class, () -> differ.setDistanceThresholdMetres(Double.NaN));
   }
 
+  @Test void emptyRadarQueuesReturnNull() throws Exception {
+    C4001Controller controller = new C4001Controller(new FakeSerial());
+    try {
+      C4001ChangeController change = (C4001ChangeController) controller.getComputedDevices().get(0);
+      assertNull(controller.getDeviceState());
+      assertNull(controller.getChangeState());
+      assertNull(change.getDeviceState());
+    } finally {
+      controller.close();
+    }
+  }
+
   @Test void independentQueuesAndStreamingFrames() throws Exception {
     FakeSerial serial = new FakeSerial();
     C4001Sensor radar = new C4001Sensor(serial, 2, 2);

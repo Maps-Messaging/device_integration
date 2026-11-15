@@ -78,9 +78,10 @@ public final class C4001ChangeController extends ComputedSerialDeviceController 
   @Override
   protected byte[] readComputedState() {
     C4001Change change = sensor.changes().getData();
+    if (change == null) return null;
     JsonObject result = new JsonObject();
-    result.addProperty("hasData", change != null);
-    if (change != null) result.add("change", gson.toJsonTree(change));
+    result.addProperty("hasData", true);
+    result.add("change", gson.toJsonTree(change));
     return convert(result);
   }
 
