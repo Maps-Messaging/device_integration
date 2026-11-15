@@ -100,11 +100,7 @@ public class Stl19pController extends SerialDeviceController {
   @Override
   public byte[] getDeviceState() throws IOException {
     Stl19pSensor.Scan frame = sensor.getData();
-    if (frame == null) {
-      JsonObject unavailable = new JsonObject();
-      unavailable.addProperty("hasData", false);
-      return convert(unavailable);
-    }
+    if (frame == null) return null;
     JsonObject result = gson.toJsonTree(frame).getAsJsonObject();
     result.addProperty("hasData", true);
     return convert(result);

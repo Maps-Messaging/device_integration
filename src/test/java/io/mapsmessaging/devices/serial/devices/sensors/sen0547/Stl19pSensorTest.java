@@ -170,6 +170,21 @@ class Stl19pSensorTest {
   }
 
   @Test
+  void testEmptyLidarControllersReturnNull() throws Exception {
+    Stl19pController controller = new Stl19pController(new TestSerialDevice(new byte[0]));
+    try {
+      Stl19pDetailedController detailed = (Stl19pDetailedController) controller.getComputedDevices().get(0);
+      Stl19pChangeController change = (Stl19pChangeController) controller.getComputedDevices().get(1);
+
+      assertNull(controller.getDeviceState());
+      assertNull(detailed.getDeviceState());
+      assertNull(change.getDeviceState());
+    } finally {
+      controller.close();
+    }
+  }
+
+  @Test
   void testEmptyFifoReadReturnsImmediately() throws Exception {
     Stl19pSensor sensor = new Stl19pSensor(new TestSerialDevice(new byte[0]));
     try {

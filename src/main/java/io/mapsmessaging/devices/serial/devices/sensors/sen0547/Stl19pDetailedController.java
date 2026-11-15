@@ -98,10 +98,10 @@ public final class Stl19pDetailedController extends ComputedSerialDeviceControll
   @Override
   protected byte[] readComputedState() {
     Stl19pSensor.Scan scan = sensor.detailed().getData();
+    if (scan == null) return null;
     JsonObject result = new JsonObject();
-    result.addProperty("hasData", scan != null);
-    if (scan != null) {
-      result.addProperty("timestamp", scan.getTimestamp());
+    result.addProperty("hasData", true);
+    result.addProperty("timestamp", scan.getTimestamp());
       JsonArray points = new JsonArray();
       for (Stl19pSensor.Point sample : scan.getPoints()) {
         JsonObject point = new JsonObject();
@@ -111,7 +111,6 @@ public final class Stl19pDetailedController extends ComputedSerialDeviceControll
         points.add(point);
       }
       result.add("points", points);
-    }
     return convert(result);
   }
 

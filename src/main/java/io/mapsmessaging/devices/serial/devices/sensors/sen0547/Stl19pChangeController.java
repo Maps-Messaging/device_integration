@@ -97,10 +97,10 @@ public final class Stl19pChangeController extends ComputedSerialDeviceController
   @Override
   protected byte[] readComputedState() {
     Stl19pScanDiffer.ScanChange change = sensor.changes().getData();
+    if (change == null) return null;
     JsonObject result = new JsonObject();
-    result.addProperty("hasData", change != null);
-    if (change != null) {
-      JsonObject payload = new JsonObject();
+    result.addProperty("hasData", true);
+    JsonObject payload = new JsonObject();
       payload.addProperty("previousTimestamp", change.previousTimestamp());
       payload.addProperty("currentTimestamp", change.currentTimestamp());
       JsonArray changes = new JsonArray();
@@ -115,7 +115,6 @@ public final class Stl19pChangeController extends ComputedSerialDeviceController
       }
       payload.add("changes", changes);
       result.add("change", payload);
-    }
     return convert(result);
   }
 
