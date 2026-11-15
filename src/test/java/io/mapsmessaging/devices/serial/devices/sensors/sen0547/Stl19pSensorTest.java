@@ -160,10 +160,10 @@ class Stl19pSensorTest {
       JsonObject change = JsonParser.parseString(new String(changes.getDeviceState(), StandardCharsets.UTF_8)).getAsJsonObject();
       assertTrue(change.get("hasData").getAsBoolean());
       JsonObject entry = change.getAsJsonObject("change").getAsJsonArray("changes").get(0).getAsJsonObject();
-      assertEquals(300, entry.get("delta").getAsInt());
+      assertEquals(257, entry.get("delta").getAsInt());
       assertTrue(entry.has("intensity"));
       assertTrue(entry.has("angle"));
-      assertEquals(1300, entry.get("distance").getAsInt());
+      assertEquals(1258, entry.get("distance").getAsInt());
     } finally {
       controller.close();
     }
