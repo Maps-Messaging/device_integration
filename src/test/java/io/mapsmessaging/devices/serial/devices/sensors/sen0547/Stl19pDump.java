@@ -48,7 +48,9 @@ public final class Stl19pDump {
     try {
       while (!Thread.currentThread().isInterrupted()) {
         byte[] event = controller.getDeviceState();
-        System.out.println(new String(event, StandardCharsets.UTF_8));
+        if (event != null) {
+          System.out.println(new String(event, StandardCharsets.UTF_8));
+        }
       }
     } finally {
       controller.close();

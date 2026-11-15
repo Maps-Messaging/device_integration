@@ -154,8 +154,7 @@ class Stl19pSensorTest {
         assertTrue(point.has("intensity"));
         assertFalse(point.has("distanceMm"));
       }
-      assertFalse(JsonParser.parseString(new String(detailed.getDeviceState(), StandardCharsets.UTF_8))
-          .getAsJsonObject().get("hasData").getAsBoolean());
+      assertNull(detailed.getDeviceState());
 
       JsonObject change = JsonParser.parseString(new String(changes.getDeviceState(), StandardCharsets.UTF_8)).getAsJsonObject();
       assertTrue(change.get("hasData").getAsBoolean());

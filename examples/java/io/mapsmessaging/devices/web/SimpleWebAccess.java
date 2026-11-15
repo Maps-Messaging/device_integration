@@ -336,7 +336,12 @@ public class SimpleWebAccess {
   }
 
   private void handleDeviceGet(Context ctx, DeviceController deviceController) throws IOException {
-    ctx.json(new String(deviceController.getDeviceState()));
+    byte[] state = deviceController.getDeviceState();
+    if (state == null) {
+      ctx.status(204);
+      return;
+    }
+    ctx.json(new String(state));
   }
 
   private JsonArray packList(Map<String, DeviceController> devices) {

@@ -21,7 +21,7 @@ class ComputedSensorIntegrationTest {
     DeviceController child = manager.getActive().get("test-port_change");
     assertNotNull(child);
     assertNotEquals(primary.getSchemaId(), child.getSchemaId());
-    assertTrue(new String(child.getDeviceState(), StandardCharsets.UTF_8).contains("hasData"));
+    assertNull(child.getDeviceState());
     manager.unmount((SerialDeviceController) child);
     assertFalse(manager.getActive().containsKey("test-port_change"));
     assertTrue(port.open);

@@ -2,6 +2,13 @@ package io.mapsmessaging.devices.i2c.devices.sensors.sen0670;
 
 import io.mapsmessaging.devices.impl.AddressableDevice;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedConstruction;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
@@ -27,6 +34,24 @@ class Sen0670ProtocolTest {
     assertEquals(95, result.score());
     assertEquals(new Sen0670Protocol.Point(21, 34), result.keypoints().getFirst());
     assertThrows(UnsupportedOperationException.class, () -> result.keypoints().add(new Sen0670Protocol.Point(1, 1)));
+  }
+
+  @Test
+  void controllerReturnsNullWhenInferenceQueueIsEmpty() throws Exception {
+    AddressableDevice bus = mock(AddressableDevice.class);
+    try (MockedConstruction<Sen0670Sensor> mocked = mockConstruction(Sen0670Sensor.class)) {
+      Sen0670Controller controller = new Sen0670Controller(bus);
+      Sen0670Sensor sensor = mocked.constructed().getFirst();
+      assertNull(controller.getDeviceState());
+
+      when(sensor.getData()).thenReturn(new Sen0670DataSet(java.time.Instant.EPOCH, 3, List.of()));
+      byte[] populated = controller.getDeviceState();
+      assertNotNull(populated);
+      com.google.gson.JsonObject state = com.google.gson.JsonParser.parseString(
+          new String(populated, StandardCharsets.UTF_8)).getAsJsonObject();
+      assertEquals(true, state.get("hasData").getAsBoolean());
+      assertEquals(3, state.get("model").getAsInt());
+    }
   }
 
   @Test
