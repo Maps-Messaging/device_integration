@@ -19,6 +19,7 @@
 
 package io.mapsmessaging.devices.i2c.devices.sensors.bme688;
 
+import com.pi4j.exception.Pi4JException;
 import io.mapsmessaging.devices.DeviceType;
 import io.mapsmessaging.devices.i2c.I2CDevice;
 import io.mapsmessaging.devices.i2c.I2CDeviceController;
@@ -58,8 +59,18 @@ public class BME688Controller extends I2CDeviceController {
   }
 
   @Override
+  public boolean canDetect() {
+    return true;
+  }
+
+  @Override
   public boolean detect(AddressableDevice i2cDevice) {
-    return sensor != null && sensor.isConnected();
+    try {
+      return i2cDevice.readRegister(0xD0) == 0x61
+          && i2cDevice.readRegister(0xF0) == 0x01;
+    } catch (Pi4JException exception) {
+      return false;
+    }
   }
 
   public I2CDeviceController mount(AddressableDevice device) throws IOException {
